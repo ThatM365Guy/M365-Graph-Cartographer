@@ -1109,6 +1109,12 @@
    "nav": "events"
   },
   {
+   "s": "group",
+   "t": "calendar",
+   "kind": "nav",
+   "nav": "calendar"
+  },
+  {
    "s": "application",
    "t": "servicePrincipal",
    "kind": "ref",
@@ -1137,6 +1143,12 @@
    "t": "event",
    "kind": "nav",
    "nav": "events"
+  },
+  {
+   "s": "event",
+   "t": "calendar",
+   "kind": "nav",
+   "nav": "calendar"
   },
   {
    "s": "event",
