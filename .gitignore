@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+.venv/
+function_app/local.settings.json
+function_app/scanner/
+function_app/data/
+function_app/web/
+*.tmp
