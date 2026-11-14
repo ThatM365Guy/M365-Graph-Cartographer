@@ -76,17 +76,20 @@ To check the page visually, open `dist/index.html` in a browser. Test at a deskt
 - Curation decisions taken after the first scan:
   - Sensitivity label moved to the v1.0 type `microsoft.graph.sensitivityLabel` (`/security/dataSecurityAndGovernance/sensitivityLabels`). Permissions list v1.0 first (`SensitivityLabel.Read`), with the beta `InformationProtectionPolicy.*` ones as a note.
   - Drive item → Retention label is a `ref` labelled "retentionLabel (applied label)": `driveItem.retentionLabel` points to `itemRetentionLabel`, not the `security.retentionLabel` definition.
+  - Its link description reads "matched by label name, not ID" (the new optional `desc` on `ref` edges).
   - Curated from discovery: site/list/listItem → permission, event → calendar, group → calendar, user → site (`followedSites`).
+  - Sharing permission now lists the site, list and list item paths, adds `Sites.Read.All` for them, and its summary says Graph can only create permissions for applications at those levels.
 - Scanner and page behaviour added: a curated `entityType` change is logged once as `retargeted` (not diffed as schema changes, no "Changed recently" badge); `createdByUser`/`lastModifiedByUser` are never discovered; parallel discovered links draw as one chord; discovered links are hidden by default and the status line counts curated links only.
 - Still uncurated (beta only): team → user (`owners`), user → servicePrincipal (`appRoleAssignedResources`).
-- The repo is on GitHub at `ThatM365Guy/M365-Graph-Cartographer` (private, `main`). The workflow ran once on the first push: tests, live scan and the data commit by mgc-bot all worked, and only the Pages deploy failed because Pages is not enabled yet. mgc-bot commits to `main`, so pull before pushing.
-- The permission check (`--permissions`) has never run.
+- The repo is on GitHub at `ThatM365Guy/M365-Graph-Cartographer` (private, `main`). The workflow has run on each push that touched `curated.json` or the template (4 runs so far): tests, live scan and the mgc-bot data commit all work, and every run ends red only because the Pages deploy fails until Pages is enabled. mgc-bot commits to `main` after each such push, so pull before pushing.
+- The permission check (`--permissions`) has never run, so no permission name has been checked against Graph yet, including the ones added on 14 Nov 2026 (`SensitivityLabel.Read`, `SensitivityLabels.Read.All`, `Sites.Read.All`).
 - Known, not fixed: at phone width the outermost resource labels clip at the left and right edges (behaviour from v0.1).
 - Facts checked against Microsoft Learn on 14 Nov 2026:
   - Advanced hunting: 30 days of data, 100,000 rows, 50 MB results, at least 45 calls per minute, 3-minute timeout.
   - driveItem simple upload: up to 250 MB. Upload session fragments: under 60 MiB, in multiples of 320 KiB. App-only calls cannot replace the content of a labelled file.
   - auditLogQuery: v1.0. Least privilege is AuditLogsQuery-Entra.Read.All, with workload-specific variants.
   - Sensitivity labels: v1.0 through the data security and governance API; the `/security/informationProtection` path is beta. v1.0 least privilege is SensitivityLabel.Read (delegated and application), higher SensitivityLabels.Read.All.
+  - Site, list and list item permissions: all v1.0 (`/sites/{id}/permissions`, `/lists/{id}/permissions`, `/items/{id}/permissions`). Reading needs Sites.Read.All. Creating them only grants access to applications, never users.
   - To Do supports the application permission Tasks.Read.All.
   - onlineMeeting app-only access needs a Teams application access policy, which takes up to 30 minutes to apply.
 
