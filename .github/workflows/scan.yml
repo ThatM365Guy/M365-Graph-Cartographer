@@ -6,6 +6,7 @@ on:
     - cron: "30 5 * * 1"
   workflow_dispatch:
   push:
+    branches: [main]   # work branches don't deploy; the github-pages environment only allows main
     paths: ["data/curated.json", "web/template.html"]
 permissions:
   contents: write
@@ -14,6 +15,9 @@ permissions:
 jobs:
   scan:
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v7
@@ -29,4 +33,5 @@ jobs:
           git diff --cached --quiet || git commit -m "Scan $(date -u +%F)" && git push
       - uses: actions/upload-pages-artifact@v5
         with: { path: dist }
-      - uses: actions/deploy-pages@v5
+      - id: deployment
+        uses: actions/deploy-pages@v5
