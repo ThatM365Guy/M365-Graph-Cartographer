@@ -510,7 +510,7 @@
    "workload": "files",
    "entityType": "microsoft.graph.permission",
    "path": "GET /drives/{id}/items/{id}/permissions  ·  /sites/{id}/permissions  ·  /sites/{id}/lists/{id}/permissions  ·  /sites/{id}/lists/{id}/items/{id}/permissions",
-   "summary": "A sharing link or direct grant on a file, folder or site.",
+   "summary": "A sharing link or direct grant on a file, folder or site. On sites, lists and list items, Graph can only create permissions for applications (the Selected scopes model), not for users.",
    "permissions": {
     "delegated": "Files.Read.All (files). Sites.Read.All for site, list and list item permissions",
     "application": "Files.Read.All or Sites.Selected (files). Sites.Read.All for site, list and list item permissions"
