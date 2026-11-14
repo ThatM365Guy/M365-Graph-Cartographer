@@ -1028,6 +1028,12 @@
   },
   {
    "s": "user",
+   "t": "site",
+   "kind": "nav",
+   "nav": "followedSites"
+  },
+  {
+   "s": "user",
    "t": "calendar",
    "kind": "nav",
    "nav": "calendar"

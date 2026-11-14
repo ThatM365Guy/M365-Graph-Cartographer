@@ -69,8 +69,12 @@ class ScanTests(unittest.TestCase):
         self.assertEqual(edges[("driveItem", "sensitivityLabel", "assignSensitivityLabel")]["scan"], "v1.0")
         self.assertEqual(edges[("user", "chat", "chats")]["scan"], "not found")
         self.assertEqual(edges[("application", "servicePrincipal", None)]["scan"], "n/a")
-        disc = edges[("user", "site", "followedSites")]
-        self.assertEqual(disc["kind"], "discovered")
+        self.assertEqual(edges[("user", "site", "followedSites")]["kind"], "nav")   # curated, so not discovered
+        cur = curated()
+        cur["edges"] = [e for e in cur["edges"] if (e["s"], e["t"]) != ("user", "site")]
+        uncurated, _ = scan.build_map(cur, None, os.path.join(FX, "v1.xml"), os.path.join(FX, "beta.xml"), now=D1)
+        disc = next(e for e in uncurated["edges"] if (e["s"], e["t"]) == ("user", "site"))
+        self.assertEqual((disc["kind"], disc["nav"], disc["scan"]), ("discovered", "followedSites", "v1.0"))
         # baseItem.createdByUser reaches drive, driveItem and site, but audit-trail navs are skipped
         self.assertEqual(scan.parse_csdl(os.path.join(FX, "v1.xml")).effective("microsoft.graph.site")["navs"]["createdByUser"],
                          "microsoft.graph.user")
