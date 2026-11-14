@@ -28,7 +28,7 @@ data/curated.json   hand-written content, the ONLY file people edit
 scanner/scan.py     stdlib-only: v1.0 + beta $metadata -> data/graph-map.json + data/changelog.json
 scanner/build_page.py   web/template.html + graph-map.json -> dist/index.html (data embedded)
 function_app/       Azure Function (Python v2 model): weekly timer + POST /api/scan -> $web static site
-.github/workflows/scan.yml   alternative: weekly Actions run -> commit data + GitHub Pages
+.github/workflows/scan.yml   live host: weekly Actions run -> commit data + GitHub Pages
 tests/              unittest + small CSDL fixtures (v1.xml, beta.xml, v1_later.xml)
 ```
 
@@ -81,7 +81,9 @@ To check the page visually, open `dist/index.html` in a browser. Test at a deskt
   - Sharing permission now lists the site, list and list item paths, adds `Sites.Read.All` for them, and its summary says Graph can only create permissions for applications at those levels.
 - Scanner and page behaviour added: a curated `entityType` change is logged once as `retargeted` (not diffed as schema changes, no "Changed recently" badge); `createdByUser`/`lastModifiedByUser` are never discovered; parallel discovered links draw as one chord; discovered links are hidden by default and the status line counts curated links only.
 - Still uncurated (beta only): team → user (`owners`), user → servicePrincipal (`appRoleAssignedResources`).
-- The repo is on GitHub at `ThatM365Guy/M365-Graph-Cartographer` (private, `main`). The workflow has run on each push that touched `curated.json` or the template (4 runs so far): tests, live scan and the mgc-bot data commit all work, and every run ends red only because the Pages deploy fails until Pages is enabled. mgc-bot commits to `main` after each such push, so pull before pushing.
+- **Live** at https://thatm365guy.github.io/M365-Graph-Cartographer/ from the public repo `ThatM365Guy/M365-Graph-Cartographer` (`main`), deployed by `.github/workflows/scan.yml` (actions checkout v7, setup-python v7, upload-pages-artifact v5, deploy-pages v5 on Node 24). Runs fully green since 14 Nov 2026.
+- GitHub settings: Pages source is GitHub Actions with HTTPS enforced. The job runs in the `github-pages` environment, which only allows deploys from `main`, and the push trigger is limited to `main`. Actions are restricted to GitHub-owned actions; a third-party action needs that setting changed first. The default workflow token is read-only and the workflow asks for write itself. `main` has no branch protection, because mgc-bot pushes to it.
+- Every push to `main` that touches `curated.json` or the template publishes straight to the live site, and mgc-bot then commits refreshed data. Pull before pushing, and use a branch for larger changes, merging to `main` when ready.
 - The permission check (`--permissions`) has never run, so no permission name has been checked against Graph yet, including the ones added on 14 Nov 2026 (`SensitivityLabel.Read`, `SensitivityLabels.Read.All`, `Sites.Read.All`).
 - Known, not fixed: at phone width the outermost resource labels clip at the left and right edges (behaviour from v0.1).
 - Facts checked against Microsoft Learn on 14 Nov 2026:
@@ -95,11 +97,10 @@ To check the page visually, open `dist/index.html` in a browser. Test at a deskt
 
 ## Next steps (in order)
 
-1. Go live: make the repo public, enable Pages (Source: GitHub Actions), then run the workflow by hand once (owner's preferred first host: free and public).
-2. Run the permission check (`GRAPH_TOKEN` with `Application.Read.All`, `--permissions`) and fix any permission names it flags.
-3. Phase 2: the Purview deep dive (labels and label actions, DLP alerts via alerts_v2, IRM, eDiscovery, audit, records management, DSPM for AI) and a fuller "not in Graph / PowerShell only" map.
-4. Add sample requests per node with an "Open in Graph Explorer" link, and per-permission links to graphpermissions.merill.net.
-5. Later, an opt-in private overlay of a tenant's own app permissions (never on the public build).
+1. Run the permission check (`GRAPH_TOKEN` with `Application.Read.All`, `--permissions`) and fix any permission names it flags.
+2. Phase 2: the Purview deep dive (labels and label actions, DLP alerts via alerts_v2, IRM, eDiscovery, audit, records management, DSPM for AI) and a fuller "not in Graph / PowerShell only" map.
+3. Add sample requests per node with an "Open in Graph Explorer" link, and per-permission links to graphpermissions.merill.net.
+4. Later, an opt-in private overlay of a tenant's own app permissions (never on the public build).
 
 ## Naming
 
