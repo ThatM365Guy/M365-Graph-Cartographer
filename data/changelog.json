@@ -1,1 +1,8 @@
-[]
+[
+ {
+  "date": "2026-11-14",
+  "node": null,
+  "kind": "baseline",
+  "text": "First schema scan. Results recorded as the baseline."
+ }
+]

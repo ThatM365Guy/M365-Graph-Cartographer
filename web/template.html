@@ -176,7 +176,15 @@ function init(){
   const by = {[hub.id]: hub};
   nodes.forEach(n => by[n.id] = n);
   D.workloads.forEach(w => by['wl:'+w.id] = {...w, kind:'workload', id:'wl:'+w.id, wid:w.id});
-  const edges = D.edges.filter(e => by[e.s] && by[e.t]);
+  // Parallel discovered links (same pair, e.g. createdByUser + lastModifiedByUser) draw as one chord.
+  const edges = [], discPair = {};
+  D.edges.filter(e => by[e.s] && by[e.t]).forEach(e => {
+    if (e.kind !== 'discovered') { edges.push(e); return; }
+    const k = e.s + '>' + e.t, m = discPair[k];
+    if (!m) { edges.push(discPair[k] = {...e}); return; }
+    m.nav += ', ' + e.nav;
+    if (e.scan === 'v1.0') m.scan = 'v1.0';
+  });
   nodes.forEach(n => n.deg = 0);
   edges.forEach(e => { by[e.s].deg++; by[e.t].deg++; });
   const recent = D.recentChanges || [];
@@ -467,16 +475,23 @@ function init(){
     });
     return rows.length ? `<ul class="links">${rows.join('')}</ul>` : '<p>No links recorded.</p>';
   }
+  const pl = (k, one, many) => `${k} ${k === 1 ? one : (many || one + 's')}`;
   function schemaBlock(n){
     if (!n.scan) return (n.entityType || n.action) ? `<p>Not scanned yet. The scanner checks <code>${esc(n.entityType || n.action)}</code> against v1.0 and beta $metadata.</p>` : '';
     const s = n.scan;
     if (!s.props) return `<p>Action <code>${esc(n.action)}</code>: ${esc(s.status)}.</p>`;
-    const navs = Object.entries(s.navs || {});
+    const navs = Object.entries(s.navs || {}), inV1 = s.status === 'v1.0', bw = inV1 ? 'Beta-only' : 'Beta';
+    const counts = inV1
+      ? `${pl(s.props.length,'property','properties')} and ${pl(navs.length,'relationship')} in v1.0.${s.betaOnlyProps.length || s.betaOnlyNavs.length ? ` Beta adds ${pl(s.betaOnlyProps.length,'property','properties')} and ${pl(s.betaOnlyNavs.length,'relationship')}.` : ''}`
+      : s.status === 'beta only'
+        ? `Not in v1.0. Beta has ${pl(s.betaOnlyProps.length,'property','properties')} and ${pl(s.betaOnlyNavs.length,'relationship')}.`
+        : 'Not found in v1.0 or beta $metadata. Check the entity type name.';
     return `<p><code>${esc(n.entityType)}</code>${s.baseTypes && s.baseTypes.length ? ` inherits from ${s.baseTypes.map(esc).join(' → ')}` : ''}.</p>
-      <p>${s.props.length} properties and ${navs.length} relationships in v1.0.${s.betaOnlyProps.length || s.betaOnlyNavs.length ? ` Beta adds ${s.betaOnlyProps.length} properties and ${s.betaOnlyNavs.length} relationships.` : ''}</p>
+      <p>${counts}</p>
       ${navs.length ? `<details><summary>Relationships (${navs.length})</summary><p class="props">${navs.map(([k, v]) => `${esc(k)} → ${esc(v.replace('microsoft.graph.', ''))}`).join('<br>')}</p></details>` : ''}
-      <details><summary>Properties (${s.props.length})</summary><p class="props">${s.props.map(esc).join('<br>')}</p></details>
-      ${s.betaOnlyProps.length ? `<details><summary>Beta-only properties (${s.betaOnlyProps.length})</summary><p class="props">${s.betaOnlyProps.map(esc).join('<br>')}</p></details>` : ''}`;
+      ${s.props.length ? `<details><summary>Properties (${s.props.length})</summary><p class="props">${s.props.map(esc).join('<br>')}</p></details>` : ''}
+      ${s.betaOnlyProps.length ? `<details><summary>${bw} properties (${s.betaOnlyProps.length})</summary><p class="props">${s.betaOnlyProps.map(esc).join('<br>')}</p></details>` : ''}
+      ${s.betaOnlyNavs.length ? `<details><summary>${bw} relationships (${s.betaOnlyNavs.length})</summary><p class="props">${s.betaOnlyNavs.map(esc).join('<br>')}</p></details>` : ''}`;
   }
   function changesFor(id){
     const list = recent.filter(c => id ? c.node === id : true).slice(0, id ? 10 : 12);
