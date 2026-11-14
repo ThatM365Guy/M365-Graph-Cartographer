@@ -1201,8 +1201,8 @@
   {
    "s": "driveItem",
    "t": "retentionLabel",
-   "kind": "nav",
-   "nav": "retentionLabel"
+   "kind": "ref",
+   "label": "retentionLabel (applied label)"
   },
   {
    "s": "driveItem",
