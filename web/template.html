@@ -188,7 +188,7 @@ function init(){
   nodes.forEach(n => n.deg = 0);
   edges.forEach(e => { by[e.s].deg++; by[e.t].deg++; });
   const recent = D.recentChanges || [];
-  const changed = new Set(recent.filter(c => c.node && (Date.now() - new Date(c.date)) < 45*864e5 && c.kind !== 'baseline').map(c => c.node));
+  const changed = new Set(recent.filter(c => c.node && (Date.now() - new Date(c.date)) < 45*864e5 && c.kind !== 'baseline' && c.kind !== 'retargeted').map(c => c.node));
   const scanInfo = D.meta && D.meta.scan;
 
   /* ---------- layout: hub at 0,0; workloads on R1; resources on R2 ---------- */

@@ -18,9 +18,17 @@ D1 = dt.datetime(2026, 11, 14, tzinfo=dt.timezone.utc)
 D2 = dt.datetime(2026, 11, 21, tzinfo=dt.timezone.utc)
 
 
+# The fixtures model these nodes with fixed types, so the tests don't break when curated.json is re-pointed.
+FIXTURE_TYPES = {"sensitivityLabel": "microsoft.graph.security.sensitivityLabel"}
+
+
 def curated():
     with open(os.path.join(ROOT, "data", "curated.json"), encoding="utf-8") as f:
-        return json.load(f)
+        cur = json.load(f)
+    for n in cur["nodes"]:
+        if n["id"] in FIXTURE_TYPES:
+            n["entityType"] = FIXTURE_TYPES[n["id"]]
+    return cur
 
 
 class ParseTests(unittest.TestCase):
@@ -72,6 +80,15 @@ class ScanTests(unittest.TestCase):
         self.assertIn("Sensitivity label: moved from beta only to v1.0", texts)
         self.assertIn("User: new v1.0 property 'employeeLeaveDateTime'", texts)
         self.assertEqual(second["recentChanges"][0]["date"], "2026-11-21")
+
+    def test_retargeted_node_is_one_curation_entry_not_schema_changes(self):
+        first, _ = self.run_scan("v1.xml", "beta.xml")
+        cur = curated()
+        next(n for n in cur["nodes"] if n["id"] == "user")["entityType"] = "microsoft.graph.group"
+        _, changes = scan.build_map(cur, first, os.path.join(FX, "v1.xml"), os.path.join(FX, "beta.xml"), now=D2)
+        user_changes = [c for c in changes if c["node"] == "user"]
+        self.assertEqual([c["kind"] for c in user_changes], ["retargeted"])
+        self.assertIn("from microsoft.graph.user to microsoft.graph.group", user_changes[0]["text"])
 
     def test_no_scan_keeps_previous_results_and_new_curated_text(self):
         first, _ = self.run_scan("v1.xml", "beta.xml")

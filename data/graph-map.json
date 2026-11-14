@@ -5,9 +5,9 @@
   "curatedOn": "2026-11-14",
   "phase": "Phase 1: broad coverage of the simpler workloads. Purview is stubbed for phase 2.",
   "note": "Hand-written content lives here. The scanner never edits this file; it writes graph-map.json alongside it.",
-  "generatedAt": "2026-11-14T15:36:53+00:00",
+  "generatedAt": "2026-11-14T16:01:23+00:00",
   "scan": {
-   "at": "2026-11-14T15:36:53+00:00",
+   "at": "2026-11-14T16:01:23+00:00",
    "v1EntityTypes": 1262,
    "betaEntityTypes": 2624,
    "permissionsChecked": false,
@@ -2604,12 +2604,12 @@
    "label": "Sensitivity label",
    "workload": "purview",
    "phase": 2,
-   "entityType": "microsoft.graph.security.sensitivityLabel",
-   "path": "GET /security/informationProtection/sensitivityLabels (beta)",
+   "entityType": "microsoft.graph.sensitivityLabel",
+   "path": "GET /security/dataSecurityAndGovernance/sensitivityLabels  ·  /me/dataSecurityAndGovernance/sensitivityLabels",
    "summary": "Read the published sensitivity labels. Apply them to files through driveItem actions.",
    "permissions": {
-    "delegated": "InformationProtectionPolicy.Read",
-    "application": "InformationProtectionPolicy.Read.All"
+    "delegated": "SensitivityLabel.Read (higher: SensitivityLabels.Read.All). Beta informationProtection path: InformationProtectionPolicy.Read",
+    "application": "SensitivityLabel.Read (higher: SensitivityLabels.Read.All). Beta informationProtection path: InformationProtectionPolicy.Read.All"
    },
    "licence": "Purview Information Protection.",
    "limits": [
@@ -2622,24 +2622,33 @@
    ],
    "docs": "https://learn.microsoft.com/graph/api/resources/security-sensitivitylabel",
    "scan": {
-    "status": "beta only",
-    "props": [],
-    "navs": {},
-    "betaOnlyProps": [
-     "color",
-     "contentFormats",
+    "status": "v1.0",
+    "props": [
+     "actionSource",
+     "applicationMode",
+     "autoTooltip",
      "description",
+     "displayName",
      "hasProtection",
      "id",
-     "isActive",
-     "isAppliable",
+     "isDefault",
+     "isEndpointProtectionEnabled",
+     "isScopedToUser",
+     "locale",
      "name",
-     "sensitivity",
-     "tooltip"
+     "priority",
+     "toolTip"
     ],
-    "betaOnlyNavs": [
-     "parent"
+    "navs": {
+     "rights": "microsoft.graph.usageRightsIncluded",
+     "sublabels": "microsoft.graph.sensitivityLabel"
+    },
+    "betaOnlyProps": [
+     "applicableTo",
+     "color",
+     "isEnabled"
     ],
+    "betaOnlyNavs": [],
     "baseTypes": [
      "microsoft.graph.entity"
     ]
@@ -3312,6 +3321,12 @@
   }
  ],
  "recentChanges": [
+  {
+   "date": "2026-11-14",
+   "node": "sensitivityLabel",
+   "kind": "retargeted",
+   "text": "Sensitivity label: curated type changed from microsoft.graph.security.sensitivityLabel to microsoft.graph.sensitivityLabel (v1.0). Scan results restarted."
+  },
   {
    "date": "2026-11-14",
    "node": null,

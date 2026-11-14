@@ -1,6 +1,12 @@
 [
  {
   "date": "2026-11-14",
+  "node": "sensitivityLabel",
+  "kind": "retargeted",
+  "text": "Sensitivity label: curated type changed from microsoft.graph.security.sensitivityLabel to microsoft.graph.sensitivityLabel (v1.0). Scan results restarted."
+ },
+ {
+  "date": "2026-11-14",
   "node": null,
   "kind": "baseline",
   "text": "First schema scan. Results recorded as the baseline."

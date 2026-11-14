@@ -886,12 +886,12 @@
    "label": "Sensitivity label",
    "workload": "purview",
    "phase": 2,
-   "entityType": "microsoft.graph.security.sensitivityLabel",
-   "path": "GET /security/informationProtection/sensitivityLabels (beta)",
+   "entityType": "microsoft.graph.sensitivityLabel",
+   "path": "GET /security/dataSecurityAndGovernance/sensitivityLabels  ·  /me/dataSecurityAndGovernance/sensitivityLabels",
    "summary": "Read the published sensitivity labels. Apply them to files through driveItem actions.",
    "permissions": {
-    "delegated": "InformationProtectionPolicy.Read",
-    "application": "InformationProtectionPolicy.Read.All"
+    "delegated": "SensitivityLabel.Read (higher: SensitivityLabels.Read.All). Beta informationProtection path: InformationProtectionPolicy.Read",
+    "application": "SensitivityLabel.Read (higher: SensitivityLabels.Read.All). Beta informationProtection path: InformationProtectionPolicy.Read.All"
    },
    "licence": "Purview Information Protection.",
    "limits": [

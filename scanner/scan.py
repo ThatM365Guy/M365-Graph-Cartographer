@@ -270,7 +270,9 @@ def check_permissions(curated: dict, perms: dict) -> dict:
 def diff(curated, prev_map, nodes_scan, discovered, perms, today):
     changes = []
     prev_nodes = {n["id"]: n.get("scan") for n in (prev_map or {}).get("nodes", []) if n.get("scan")}
+    prev_target = {n["id"]: n.get("entityType") or n.get("action") for n in (prev_map or {}).get("nodes", [])}
     labels = {n["id"]: n["label"] for n in curated["nodes"]}
+    targets = {n["id"]: n.get("entityType") or n.get("action") for n in curated["nodes"]}
 
     def add(node, kind, text):
         changes.append({"date": today, "node": node, "kind": kind, "text": text})
@@ -283,6 +285,11 @@ def diff(curated, prev_map, nodes_scan, discovered, perms, today):
             lab = labels.get(nid, nid)
             if not old:
                 add(nid, "new-node", f"{lab}: scanned for the first time ({cur['status']}).")
+                continue
+            if prev_target.get(nid) != targets.get(nid):
+                # a curation edit, not a schema change: record it once and don't diff the old type's members
+                add(nid, "retargeted", f"{lab}: curated type changed from {prev_target.get(nid)} to "
+                                       f"{targets.get(nid)} ({cur['status']}). Scan results restarted.")
                 continue
             if old.get("status") != cur["status"]:
                 add(nid, "status", f"{lab}: moved from {old.get('status')} to {cur['status']}.")
