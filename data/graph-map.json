@@ -5,7 +5,7 @@
   "curatedOn": "2026-11-14",
   "phase": "Phase 1: broad coverage of the simpler workloads. Purview is stubbed for phase 2.",
   "note": "Hand-written content lives here. The scanner never edits this file; it writes graph-map.json alongside it.",
-  "generatedAt": "2026-11-14T17:42:14+00:00",
+  "generatedAt": "2026-11-14T17:47:53+00:00",
   "scan": {
    "at": "2026-11-14T17:42:14+00:00",
    "v1EntityTypes": 1262,
@@ -1575,8 +1575,8 @@
    "path": "GET /drives/{id}/items/{id}/permissions  ·  /sites/{id}/permissions  ·  /sites/{id}/lists/{id}/permissions  ·  /sites/{id}/lists/{id}/items/{id}/permissions",
    "summary": "A sharing link or direct grant on a file, folder or site.",
    "permissions": {
-    "delegated": "Files.Read.All",
-    "application": "Files.Read.All or Sites.Selected"
+    "delegated": "Files.Read.All (files). Sites.Read.All for site, list and list item permissions",
+    "application": "Files.Read.All or Sites.Selected (files). Sites.Read.All for site, list and list item permissions"
    },
    "licence": "SharePoint Online or OneDrive.",
    "limits": [
