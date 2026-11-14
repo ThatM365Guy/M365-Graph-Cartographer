@@ -5,9 +5,9 @@
   "curatedOn": "2026-11-14",
   "phase": "Phase 1: broad coverage of the simpler workloads. Purview is stubbed for phase 2.",
   "note": "Hand-written content lives here. The scanner never edits this file; it writes graph-map.json alongside it.",
-  "generatedAt": "2026-11-14T17:13:06+00:00",
+  "generatedAt": "2026-11-14T17:14:26+00:00",
   "scan": {
-   "at": "2026-11-14T17:13:06+00:00",
+   "at": "2026-11-14T17:14:26+00:00",
    "v1EntityTypes": 1262,
    "betaEntityTypes": 2624,
    "permissionsChecked": false,
@@ -3061,6 +3061,27 @@
    "scan": "v1.0"
   },
   {
+   "s": "site",
+   "t": "permission",
+   "kind": "nav",
+   "nav": "permissions",
+   "scan": "v1.0"
+  },
+  {
+   "s": "list",
+   "t": "permission",
+   "kind": "nav",
+   "nav": "permissions",
+   "scan": "v1.0"
+  },
+  {
+   "s": "listItem",
+   "t": "permission",
+   "kind": "nav",
+   "nav": "permissions",
+   "scan": "v1.0"
+  },
+  {
    "s": "driveItem",
    "t": "listItem",
    "kind": "nav",
@@ -3194,34 +3215,6 @@
    "scan": "n/a"
   },
   {
-   "s": "drive",
-   "t": "user",
-   "kind": "discovered",
-   "nav": "createdByUser",
-   "scan": "v1.0"
-  },
-  {
-   "s": "drive",
-   "t": "user",
-   "kind": "discovered",
-   "nav": "lastModifiedByUser",
-   "scan": "v1.0"
-  },
-  {
-   "s": "driveItem",
-   "t": "user",
-   "kind": "discovered",
-   "nav": "createdByUser",
-   "scan": "v1.0"
-  },
-  {
-   "s": "driveItem",
-   "t": "user",
-   "kind": "discovered",
-   "nav": "lastModifiedByUser",
-   "scan": "v1.0"
-  },
-  {
    "s": "event",
    "t": "calendar",
    "kind": "discovered",
@@ -3233,69 +3226,6 @@
    "t": "calendar",
    "kind": "discovered",
    "nav": "calendar",
-   "scan": "v1.0"
-  },
-  {
-   "s": "list",
-   "t": "permission",
-   "kind": "discovered",
-   "nav": "permissions",
-   "scan": "v1.0"
-  },
-  {
-   "s": "list",
-   "t": "user",
-   "kind": "discovered",
-   "nav": "createdByUser",
-   "scan": "v1.0"
-  },
-  {
-   "s": "list",
-   "t": "user",
-   "kind": "discovered",
-   "nav": "lastModifiedByUser",
-   "scan": "v1.0"
-  },
-  {
-   "s": "listItem",
-   "t": "permission",
-   "kind": "discovered",
-   "nav": "permissions",
-   "scan": "v1.0"
-  },
-  {
-   "s": "listItem",
-   "t": "user",
-   "kind": "discovered",
-   "nav": "createdByUser",
-   "scan": "v1.0"
-  },
-  {
-   "s": "listItem",
-   "t": "user",
-   "kind": "discovered",
-   "nav": "lastModifiedByUser",
-   "scan": "v1.0"
-  },
-  {
-   "s": "site",
-   "t": "permission",
-   "kind": "discovered",
-   "nav": "permissions",
-   "scan": "v1.0"
-  },
-  {
-   "s": "site",
-   "t": "user",
-   "kind": "discovered",
-   "nav": "createdByUser",
-   "scan": "v1.0"
-  },
-  {
-   "s": "site",
-   "t": "user",
-   "kind": "discovered",
-   "nav": "lastModifiedByUser",
    "scan": "v1.0"
   },
   {

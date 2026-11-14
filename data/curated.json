@@ -1187,6 +1187,24 @@
    "nav": "permissions"
   },
   {
+   "s": "site",
+   "t": "permission",
+   "kind": "nav",
+   "nav": "permissions"
+  },
+  {
+   "s": "list",
+   "t": "permission",
+   "kind": "nav",
+   "nav": "permissions"
+  },
+  {
+   "s": "listItem",
+   "t": "permission",
+   "kind": "nav",
+   "nav": "permissions"
+  },
+  {
    "s": "driveItem",
    "t": "listItem",
    "kind": "nav",

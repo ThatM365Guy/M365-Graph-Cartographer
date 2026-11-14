@@ -71,6 +71,10 @@ class ScanTests(unittest.TestCase):
         self.assertEqual(edges[("application", "servicePrincipal", None)]["scan"], "n/a")
         disc = edges[("user", "site", "followedSites")]
         self.assertEqual(disc["kind"], "discovered")
+        # baseItem.createdByUser reaches drive, driveItem and site, but audit-trail navs are skipped
+        self.assertEqual(scan.parse_csdl(os.path.join(FX, "v1.xml")).effective("microsoft.graph.site")["navs"]["createdByUser"],
+                         "microsoft.graph.user")
+        self.assertFalse([e for e in gm["edges"] if e["kind"] == "discovered" and e["nav"] in scan.DISCOVERY_SKIP_NAVS])
         self.assertEqual([c["kind"] for c in changes], ["baseline"])
 
     def test_second_scan_reports_changes(self):

@@ -36,6 +36,8 @@ BETA_URL = "https://graph.microsoft.com/beta/$metadata"
 GRAPH_APP_ID = "00000003-0000-0000-c000-000000000000"
 CHANGELOG_KEEP = 500
 RECENT_KEEP = 60
+# Audit-trail navs inherited from baseItem: on almost every files resource and never worth a chord.
+DISCOVERY_SKIP_NAVS = {"createdByUser", "lastModifiedByUser"}
 
 PERM_RE = re.compile(r"\b[A-Za-z][A-Za-z0-9]*(?:-[A-Za-z0-9]+)*(?:\.[A-Z][A-Za-z0-9]*)+\b")
 
@@ -244,6 +246,8 @@ def discover_edges(curated: dict, v1: Schema | None, beta: Schema | None) -> lis
             if not eff:
                 continue
             for nav, target in eff["navs"].items():
+                if nav in DISCOVERY_SKIP_NAVS:
+                    continue
                 tid = type_to_node.get(target)
                 if not tid or tid == n["id"] or (n["id"], tid) in covered:
                     continue

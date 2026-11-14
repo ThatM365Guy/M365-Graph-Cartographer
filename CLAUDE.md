@@ -46,7 +46,7 @@ Rules to keep:
 - `nodes[]`: `id`, `label`, `workload`, `entityType` (fully qualified, for example `microsoft.graph.driveItem`), `path`, `summary`, `permissions.{delegated,application}`, `licence`, `limits[]`, `mapping[]`, `docs`. Optional: `phase: 2`, `kind: "gap"` (outside Graph), or `kind: "operation"` + `action` (for example `runHuntingQuery`).
 - `edges[]`: `s`, `t`, `kind` = `nav` (+ `nav`), `ref` (+ `label`) or `action` (+ `action`). Optional `via` for display, for example `planner/plans`.
 
-The scanner adds `node.scan` (status v1.0 / beta only / not found, plus props, navs, betaOnlyProps, betaOnlyNavs and baseTypes), `node.permCheck`, `edge.scan`, discovered edges (`kind: "discovered"`), `recentChanges` and `state.permissionNames`. `build_page.py` strips `state` before embedding.
+The scanner adds `node.scan` (status v1.0 / beta only / not found, plus props, navs, betaOnlyProps, betaOnlyNavs and baseTypes), `node.permCheck`, `edge.scan`, discovered edges (`kind: "discovered"`; navs in `DISCOVERY_SKIP_NAVS`, such as `createdByUser`, are never discovered), `recentChanges` and `state.permissionNames`. `build_page.py` strips `state` before embedding.
 
 ## Page (web/template.html)
 

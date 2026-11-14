@@ -15,7 +15,7 @@
     <NavigationProperty Name="members" Type="Collection(graph.directoryObject)"/>
     <NavigationProperty Name="drive" Type="graph.drive" ContainsTarget="true"/>
    </EntityType>
-   <EntityType Name="baseItem" BaseType="graph.entity" Abstract="true"><Property Name="name" Type="Edm.String"/></EntityType>
+   <EntityType Name="baseItem" BaseType="graph.entity" Abstract="true"><Property Name="name" Type="Edm.String"/><NavigationProperty Name="createdByUser" Type="graph.user"/></EntityType>
    <EntityType Name="drive" BaseType="graph.baseItem"><NavigationProperty Name="items" Type="Collection(graph.driveItem)" ContainsTarget="true"/></EntityType>
    <EntityType Name="driveItem" BaseType="graph.baseItem">
     <Property Name="size" Type="Edm.Int64"/>
