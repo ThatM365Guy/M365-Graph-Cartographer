@@ -509,7 +509,7 @@
    "label": "Sharing permission",
    "workload": "files",
    "entityType": "microsoft.graph.permission",
-   "path": "GET /drives/{id}/items/{id}/permissions",
+   "path": "GET /drives/{id}/items/{id}/permissions  ·  /sites/{id}/permissions  ·  /sites/{id}/lists/{id}/permissions  ·  /sites/{id}/lists/{id}/items/{id}/permissions",
    "summary": "A sharing link or direct grant on a file, folder or site.",
    "permissions": {
     "delegated": "Files.Read.All",
@@ -1238,7 +1238,8 @@
    "s": "driveItem",
    "t": "retentionLabel",
    "kind": "ref",
-   "label": "retentionLabel (applied label)"
+   "label": "retentionLabel (applied label)",
+   "desc": "matched by label name, not ID"
   },
   {
    "s": "driveItem",

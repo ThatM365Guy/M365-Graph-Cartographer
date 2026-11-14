@@ -471,7 +471,7 @@ function init(){
       const out = e.s === id, other = by[out ? e.t : e.s];
       const via = e.via || e.nav || e.action || e.label || '';
       const st = e.scan && !['v1.0','n/a','not scanned'].includes(e.scan) ? ` · ${e.scan}` : '';
-      return `<li><button class="lk" data-go="${other.id}" style="--c:${WL[other.workload].colour}"><i></i>${out ? '→' : '←'} ${esc(other.label)}<small>${esc(via)} · ${kindWord[e.kind] || e.kind}${esc(st)}</small></button></li>`;
+      return `<li><button class="lk" data-go="${other.id}" style="--c:${WL[other.workload].colour}"><i></i>${out ? '→' : '←'} ${esc(other.label)}<small>${esc(via)} · ${esc(e.desc || kindWord[e.kind] || e.kind)}${esc(st)}</small></button></li>`;
     });
     return rows.length ? `<ul class="links">${rows.join('')}</ul>` : '<p>No links recorded.</p>';
   }

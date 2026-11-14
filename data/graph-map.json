@@ -5,7 +5,7 @@
   "curatedOn": "2026-11-14",
   "phase": "Phase 1: broad coverage of the simpler workloads. Purview is stubbed for phase 2.",
   "note": "Hand-written content lives here. The scanner never edits this file; it writes graph-map.json alongside it.",
-  "generatedAt": "2026-11-14T17:38:54+00:00",
+  "generatedAt": "2026-11-14T17:41:41+00:00",
   "scan": {
    "at": "2026-11-14T17:38:54+00:00",
    "v1EntityTypes": 1262,
@@ -1572,7 +1572,7 @@
    "label": "Sharing permission",
    "workload": "files",
    "entityType": "microsoft.graph.permission",
-   "path": "GET /drives/{id}/items/{id}/permissions",
+   "path": "GET /drives/{id}/items/{id}/permissions  ·  /sites/{id}/permissions  ·  /sites/{id}/lists/{id}/permissions  ·  /sites/{id}/lists/{id}/items/{id}/permissions",
    "summary": "A sharing link or direct grant on a file, folder or site.",
    "permissions": {
     "delegated": "Files.Read.All",
@@ -3121,6 +3121,7 @@
    "t": "retentionLabel",
    "kind": "ref",
    "label": "retentionLabel (applied label)",
+   "desc": "matched by label name, not ID",
    "scan": "n/a"
   },
   {
