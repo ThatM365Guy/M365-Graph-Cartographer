@@ -251,16 +251,16 @@ function init(){
   const elabels = $('#elabels');
 
   /* ---------- status line ---------- */
-  const relCount = edges.length;
+  const relCount = edges.filter(e => e.kind !== 'discovered').length;  // curated links only; discovered ones are off by default
   $('#status').textContent = `${nodes.length} resources · ${D.workloads.length} workloads · ${relCount} links · ` +
     (scanInfo ? `schema scanned ${fmtDate(scanInfo.at)}` : 'schema scan not yet run (curated notes only)');
 
   /* ---------- filters ---------- */
-  const hiddenW = new Set(); let showP2 = true, showDisc = true;
+  const hiddenW = new Set(); let showP2 = true, showDisc = false;  // discovered links are review material: off until the chip is pressed
   const bar = $('#bar');
   bar.innerHTML = D.workloads.map(w => `<button class="chip" style="--c:${w.colour}" data-w="${w.id}" aria-pressed="true"><i></i>${esc(w.label)}</button>`).join('') +
     `<button class="chip" style="--c:var(--mute)" data-t="p2" aria-pressed="true"><i></i>Phase 2</button>` +
-    (edges.some(e => e.kind === 'discovered') ? `<button class="chip" style="--c:var(--brick)" data-t="disc" aria-pressed="true"><i></i>Discovered links</button>` : '');
+    (edges.some(e => e.kind === 'discovered') ? `<button class="chip" style="--c:var(--brick)" data-t="disc" aria-pressed="false"><i></i>Discovered links</button>` : '');
   $('#zoom').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; b.dataset.z === 'fit' ? fit(true) : zoomBy(b.dataset.z === 'in' ? 1.35 : 1/1.35); });
   bar.addEventListener('click', e => {
     const b = e.target.closest('button'); if (!b) return;
@@ -285,7 +285,7 @@ function init(){
       const e = el.dataset.i != null ? edges[+el.dataset.i] : null;
       el.classList.toggle('hid', !visible(el.dataset.a) || !visible(el.dataset.b) || (e && e.kind === 'discovered' && !showDisc));
     });
-    if (sel && !visible(sel)) select(null);
+    if (sel && !visible(sel)) select(null); else highlight(sel);
   }
 
   /* ---------- viewport: pan and zoom ---------- */
@@ -365,7 +365,7 @@ function init(){
     else if (n.kind === 'workload') { on.add(hub.id); nodes.filter(x => x.workload === n.wid).forEach(x => on.add(x.id)); }
     else {
       on.add('wl:'+n.workload);
-      edges.forEach(e => { if (e.s === id) on.add(e.t); if (e.t === id) on.add(e.s); });
+      edges.forEach(e => { if (e.kind === 'discovered' && !showDisc) return; if (e.s === id) on.add(e.t); if (e.t === id) on.add(e.s); });
     }
     return on;
   }
@@ -383,7 +383,7 @@ function init(){
       const a = el.dataset.a, b = el.dataset.b;
       if ((a === id && on.has(b)) || (b === id && on.has(a))) {
         el.classList.add('on');
-        if (el.dataset.i != null) {
+        if (el.dataset.i != null && !el.classList.contains('hid')) {
           const e = edges[+el.dataset.i], s = by[e.s], t = by[e.t];
           if (by[id].kind === 'workload' || by[id].kind === 'hub') return;
           const far = e.s === id ? t : s, near = far === t ? s : t, txt = e.via || e.nav || e.action || e.label || '';
@@ -560,7 +560,7 @@ function init(){
   }
   panel.addEventListener('click', async e => {
     const go = e.target.closest('[data-go]');
-    if (go) { const id = go.dataset.go || null; if (id && !visible(id)) { hiddenW.clear(); showP2 = true; bar.querySelectorAll('.chip').forEach(c => c.setAttribute('aria-pressed', 'true')); applyFilters(); } select(id); if (id) centreOn(by[id]); return; }
+    if (go) { const id = go.dataset.go || null; if (id && !visible(id)) { hiddenW.clear(); showP2 = true; bar.querySelectorAll('.chip:not([data-t="disc"])').forEach(c => c.setAttribute('aria-pressed', 'true')); applyFilters(); } select(id); if (id) centreOn(by[id]); return; }
     const cp = e.target.closest('[data-copy]');
     if (cp) {
       let text = cp.dataset.copy;
@@ -593,6 +593,7 @@ function init(){
   const fromHash = () => { const h = decodeURIComponent((location.hash || '').slice(1)); return h && by[h] ? h : null; };
   window.addEventListener('hashchange', () => { const h = fromHash(); if (h !== sel) select(h, true); });
   fit(false);
+  applyFilters();
   select(fromHash(), true);
 }
 }
