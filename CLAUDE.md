@@ -69,22 +69,31 @@ cd function_app; ./package.ps1              # Windows (package.sh on bash): copi
 
 To check the page visually, open `dist/index.html` in a browser. Test at a desktop width (around 1440×900) and a phone width (around 390×844), in light and dark modes.
 
-## Status at handover (14 Nov 2026)
+## Status (14 Nov 2026)
 
-- v0.1.0: 40 resources, 8 workloads, 51 curated links. All 8 tests pass.
-- **The scanner has never run against the live Graph schema.** The cloud sandbox blocked graph.microsoft.com, so it was tested only against fixtures. The first real run is the top priority: run `python scanner/scan.py`, check that nothing important shows as "not found", review the discovered links, then rebuild the page.
+- 40 resources, 8 workloads, 57 curated links. All 9 tests pass.
+- **First live scan done** (baseline 14 Nov 2026): 1,262 v1.0 and 2,624 beta entity types. Every typed node and every curated nav/action link resolves, and all 38 typed nodes are now in v1.0. The parser resolves all namespace aliases (`graph`, `self` and others).
+- Curation decisions taken after the first scan:
+  - Sensitivity label moved to the v1.0 type `microsoft.graph.sensitivityLabel` (`/security/dataSecurityAndGovernance/sensitivityLabels`). Permissions list v1.0 first (`SensitivityLabel.Read`), with the beta `InformationProtectionPolicy.*` ones as a note.
+  - Drive item → Retention label is a `ref` labelled "retentionLabel (applied label)": `driveItem.retentionLabel` points to `itemRetentionLabel`, not the `security.retentionLabel` definition.
+  - Curated from discovery: site/list/listItem → permission, event → calendar, group → calendar, user → site (`followedSites`).
+- Scanner and page behaviour added: a curated `entityType` change is logged once as `retargeted` (not diffed as schema changes, no "Changed recently" badge); `createdByUser`/`lastModifiedByUser` are never discovered; parallel discovered links draw as one chord; discovered links are hidden by default and the status line counts curated links only.
+- Still uncurated (beta only): team → user (`owners`), user → servicePrincipal (`appRoleAssignedResources`).
+- The repo is on GitHub at `ThatM365Guy/M365-Graph-Cartographer` (private, `main`). Pages is not enabled and the workflow has not run yet.
+- The permission check (`--permissions`) has never run.
+- Known, not fixed: at phone width the outermost resource labels clip at the left and right edges (behaviour from v0.1).
 - Facts checked against Microsoft Learn on 14 Nov 2026:
   - Advanced hunting: 30 days of data, 100,000 rows, 50 MB results, at least 45 calls per minute, 3-minute timeout.
   - driveItem simple upload: up to 250 MB. Upload session fragments: under 60 MiB, in multiples of 320 KiB. App-only calls cannot replace the content of a labelled file.
   - auditLogQuery: v1.0. Least privilege is AuditLogsQuery-Entra.Read.All, with workload-specific variants.
-  - Sensitivity labels: v1.0 through the data security and governance API; the `/security/informationProtection` path is beta.
+  - Sensitivity labels: v1.0 through the data security and governance API; the `/security/informationProtection` path is beta. v1.0 least privilege is SensitivityLabel.Read (delegated and application), higher SensitivityLabels.Read.All.
   - To Do supports the application permission Tasks.Read.All.
   - onlineMeeting app-only access needs a Teams application access policy, which takes up to 30 minutes to apply.
 
 ## Next steps (in order)
 
-1. Run a live scan and fix any curated `entityType` or `nav` names it flags.
-2. Put the repo on GitHub and enable the Actions workflow and Pages (owner's preferred first host: free and public).
+1. Go live: make the repo public, enable Pages (Source: GitHub Actions), then run the workflow by hand once (owner's preferred first host: free and public).
+2. Run the permission check (`GRAPH_TOKEN` with `Application.Read.All`, `--permissions`) and fix any permission names it flags.
 3. Phase 2: the Purview deep dive (labels and label actions, DLP alerts via alerts_v2, IRM, eDiscovery, audit, records management, DSPM for AI) and a fuller "not in Graph / PowerShell only" map.
 4. Add sample requests per node with an "Open in Graph Explorer" link, and per-permission links to graphpermissions.merill.net.
 5. Later, an opt-in private overlay of a tenant's own app permissions (never on the public build).
