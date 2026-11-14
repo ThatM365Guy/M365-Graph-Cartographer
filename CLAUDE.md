@@ -79,7 +79,7 @@ To check the page visually, open `dist/index.html` in a browser. Test at a deskt
   - Curated from discovery: site/list/listItem → permission, event → calendar, group → calendar, user → site (`followedSites`).
 - Scanner and page behaviour added: a curated `entityType` change is logged once as `retargeted` (not diffed as schema changes, no "Changed recently" badge); `createdByUser`/`lastModifiedByUser` are never discovered; parallel discovered links draw as one chord; discovered links are hidden by default and the status line counts curated links only.
 - Still uncurated (beta only): team → user (`owners`), user → servicePrincipal (`appRoleAssignedResources`).
-- The repo is on GitHub at `ThatM365Guy/M365-Graph-Cartographer` (private, `main`). Pages is not enabled and the workflow has not run yet.
+- The repo is on GitHub at `ThatM365Guy/M365-Graph-Cartographer` (private, `main`). The workflow ran once on the first push: tests, live scan and the data commit by mgc-bot all worked, and only the Pages deploy failed because Pages is not enabled yet. mgc-bot commits to `main`, so pull before pushing.
 - The permission check (`--permissions`) has never run.
 - Known, not fixed: at phone width the outermost resource labels clip at the left and right edges (behaviour from v0.1).
 - Facts checked against Microsoft Learn on 14 Nov 2026:
