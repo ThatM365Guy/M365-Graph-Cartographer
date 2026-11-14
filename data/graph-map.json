@@ -5,9 +5,9 @@
   "curatedOn": "2026-11-14",
   "phase": "Phase 1: broad coverage of the simpler workloads. Purview is stubbed for phase 2.",
   "note": "Hand-written content lives here. The scanner never edits this file; it writes graph-map.json alongside it.",
-  "generatedAt": "2026-11-14T17:47:53+00:00",
+  "generatedAt": "2026-11-14T17:48:07+00:00",
   "scan": {
-   "at": "2026-11-14T17:42:14+00:00",
+   "at": "2026-11-14T17:48:07+00:00",
    "v1EntityTypes": 1262,
    "betaEntityTypes": 2624,
    "permissionsChecked": false,
