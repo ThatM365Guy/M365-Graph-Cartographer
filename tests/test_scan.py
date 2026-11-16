@@ -42,8 +42,8 @@ def scenario_problems(c):
         if sid in seen:
             out.append(f"{sid}: duplicate id")
         seen.add(sid)
-        if sc.get("group") not in {"Classic", "AI"}:
-            out.append(f"{sid}: group must be Classic or AI")
+        if sc.get("group") not in {"Classic", "AI", "Purview"}:
+            out.append(f"{sid}: group must be Classic, AI or Purview")
         if not (sc.get("label") and sc.get("summary")):
             out.append(f"{sid}: needs a label and a summary")
         steps = sc.get("steps") or []
@@ -51,11 +51,26 @@ def scenario_problems(c):
             out.append(f"{sid}: no steps")
         elif steps[0].get("or"):
             out.append(f"{sid}: the first step can't be an alternative")
+        scen_ids = {x.get("id") for x in c.get("scenarios", [])}
+        for other in sc.get("seeAlso") or []:
+            if other not in scen_ids or other == sid:
+                out.append(f"{sid}: seeAlso {other} is not another scenario")
         for st in steps:
             if st.get("node") not in ids:
                 out.append(f"{sid}: missing node {st.get('node')}")
             if not st.get("do"):
                 out.append(f"{sid}: a step has no 'do'")
+    return out
+
+
+def legacy_problems(c):
+    out = []
+    for n in c["nodes"]:
+        for l in n.get("legacy") or []:
+            if not l.get("path"):
+                out.append(f"{n['id']}: a legacy entry has no path")
+            elif not (l.get("replacedBy") or l.get("note")):
+                out.append(f"{n['id']}: {l['path']} needs replacedBy or a note")
     return out
 
 
@@ -211,10 +226,31 @@ class CoverageTests(unittest.TestCase):
         self.assertEqual(gm_out["betaOnlyTypes"], 1)                    # sensitivityLabel
         sites = next(a for a in gm_out["areas"] if a["area"] == "sites")
         self.assertIn("driveItem", sites["onMapTypes"])
-        self.assertIn("itemRetentionLabel", sites["missing"])
+        self.assertIn("itemRetentionLabel", sites["onMapTypes"])     # via retentionLabel's covers[]
+        self.assertIn("baseItem", next(a for a in gm_out["areas"] if a["area"] == "unrooted")["missing"])
         self.assertEqual(gm["coverage"]["onMap"], gm_out["onMap"])
         self.assertNotIn("missing", json.dumps(gm["coverage"]))         # the page gets counts only
         self.assertNotIn("types", gm["coverage"])
+
+    def test_purview_lens(self):
+        self.assertEqual(scan.purview_solution("microsoft.graph.security.retentionEvent"), "Records")
+        self.assertEqual(scan.purview_solution("microsoft.graph.security.ediscoveryCustodian"), "eDiscovery")
+        self.assertEqual(scan.purview_solution("microsoft.graph.security.dlp.baseAuditRecord"), "Audit")
+        self.assertEqual(scan.purview_solution("microsoft.graph.subjectRightsRequest"), "Privacy")
+        self.assertEqual(scan.purview_solution("microsoft.graph.userProtectionScopeContainer"), "Data security API")
+        self.assertIsNone(scan.purview_solution("microsoft.graph.security.caseManagement.case"))   # Defender, not Purview
+        self.assertIsNone(scan.purview_solution("microsoft.graph.user"))
+        cov = {}
+        cur = curated()
+        gm, _ = scan.build_map(cur, None, os.path.join(FX, "v1.xml"), os.path.join(FX, "beta.xml"), now=D1, coverage_out=cov)
+        sols = {r["solution"]: r for r in cov["purview"]["solutions"]}
+        self.assertEqual(sols["Information protection"]["betaOnly"], 1)       # fixture security.sensitivityLabel
+        self.assertEqual(gm["coverage"]["purview"]["betaOnly"], cov["purview"]["betaOnly"])
+        self.assertNotIn("missing", json.dumps(gm["coverage"]["purview"]))
+        cur["nodes"][0]["covers"] = ["microsoft.graph.baseItem"]   # covers[] counts as on the map
+        again = {}
+        scan.build_map(cur, None, os.path.join(FX, "v1.xml"), os.path.join(FX, "beta.xml"), now=D1, coverage_out=again)
+        self.assertEqual(again["onMap"], cov["onMap"] + 1)
 
     def test_new_in_graph_entries_and_cap(self):
         first_cov = {}
@@ -277,10 +313,25 @@ class CuratedIntegrity(unittest.TestCase):
         self.assertIn("a: missing node nope", found)
         self.assertIn("b: no steps", found)
         self.assertIn("c d: id", found)
+        c["scenarios"][0]["seeAlso"] = ["zzz"]
+        self.assertIn("a: seeAlso zzz", " | ".join(scenario_problems(c)))
 
     def test_scenarios_are_embedded(self):
         gm, _ = scan.build_map(curated(), None, scan=False, now=D1)
         self.assertEqual(len(gm["scenarios"]), len(curated()["scenarios"]))
+
+
+    def test_legacy_entries_say_what_to_do(self):
+        self.assertEqual(legacy_problems(curated()), [])
+        bad = {"nodes": [{"id": "x", "legacy": [{"path": "/old"}, {"note": "n"}]}]}
+        found = " | ".join(legacy_problems(bad))
+        self.assertIn("x: /old needs replacedBy or a note", found)
+        self.assertIn("x: a legacy entry has no path", found)
+
+    def test_covers_lists_real_qualified_types(self):
+        for n in curated()["nodes"]:
+            for fq in n.get("covers") or []:
+                self.assertTrue(fq.startswith("microsoft.graph."), f"{n['id']}: {fq}")
 
 
 class BuildPageTests(unittest.TestCase):

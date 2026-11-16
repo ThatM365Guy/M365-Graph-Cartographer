@@ -1,6 +1,84 @@
 [
  {
   "date": "2026-11-16",
+  "node": "sensitiveType",
+  "kind": "new-node",
+  "text": "Sensitive info type: scanned for the first time (beta only)."
+ },
+ {
+  "date": "2026-11-16",
+  "node": "edmStore",
+  "kind": "new-node",
+  "text": "EDM data store: scanned for the first time (beta only)."
+ },
+ {
+  "date": "2026-11-16",
+  "node": "retentionEvent",
+  "kind": "new-node",
+  "text": "Retention event: scanned for the first time (v1.0)."
+ },
+ {
+  "date": "2026-11-16",
+  "node": "filePlan",
+  "kind": "new-node",
+  "text": "File plan descriptor: scanned for the first time (v1.0)."
+ },
+ {
+  "date": "2026-11-16",
+  "node": "dispositionReview",
+  "kind": "new-node",
+  "text": "Disposition review: scanned for the first time (v1.0)."
+ },
+ {
+  "date": "2026-11-16",
+  "node": "custodian",
+  "kind": "new-node",
+  "text": "Custodian: scanned for the first time (v1.0)."
+ },
+ {
+  "date": "2026-11-16",
+  "node": "ediscoverySearch",
+  "kind": "new-node",
+  "text": "eDiscovery search: scanned for the first time (v1.0)."
+ },
+ {
+  "date": "2026-11-16",
+  "node": "reviewSet",
+  "kind": "new-node",
+  "text": "Review set: scanned for the first time (v1.0)."
+ },
+ {
+  "date": "2026-11-16",
+  "node": "legalHold",
+  "kind": "new-node",
+  "text": "Legal hold: scanned for the first time (beta only)."
+ },
+ {
+  "date": "2026-11-16",
+  "node": "auditRecord",
+  "kind": "new-node",
+  "text": "Audit record: scanned for the first time (v1.0)."
+ },
+ {
+  "date": "2026-11-16",
+  "node": "subjectRights",
+  "kind": "new-node",
+  "text": "Subject rights request: scanned for the first time (v1.0)."
+ },
+ {
+  "date": "2026-11-16",
+  "node": "messageTrace",
+  "kind": "new-node",
+  "text": "Message trace: scanned for the first time (v1.0)."
+ },
+ {
+  "date": "2026-11-16",
+  "node": "subjectRights",
+  "kind": "link-discovered",
+  "text": "New link Subject rights request → Team via 'team' (v1.0)."
+ },
+ {
+  "date": "2026-11-16",
   "node": "caPolicy",
   "kind": "new-node",
   "text": "Conditional Access policy: scanned for the first time (v1.0)."

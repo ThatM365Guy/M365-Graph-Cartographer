@@ -99,6 +99,10 @@ svg.search:not(.focus) .rel,svg.search:not(.focus) .spoke{opacity:.08}
 .b.beta{border-color:var(--brick);color:var(--brick)}
 .b.miss{background:var(--brick);border-color:var(--brick);color:#fff}
 .b.p2{border-style:dashed}
+.b.legacy{border-color:var(--mute);color:var(--mute);text-decoration:line-through;text-decoration-thickness:1px}
+.legacy-list{list-style:none;padding:0!important;margin:6px 0}
+.legacy-list li{border-left:3px solid var(--rule);padding:4px 0 4px 10px;margin:8px 0}
+.legacy-list small{display:block;color:var(--mute)}
 
 /* panel */
 .panel h2{font-size:26px;line-height:1.1;margin:6px 0 4px;text-wrap:balance}
@@ -306,9 +310,10 @@ function init(){
   /* ---------- filters ---------- */
   const hiddenW = new Set(); let showP2 = true, showDisc = false;  // discovered links are review material: off until the chip is pressed
   const bar = $('#bar');
+  const hasP2 = nodes.some(n => n.phase === 2) || D.workloads.some(w => w.phase === 2);
   const SCEN = D.scenarios || [], SC = {}; SCEN.forEach(x => SC[x.id] = x);
   bar.innerHTML = (SCEN.length ? `<button class="chip scbtn" id="scbtn" aria-expanded="false" aria-controls="scmenu">Scenarios ▾</button>` : '') + D.workloads.map(w => `<button class="chip" style="--c:${w.colour}" data-w="${w.id}" aria-pressed="true"><i></i>${esc(w.label)}</button>`).join('') +
-    `<button class="chip" style="--c:var(--mute)" data-t="p2" aria-pressed="true"><i></i>Phase 2</button>` +
+    (hasP2 ? `<button class="chip" style="--c:var(--mute)" data-t="p2" aria-pressed="true"><i></i>Phase 2</button>` : '') +
     (edges.some(e => e.kind === 'discovered') ? `<button class="chip" style="--c:var(--brick)" data-t="disc" aria-pressed="false"><i></i>Discovered links</button>` : '');
   $('#zoom').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; b.dataset.z === 'fit' ? fit(true) : zoomBy(b.dataset.z === 'in' ? 1.35 : 1/1.35); });
   bar.addEventListener('click', e => {
@@ -345,10 +350,31 @@ function init(){
     vp.style.transform = `translate(${view.tx}px,${view.ty}px) scale(${view.k})`;
     vp.style.setProperty('--inv', (1/view.k).toFixed(4));
   };
+  // Pills keep a fixed screen size, so at the fitted zoom small neighbouring workloads (Teams, Tasks, Reports,
+  // Security) can collide. On each fit, put each pill at the first radius where it clears the pills already placed
+  // and the hub, then move its group and spokes. Zooming in only spreads them further apart.
+  function placePills(k){
+    const placed = [];
+    D.workloads.forEach(w => {
+      const wl = by["wl:"+w.id], pw = ((w.short || w.label).length*7.2 + 18 + 4)/k, ph = 27/k;
+      let x = Math.cos(wl.ang)*R1, y = Math.sin(wl.ang)*R1;
+      for (const r of [R1, R1 + 58, R1 - 62, R1 + 100, R1 + 28, R1 - 32, R1 - 88]) {
+        const cx = Math.cos(wl.ang)*r, cy = Math.sin(wl.ang)*r;
+        const clearHub = Math.abs(cx) > pw/2 + 40/k || Math.abs(cy) > ph/2 + 40/k;
+        if (clearHub && !placed.some(q => Math.abs(q.x - cx) < (q.w + pw)/2 && Math.abs(q.y - cy) < (q.h + ph)/2)) { x = cx; y = cy; break; }
+      }
+      placed.push({x, y, w: pw, h: ph});
+      if (x === wl.x && y === wl.y) return;
+      wl.x = x; wl.y = y;
+      vp.querySelector(`.wl[data-id="${CSS.escape(wl.id)}"]`)?.setAttribute('transform', `translate(${x.toFixed(1)} ${y.toFixed(1)})`);
+      vp.querySelectorAll(`.hubspoke[data-b="${CSS.escape(wl.id)}"]`).forEach(l => { l.setAttribute('x2', x); l.setAttribute('y2', y); });
+      vp.querySelectorAll(`.spoke[data-a="${CSS.escape(wl.id)}"]`).forEach(l => { l.setAttribute('x1', x); l.setAttribute('y1', y); });
+    });
+  }
   function fit(anim){
     const w = box.clientWidth, h = box.clientHeight, m = Math.min(w, h)/2;
     const room = w < 600 ? 34 : Math.min(175, m*0.48);
-    view.k = Math.max(.2, (m - room) / (R2 + 12)); view.tx = w/2; view.ty = h/2; apply(anim); touched = false;
+    view.k = Math.max(.2, (m - room) / (R2 + 12)); view.tx = w/2; view.ty = h/2; placePills(view.k); apply(anim); touched = false;
   }
   function zoomBy(f, px, py){
     const w = box.clientWidth, h = box.clientHeight;
@@ -478,7 +504,7 @@ function init(){
     const s = n.scan.status;
     return `<span class="b ${s === 'v1.0' ? 'v1' : s === 'beta only' ? 'beta' : 'miss'}">${s === 'not found' ? 'Not found in $metadata' : s}</span>`;
   };
-  const badges = n => `<div class="badges">${statusBadge(n)}${n.phase === 2 ? '<span class="b p2">Phase 2</span>' : ''}${n.kind === 'operation' ? '<span class="b">Action</span>' : ''}${changed.has(n.id) ? '<span class="b beta">Changed recently</span>' : ''}</div>`;
+  const badges = n => `<div class="badges">${statusBadge(n)}${n.phase === 2 ? '<span class="b p2">Phase 2</span>' : ''}${n.kind === 'operation' ? '<span class="b">Action</span>' : ''}${n.legacy && n.legacy.length ? '<span class="b legacy" title="This resource has a legacy API you should not build on">Legacy API</span>' : ''}${changed.has(n.id) ? '<span class="b beta">Changed recently</span>' : ''}</div>`;
   const wlName = w => `<div class="wlname" style="--c:${w.colour}"><i></i>${esc(w.label)}</div>`;
   function tipHtml(id, docked){
     const n = by[id];
@@ -579,7 +605,7 @@ function init(){
         ${legendRow('<circle cx="14" cy="10" r="7" fill="var(--mute)"/>', 'Resource (bigger means more links)')}
         ${legendRow('<rect x="8" y="4" width="12" height="12" rx="2" fill="var(--mute)"/>', 'Action, such as running a hunting query')}
         ${legendRow('<rect x="9" y="5" width="10" height="10" transform="rotate(45 14 10)" fill="var(--mute)"/>', 'Not in Graph: needs PowerShell or another API')}
-        ${legendRow('<circle cx="14" cy="10" r="7" fill="none" stroke="var(--mute)" stroke-width="2" stroke-dasharray="3 2.5"/>', 'Phase 2: stubbed, deeper notes to come')}
+        ${hasP2 ? legendRow('<circle cx="14" cy="10" r="7" fill="none" stroke="var(--mute)" stroke-width="2" stroke-dasharray="3 2.5"/>', 'Phase 2: stubbed, deeper notes to come') : ''}
         ${legendRow('<path d="M2 14Q14 2 26 14" fill="none" stroke="var(--line)" stroke-width="1.6"/>', 'Relationship (navigation property)')}
         ${legendRow('<path d="M2 14Q14 2 26 14" fill="none" stroke="var(--line)" stroke-width="1.6" stroke-dasharray="5 4"/>', 'Reference by ID, not a direct path')}
         ${legendRow('<path d="M2 14Q14 2 26 14" fill="none" stroke="var(--brick)" stroke-width="2" stroke-dasharray="1.5 3.5" stroke-linecap="round"/>', 'Action on the resource')}
@@ -603,6 +629,8 @@ function init(){
       <p>${nf(cov.onMap)} of ${nf(cov.v1Types)} v1.0 entity types are on the map, and ${nf(cov.betaOnlyTypes)} more types are beta only. Each type belongs to the top-level root (such as <code>/security</code>) that reaches it first through containment. The map is curated, so most types are left off on purpose.</p>
       <table class="cov">${head}${top.map(row).join('')}</table>
       ${rest.length ? `<details><summary>All ${cov.areas.length} areas</summary><table class="cov">${head}${rest.map(row).join('')}</table></details>` : ''}
+      ${cov.purview ? `<h5>Purview by solution</h5><p>Purview: ${nf(cov.purview.onMap)} of ${nf(cov.purview.v1)} v1.0 types on the map, and ${nf(cov.purview.betaOnly)} more beta only. Types are tagged by solution from their names.</p>
+      <table class="cov"><tr><th scope="col">Solution</th><th scope="col">On map / v1.0</th><th scope="col">Beta only</th></tr>${cov.purview.solutions.map(r => row({area: r.solution, onMap: r.onMap, v1: r.v1, betaOnly: r.betaOnly})).join('')}</table>` : ''}
       <p class="foot">The names of the types in each area are in <code>data/coverage.json</code> in the repository.</p>`;
   }
   function renderHub(){
@@ -625,6 +653,7 @@ function init(){
         ${pc && pc.unknown.length ? `<p class="warn">Not found in the current permission list: ${pc.unknown.map(esc).join(', ')}. Check whether it has been renamed.</p>` : ''}` : ''}
       ${n.licence ? `<h4>Licensing</h4><p>${esc(n.licence)}</p>` : ''}
       <h4>${n.kind === 'gap' ? 'Not covered by Graph' : 'Limitations'}</h4>${ul(n.limits)}
+      ${n.legacy && n.legacy.length ? `<h4>Don't build on</h4><ul class="legacy-list">${n.legacy.map(l => `<li><code>${esc(l.path)}</code>${l.note ? `<small>${esc(l.note)}</small>` : ''}${l.replacedBy ? `<small>Use instead: ${esc(l.replacedBy)}</small>` : ''}</li>`).join('')}</ul>` : ''}
       <h4>How to map it</h4>${ul(n.mapping)}
       <h4>Connections</h4>${connections(n.id)}
       ${n.entityType || n.action ? `<h4>Schema</h4>${schemaBlock(n)}` : ''}
@@ -660,6 +689,7 @@ function init(){
 
   /* ---------- scenarios ---------- */
   let scen = null;
+  const SCEN_GROUPS = ['Classic', 'AI', 'Purview'];
   const scenGroups = s => s.steps.reduce((g, st) => { if (st.or && g.length) g[g.length-1].push(st); else g.push([st]); return g; }, []);
   function showAll(){
     hiddenW.clear(); showP2 = true;
@@ -667,7 +697,7 @@ function init(){
     applyFilters();
   }
   function scenarioList(){
-    return ['Classic', 'AI'].map(grp => {
+    return SCEN_GROUPS.map(grp => {
       const items = SCEN.filter(x => x.group === grp);
       return items.length ? `<h5>${grp}</h5><ul class="sclist">${items.map(x => `<li><button data-scen="${esc(x.id)}"${scen && scen.id === x.id ? ' aria-current="true"' : ''}>${esc(x.label)}<small>${esc(x.summary)}</small></button></li>`).join('')}</ul>` : '';
     }).join('');
@@ -726,6 +756,7 @@ function init(){
           <p class="sdo">${esc(st.do)}</p>
           <dl class="sdl">${call ? `<dt>Call</dt><dd><code>${esc(call)}</code></dd>` : ''}${perm ? `<dt>Permission</dt><dd>${esc(perm)}</dd>` : ''}${lic ? `<dt>Licence</dt><dd>${esc(lic)}</dd>` : ''}${gotcha ? `<dt>Gotcha</dt><dd>${esc(gotcha)}</dd>` : ''}</dl></li>`;
       }).join('')).join('')}</ol>
+      ${(s.seeAlso || []).filter(id => SC[id]).length ? `<h4>See also</h4><ul class="sclist">${s.seeAlso.filter(id => SC[id]).map(id => `<li><button data-scen="${esc(id)}">${esc(SC[id].label)}<small>${esc(s.seeAlsoNote && s.seeAlsoNote[id] || SC[id].summary)}</small></button></li>`).join('')}</ul>` : ''}
       <p class="foot">Select a step to centre the map on it. Calls and permissions come from the resource's own notes unless the step overrides them.</p>`;
   }
   function openScenario(id, fromHash){
@@ -759,7 +790,7 @@ function init(){
 
   /* ---------- search ---------- */
   const q = $('#q'), qn = $('#qn');
-  const hay = n => [n.label, n.path, n.summary, n.entityType, n.permissions && n.permissions.delegated, n.permissions && n.permissions.application, ...(n.limits || []), ...(n.mapping || [])].join(' ').toLowerCase();
+  const hay = n => [n.label, n.path, n.summary, n.entityType, n.permissions && n.permissions.delegated, n.permissions && n.permissions.application, ...(n.limits || []), ...(n.mapping || []), ...(n.legacy || []).map(l => l.path)].join(' ').toLowerCase();
   let hits = [];
   q.addEventListener('input', () => {
     const t = q.value.trim().toLowerCase();

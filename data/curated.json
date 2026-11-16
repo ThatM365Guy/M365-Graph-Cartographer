@@ -1,9 +1,9 @@
 {
  "meta": {
   "title": "M365 Graph Cartographer (MGC)",
-  "curatedVersion": "0.2.0",
+  "curatedVersion": "0.3.0",
   "curatedOn": "2026-11-16",
-  "phase": "Phase 1: broad coverage of the simpler workloads. Purview is stubbed for phase 2.",
+  "phase": "Purview covered in depth from 0.3.0: information protection, records, eDiscovery, audit, privacy and the data security API, with what Graph does not cover.",
   "note": "Hand-written content lives here. The scanner never edits this file; it writes graph-map.json alongside it."
  },
  "workloads": [
@@ -99,12 +99,12 @@
    "id": "purview",
    "label": "Compliance & Purview",
    "colour": "#9a3a6c",
-   "phase": 2,
    "docs": "https://learn.microsoft.com/graph/api/resources/security-api-overview",
-   "summary": "Labels, eDiscovery and audit search. Coverage is partial and much of the configuration still needs PowerShell. Stubbed here; deep dive in phase 2.",
+   "summary": "Microsoft Purview in Graph: sensitivity labels and classification, records management, eDiscovery (Premium), audit search, subject rights requests and the data security API. Policies themselves (DLP, label, retention, IRM) are mostly outside Graph.",
    "limits": [
-    "Policies (DLP, label publishing, retention, auto-labelling, Information Barriers) are not in Graph.",
-    "Several APIs are newer and still moving between beta and v1.0. Check the scan status on each node."
+    "Policies (DLP, label publishing, auto-labelling, retention, Information Barriers, Insider Risk) are not in Graph. See Not in Graph: Purview.",
+    "Several Purview APIs are delegated only (retention labels, subject rights requests). Check the application permission on each node.",
+    "Learn and $metadata sometimes disagree on beta versus v1.0 (for example eDiscovery legal holds). The scan badge shows what $metadata says today."
    ],
    "short": "Purview"
   },
@@ -113,7 +113,7 @@
    "label": "AI & agents",
    "short": "AI",
    "colour": "#d6247a",
-   "summary": "Copilot interaction history, Purview data security APIs for your own AI apps, and Entra Agent ID (agent identities and their blueprints).",
+   "summary": "Copilot interaction history and Entra Agent ID (agent identities and their blueprints). Your own AI apps apply Purview policy through the Purview data security API, which sits in the Purview workload.",
    "limits": [
     "Most of these APIs are new. Licensing and preview status drift, so check the date each note was verified.",
     "Copilot Studio agents are not covered by the Copilot interaction export."
@@ -897,7 +897,6 @@
    "id": "sensitivityLabel",
    "label": "Sensitivity label",
    "workload": "purview",
-   "phase": 2,
    "entityType": "microsoft.graph.sensitivityLabel",
    "path": "GET /security/dataSecurityAndGovernance/sensitivityLabels  ·  /me/dataSecurityAndGovernance/sensitivityLabels",
    "summary": "Read the published sensitivity labels. Apply them to files through driveItem actions.",
@@ -912,57 +911,81 @@
    ],
    "mapping": [
     "Apply to a file: POST /drives/{id}/items/{id}/assignSensitivityLabel (metered).",
-    "Read from a file: extractSensitivityLabels."
+    "Read from a file: extractSensitivityLabels.",
+    "Effective rights and label inheritance: POST /security/dataSecurityAndGovernance/sensitivityLabels/computeRightsAndInheritance (v1.0, SensitivityLabel.Evaluate). Returns the content rights, the inherited label and the labels for each item."
    ],
-   "docs": "https://learn.microsoft.com/graph/api/resources/security-sensitivitylabel"
+   "docs": "https://learn.microsoft.com/graph/api/resources/security-sensitivitylabel",
+   "covers": [
+    "microsoft.graph.labelContentRight",
+    "microsoft.graph.usageRightsIncluded"
+   ],
+   "legacy": [
+    {
+     "path": "/beta/informationProtection/policy/labels (informationProtectionLabel, informationProtectionPolicy)",
+     "note": "Deprecated beta API. Learn says it stopped returning data on 1 January 2023, and its evaluate and extract actions are deprecated too.",
+     "replacedBy": "/security/dataSecurityAndGovernance/sensitivityLabels (v1.0)"
+    }
+   ]
   },
   {
    "id": "retentionLabel",
    "label": "Retention label",
    "workload": "purview",
-   "phase": 2,
    "entityType": "microsoft.graph.security.retentionLabel",
    "path": "GET /security/labels/retentionLabels",
-   "summary": "Records management retention labels, including file plan descriptors.",
+   "summary": "Records management retention labels: retention period and trigger, what happens at the end (including disposition review), file plan descriptors and the event type for event-based retention.",
    "permissions": {
     "delegated": "RecordsManagement.Read.All",
-    "application": "RecordsManagement.Read.All"
+    "application": "Not supported"
    },
-   "licence": "Purview Records Management.",
+   "licence": "Basic retention labels: Microsoft 365 E3. Event-based retention and disposition review: Microsoft 365 or Office 365 E5/A5/G5, Purview Suite, or E5 Information Protection and Governance (Purview service description, checked 16 Nov 2026).",
    "limits": [
-    "Label policies (publishing and auto-apply) are not in Graph."
+    "Delegated only: listing and creating retention labels has no application permission.",
+    "Label policies (publishing and auto-apply) are not in Graph. Use Security & Compliance PowerShell.",
+    "A label's event type can't be changed once the label is saved."
    ],
    "mapping": [
-    "Applied on files through /drives/{id}/items/{id}/retentionLabel."
+    "Applied on files through /drives/{id}/items/{id}/retentionLabel (matched by label name, not ID).",
+    "retentionTrigger dateOfEvent plus retentionEventType makes it event-based; descriptors carry the file plan; dispositionReviewStages set the reviewers."
    ],
-   "docs": "https://learn.microsoft.com/graph/api/resources/security-retentionlabel"
+   "docs": "https://learn.microsoft.com/graph/api/security-labelsroot-list-retentionlabel",
+   "covers": [
+    "microsoft.graph.itemRetentionLabel"
+   ]
   },
   {
    "id": "ediscoveryCase",
    "label": "eDiscovery case",
    "workload": "purview",
-   "phase": 2,
    "entityType": "microsoft.graph.security.ediscoveryCase",
    "path": "GET /security/cases/ediscoveryCases",
-   "summary": "Purview eDiscovery (Premium) cases, with custodians, searches, holds and review sets.",
+   "summary": "Purview eDiscovery cases: custodians, non-custodial sources, searches, holds, review sets and exports.",
    "permissions": {
     "delegated": "eDiscovery.Read.All",
     "application": "eDiscovery.Read.All"
    },
-   "licence": "Purview eDiscovery (Premium).",
+   "licence": "Microsoft 365 E3: delegated calls for cases, custodians, searches and holds (export needs pay-as-you-go). E5 or an equivalent add-on: app-only calls and premium features such as review sets, tagging and analytics.",
    "limits": [
-    "Searches, holds and exports are long-running operations to poll."
+    "Searches, holds and exports are long-running operations to poll.",
+    "Delegated callers also need a Purview role: eDiscovery Manager (own cases) or eDiscovery Administrator.",
+    "Not for journaling or mass download of content."
    ],
    "mapping": [
-    "Custodian data sources reference users (mailbox and OneDrive) and sites."
+    "Custodians reference users (mailbox and OneDrive), sites and Microsoft 365 groups."
    ],
-   "docs": "https://learn.microsoft.com/graph/api/resources/security-ediscoverycase"
+   "docs": "https://learn.microsoft.com/graph/api/resources/security-ediscovery-apioverview",
+   "legacy": [
+    {
+     "path": "/beta/compliance/ediscovery/cases (microsoft.graph.ediscovery)",
+     "note": "Deprecated beta API. Learn gives no retirement date.",
+     "replacedBy": "/security/cases/ediscoveryCases (microsoft.graph.security, v1.0)"
+    }
+   ]
   },
   {
    "id": "auditLogQuery",
    "label": "Audit log query",
    "workload": "purview",
-   "phase": 2,
    "entityType": "microsoft.graph.security.auditLogQuery",
    "path": "POST /security/auditLog/queries",
    "summary": "Searches the Purview unified audit log asynchronously.",
@@ -970,13 +993,14 @@
     "delegated": "AuditLogsQuery-Entra.Read.All (least)",
     "application": "AuditLogsQuery-SharePoint.Read.All, AuditLogsQuery-Exchange.Read.All, AuditLogsQuery.Read.All"
    },
-   "licence": "Purview Audit.",
+   "licence": "Purview Audit (Standard): 180 days. Audit (Premium): 1 year by default for Entra, Exchange, OneDrive and SharePoint records of E5-licensed users, up to 10 years with the add-on.",
    "limits": [
     "Asynchronous: create the query, poll its status, then page through /records.",
-    "Permissions are split per workload. Pick the narrowest one."
+    "Permissions are split per workload. Pick the narrowest one.",
+    "recordTypeFilters take PascalCase values, for example CopilotInteraction or ComplianceDLPSharePoint."
    ],
    "mapping": [
-    "records[].auditData holds the workload-specific payload."
+    "records holds the audit records (see Audit record); auditData carries the workload-specific payload."
    ],
    "docs": "https://learn.microsoft.com/graph/api/resources/security-auditlogquery"
   },
@@ -984,21 +1008,32 @@
    "id": "purviewGap",
    "label": "Not in Graph: Purview",
    "workload": "purview",
-   "phase": 2,
    "kind": "gap",
-   "path": "Security & Compliance PowerShell (Connect-IPPSSession)",
-   "summary": "Purview configuration that Graph does not expose.",
+   "path": "Security & Compliance PowerShell (Connect-IPPSSession) · Purview portal · Purview REST APIs",
+   "summary": "Purview solutions and configuration that Graph does not expose, with what to use instead.",
    "limits": [
-    "DLP policies and rules.",
-    "Sensitivity label creation and label policies.",
-    "Retention policies and auto-apply policies.",
-    "Information Barriers segments and policies.",
-    "Insider Risk Management policies."
+    "DLP policies and rules: Get-DlpCompliancePolicy and Get-DlpComplianceRule. DLP alerts are in Graph (alerts_v2).",
+    "Sensitivity labels and label policies: Get-Label and Get-LabelPolicy. Labels can be read in Graph; their policies can't.",
+    "Auto-labelling policies: Get-AutoSensitivityLabelPolicy.",
+    "Retention policies: Get-RetentionCompliancePolicy. Only retention labels are in Graph.",
+    "Information Barriers: Get-InformationBarrierPolicy, Get-OrganizationSegment and Start-InformationBarrierPoliciesApplication.",
+    "Communication Compliance: Get-SupervisoryReviewPolicyV2, and the Purview portal for reviews.",
+    "Insider Risk Management: no policy API. Alerts reach alerts_v2 and incidents once IRM shares data with Defender, and activity can be hunted with runHuntingQuery. The only Graph hook is the beta insiderRiskyUserApproval for access packages.",
+    "DSPM and DSPM for AI: Purview portal only.",
+    "Compliance Manager: Purview portal only.",
+    "Data Map and Unified Catalog: separate Purview REST APIs, not Graph. Learn says they are moving into Microsoft Fabric, with existing capabilities in maintenance until 12 Nov 2027."
    ],
    "mapping": [
-    "Plan automation on PowerShell for these. The scanner watches $metadata for new types and will flag any that appear."
+    "Plan automation on Security & Compliance PowerShell for policies. The scanner watches $metadata and flags new Purview types."
    ],
-   "docs": "https://learn.microsoft.com/powershell/exchange/scc-powershell"
+   "docs": "https://learn.microsoft.com/powershell/exchange/scc-powershell",
+   "legacy": [
+    {
+     "path": "/beta/informationProtection/dataLossPreventionPolicies (dataLossPreventionPolicy, evaluate)",
+     "note": "In beta $metadata but not documented on Learn.",
+     "replacedBy": "Purview data security API (processContent) for runtime checks; Get-DlpCompliancePolicy to read policies"
+    }
+   ]
   },
   {
    "id": "caPolicy",
@@ -1198,12 +1233,12 @@
   },
   {
    "id": "purviewAi",
-   "label": "Purview AI policy check",
-   "workload": "ai",
+   "label": "Purview data security API",
+   "workload": "purview",
    "kind": "operation",
    "action": "processContent",
    "path": "POST /users/{id}/dataSecurityAndGovernance/protectionScopes/compute · processContent · activities/contentActivities",
-   "summary": "Lets your own AI app apply Purview DLP, labels and audit: compute which policies apply, send prompts and responses for a verdict, or just log the activity.",
+   "summary": "Lets any app (AI, line-of-business or SaaS) apply Purview policy: compute which DLP and label policies apply, send content for a verdict, or just log the activity for audit.",
    "permissions": {
     "delegated": "ProtectionScopes.Compute.User, Content.Process.User, ContentActivity.Write",
     "application": "ProtectionScopes.Compute.User, Content.Process.User, ContentActivity.Write"
@@ -1211,14 +1246,24 @@
    "licence": "Pay-as-you-go billing must be enabled for Entra-registered AI apps (charged per request for non-Microsoft 365 AI). Checked 16 Nov 2026.",
    "limits": [
     "Cache the ETag from compute and send it as If-None-Match on processContent. Call compute again when protectionScopeState is modified.",
+    "DLP policies for Entra-registered apps must be created with New-DlpComplianceRule. Policies made in the portal UI don't apply to them.",
     "evaluateInline makes the app wait for the verdict; evaluateOffline does not.",
     "Higher permissions are ProtectionScopes.Compute.All and Content.Process.All."
    ],
    "mapping": [
-    "compute: which users, apps and activities are in scope for policy. processContent: the verdict and policy actions (such as block). contentActivities: audit only.",
-    "A tenant-wide compute is at /security/dataSecurityAndGovernance/protectionScopes/compute."
+    "compute: which users, apps and activities (uploadText, downloadText, uploadFile, downloadFile) are in scope. processContent: the verdict and policy actions (such as block). contentActivities: audit only.",
+    "A tenant-wide compute is at /security/dataSecurityAndGovernance/protectionScopes/compute.",
+    "Microsoft 365 Copilot is covered by Purview natively; this API is for your own apps and agents."
    ],
-   "docs": "https://learn.microsoft.com/graph/security-datasecurityandgovernance-overview"
+   "docs": "https://learn.microsoft.com/purview/developer/microsoft-purview-sdk-documentation-overview",
+   "covers": [
+    "microsoft.graph.userDataSecurityAndGovernance",
+    "microsoft.graph.tenantDataSecurityAndGovernance",
+    "microsoft.graph.userProtectionScopeContainer",
+    "microsoft.graph.tenantProtectionScopeContainer",
+    "microsoft.graph.activitiesContainer",
+    "microsoft.graph.contentActivity"
+   ]
   },
   {
    "id": "agentIdentity",
@@ -1263,6 +1308,311 @@
     "A Conditional Access policy that targets a blueprint covers every agent identity created from it, including later ones."
    ],
    "docs": "https://learn.microsoft.com/graph/api/agentidentityblueprint-list"
+  },
+  {
+   "id": "sensitiveType",
+   "label": "Sensitive info type",
+   "workload": "purview",
+   "entityType": "microsoft.graph.sensitiveType",
+   "path": "GET /beta/dataClassification/sensitiveTypes",
+   "summary": "Built-in and custom sensitive information types (SITs) that DLP and auto-labelling use to find data such as card numbers.",
+   "permissions": {
+    "delegated": "Not documented on Learn",
+    "application": "Not documented on Learn"
+   },
+   "licence": "Custom and EDM-based SITs need E5-class Information Protection.",
+   "limits": [
+    "Beta only, and Learn documents the resource but no methods. Don't build production tooling on it.",
+    "Get-DlpSensitiveInformationType in Security & Compliance PowerShell is the documented way to list SITs."
+   ],
+   "mapping": [
+    "sensitiveTypeSource tells built-in (outOfBox) from custom (tenant) types; classificationMethod tells pattern, EDM and trainable types apart."
+   ],
+   "docs": "https://learn.microsoft.com/graph/api/resources/sensitivetype?view=graph-rest-beta"
+  },
+  {
+   "id": "edmStore",
+   "label": "EDM data store",
+   "workload": "purview",
+   "entityType": "microsoft.graph.exactMatchDataStore",
+   "covers": [
+    "microsoft.graph.exactMatchSession",
+    "microsoft.graph.exactMatchUploadAgent"
+   ],
+   "path": "/beta/dataClassification/exactMatchDataStores · /sessions · /exactMatchUploadAgents",
+   "summary": "Exact data match (EDM) stores: the hashed table of real values (for example customer numbers) that EDM-based SITs match against.",
+   "permissions": {
+    "delegated": "Not documented on Learn",
+    "application": "Not documented on Learn"
+   },
+   "licence": "E5-class Information Protection.",
+   "limits": [
+    "Beta only and not documented on Learn. Uploads go through sessions (commit) and registered upload agents.",
+    "The supported route is the EDM Upload Agent (EdmUploadAgent.exe); the uploader must be in the EDM_DataUploaders group."
+   ],
+   "mapping": [
+    "An EDM store backs one or more EDM-based sensitive info types."
+   ],
+   "docs": "https://learn.microsoft.com/purview/sit-get-started-exact-data-match-hash-upload"
+  },
+  {
+   "id": "retentionEvent",
+   "label": "Retention event",
+   "workload": "purview",
+   "entityType": "microsoft.graph.security.retentionEvent",
+   "covers": [
+    "microsoft.graph.security.retentionEventType"
+   ],
+   "path": "GET /security/triggers/retentionEvents · /security/triggerTypes/retentionEventTypes",
+   "summary": "Starts the retention period for content labelled with an event-based label, such as an employee leaving or a contract ending. Event types are the catalogue of such events.",
+   "permissions": {
+    "delegated": "RecordsManagement.Read.All",
+    "application": "RecordsManagement.Read.All"
+   },
+   "licence": "Microsoft 365 or Office 365 E5/A5/G5, Purview Suite, or E5 Information Protection and Governance (Purview service description, checked 16 Nov 2026).",
+   "limits": [
+    "eventQueries match SharePoint and OneDrive content by asset ID (for example AssetID:1234) and Exchange by keywords.",
+    "Content needs the asset ID (the Compliance Asset Id column) before the event fires, or it won't be matched.",
+    "Creating events needs RecordsManagement.ReadWrite.All."
+   ],
+   "mapping": [
+    "A retention label with retentionTrigger dateOfEvent is bound to one event type; an event of that type starts the clock."
+   ],
+   "docs": "https://learn.microsoft.com/graph/api/security-retentionevent-list"
+  },
+  {
+   "id": "filePlan",
+   "label": "File plan descriptor",
+   "workload": "purview",
+   "entityType": "microsoft.graph.security.filePlanDescriptor",
+   "covers": [
+    "microsoft.graph.security.filePlanDescriptorTemplate",
+    "microsoft.graph.security.authorityTemplate",
+    "microsoft.graph.security.categoryTemplate",
+    "microsoft.graph.security.subcategoryTemplate",
+    "microsoft.graph.security.citationTemplate",
+    "microsoft.graph.security.departmentTemplate",
+    "microsoft.graph.security.filePlanReferenceTemplate"
+   ],
+   "path": "GET /security/labels/retentionLabels/{id}?$expand=descriptors · /security/labels/authorities, categories, citations, departments, filePlanReferences",
+   "summary": "File plan metadata on a retention label: authority, category and subcategory, citation, department and file plan reference.",
+   "permissions": {
+    "delegated": "RecordsManagement.Read.All",
+    "application": "RecordsManagement.Read.All (template lists; descriptors on a label are delegated only)"
+   },
+   "licence": "Purview Records Management (file plan).",
+   "limits": [
+    "The descriptor has no methods of its own: read it by expanding descriptors on the retention label.",
+    "Templates are bound to a label with descriptors.{x}Template@odata.bind."
+   ],
+   "mapping": [
+    "Subcategories sit under categories (/security/labels/categories/{id}/subcategories)."
+   ],
+   "docs": "https://learn.microsoft.com/graph/api/resources/security-fileplandescriptor"
+  },
+  {
+   "id": "dispositionReview",
+   "label": "Disposition review",
+   "workload": "purview",
+   "entityType": "microsoft.graph.security.dispositionReviewStage",
+   "path": "dispositionReviewStages[] on POST or PATCH /security/labels/retentionLabels (no path of its own)",
+   "summary": "Up to five review stages, each with named reviewers, that must approve before labelled content is deleted at the end of its retention period.",
+   "permissions": {
+    "delegated": "RecordsManagement.ReadWrite.All (to set stages on a label)",
+    "application": "Not supported"
+   },
+   "licence": "Microsoft 365 or Office 365 E5/A5/G5, Purview Suite, or E5 Information Protection and Governance (Purview service description, checked 16 Nov 2026).",
+   "limits": [
+    "Graph sets the stages on the label; the reviews themselves happen in the Purview portal.",
+    "Reviewers need the Disposition Management role, which Global Administrators don't get by default.",
+    "Auditing must be turned on for disposition to work."
+   ],
+   "mapping": [
+    "Set actionAfterRetentionPeriod to startDispositionReview on the label."
+   ],
+   "docs": "https://learn.microsoft.com/graph/api/resources/security-dispositionreviewstage"
+  },
+  {
+   "id": "custodian",
+   "label": "Custodian",
+   "workload": "purview",
+   "entityType": "microsoft.graph.security.ediscoveryCustodian",
+   "covers": [
+    "microsoft.graph.security.userSource",
+    "microsoft.graph.security.siteSource",
+    "microsoft.graph.security.unifiedGroupSource"
+   ],
+   "path": "GET /security/cases/ediscoveryCases/{id}/custodians",
+   "summary": "A person of interest in an eDiscovery case, with their data sources: mailbox and OneDrive, sites and Microsoft 365 groups.",
+   "permissions": {
+    "delegated": "eDiscovery.Read.All",
+    "application": "eDiscovery.Read.All"
+   },
+   "licence": "As for eDiscovery case (E3 delegated; E5 for app-only).",
+   "limits": [
+    "Adding sources, holds and release are writes: eDiscovery.ReadWrite.All.",
+    "Indexing of custodian sources is asynchronous (lastIndexOperation)."
+   ],
+   "mapping": [
+    "userSources point at the user's mailbox and OneDrive by email; siteSources and unifiedGroupSources at sites and groups."
+   ],
+   "docs": "https://learn.microsoft.com/graph/api/resources/security-ediscoverycustodian"
+  },
+  {
+   "id": "ediscoverySearch",
+   "label": "eDiscovery search",
+   "workload": "purview",
+   "entityType": "microsoft.graph.security.ediscoverySearch",
+   "covers": [
+    "microsoft.graph.security.ediscoveryEstimateOperation",
+    "microsoft.graph.security.dataSource"
+   ],
+   "path": "GET /security/cases/ediscoveryCases/{id}/searches",
+   "summary": "A KQL search over custodian and non-custodial sources, with statistics estimates before you collect anything.",
+   "permissions": {
+    "delegated": "eDiscovery.Read.All",
+    "application": "eDiscovery.Read.All"
+   },
+   "licence": "As for eDiscovery case.",
+   "limits": [
+    "estimateStatistics is asynchronous; poll lastEstimateStatisticsOperation."
+   ],
+   "mapping": [
+    "custodianSources and noncustodialSources say what is searched; addToReviewSetOperation tracks collection."
+   ],
+   "docs": "https://learn.microsoft.com/graph/api/resources/security-ediscoverysearch"
+  },
+  {
+   "id": "reviewSet",
+   "label": "Review set",
+   "workload": "purview",
+   "entityType": "microsoft.graph.security.ediscoveryReviewSet",
+   "covers": [
+    "microsoft.graph.security.ediscoveryReviewSetQuery",
+    "microsoft.graph.security.ediscoveryAddToReviewSetOperation",
+    "microsoft.graph.security.ediscoveryExportOperation"
+   ],
+   "path": "GET /security/cases/ediscoveryCases/{id}/reviewSets",
+   "summary": "Collected copies of search results for review, tagging and export.",
+   "permissions": {
+    "delegated": "eDiscovery.Read.All",
+    "application": "eDiscovery.Read.All"
+   },
+   "licence": "E5 or an equivalent eDiscovery add-on (premium feature).",
+   "limits": [
+    "addToReviewSet and export are asynchronous operations.",
+    "Learn documents export with eDiscovery.Read.All as the least privilege."
+   ],
+   "mapping": [
+    "queries are saved review set filters; export writes to a storage location you choose."
+   ],
+   "docs": "https://learn.microsoft.com/graph/api/security-ediscoveryreviewset-export"
+  },
+  {
+   "id": "legalHold",
+   "label": "Legal hold",
+   "workload": "purview",
+   "entityType": "microsoft.graph.security.ediscoveryHoldPolicy",
+   "covers": [
+    "microsoft.graph.security.ediscoveryHoldOperation",
+    "microsoft.graph.security.ediscoveryHoldPolicySyncOperation",
+    "microsoft.graph.security.ediscoveryNoncustodialDataSource"
+   ],
+   "path": "POST /security/cases/ediscoveryCases/{id}/custodians/{id}/applyHold · GET /security/cases/ediscoveryCases/{id}/legalHolds",
+   "summary": "Preserves a custodian's or a non-custodial source's content in place so it can't be permanently deleted while the case is open.",
+   "permissions": {
+    "delegated": "eDiscovery.Read.All (Learn lists it even for applyHold)",
+    "application": "eDiscovery.Read.All"
+   },
+   "licence": "As for eDiscovery case.",
+   "limits": [
+    "applyHold and removeHold on custodians and non-custodial sources are v1.0 in $metadata, and run as ediscoveryHoldOperation.",
+    "The hold policy resource (legalHolds, ediscoveryHoldPolicy) is beta only in $metadata, although Learn documents it under v1.0 (checked 16 Nov 2026).",
+    "Holds take time to apply; check the operation before relying on them."
+   ],
+   "mapping": [
+    "Put the hold on before the account is disabled, the licence removed or the OneDrive deleted."
+   ],
+   "docs": "https://learn.microsoft.com/graph/api/security-ediscoverycustodian-applyhold"
+  },
+  {
+   "id": "auditRecord",
+   "label": "Audit record",
+   "workload": "purview",
+   "entityType": "microsoft.graph.security.auditLogRecord",
+   "path": "GET /security/auditLog/queries/{id}/records",
+   "summary": "One unified audit log event from an audit log query: who did what, to which object, when and from where.",
+   "permissions": {
+    "delegated": "AuditLogsQuery-Entra.Read.All (least; pick the workload's own)",
+    "application": "AuditLogsQuery-Entra.Read.All (least; pick the workload's own)"
+   },
+   "licence": "Audit (Standard): 180 days. Audit (Premium): 1 year by default for E5 users, up to 10 years with the add-on.",
+   "limits": [
+    "auditData is a typed payload per record type. DLP audit types are partly beta (a security.dlp namespace in beta $metadata, which Learn doesn't document) and partly v1.0 (dlpImportResultAuditRecord, powerBIDlpAuditRecord).",
+    "Higher permissions are per workload: -Exchange, -SharePoint, -OneDrive, -Endpoint, -CRM, then AuditLogsQuery.Read.All."
+   ],
+   "mapping": [
+    "userPrincipalName and userId identify the actor; objectId is often the file URL or message ID."
+   ],
+   "docs": "https://learn.microsoft.com/graph/api/resources/security-auditlogrecord"
+  },
+  {
+   "id": "subjectRights",
+   "label": "Subject rights request",
+   "workload": "purview",
+   "entityType": "microsoft.graph.subjectRightsRequest",
+   "covers": [
+    "microsoft.graph.authoredNote"
+   ],
+   "path": "GET /security/subjectRightsRequests",
+   "summary": "Priva subject rights requests (access, deletion, export) for a data subject, with notes, approvers, collaborators and the final report.",
+   "permissions": {
+    "delegated": "SubjectRightsRequest.Read.All",
+    "application": "Not supported"
+   },
+   "licence": "Microsoft Priva Subject Rights Requests (licence not re-checked on 16 Nov 2026).",
+   "limits": [
+    "Delegated only.",
+    "The data subject is usually not a user in your tenant; it's described by name and email in dataSubject."
+   ],
+   "mapping": [
+    "getFinalReport and getFinalAttachment return the outputs once the request completes.",
+    "team is the Microsoft Teams team created for collaborating on the request."
+   ],
+   "legacy": [
+    {
+     "path": "/privacy/subjectRightsRequests",
+     "note": "Learn says this path stopped returning data on 30 March 2025.",
+     "replacedBy": "/security/subjectRightsRequests"
+    }
+   ],
+   "docs": "https://learn.microsoft.com/graph/api/subjectrightsrequest-list"
+  },
+  {
+   "id": "messageTrace",
+   "label": "Message trace",
+   "workload": "outlook",
+   "entityType": "microsoft.graph.exchangeMessageTrace",
+   "covers": [
+    "microsoft.graph.exchangeMessageTraceDetail"
+   ],
+   "path": "GET /admin/exchange/tracing/messageTraces",
+   "summary": "Exchange Online message trace: where each message went, its status, and per-recipient delivery events.",
+   "permissions": {
+    "delegated": "ExchangeMessageTrace.Read.All",
+    "application": "ExchangeMessageTrace.Read.All"
+   },
+   "licence": "Exchange Online.",
+   "limits": [
+    "Provision the Exchange message trace service principal first (appId 8bd644d1-64a1-4d4b-ae52-2e0cbf64e373, New-MgServicePrincipal).",
+    "100 requests per 5 minutes per tenant.",
+    "90 days of data, at most 10 days per query (filter receivedDateTime with both bounds); with no filter, the last 48 hours."
+   ],
+   "mapping": [
+    "messageId is the internet message ID; senderAddress and recipientAddress match users by email.",
+    "Per-recipient events: /messageTraces/{id}/getDetailsByRecipient(recipientAddress='...')."
+   ],
+   "docs": "https://learn.microsoft.com/graph/api/messagetracingroot-list-messagetraces"
   }
  ],
  "edges": [
@@ -1596,24 +1946,6 @@
    "label": "evidence"
   },
   {
-   "s": "ediscoveryCase",
-   "t": "user",
-   "kind": "ref",
-   "label": "custodians"
-  },
-  {
-   "s": "ediscoveryCase",
-   "t": "site",
-   "kind": "ref",
-   "label": "siteSources"
-  },
-  {
-   "s": "auditLogQuery",
-   "t": "user",
-   "kind": "ref",
-   "label": "userPrincipalName"
-  },
-  {
    "s": "user",
    "t": "appRoleAssignment",
    "kind": "nav",
@@ -1801,6 +2133,152 @@
    "t": "user",
    "kind": "nav",
    "nav": "owners"
+  },
+  {
+   "s": "retentionLabel",
+   "t": "filePlan",
+   "kind": "nav",
+   "nav": "descriptors"
+  },
+  {
+   "s": "retentionLabel",
+   "t": "retentionEvent",
+   "kind": "nav",
+   "nav": "retentionEventType"
+  },
+  {
+   "s": "retentionLabel",
+   "t": "dispositionReview",
+   "kind": "nav",
+   "nav": "dispositionReviewStages"
+  },
+  {
+   "s": "ediscoveryCase",
+   "t": "custodian",
+   "kind": "nav",
+   "nav": "custodians"
+  },
+  {
+   "s": "ediscoveryCase",
+   "t": "ediscoverySearch",
+   "kind": "nav",
+   "nav": "searches"
+  },
+  {
+   "s": "ediscoveryCase",
+   "t": "reviewSet",
+   "kind": "nav",
+   "nav": "reviewSets"
+  },
+  {
+   "s": "ediscoveryCase",
+   "t": "legalHold",
+   "kind": "nav",
+   "nav": "legalHolds"
+  },
+  {
+   "s": "custodian",
+   "t": "user",
+   "kind": "ref",
+   "label": "userSources",
+   "desc": "mailbox and OneDrive, matched by email"
+  },
+  {
+   "s": "custodian",
+   "t": "site",
+   "kind": "ref",
+   "label": "siteSources"
+  },
+  {
+   "s": "custodian",
+   "t": "group",
+   "kind": "ref",
+   "label": "unifiedGroupSources"
+  },
+  {
+   "s": "custodian",
+   "t": "legalHold",
+   "kind": "action",
+   "action": "applyHold"
+  },
+  {
+   "s": "ediscoverySearch",
+   "t": "reviewSet",
+   "kind": "ref",
+   "label": "addToReviewSet",
+   "desc": "search results are collected into a review set"
+  },
+  {
+   "s": "auditLogQuery",
+   "t": "auditRecord",
+   "kind": "nav",
+   "nav": "records"
+  },
+  {
+   "s": "auditRecord",
+   "t": "user",
+   "kind": "ref",
+   "label": "userPrincipalName"
+  },
+  {
+   "s": "auditRecord",
+   "t": "driveItem",
+   "kind": "ref",
+   "label": "objectId",
+   "desc": "matched by file URL in the record"
+  },
+  {
+   "s": "subjectRights",
+   "t": "user",
+   "kind": "nav",
+   "nav": "approvers"
+  },
+  {
+   "s": "edmStore",
+   "t": "sensitiveType",
+   "kind": "ref",
+   "label": "EDM-based sensitive info types"
+  },
+  {
+   "s": "sensitiveType",
+   "t": "sensitivityLabel",
+   "kind": "ref",
+   "label": "auto-labelling conditions",
+   "desc": "auto-labelling policies use SITs, but the policy isn't in Graph"
+  },
+  {
+   "s": "messageTrace",
+   "t": "message",
+   "kind": "ref",
+   "label": "messageId",
+   "desc": "matched by internet message ID"
+  },
+  {
+   "s": "messageTrace",
+   "t": "user",
+   "kind": "ref",
+   "label": "sender / recipient address",
+   "desc": "matched by email address"
+  },
+  {
+   "s": "agentIdentity",
+   "t": "purviewAi",
+   "kind": "ref",
+   "label": "processContent",
+   "desc": "an agent app can send its prompts and responses for a policy verdict"
+  },
+  {
+   "s": "purviewGap",
+   "t": "alert",
+   "kind": "ref",
+   "label": "alerts_v2 (DLP, Insider Risk)",
+   "desc": "the policy is outside Graph; its alerts are in Graph"
+  },
+  {
+   "s": "subjectRights",
+   "t": "team",
+   "kind": "nav",
+   "nav": "team"
   }
  ],
  "scenarios": [
@@ -1842,7 +2320,15 @@
      "call": "GET /users/{id}/ownedDevices",
      "note": "Wipe and retire are Intune actions on managedDevice (/deviceManagement), not on the Entra device object."
     }
-   ]
+   ],
+   "seeAlso": [
+    "leaver-event-retention",
+    "custodian-legal-hold"
+   ],
+   "seeAlsoNote": {
+    "custodian-legal-hold": "Do this first: put the leaver on hold before you block sign-in, remove licences or delete the OneDrive.",
+    "leaver-event-retention": "Fire the leaver event so their content is kept for the right period."
+   }
   },
   {
    "id": "privileged-access-review",
@@ -2132,7 +2618,7 @@
     {
      "node": "alert",
      "do": "DLP matches from your app surface as alerts for the security team.",
-     "call": "GET /security/alerts_v2?$filter=serviceSource eq 'microsoftDataLossPrevention'"
+     "call": "GET /security/alerts_v2?$filter=serviceSource eq 'dataLossPrevention'"
     }
    ]
   },
@@ -2183,7 +2669,7 @@
     {
      "node": "auditLogQuery",
      "do": "Search the unified audit log for CopilotInteraction records.",
-     "call": "POST /security/auditLog/queries (recordTypeFilters: copilotInteraction)",
+     "call": "POST /security/auditLog/queries (recordTypeFilters: CopilotInteraction)",
      "note": "Audit queries run asynchronously; poll the query status, then read its records."
     },
     {
@@ -2232,6 +2718,137 @@
      "do": "Monitor agent sign-ins.",
      "call": "GET /beta/auditLogs/signIns?$filter=signInEventTypes/any(t: t eq 'servicePrincipal') and agent/agentType eq 'AgentIdentity'",
      "note": "The agent property on sign-ins is beta only."
+    }
+   ]
+  },
+  {
+   "id": "leaver-event-retention",
+   "label": "Event-based retention for leavers",
+   "group": "Purview",
+   "summary": "A leaver's records must be kept for a set time from the day they leave, not from when each file was created.",
+   "licence": "Event-based retention and disposition review: Microsoft 365 or Office 365 E5/A5/G5, Purview Suite, or E5 Information Protection and Governance (Purview service description, checked 16 Nov 2026).",
+   "seeAlso": [
+    "secure-offboarding"
+   ],
+   "steps": [
+    {
+     "node": "user",
+     "do": "Get the leaver's employee ID; it is the asset ID that tags their content.",
+     "call": "GET /users/{id}?$select=employeeId,employeeLeaveDateTime",
+     "note": "Content must carry the asset ID (the Compliance Asset Id column) before the event fires, or it won't be matched."
+    },
+    {
+     "node": "retentionLabel",
+     "do": "Use a label whose retention starts on an event (retentionTrigger dateOfEvent), bound to an Employee leaving event type.",
+     "note": "Delegated only. The event type can't be changed once the label is saved."
+    },
+    {
+     "node": "retentionEvent",
+     "do": "Create a retention event of that type with an asset ID query, for example AssetID:<employee ID>.",
+     "call": "POST /security/triggers/retentionEvents",
+     "permission": "RecordsManagement.ReadWrite.All",
+     "note": "eventQueries match SharePoint and OneDrive by asset ID and Exchange by keywords."
+    },
+    {
+     "node": "driveItem",
+     "do": "Check the event-based label is applied to the leaver's files.",
+     "call": "GET /drives/{id}/items/{id}/retentionLabel"
+    },
+    {
+     "node": "dispositionReview",
+     "do": "At the end of the period, reviewers approve deletion in the Purview portal.",
+     "note": "Reviewers need the Disposition Management role; auditing must be on."
+    }
+   ]
+  },
+  {
+   "id": "custodian-legal-hold",
+   "label": "Legal hold on a departing custodian",
+   "group": "Purview",
+   "summary": "If a leaver may be part of litigation, their mailbox and files must be preserved before anything is removed.",
+   "licence": "Microsoft 365 E3 for cases, custodians, searches and holds with delegated calls. E5 or an equivalent eDiscovery add-on for review sets and app-only calls.",
+   "seeAlso": [
+    "secure-offboarding"
+   ],
+   "steps": [
+    {
+     "node": "ediscoveryCase",
+     "do": "Open or create the case.",
+     "call": "POST /security/cases/ediscoveryCases",
+     "permission": "eDiscovery.ReadWrite.All",
+     "note": "Delegated callers also need the eDiscovery Manager or eDiscovery Administrator role."
+    },
+    {
+     "node": "custodian",
+     "do": "Add the leaver as a custodian with their mailbox and OneDrive, plus the sites and groups they used.",
+     "call": "POST /security/cases/ediscoveryCases/{id}/custodians, then userSources, siteSources, unifiedGroupSources",
+     "permission": "eDiscovery.ReadWrite.All"
+    },
+    {
+     "node": "legalHold",
+     "do": "Put the custodian on hold before sign-in is blocked, licences are removed or the OneDrive is deleted.",
+     "call": "POST /security/cases/ediscoveryCases/{id}/custodians/{id}/applyHold",
+     "note": "applyHold is v1.0 and asynchronous; the legalHolds list is beta only in $metadata."
+    },
+    {
+     "node": "ediscoverySearch",
+     "do": "Search the custodian's sources and estimate the volume.",
+     "call": "POST /security/cases/ediscoveryCases/{id}/searches/{id}/estimateStatistics"
+    },
+    {
+     "node": "reviewSet",
+     "do": "Collect the results into a review set and export them.",
+     "call": "POST /security/cases/ediscoveryCases/{id}/reviewSets/{id}/addToReviewSet, then export",
+     "note": "On E3 there are no review sets, and export needs pay-as-you-go billing."
+    }
+   ]
+  },
+  {
+   "id": "dlp-incident-triage",
+   "label": "DLP incident triage",
+   "group": "Purview",
+   "summary": "A DLP alert is only the start; triage needs the matching activity, the content, its label and what was detected.",
+   "licence": "DLP alert investigation: Microsoft 365 or Office 365 E5/A5, E5 Compliance, or E5 Information Protection and Governance. Audit (Standard) covers 180 days.",
+   "steps": [
+    {
+     "node": "alert",
+     "do": "List DLP alerts and pick one to triage.",
+     "call": "GET /security/alerts_v2?$filter=serviceSource eq 'dataLossPrevention'",
+     "note": "Single-event DLP alerts work on any DLP subscription; aggregated alerts need E5-class licences."
+    },
+    {
+     "node": "auditLogQuery",
+     "do": "Query the audit log for DLP rule matches around the alert time.",
+     "call": "POST /security/auditLog/queries (recordTypeFilters: ComplianceDLPSharePoint, ComplianceDLPExchange, DLPEndpoint)"
+    },
+    {
+     "node": "auditRecord",
+     "do": "Read the records: who, which file or message, which rule and what action was taken."
+    },
+    {
+     "node": "driveItem",
+     "do": "For SharePoint and OneDrive matches, open the file and who it is shared with."
+    },
+    {
+     "node": "message",
+     "do": "For Exchange matches, find the email.",
+     "or": true
+    },
+    {
+     "node": "messageTrace",
+     "do": "And trace where the email went.",
+     "or": true,
+     "call": "GET /admin/exchange/tracing/messageTraces?$filter=receivedDateTime ge {start} and receivedDateTime le {end} and senderAddress eq '{address}'"
+    },
+    {
+     "node": "sensitivityLabel",
+     "do": "Check the content's label and whether it was downgraded or removed.",
+     "call": "POST /drives/{id}/items/{id}/extractSensitivityLabels"
+    },
+    {
+     "node": "sensitiveType",
+     "do": "Identify which sensitive info types matched.",
+     "note": "The matched SITs are in the DLP audit record; the sensitiveTypes list itself is beta and undocumented."
     }
    ]
   }
