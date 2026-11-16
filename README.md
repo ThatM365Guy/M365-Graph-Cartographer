@@ -1,6 +1,6 @@
 # M365 Graph Cartographer (MGC)
 
-M365 Graph Cartographer (MGC) is an interactive spider diagram of Microsoft Graph. A scheduled scanner keeps it current by reading Microsoft's published Graph schema. Graph sits in the middle, workloads are around it, and the resources you call are on the outer ring. Hover over any node to see its endpoint, its least-privileged permissions and its main limitation. Click it for the full notes: licensing, limitations, how to map it, its connections, and (after a scan) its live schema.
+M365 Graph Cartographer (MGC) is an interactive map of Microsoft Graph that opens like a fan. A scheduled scanner keeps it current by reading Microsoft's published Graph schema. Graph sits in the middle with the services on a ring round it; open a service to see its sub-services, and a sub-service to see the APIs you call. Hover over any node to see its endpoint, its least-privileged permissions and its main limitation. Click it for the full notes: licensing, limitations, how to map it, its connections, and (after a scan) its live schema.
 
 Phase 1 covers the simpler workloads broadly: identity, Outlook, files and sites, Teams, tasks, reports and security. Compliance & Purview is stubbed and will be covered in depth in phase 2.
 
@@ -99,9 +99,10 @@ The static website endpoint is public. That's fine for this reference data. If y
 
 Edit `data/curated.json` and nothing else.
 
-- **Node:** `id`, `label`, `workload`, `entityType` (fully qualified, for example `microsoft.graph.driveItem`), `path`, `summary`, `permissions.delegated` / `.application`, `licence`, `limits[]`, `mapping[]`, `docs`. Optional: `phase: 2`, `kind: "gap"` for things outside Graph, or `kind: "operation"` with `action` for actions such as `runHuntingQuery`.
+- **Sub-service:** each workload has an ordered `subservices` list of `{"id": "...", "label": "..."}`. Ids only need to be unique within their workload.
+- **Node:** `id`, `label`, `workload`, `subservice` (one of that workload's sub-service ids; required), `entityType` (fully qualified, for example `microsoft.graph.driveItem`), `path`, `summary`, `permissions.delegated` / `.application`, `licence`, `limits[]`, `mapping[]`, `docs`. Optional: `phase: 2`, `kind: "gap"` for things outside Graph, or `kind: "operation"` with `action` for actions such as `runHuntingQuery`.
 - **Link:** `s`, `t`, `kind` = `nav` (give `nav`, the navigation property name), `ref` (give `label`, for example `appId`) or `action` (give `action`). Use `via` to show a longer path such as `planner/plans`.
-- Run `python -m unittest discover tests`. The integrity test catches broken IDs.
+- Run `python -m unittest discover tests`. The integrity test catches broken IDs, and `build_page.py` fails if a node has no sub-service, uses one from another workload, or a sub-service is left empty. To build before a new node is filed, use `--allow-unsorted`: the node shows under "Unsorted" and the scan summary lists it until someone sets its `subservice`.
 
 ## Known limitations
 

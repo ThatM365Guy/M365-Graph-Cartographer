@@ -2421,6 +2421,58 @@
    "missing": []
   }
  ],
+ "services": [
+  {
+   "workload": "identity",
+   "onMap": 12,
+   "betaOnly": 0
+  },
+  {
+   "workload": "governance",
+   "onMap": 52,
+   "betaOnly": 0
+  },
+  {
+   "workload": "outlook",
+   "onMap": 8,
+   "betaOnly": 0
+  },
+  {
+   "workload": "files",
+   "onMap": 6,
+   "betaOnly": 0
+  },
+  {
+   "workload": "teams",
+   "onMap": 5,
+   "betaOnly": 0
+  },
+  {
+   "workload": "tasks",
+   "onMap": 4,
+   "betaOnly": 0
+  },
+  {
+   "workload": "reports",
+   "onMap": 3,
+   "betaOnly": 0
+  },
+  {
+   "workload": "security",
+   "onMap": 3,
+   "betaOnly": 0
+  },
+  {
+   "workload": "purview",
+   "onMap": 41,
+   "betaOnly": 5
+  },
+  {
+   "workload": "ai",
+   "onMap": 3,
+   "betaOnly": 0
+  }
+ ],
  "purview": {
   "v1": 62,
   "betaOnly": 53,

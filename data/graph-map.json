@@ -1,11 +1,11 @@
 {
  "meta": {
   "title": "M365 Graph Cartographer (MGC)",
-  "curatedVersion": "0.4.0",
+  "curatedVersion": "0.5.0",
   "curatedOn": "2026-11-16",
   "phase": "Purview covered in depth from 0.3.0: information protection, records, eDiscovery, audit, privacy and the data security API, with what Graph does not cover.",
   "note": "Hand-written content lives here. The scanner never edits this file; it writes graph-map.json alongside it.",
-  "generatedAt": "2026-11-16T13:52:11+00:00",
+  "generatedAt": "2026-11-16T14:16:51+00:00",
   "scan": {
    "at": "2026-11-16T13:52:11+00:00",
    "v1EntityTypes": 1262,
@@ -19,7 +19,8 @@
   {
    "id": "identity",
    "label": "Identity & directory",
-   "colour": "#2c5fa8",
+   "colour": "#2f5fb3",
+   "family": "identity",
    "docs": "https://learn.microsoft.com/graph/azuread-identity-access-management-concept-overview",
    "summary": "Entra ID objects: who and what exists in the tenant, and how they are grouped and granted access.",
    "limits": [
@@ -27,24 +28,62 @@
     "Default page size is 100; most directory collections allow $top up to 999.",
     "Use delta queries for sync jobs rather than full re-reads."
    ],
-   "short": "Identity"
+   "short": "Identity",
+   "subservices": [
+    {
+     "id": "users-groups",
+     "label": "Users & groups"
+    },
+    {
+     "id": "directory",
+     "label": "Directory"
+    },
+    {
+     "id": "apps-consent",
+     "label": "Apps & consent"
+    },
+    {
+     "id": "access-risk",
+     "label": "Access & risk"
+    }
+   ]
   },
   {
    "id": "governance",
    "label": "Identity governance",
    "short": "Governance",
-   "colour": "#0b7a55",
+   "colour": "#3d86c6",
+   "family": "identity",
    "summary": "Microsoft Entra ID Governance: access reviews, entitlement management (access packages), lifecycle workflows, Privileged Identity Management, terms of use and admin consent requests.",
    "limits": [
     "Licensing moved to Microsoft Entra ID Governance. Features that were generally available in P2 still run on P2; no new governance features are added to P2.",
     "Much of it reads fine with application permissions, but terms of use are delegated only."
    ],
-   "docs": "https://learn.microsoft.com/entra/id-governance/licensing-fundamentals"
+   "docs": "https://learn.microsoft.com/entra/id-governance/licensing-fundamentals",
+   "subservices": [
+    {
+     "id": "privileged-access-pim",
+     "label": "Privileged access (PIM)"
+    },
+    {
+     "id": "access-reviews",
+     "label": "Access reviews"
+    },
+    {
+     "id": "entitlement-management",
+     "label": "Entitlement management"
+    },
+    {
+     "id": "lifecycle-consent",
+     "label": "Lifecycle & consent"
+    }
+   ]
   },
   {
    "id": "outlook",
    "label": "Mail, calendar & contacts",
-   "colour": "#0f7f86",
+   "colour": "#1d7a4c",
+   "family": "collaboration",
    "docs": "https://learn.microsoft.com/graph/outlook-mail-concept-overview",
    "summary": "Exchange Online mailbox data, reached through a user (or shared mailbox) path.",
    "limits": [
@@ -52,12 +91,27 @@
     "Application permissions reach every mailbox unless scoped with RBAC for Applications in Exchange Online.",
     "Mailbox must be in Exchange Online (hybrid on-premises mailboxes have extra requirements)."
    ],
-   "short": "Outlook"
+   "short": "Outlook",
+   "subservices": [
+    {
+     "id": "mail",
+     "label": "Mail"
+    },
+    {
+     "id": "calendar-contacts",
+     "label": "Calendar & contacts"
+    },
+    {
+     "id": "exchange-admin",
+     "label": "Exchange admin"
+    }
+   ]
   },
   {
    "id": "files",
    "label": "Files & sites",
-   "colour": "#a8681a",
+   "colour": "#5a8a22",
+   "family": "collaboration",
    "docs": "https://learn.microsoft.com/graph/api/resources/sharepoint",
    "summary": "SharePoint sites, lists and libraries, and OneDrive. Every library is both a list and a drive.",
    "limits": [
@@ -65,12 +119,27 @@
     "Large-list rules still apply: filter on indexed columns to stay under the 5,000-item view threshold.",
     "Much SharePoint admin (hub sites, site scripts, sharing per site) sits outside Graph."
    ],
-   "short": "Files"
+   "short": "Files",
+   "subservices": [
+    {
+     "id": "sites-lists",
+     "label": "Sites & lists"
+    },
+    {
+     "id": "files-sharing",
+     "label": "Files & sharing"
+    },
+    {
+     "id": "sharepoint-admin",
+     "label": "SharePoint admin"
+    }
+   ]
   },
   {
    "id": "teams",
    "label": "Teams",
-   "colour": "#6a4aa5",
+   "colour": "#0f8a78",
+   "family": "collaboration",
    "docs": "https://learn.microsoft.com/graph/teams-concept-overview",
    "summary": "Teams, channels, chats and meetings. A team is always backed by a Microsoft 365 group.",
    "limits": [
@@ -78,48 +147,96 @@
     "Apps cannot post channel messages with application permissions except in migration mode.",
     "Resource-specific consent (RSC) can scope an app to a single team or chat."
    ],
-   "short": "Teams"
+   "short": "Teams",
+   "subservices": [
+    {
+     "id": "teams-channels",
+     "label": "Teams & channels"
+    },
+    {
+     "id": "chats-messages",
+     "label": "Chats & messages"
+    },
+    {
+     "id": "meetings",
+     "label": "Meetings"
+    }
+   ]
   },
   {
    "id": "tasks",
    "label": "Tasks & planning",
-   "colour": "#4f7a2c",
+   "colour": "#7f8f2a",
+   "family": "collaboration",
    "docs": "https://learn.microsoft.com/graph/planner-concept-overview",
    "summary": "Planner plans and tasks (owned by groups) and personal Microsoft To Do lists.",
    "limits": [
     "Planner updates need the If-Match header with the item's current ETag.",
     "Premium plans (Planner Premium / Project) are not exposed through these APIs."
    ],
-   "short": "Tasks"
+   "short": "Tasks",
+   "subservices": [
+    {
+     "id": "planner",
+     "label": "Planner"
+    },
+    {
+     "id": "to-do",
+     "label": "To Do"
+    }
+   ]
   },
   {
    "id": "reports",
    "label": "Reports & logs",
-   "colour": "#76665a",
+   "colour": "#a8573a",
+   "family": "security",
    "docs": "https://learn.microsoft.com/graph/api/resources/report",
    "summary": "Usage reports, sign-in logs and directory audit logs.",
    "limits": [
     "Entra sign-in and audit logs are kept for 30 days with Entra ID P1/P2 (7 days without). Export to Log Analytics for longer.",
     "Usage reports can conceal user, group and site names unless the tenant report setting is changed."
    ],
-   "short": "Reports"
+   "short": "Reports",
+   "subservices": [
+    {
+     "id": "usage-reports",
+     "label": "Usage reports"
+    },
+    {
+     "id": "sign-in-audit-logs",
+     "label": "Sign-in & audit logs"
+    }
+   ]
   },
   {
    "id": "security",
    "label": "Security",
-   "colour": "#b2321e",
+   "colour": "#c13b2a",
+   "family": "security",
    "docs": "https://learn.microsoft.com/graph/api/resources/security-api-overview",
    "summary": "Defender XDR alerts and incidents, Secure Score and advanced hunting with KQL.",
    "limits": [
     "Use alerts_v2 and incidents. The legacy /security/alerts API is deprecated.",
     "Advanced hunting only sees the last 30 days of Defender data."
    ],
-   "short": "Security"
+   "short": "Security",
+   "subservices": [
+    {
+     "id": "alerts-incidents",
+     "label": "Alerts & incidents"
+    },
+    {
+     "id": "hunting-posture",
+     "label": "Hunting & posture"
+    }
+   ]
   },
   {
    "id": "purview",
    "label": "Compliance & Purview",
-   "colour": "#9a3a6c",
+   "colour": "#a4345f",
+   "family": "security",
    "docs": "https://learn.microsoft.com/graph/api/resources/security-api-overview",
    "summary": "Microsoft Purview in Graph: sensitivity labels and classification, records management, eDiscovery (Premium), audit search, subject rights requests and the data security API. Policies themselves (DLP, label, retention, IRM) are mostly outside Graph.",
    "limits": [
@@ -127,19 +244,56 @@
     "Several Purview APIs are delegated only (retention labels, subject rights requests). Check the application permission on each node.",
     "Learn and $metadata sometimes disagree on beta versus v1.0 (for example eDiscovery legal holds). The scan badge shows what $metadata says today."
    ],
-   "short": "Purview"
+   "short": "Purview",
+   "subservices": [
+    {
+     "id": "information-protection",
+     "label": "Information protection"
+    },
+    {
+     "id": "records-management",
+     "label": "Records management"
+    },
+    {
+     "id": "ediscovery",
+     "label": "eDiscovery"
+    },
+    {
+     "id": "audit",
+     "label": "Audit"
+    },
+    {
+     "id": "privacy",
+     "label": "Privacy"
+    },
+    {
+     "id": "outside-graph",
+     "label": "Outside Graph"
+    }
+   ]
   },
   {
    "id": "ai",
    "label": "AI & agents",
    "short": "AI",
-   "colour": "#d6247a",
+   "colour": "#7a4fc4",
+   "family": "ai",
    "summary": "Copilot interaction history and Entra Agent ID (agent identities and their blueprints). Your own AI apps apply Purview policy through the Purview data security API, which sits in the Purview workload.",
    "limits": [
     "Most of these APIs are new. Licensing and preview status drift, so check the date each note was verified.",
     "Copilot Studio agents are not covered by the Copilot interaction export."
    ],
-   "docs": "https://learn.microsoft.com/graph/security-datasecurityandgovernance-overview"
+   "docs": "https://learn.microsoft.com/graph/security-datasecurityandgovernance-overview",
+   "subservices": [
+    {
+     "id": "copilot",
+     "label": "Copilot"
+    },
+    {
+     "id": "agents",
+     "label": "Agents"
+    }
+   ]
   }
  ],
  "hub": {
@@ -169,6 +323,7 @@
    "id": "user",
    "label": "User",
    "workload": "identity",
+   "subservice": "users-groups",
    "entityType": "microsoft.graph.user",
    "path": "GET /users/{id | userPrincipalName}  ·  GET /me",
    "summary": "A person (member or guest) in Entra ID. The anchor for most personal data in Microsoft 365.",
@@ -388,6 +543,7 @@
    "id": "group",
    "label": "Group",
    "workload": "identity",
+   "subservice": "users-groups",
    "entityType": "microsoft.graph.group",
    "path": "GET /groups/{id}",
    "summary": "Microsoft 365 groups, security groups, mail-enabled security groups and distribution lists.",
@@ -523,6 +679,7 @@
    "id": "application",
    "label": "Application",
    "workload": "identity",
+   "subservice": "apps-consent",
    "entityType": "microsoft.graph.application",
    "path": "GET /applications/{id}  ·  /applications(appId='{appId}')",
    "summary": "An app registration: the global definition of an app, held in its home tenant.",
@@ -627,6 +784,7 @@
    "id": "servicePrincipal",
    "label": "Service principal",
    "workload": "identity",
+   "subservice": "apps-consent",
    "entityType": "microsoft.graph.servicePrincipal",
    "path": "GET /servicePrincipals/{id}  ·  /servicePrincipals(appId='{appId}')",
    "summary": "An enterprise app: the app's identity in this tenant. Grants and assignments are recorded here.",
@@ -738,6 +896,7 @@
    "id": "device",
    "label": "Device",
    "workload": "identity",
+   "subservice": "directory",
    "entityType": "microsoft.graph.device",
    "path": "GET /devices/{id}",
    "summary": "A device registered or joined in Entra ID.",
@@ -829,6 +988,7 @@
    "id": "administrativeUnit",
    "label": "Administrative unit",
    "workload": "identity",
+   "subservice": "directory",
    "entityType": "microsoft.graph.administrativeUnit",
    "path": "GET /directory/administrativeUnits/{id}",
    "summary": "A container that scopes admin roles to a subset of users, groups or devices.",
@@ -883,6 +1043,7 @@
    "id": "directoryRole",
    "label": "Directory role",
    "workload": "identity",
+   "subservice": "directory",
    "entityType": "microsoft.graph.directoryRole",
    "path": "GET /directoryRoles  ·  GET /roleManagement/directory/roleAssignments",
    "summary": "Entra admin roles such as Global Administrator and Compliance Administrator.",
@@ -930,6 +1091,7 @@
    "id": "message",
    "label": "Message",
    "workload": "outlook",
+   "subservice": "mail",
    "entityType": "microsoft.graph.message",
    "path": "GET /users/{id}/messages/{id}",
    "summary": "An email in a mailbox folder.",
@@ -1015,6 +1177,7 @@
    "id": "mailFolder",
    "label": "Mail folder",
    "workload": "outlook",
+   "subservice": "mail",
    "entityType": "microsoft.graph.mailFolder",
    "path": "GET /users/{id}/mailFolders/{id | wellKnownName}",
    "summary": "A folder in a mailbox. Folders can be nested.",
@@ -1073,6 +1236,7 @@
    "id": "event",
    "label": "Event",
    "workload": "outlook",
+   "subservice": "calendar-contacts",
    "entityType": "microsoft.graph.event",
    "path": "GET /users/{id}/events  ·  /calendarView?startDateTime=&endDateTime=",
    "summary": "A calendar appointment or meeting.",
@@ -1167,6 +1331,7 @@
    "id": "calendar",
    "label": "Calendar",
    "workload": "outlook",
+   "subservice": "calendar-contacts",
    "entityType": "microsoft.graph.calendar",
    "path": "GET /users/{id}/calendars/{id}",
    "summary": "A calendar container: the user's default calendar, extra calendars, or a group calendar.",
@@ -1232,6 +1397,7 @@
    "id": "contact",
    "label": "Contact",
    "workload": "outlook",
+   "subservice": "calendar-contacts",
    "entityType": "microsoft.graph.contact",
    "path": "GET /users/{id}/contacts",
    "summary": "A personal contact in the user's mailbox.",
@@ -1324,6 +1490,7 @@
    "id": "site",
    "label": "Site",
    "workload": "files",
+   "subservice": "sites-lists",
    "entityType": "microsoft.graph.site",
    "path": "GET /sites/{hostname}:/sites/{path}  ·  /sites/{id}",
    "summary": "A SharePoint site: team site, communication site, or a OneDrive's underlying site.",
@@ -1415,6 +1582,7 @@
    "id": "list",
    "label": "List",
    "workload": "files",
+   "subservice": "sites-lists",
    "entityType": "microsoft.graph.list",
    "path": "GET /sites/{id}/lists/{id}",
    "summary": "A SharePoint list or library. Columns and content types live here.",
@@ -1483,6 +1651,7 @@
    "id": "listItem",
    "label": "List item",
    "workload": "files",
+   "subservice": "sites-lists",
    "entityType": "microsoft.graph.listItem",
    "path": "GET /sites/{id}/lists/{id}/items?$expand=fields",
    "summary": "A row in a list. In a library, each file is also a list item that carries its metadata.",
@@ -1547,6 +1716,7 @@
    "id": "drive",
    "label": "Drive",
    "workload": "files",
+   "subservice": "files-sharing",
    "entityType": "microsoft.graph.drive",
    "path": "GET /drives/{id}  ·  /me/drive  ·  /sites/{id}/drive",
    "summary": "A document library or a OneDrive.",
@@ -1617,6 +1787,7 @@
    "id": "driveItem",
    "label": "Drive item",
    "workload": "files",
+   "subservice": "files-sharing",
    "entityType": "microsoft.graph.driveItem",
    "path": "GET /drives/{id}/items/{id}  ·  /root:/path/to/file",
    "summary": "A file or folder.",
@@ -1716,6 +1887,7 @@
    "id": "permission",
    "label": "Sharing permission",
    "workload": "files",
+   "subservice": "files-sharing",
    "entityType": "microsoft.graph.permission",
    "path": "GET /drives/{id}/items/{id}/permissions  ·  /sites/{id}/permissions  ·  /sites/{id}/lists/{id}/permissions  ·  /sites/{id}/lists/{id}/items/{id}/permissions",
    "summary": "A sharing link or direct grant on a file, folder or site. On sites, lists and list items, Graph can only create permissions for applications (the Selected scopes model), not for users.",
@@ -1769,6 +1941,7 @@
    "id": "spGap",
    "label": "Not in Graph: SharePoint",
    "workload": "files",
+   "subservice": "sharepoint-admin",
    "kind": "gap",
    "path": "SharePoint REST · PnP PowerShell · SPO Management Shell",
    "summary": "SharePoint administration that Graph doesn't fully cover yet.",
@@ -1787,6 +1960,7 @@
    "id": "team",
    "label": "Team",
    "workload": "teams",
+   "subservice": "teams-channels",
    "entityType": "microsoft.graph.team",
    "path": "GET /teams/{group-id}",
    "summary": "Teams settings layered on top of a Microsoft 365 group. The team and the group share the same ID.",
@@ -1864,6 +2038,7 @@
    "id": "channel",
    "label": "Channel",
    "workload": "teams",
+   "subservice": "teams-channels",
    "entityType": "microsoft.graph.channel",
    "path": "GET /teams/{id}/channels/{id}",
    "summary": "A standard, private or shared channel in a team.",
@@ -1932,6 +2107,7 @@
    "id": "chat",
    "label": "Chat",
    "workload": "teams",
+   "subservice": "chats-messages",
    "entityType": "microsoft.graph.chat",
    "path": "GET /chats/{id}  ·  /users/{id}/chats",
    "summary": "A one-to-one, group or meeting chat.",
@@ -1997,6 +2173,7 @@
    "id": "chatMessage",
    "label": "Chat message",
    "workload": "teams",
+   "subservice": "chats-messages",
    "entityType": "microsoft.graph.chatMessage",
    "path": "GET /teams/{id}/channels/{id}/messages  ·  /chats/{id}/messages",
    "summary": "A post or reply in a channel, or a message in a chat.",
@@ -2067,6 +2244,7 @@
    "id": "onlineMeeting",
    "label": "Online meeting",
    "workload": "teams",
+   "subservice": "meetings",
    "entityType": "microsoft.graph.onlineMeeting",
    "path": "GET /users/{id}/onlineMeetings?$filter=JoinWebUrl eq '{joinUrl}'",
    "summary": "A Teams meeting, with its transcripts, recordings and attendance reports.",
@@ -2166,6 +2344,7 @@
    "id": "plannerPlan",
    "label": "Planner plan",
    "workload": "tasks",
+   "subservice": "planner",
    "entityType": "microsoft.graph.plannerPlan",
    "path": "GET /planner/plans/{id}  ·  /groups/{id}/planner/plans",
    "summary": "A basic Planner plan, contained by a Microsoft 365 group.",
@@ -2226,6 +2405,7 @@
    "id": "plannerTask",
    "label": "Planner task",
    "workload": "tasks",
+   "subservice": "planner",
    "entityType": "microsoft.graph.plannerTask",
    "path": "GET /planner/tasks/{id}  ·  /me/planner/tasks",
    "summary": "A card in a plan.",
@@ -2305,6 +2485,7 @@
    "id": "todoTaskList",
    "label": "To Do list",
    "workload": "tasks",
+   "subservice": "to-do",
    "entityType": "microsoft.graph.todoTaskList",
    "path": "GET /me/todo/lists",
    "summary": "A personal Microsoft To Do list, stored in the user's mailbox.",
@@ -2352,6 +2533,7 @@
    "id": "todoTask",
    "label": "To Do task",
    "workload": "tasks",
+   "subservice": "to-do",
    "entityType": "microsoft.graph.todoTask",
    "path": "GET /me/todo/lists/{id}/tasks",
    "summary": "A task in a To Do list.",
@@ -2413,6 +2595,7 @@
    "id": "reportRoot",
    "label": "Usage reports",
    "workload": "reports",
+   "subservice": "usage-reports",
    "entityType": "microsoft.graph.reportRoot",
    "path": "GET /reports/getOneDriveUsageAccountDetail(period='D30')",
    "summary": "Microsoft 365 usage reports for Teams, Exchange, SharePoint, OneDrive, Copilot and more.",
@@ -2476,6 +2659,7 @@
    "id": "signIn",
    "label": "Sign-in log",
    "workload": "reports",
+   "subservice": "sign-in-audit-logs",
    "entityType": "microsoft.graph.signIn",
    "path": "GET /auditLogs/signIns",
    "summary": "Entra ID sign-in events.",
@@ -2594,6 +2778,7 @@
    "id": "directoryAudit",
    "label": "Directory audit",
    "workload": "reports",
+   "subservice": "sign-in-audit-logs",
    "entityType": "microsoft.graph.directoryAudit",
    "path": "GET /auditLogs/directoryAudits",
    "summary": "Entra ID change history: who changed what in the directory.",
@@ -2646,6 +2831,7 @@
    "id": "alert",
    "label": "Alert (v2)",
    "workload": "security",
+   "subservice": "alerts-incidents",
    "entityType": "microsoft.graph.security.alert",
    "path": "GET /security/alerts_v2",
    "summary": "A Defender XDR alert from any Defender product, including Purview DLP and Insider Risk alerts.",
@@ -2720,6 +2906,7 @@
    "id": "incident",
    "label": "Incident",
    "workload": "security",
+   "subservice": "alerts-incidents",
    "entityType": "microsoft.graph.security.incident",
    "path": "GET /security/incidents?$expand=alerts",
    "summary": "A group of related alerts, correlated by Defender XDR.",
@@ -2782,6 +2969,7 @@
    "id": "secureScore",
    "label": "Secure Score",
    "workload": "security",
+   "subservice": "hunting-posture",
    "entityType": "microsoft.graph.secureScore",
    "path": "GET /security/secureScores?$top=1",
    "summary": "A daily snapshot of the tenant's Microsoft Secure Score.",
@@ -2830,6 +3018,7 @@
    "id": "hunting",
    "label": "Advanced hunting",
    "workload": "security",
+   "subservice": "hunting-posture",
    "kind": "operation",
    "action": "runHuntingQuery",
    "path": "POST /security/runHuntingQuery",
@@ -2862,6 +3051,7 @@
    "id": "sensitivityLabel",
    "label": "Sensitivity label",
    "workload": "purview",
+   "subservice": "information-protection",
    "entityType": "microsoft.graph.sensitivityLabel",
    "path": "GET /security/dataSecurityAndGovernance/sensitivityLabels  ·  /me/dataSecurityAndGovernance/sensitivityLabels",
    "summary": "Read the published sensitivity labels. Apply them to files through driveItem actions.",
@@ -2937,6 +3127,7 @@
    "id": "retentionLabel",
    "label": "Retention label",
    "workload": "purview",
+   "subservice": "records-management",
    "entityType": "microsoft.graph.security.retentionLabel",
    "path": "GET /security/labels/retentionLabels",
    "summary": "Records management retention labels: retention period and trigger, what happens at the end (including disposition review), file plan descriptors and the event type for event-based retention.",
@@ -2999,6 +3190,7 @@
    "id": "ediscoveryCase",
    "label": "eDiscovery case",
    "workload": "purview",
+   "subservice": "ediscovery",
    "entityType": "microsoft.graph.security.ediscoveryCase",
    "path": "GET /security/cases/ediscoveryCases",
    "summary": "Purview eDiscovery cases: custodians, non-custodial sources, searches, holds, review sets and exports.",
@@ -3067,6 +3259,7 @@
    "id": "auditLogQuery",
    "label": "Audit log query",
    "workload": "purview",
+   "subservice": "audit",
    "entityType": "microsoft.graph.security.auditLogQuery",
    "path": "POST /security/auditLog/queries",
    "summary": "Searches the Purview unified audit log asynchronously.",
@@ -3127,6 +3320,7 @@
    "id": "purviewGap",
    "label": "Not in Graph: Purview",
    "workload": "purview",
+   "subservice": "outside-graph",
    "kind": "gap",
    "path": "Security & Compliance PowerShell (Connect-IPPSSession) · Purview portal · Purview REST APIs",
    "summary": "Purview solutions and configuration that Graph does not expose, with what to use instead.",
@@ -3158,6 +3352,7 @@
    "id": "caPolicy",
    "label": "Conditional Access policy",
    "workload": "identity",
+   "subservice": "access-risk",
    "entityType": "microsoft.graph.conditionalAccessPolicy",
    "path": "GET /identity/conditionalAccess/policies",
    "summary": "The tenant's Conditional Access policies: who and what they target, the conditions, and the grant and session controls.",
@@ -3209,6 +3404,7 @@
    "id": "riskyUser",
    "label": "Risky user",
    "workload": "identity",
+   "subservice": "access-risk",
    "entityType": "microsoft.graph.riskyUser",
    "path": "GET /identityProtection/riskyUsers",
    "summary": "Users that Entra ID Protection flags as at risk, with risk level, state and history. Admins can confirm compromise or dismiss risk.",
@@ -3258,6 +3454,7 @@
    "id": "oauthGrant",
    "label": "OAuth grant",
    "workload": "identity",
+   "subservice": "apps-consent",
    "entityType": "microsoft.graph.oAuth2PermissionGrant",
    "path": "GET /oauth2PermissionGrants",
    "summary": "Delegated permission grants: which client app may call which API on behalf of one user or all users, and with which scopes.",
@@ -3306,6 +3503,7 @@
    "id": "appRoleAssignment",
    "label": "App role assignment",
    "workload": "identity",
+   "subservice": "apps-consent",
    "entityType": "microsoft.graph.appRoleAssignment",
    "path": "GET /servicePrincipals/{id}/appRoleAssignedTo · /users/{id}/appRoleAssignments",
    "summary": "Who holds an app role on an application: users and groups assigned to enterprise apps, and application permissions granted to other apps.",
@@ -3359,6 +3557,7 @@
    "id": "pimEligibility",
    "label": "PIM eligibility",
    "workload": "governance",
+   "subservice": "privileged-access-pim",
    "entityType": "microsoft.graph.unifiedRoleEligibilitySchedule",
    "path": "GET /roleManagement/directory/roleEligibilitySchedules",
    "summary": "Privileged Identity Management eligible assignments: who can activate a directory role, for which scope and until when.",
@@ -3414,6 +3613,7 @@
    "id": "subscribedSku",
    "label": "Licence",
    "workload": "identity",
+   "subservice": "directory",
    "entityType": "microsoft.graph.subscribedSku",
    "path": "GET /subscribedSkus",
    "summary": "The tenant's licence SKUs with purchased and consumed units and service plans. Per user, licenseDetails shows what each user holds.",
@@ -3464,6 +3664,7 @@
    "id": "messageRule",
    "label": "Inbox rule",
    "workload": "outlook",
+   "subservice": "mail",
    "entityType": "microsoft.graph.messageRule",
    "path": "GET /users/{id}/mailFolders/inbox/messageRules",
    "summary": "A user's Inbox rules, including forwardTo, redirectTo and forwardAsAttachmentTo actions that send mail outside the organisation.",
@@ -3512,6 +3713,7 @@
    "id": "exGap",
    "label": "Not in Graph: Exchange",
    "workload": "outlook",
+   "subservice": "exchange-admin",
    "kind": "gap",
    "path": "Exchange Online PowerShell",
    "summary": "Exchange forwarding and mail flow controls that Graph does not expose.",
@@ -3531,6 +3733,7 @@
    "id": "aiInteraction",
    "label": "Copilot interaction",
    "workload": "ai",
+   "subservice": "copilot",
    "entityType": "microsoft.graph.aiInteraction",
    "path": "GET /copilot/users/{id}/interactionHistory/getAllEnterpriseInteractions",
    "summary": "A user's Microsoft 365 Copilot prompts and responses across Teams, Word, Outlook and other apps, with the files and links Copilot used.",
@@ -3586,6 +3789,7 @@
    "id": "purviewAi",
    "label": "Purview data security API",
    "workload": "purview",
+   "subservice": "information-protection",
    "kind": "operation",
    "action": "processContent",
    "path": "POST /users/{id}/dataSecurityAndGovernance/protectionScopes/compute · processContent · activities/contentActivities",
@@ -3631,6 +3835,7 @@
    "id": "agentIdentity",
    "label": "Agent identity",
    "workload": "ai",
+   "subservice": "agents",
    "entityType": "microsoft.graph.agentIdentity",
    "path": "GET /servicePrincipals/microsoft.graph.agentIdentity",
    "summary": "An Entra Agent ID identity: a service principal subtype that an AI agent signs in with, created from an agent identity blueprint.",
@@ -3758,6 +3963,7 @@
    "id": "agentBlueprint",
    "label": "Agent blueprint",
    "workload": "ai",
+   "subservice": "agents",
    "entityType": "microsoft.graph.agentIdentityBlueprint",
    "path": "GET /applications/microsoft.graph.agentIdentityBlueprint",
    "summary": "An agent identity blueprint: an application subtype that defines a kind of agent and creates its agent identities.",
@@ -3865,6 +4071,7 @@
    "id": "sensitiveType",
    "label": "Sensitive info type",
    "workload": "purview",
+   "subservice": "information-protection",
    "entityType": "microsoft.graph.sensitiveType",
    "path": "GET /beta/dataClassification/sensitiveTypes",
    "summary": "Built-in and custom sensitive information types (SITs) that DLP and auto-labelling use to find data such as card numbers.",
@@ -3908,6 +4115,7 @@
    "id": "edmStore",
    "label": "EDM data store",
    "workload": "purview",
+   "subservice": "information-protection",
    "entityType": "microsoft.graph.exactMatchDataStore",
    "covers": [
     "microsoft.graph.exactMatchSession",
@@ -3952,6 +4160,7 @@
    "id": "retentionEvent",
    "label": "Retention event",
    "workload": "purview",
+   "subservice": "records-management",
    "entityType": "microsoft.graph.security.retentionEvent",
    "covers": [
     "microsoft.graph.security.retentionEventType"
@@ -4008,6 +4217,7 @@
    "id": "filePlan",
    "label": "File plan descriptor",
    "workload": "purview",
+   "subservice": "records-management",
    "entityType": "microsoft.graph.security.filePlanDescriptor",
    "covers": [
     "microsoft.graph.security.filePlanDescriptorTemplate",
@@ -4067,6 +4277,7 @@
    "id": "dispositionReview",
    "label": "Disposition review",
    "workload": "purview",
+   "subservice": "records-management",
    "entityType": "microsoft.graph.security.dispositionReviewStage",
    "path": "dispositionReviewStages[] on POST or PATCH /security/labels/retentionLabels (no path of its own)",
    "summary": "Up to five review stages, each with named reviewers, that must approve before labelled content is deleted at the end of its retention period.",
@@ -4107,6 +4318,7 @@
    "id": "custodian",
    "label": "Custodian",
    "workload": "purview",
+   "subservice": "ediscovery",
    "entityType": "microsoft.graph.security.ediscoveryCustodian",
    "covers": [
     "microsoft.graph.security.userSource",
@@ -4165,6 +4377,7 @@
    "id": "ediscoverySearch",
    "label": "eDiscovery search",
    "workload": "purview",
+   "subservice": "ediscovery",
    "entityType": "microsoft.graph.security.ediscoverySearch",
    "covers": [
     "microsoft.graph.security.ediscoveryEstimateOperation",
@@ -4222,6 +4435,7 @@
    "id": "reviewSet",
    "label": "Review set",
    "workload": "purview",
+   "subservice": "ediscovery",
    "entityType": "microsoft.graph.security.ediscoveryReviewSet",
    "covers": [
     "microsoft.graph.security.ediscoveryReviewSetQuery",
@@ -4275,6 +4489,7 @@
    "id": "legalHold",
    "label": "Legal hold",
    "workload": "purview",
+   "subservice": "ediscovery",
    "entityType": "microsoft.graph.security.ediscoveryHoldPolicy",
    "covers": [
     "microsoft.graph.security.ediscoveryHoldOperation",
@@ -4334,6 +4549,7 @@
    "id": "auditRecord",
    "label": "Audit record",
    "workload": "purview",
+   "subservice": "audit",
    "entityType": "microsoft.graph.security.auditLogRecord",
    "path": "GET /security/auditLog/queries/{id}/records",
    "summary": "One unified audit log event from an audit log query: who did what, to which object, when and from where.",
@@ -4385,6 +4601,7 @@
    "id": "subjectRights",
    "label": "Subject rights request",
    "workload": "purview",
+   "subservice": "privacy",
    "entityType": "microsoft.graph.subjectRightsRequest",
    "covers": [
     "microsoft.graph.authoredNote"
@@ -4464,6 +4681,7 @@
    "id": "messageTrace",
    "label": "Message trace",
    "workload": "outlook",
+   "subservice": "exchange-admin",
    "entityType": "microsoft.graph.exchangeMessageTrace",
    "covers": [
     "microsoft.graph.exchangeMessageTraceDetail"
@@ -4517,6 +4735,7 @@
    "id": "accessReview",
    "label": "Access review",
    "workload": "governance",
+   "subservice": "access-reviews",
    "entityType": "microsoft.graph.accessReviewScheduleDefinition",
    "covers": [
     "microsoft.graph.accessReviewSet",
@@ -4583,6 +4802,7 @@
    "id": "reviewDecision",
    "label": "Access review decision",
    "workload": "governance",
+   "subservice": "access-reviews",
    "entityType": "microsoft.graph.accessReviewInstanceDecisionItem",
    "covers": [
     "microsoft.graph.governanceInsight",
@@ -4651,6 +4871,7 @@
    "id": "accessPackage",
    "label": "Access package",
    "workload": "governance",
+   "subservice": "entitlement-management",
    "entityType": "microsoft.graph.accessPackage",
    "covers": [
     "microsoft.graph.entitlementManagement",
@@ -4725,6 +4946,7 @@
    "id": "packageAssignment",
    "label": "Access package assignment",
    "workload": "governance",
+   "subservice": "entitlement-management",
    "entityType": "microsoft.graph.accessPackageAssignment",
    "covers": [
     "microsoft.graph.accessPackageAssignmentRequest",
@@ -4789,6 +5011,7 @@
    "id": "connectedOrg",
    "label": "Connected organisation",
    "workload": "governance",
+   "subservice": "entitlement-management",
    "entityType": "microsoft.graph.connectedOrganization",
    "path": "GET /identityGovernance/entitlementManagement/connectedOrganizations",
    "summary": "An external Entra tenant or domain whose users may request access packages, with internal and external sponsors.",
@@ -4840,6 +5063,7 @@
    "id": "lifecycleWorkflow",
    "label": "Lifecycle workflow",
    "workload": "governance",
+   "subservice": "lifecycle-consent",
    "entityType": "microsoft.graph.identityGovernance.workflow",
    "covers": [
     "microsoft.graph.identityGovernance.lifecycleWorkflowsContainer",
@@ -4919,6 +5143,7 @@
    "id": "termsOfUse",
    "label": "Terms of use",
    "workload": "governance",
+   "subservice": "lifecycle-consent",
    "entityType": "microsoft.graph.agreement",
    "covers": [
     "microsoft.graph.termsOfUseContainer",
@@ -4971,6 +5196,7 @@
    "id": "pimGroups",
    "label": "PIM for groups",
    "workload": "governance",
+   "subservice": "privileged-access-pim",
    "entityType": "microsoft.graph.privilegedAccessGroupEligibilitySchedule",
    "covers": [
     "microsoft.graph.privilegedAccessRoot",
@@ -5033,6 +5259,7 @@
    "id": "consentRequest",
    "label": "Admin consent request",
    "workload": "governance",
+   "subservice": "lifecycle-consent",
    "entityType": "microsoft.graph.appConsentRequest",
    "covers": [
     "microsoft.graph.userConsentRequest",
@@ -8627,6 +8854,58 @@
     "v1": 0,
     "betaOnly": 1,
     "onMap": 0
+   }
+  ],
+  "services": [
+   {
+    "workload": "identity",
+    "onMap": 12,
+    "betaOnly": 0
+   },
+   {
+    "workload": "governance",
+    "onMap": 52,
+    "betaOnly": 0
+   },
+   {
+    "workload": "outlook",
+    "onMap": 8,
+    "betaOnly": 0
+   },
+   {
+    "workload": "files",
+    "onMap": 6,
+    "betaOnly": 0
+   },
+   {
+    "workload": "teams",
+    "onMap": 5,
+    "betaOnly": 0
+   },
+   {
+    "workload": "tasks",
+    "onMap": 4,
+    "betaOnly": 0
+   },
+   {
+    "workload": "reports",
+    "onMap": 3,
+    "betaOnly": 0
+   },
+   {
+    "workload": "security",
+    "onMap": 3,
+    "betaOnly": 0
+   },
+   {
+    "workload": "purview",
+    "onMap": 41,
+    "betaOnly": 5
+   },
+   {
+    "workload": "ai",
+    "onMap": 3,
+    "betaOnly": 0
    }
   ],
   "purview": {
