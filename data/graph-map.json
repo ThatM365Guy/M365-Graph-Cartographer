@@ -1,13 +1,13 @@
 {
  "meta": {
   "title": "M365 Graph Cartographer (MGC)",
-  "curatedVersion": "0.3.0",
+  "curatedVersion": "0.4.0",
   "curatedOn": "2026-11-16",
   "phase": "Purview covered in depth from 0.3.0: information protection, records, eDiscovery, audit, privacy and the data security API, with what Graph does not cover.",
   "note": "Hand-written content lives here. The scanner never edits this file; it writes graph-map.json alongside it.",
-  "generatedAt": "2026-11-16T11:38:02+00:00",
+  "generatedAt": "2026-11-16T11:48:50+00:00",
   "scan": {
-   "at": "2026-11-16T11:38:02+00:00",
+   "at": "2026-11-16T11:48:50+00:00",
    "v1EntityTypes": 1262,
    "betaEntityTypes": 2624,
    "permissionsChecked": true,
@@ -28,6 +28,18 @@
     "Use delta queries for sync jobs rather than full re-reads."
    ],
    "short": "Identity"
+  },
+  {
+   "id": "governance",
+   "label": "Identity governance",
+   "short": "Governance",
+   "colour": "#0b7a55",
+   "summary": "Microsoft Entra ID Governance: access reviews, entitlement management (access packages), lifecycle workflows, Privileged Identity Management, terms of use and admin consent requests.",
+   "limits": [
+    "Licensing moved to Microsoft Entra ID Governance. Features that were generally available in P2 still run on P2; no new governance features are added to P2.",
+    "Much of it reads fine with application permissions, but terms of use are delegated only."
+   ],
+   "docs": "https://learn.microsoft.com/entra/id-governance/licensing-fundamentals"
   },
   {
    "id": "outlook",
@@ -3346,7 +3358,7 @@
   {
    "id": "pimEligibility",
    "label": "PIM eligibility",
-   "workload": "identity",
+   "workload": "governance",
    "entityType": "microsoft.graph.unifiedRoleEligibilitySchedule",
    "path": "GET /roleManagement/directory/roleEligibilitySchedules",
    "summary": "Privileged Identity Management eligible assignments: who can activate a directory role, for which scope and until when.",
@@ -4500,6 +4512,572 @@
     ],
     "unknown": []
    }
+  },
+  {
+   "id": "accessReview",
+   "label": "Access review",
+   "workload": "governance",
+   "entityType": "microsoft.graph.accessReviewScheduleDefinition",
+   "covers": [
+    "microsoft.graph.accessReviewSet",
+    "microsoft.graph.accessReviewInstance",
+    "microsoft.graph.accessReviewStage",
+    "microsoft.graph.accessReviewReviewer",
+    "microsoft.graph.accessReviewHistoryDefinition",
+    "microsoft.graph.accessReviewHistoryInstance"
+   ],
+   "path": "GET /identityGovernance/accessReviews/definitions",
+   "summary": "Access review definitions and their recurring instances: who reviews which groups, apps, access packages or roles, and when.",
+   "permissions": {
+    "delegated": "AccessReview.Read.All",
+    "application": "AccessReview.Read.All"
+   },
+   "licence": "Microsoft Entra ID Governance (capabilities that were generally available in P2 still run on P2). Reviews of inactive users only, machine-learning recommendations and catalog reviews need ID Governance.",
+   "limits": [
+    "Default page size is 100; page with $top and $skip to avoid timeouts.",
+    "Filter definitions by scope with contains(scope/microsoft.graph.accessReviewQueryScope/query,'/groups'); this doesn't work on inactive-user scopes.",
+    "Review history reports need AccessReview.ReadWrite.All even to list, and only return definitions created in the last 30 days."
+   ],
+   "mapping": [
+    "scope says what is reviewed (group members, app assignments, access package assignments, role assignments); instances hold each run, stages the multi-stage steps."
+   ],
+   "docs": "https://learn.microsoft.com/graph/api/accessreviewset-list-definitions",
+   "scan": {
+    "status": "v1.0",
+    "props": [
+     "additionalNotificationRecipients",
+     "createdBy",
+     "createdDateTime",
+     "descriptionForAdmins",
+     "descriptionForReviewers",
+     "displayName",
+     "fallbackReviewers",
+     "id",
+     "instanceEnumerationScope",
+     "lastModifiedDateTime",
+     "reviewers",
+     "scope",
+     "settings",
+     "stageSettings",
+     "status"
+    ],
+    "navs": {
+     "instances": "microsoft.graph.accessReviewInstance"
+    },
+    "betaOnlyProps": [
+     "backupReviewers"
+    ],
+    "betaOnlyNavs": [],
+    "baseTypes": [
+     "microsoft.graph.entity"
+    ]
+   },
+   "permCheck": {
+    "checked": [
+     "AccessReview.Read.All"
+    ],
+    "unknown": []
+   }
+  },
+  {
+   "id": "reviewDecision",
+   "label": "Access review decision",
+   "workload": "governance",
+   "entityType": "microsoft.graph.accessReviewInstanceDecisionItem",
+   "covers": [
+    "microsoft.graph.governanceInsight",
+    "microsoft.graph.userSignInInsight",
+    "microsoft.graph.membershipOutlierInsight"
+   ],
+   "path": "GET /identityGovernance/accessReviews/definitions/{id}/instances/{id}/decisions",
+   "summary": "One reviewer decision per principal and resource: approve or deny, the system recommendation, who decided, and whether it was applied.",
+   "permissions": {
+    "delegated": "AccessReview.Read.All",
+    "application": "AccessReview.Read.All"
+   },
+   "licence": "Microsoft Entra ID Governance (capabilities that were generally available in P2 still run on P2).",
+   "limits": [
+    "Default page size is 100.",
+    "Insights (sign-in activity, membership outliers) come with $expand=insights."
+   ],
+   "mapping": [
+    "principal is the user or service principal; resource is the group, app or role under review.",
+    "appliedBy and applyResult show whether a deny actually removed the access."
+   ],
+   "docs": "https://learn.microsoft.com/graph/api/accessreviewinstance-list-decisions",
+   "scan": {
+    "status": "v1.0",
+    "props": [
+     "accessReviewId",
+     "appliedBy",
+     "appliedDateTime",
+     "applyDescription",
+     "applyResult",
+     "decision",
+     "id",
+     "justification",
+     "permission",
+     "principal",
+     "principalLink",
+     "recommendation",
+     "resource",
+     "resourceLink",
+     "reviewedBy",
+     "reviewedDateTime"
+    ],
+    "navs": {
+     "insights": "microsoft.graph.governanceInsight"
+    },
+    "betaOnlyProps": [
+     "delegatedBy",
+     "principalResourceMembership",
+     "target"
+    ],
+    "betaOnlyNavs": [
+     "instance"
+    ],
+    "baseTypes": [
+     "microsoft.graph.entity"
+    ]
+   },
+   "permCheck": {
+    "checked": [
+     "AccessReview.Read.All"
+    ],
+    "unknown": []
+   }
+  },
+  {
+   "id": "accessPackage",
+   "label": "Access package",
+   "workload": "governance",
+   "entityType": "microsoft.graph.accessPackage",
+   "covers": [
+    "microsoft.graph.entitlementManagement",
+    "microsoft.graph.accessPackageCatalog",
+    "microsoft.graph.accessPackageAssignmentPolicy",
+    "microsoft.graph.accessPackageResource",
+    "microsoft.graph.accessPackageResourceRole",
+    "microsoft.graph.accessPackageResourceScope",
+    "microsoft.graph.accessPackageResourceRoleScope",
+    "microsoft.graph.accessPackageQuestion",
+    "microsoft.graph.accessPackageMultipleChoiceQuestion",
+    "microsoft.graph.accessPackageTextInputQuestion"
+   ],
+   "path": "GET /identityGovernance/entitlementManagement/accessPackages · /catalogs · /assignmentPolicies",
+   "summary": "A bundle of group memberships, app roles and SharePoint site roles that users request or are assigned, governed by policies for who can request, approval and expiry.",
+   "permissions": {
+    "delegated": "EntitlementManagement.Read.All",
+    "application": "EntitlementManagement.Read.All (or give the app the Catalog reader role)"
+   },
+   "licence": "Microsoft Entra ID Governance (capabilities that were generally available in P2 still run on P2). Custom extensions, auto-assignment policies, Verified ID and sponsor approvers need ID Governance.",
+   "limits": [
+    "The list returns only packages the caller can read.",
+    "Catalog-scoped callers should use accessPackages?$expand=assignmentPolicies; listing all policies needs a directory role.",
+    "SharePoint site resources in a catalog are returned only with delegated permissions."
+   ],
+   "mapping": [
+    "resourceRoleScopes say which group, app role or site role the package grants; catalog groups packages and resources."
+   ],
+   "docs": "https://learn.microsoft.com/graph/api/entitlementmanagement-list-accesspackages",
+   "scan": {
+    "status": "v1.0",
+    "props": [
+     "createdDateTime",
+     "description",
+     "displayName",
+     "id",
+     "isHidden",
+     "modifiedDateTime"
+    ],
+    "navs": {
+     "accessPackagesIncompatibleWith": "microsoft.graph.accessPackage",
+     "assignmentPolicies": "microsoft.graph.accessPackageAssignmentPolicy",
+     "catalog": "microsoft.graph.accessPackageCatalog",
+     "incompatibleAccessPackages": "microsoft.graph.accessPackage",
+     "incompatibleGroups": "microsoft.graph.group",
+     "resourceRoleScopes": "microsoft.graph.accessPackageResourceRoleScope"
+    },
+    "betaOnlyProps": [
+     "catalogId",
+     "createdBy",
+     "isRoleScopesVisible",
+     "modifiedBy",
+     "uniqueName"
+    ],
+    "betaOnlyNavs": [
+     "accessPackageAssignmentPolicies",
+     "accessPackageCatalog",
+     "accessPackageResourceRoleScopes"
+    ],
+    "baseTypes": [
+     "microsoft.graph.entity"
+    ]
+   },
+   "permCheck": {
+    "checked": [
+     "EntitlementManagement.Read.All"
+    ],
+    "unknown": []
+   }
+  },
+  {
+   "id": "packageAssignment",
+   "label": "Access package assignment",
+   "workload": "governance",
+   "entityType": "microsoft.graph.accessPackageAssignment",
+   "covers": [
+    "microsoft.graph.accessPackageAssignmentRequest",
+    "microsoft.graph.accessPackageSubject"
+   ],
+   "path": "GET /identityGovernance/entitlementManagement/assignments · /assignmentRequests",
+   "summary": "Who holds which access package, under which policy and until when, plus the requests that created or removed it.",
+   "permissions": {
+    "delegated": "EntitlementManagement.Read.All",
+    "application": "EntitlementManagement.Read.All"
+   },
+   "licence": "Microsoft Entra ID Governance (capabilities that were generally available in P2 still run on P2).",
+   "limits": [
+    "Catalog-scoped callers must filter by package: $filter=accessPackage/id eq '{id}'.",
+    "Both lists include expired assignments and past requests; filter on state eq 'Delivered' for current access."
+   ],
+   "mapping": [
+    "$expand=target,accessPackage gives the user and package; target/objectId matches the user's object ID."
+   ],
+   "docs": "https://learn.microsoft.com/graph/api/entitlementmanagement-list-assignments",
+   "scan": {
+    "status": "v1.0",
+    "props": [
+     "customExtensionCalloutInstances",
+     "expiredDateTime",
+     "id",
+     "schedule",
+     "state",
+     "status"
+    ],
+    "navs": {
+     "accessPackage": "microsoft.graph.accessPackage",
+     "assignmentPolicy": "microsoft.graph.accessPackageAssignmentPolicy",
+     "target": "microsoft.graph.accessPackageSubject"
+    },
+    "betaOnlyProps": [
+     "accessPackageId",
+     "assignmentPolicyId",
+     "assignmentState",
+     "assignmentStatus",
+     "catalogId",
+     "isExtended",
+     "targetId"
+    ],
+    "betaOnlyNavs": [
+     "accessPackageAssignmentPolicy",
+     "accessPackageAssignmentRequests",
+     "accessPackageAssignmentResourceRoles"
+    ],
+    "baseTypes": [
+     "microsoft.graph.entity"
+    ]
+   },
+   "permCheck": {
+    "checked": [
+     "EntitlementManagement.Read.All"
+    ],
+    "unknown": []
+   }
+  },
+  {
+   "id": "connectedOrg",
+   "label": "Connected organisation",
+   "workload": "governance",
+   "entityType": "microsoft.graph.connectedOrganization",
+   "path": "GET /identityGovernance/entitlementManagement/connectedOrganizations",
+   "summary": "An external Entra tenant or domain whose users may request access packages, with internal and external sponsors.",
+   "permissions": {
+    "delegated": "EntitlementManagement.Read.All",
+    "application": "EntitlementManagement.Read.All"
+   },
+   "licence": "Microsoft Entra ID Governance (capabilities that were generally available in P2 still run on P2). Guests are billed by monthly active users and need a linked Azure subscription.",
+   "limits": [
+    "Delegated callers need at least Identity Governance Administrator; catalog roles aren't enough.",
+    "state proposed means it was created automatically when a user from that tenant first requested access."
+   ],
+   "mapping": [
+    "identitySources hold the tenant ID or domain; filter with identitySources/any(...)."
+   ],
+   "docs": "https://learn.microsoft.com/graph/api/entitlementmanagement-list-connectedorganizations",
+   "scan": {
+    "status": "v1.0",
+    "props": [
+     "createdDateTime",
+     "description",
+     "displayName",
+     "id",
+     "identitySources",
+     "modifiedDateTime",
+     "state"
+    ],
+    "navs": {
+     "externalSponsors": "microsoft.graph.directoryObject",
+     "internalSponsors": "microsoft.graph.directoryObject"
+    },
+    "betaOnlyProps": [
+     "createdBy",
+     "modifiedBy"
+    ],
+    "betaOnlyNavs": [],
+    "baseTypes": [
+     "microsoft.graph.entity"
+    ]
+   },
+   "permCheck": {
+    "checked": [
+     "EntitlementManagement.Read.All"
+    ],
+    "unknown": []
+   }
+  },
+  {
+   "id": "lifecycleWorkflow",
+   "label": "Lifecycle workflow",
+   "workload": "governance",
+   "entityType": "microsoft.graph.identityGovernance.workflow",
+   "covers": [
+    "microsoft.graph.identityGovernance.lifecycleWorkflowsContainer",
+    "microsoft.graph.identityGovernance.run",
+    "microsoft.graph.identityGovernance.task",
+    "microsoft.graph.identityGovernance.taskDefinition",
+    "microsoft.graph.identityGovernance.userProcessingResult",
+    "microsoft.graph.identityGovernance.taskProcessingResult",
+    "microsoft.graph.identityGovernance.subjectProcessingResult",
+    "microsoft.graph.identityGovernance.workflowTemplate",
+    "microsoft.graph.identityGovernance.workflowVersion",
+    "microsoft.graph.identityGovernance.taskReport"
+   ],
+   "path": "GET /identityGovernance/lifecycleWorkflows/workflows",
+   "summary": "Joiner, mover and leaver automation: workflows triggered by employeeHireDate or employeeLeaveDateTime that run tasks such as disabling accounts or removing groups and access packages.",
+   "permissions": {
+    "delegated": "LifecycleWorkflows-Workflow.ReadBasic.All",
+    "application": "LifecycleWorkflows-Workflow.ReadBasic.All"
+   },
+   "licence": "Microsoft Entra ID Governance or Microsoft Entra Suite.",
+   "limits": [
+    "Runs and processing results need LifecycleWorkflows-Reports.Read.All.",
+    "Up to 100 workflows per tenant and 25 tasks per workflow (Learn's licensing page still says 50 workflows); offsetInDays from -180 to 180.",
+    "Setting employeeLeaveDateTime needs User-LifeCycleInfo.ReadWrite.All (plus User.Read.All)."
+   ],
+   "mapping": [
+    "The trigger reads employeeHireDate or employeeLeaveDateTime on the user; scope is a rule, optionally limited to administrative units.",
+    "runs and userProcessingResults are the evidence that a leaver's access was actually removed."
+   ],
+   "docs": "https://learn.microsoft.com/graph/api/identitygovernance-lifecycleworkflowscontainer-list-workflows",
+   "scan": {
+    "status": "v1.0",
+    "props": [
+     "category",
+     "createdDateTime",
+     "deletedDateTime",
+     "description",
+     "displayName",
+     "executionConditions",
+     "id",
+     "isEnabled",
+     "isSchedulingEnabled",
+     "lastModifiedDateTime",
+     "nextScheduleRunDateTime",
+     "quarantineDetails",
+     "settings",
+     "targetSubjectType",
+     "version"
+    ],
+    "navs": {
+     "administrationScopeTargets": "microsoft.graph.directoryObject",
+     "createdBy": "microsoft.graph.user",
+     "executionScope": "microsoft.graph.identityGovernance.userProcessingResult",
+     "lastModifiedBy": "microsoft.graph.user",
+     "previewScope": "microsoft.graph.directoryObject",
+     "runs": "microsoft.graph.identityGovernance.run",
+     "subjectProcessingResults": "microsoft.graph.identityGovernance.subjectProcessingResult",
+     "taskReports": "microsoft.graph.identityGovernance.taskReport",
+     "tasks": "microsoft.graph.identityGovernance.task",
+     "userProcessingResults": "microsoft.graph.identityGovernance.userProcessingResult",
+     "versions": "microsoft.graph.identityGovernance.workflowVersion"
+    },
+    "betaOnlyProps": [],
+    "betaOnlyNavs": [],
+    "baseTypes": [
+     "microsoft.graph.identityGovernance.workflowBase"
+    ]
+   },
+   "permCheck": {
+    "checked": [
+     "LifecycleWorkflows-Workflow.ReadBasic.All"
+    ],
+    "unknown": []
+   }
+  },
+  {
+   "id": "termsOfUse",
+   "label": "Terms of use",
+   "workload": "governance",
+   "entityType": "microsoft.graph.agreement",
+   "covers": [
+    "microsoft.graph.termsOfUseContainer",
+    "microsoft.graph.agreementAcceptance"
+   ],
+   "path": "GET /identityGovernance/termsOfUse/agreements",
+   "summary": "Terms of use documents that a Conditional Access policy makes users accept, and the record of who accepted which version.",
+   "permissions": {
+    "delegated": "Agreement.Read.All",
+    "application": "Not supported"
+   },
+   "licence": "Entra ID P1 or above.",
+   "limits": [
+    "Delegated only, for agreements and for acceptances (AgreementAcceptance.Read).",
+    "Delegated callers need at least Security Reader."
+   ],
+   "mapping": [
+    "A Conditional Access policy's grantControls.termsOfUse holds the agreement IDs; acceptances record userId and version."
+   ],
+   "docs": "https://learn.microsoft.com/graph/api/termsofusecontainer-list-agreements",
+   "scan": {
+    "status": "v1.0",
+    "props": [
+     "displayName",
+     "id",
+     "isPerDeviceAcceptanceRequired",
+     "isViewingBeforeAcceptanceRequired",
+     "termsExpiration",
+     "userReacceptRequiredFrequency"
+    ],
+    "navs": {
+     "acceptances": "microsoft.graph.agreementAcceptance",
+     "file": "microsoft.graph.agreementFile",
+     "files": "microsoft.graph.agreementFileLocalization"
+    },
+    "betaOnlyProps": [],
+    "betaOnlyNavs": [],
+    "baseTypes": [
+     "microsoft.graph.entity"
+    ]
+   },
+   "permCheck": {
+    "checked": [
+     "Agreement.Read.All"
+    ],
+    "unknown": []
+   }
+  },
+  {
+   "id": "pimGroups",
+   "label": "PIM for groups",
+   "workload": "governance",
+   "entityType": "microsoft.graph.privilegedAccessGroupEligibilitySchedule",
+   "covers": [
+    "microsoft.graph.privilegedAccessRoot",
+    "microsoft.graph.privilegedAccessGroup",
+    "microsoft.graph.privilegedAccessGroupEligibilityScheduleInstance",
+    "microsoft.graph.privilegedAccessGroupEligibilityScheduleRequest",
+    "microsoft.graph.privilegedAccessGroupAssignmentSchedule",
+    "microsoft.graph.privilegedAccessGroupAssignmentScheduleInstance",
+    "microsoft.graph.privilegedAccessGroupAssignmentScheduleRequest"
+   ],
+   "path": "GET /identityGovernance/privilegedAccess/group/eligibilitySchedules?$filter=groupId eq '{id}'",
+   "summary": "Just-in-time membership or ownership of a group (often a role-assignable group): who is eligible to activate and who is active.",
+   "permissions": {
+    "delegated": "PrivilegedEligibilitySchedule.Read.AzureADGroup",
+    "application": "PrivilegedEligibilitySchedule.Read.AzureADGroup"
+   },
+   "licence": "Entra ID P2 or ID Governance. If the licence lapses, eligible assignments are removed and time-bound active ones become permanent.",
+   "limits": [
+    "A $filter on groupId or principalId is required.",
+    "Active assignments are in assignmentSchedules (PrivilegedAssignmentSchedule.Read.AzureADGroup); listing assignment requests needs the ReadWrite permission.",
+    "Admins who can manage groups (or AU-scoped admins) can change membership outside PIM through the groups API."
+   ],
+   "mapping": [
+    "accessId is member or owner; group and principal are expandable."
+   ],
+   "docs": "https://learn.microsoft.com/graph/api/privilegedaccessgroup-list-eligibilityschedules",
+   "scan": {
+    "status": "v1.0",
+    "props": [
+     "accessId",
+     "createdDateTime",
+     "createdUsing",
+     "groupId",
+     "id",
+     "memberType",
+     "modifiedDateTime",
+     "principalId",
+     "scheduleInfo",
+     "status"
+    ],
+    "navs": {
+     "group": "microsoft.graph.group",
+     "principal": "microsoft.graph.directoryObject"
+    },
+    "betaOnlyProps": [],
+    "betaOnlyNavs": [],
+    "baseTypes": [
+     "microsoft.graph.privilegedAccessSchedule",
+     "microsoft.graph.entity"
+    ]
+   },
+   "permCheck": {
+    "checked": [
+     "PrivilegedEligibilitySchedule.Read.AzureADGroup"
+    ],
+    "unknown": []
+   }
+  },
+  {
+   "id": "consentRequest",
+   "label": "Admin consent request",
+   "workload": "governance",
+   "entityType": "microsoft.graph.appConsentRequest",
+   "covers": [
+    "microsoft.graph.userConsentRequest",
+    "microsoft.graph.appConsentApprovalRoute"
+   ],
+   "path": "GET /identityGovernance/appConsent/appConsentRequests",
+   "summary": "Requests from users for admin consent to an app they couldn't consent to themselves, with each user's justification.",
+   "permissions": {
+    "delegated": "ConsentRequest.Read.All",
+    "application": "ConsentRequest.Read.All"
+   },
+   "licence": "Not stated on Learn (checked 16 Nov 2026).",
+   "limits": [
+    "Requests only exist when the admin consent workflow is turned on (Global Administrator).",
+    "Filter pending requests with userConsentRequests/any(u:u/status eq 'InProgress')."
+   ],
+   "mapping": [
+    "appId identifies the app; approving creates an OAuth grant or app role assignment for it."
+   ],
+   "docs": "https://learn.microsoft.com/graph/api/appconsentapprovalroute-list-appconsentrequests",
+   "scan": {
+    "status": "v1.0",
+    "props": [
+     "appDisplayName",
+     "appId",
+     "id",
+     "pendingScopes"
+    ],
+    "navs": {
+     "userConsentRequests": "microsoft.graph.userConsentRequest"
+    },
+    "betaOnlyProps": [
+     "consentType"
+    ],
+    "betaOnlyNavs": [],
+    "baseTypes": [
+     "microsoft.graph.entity"
+    ]
+   },
+   "permCheck": {
+    "checked": [
+     "ConsentRequest.Read.All"
+    ],
+    "unknown": []
+   }
   }
  ],
  "edges": [
@@ -5272,6 +5850,152 @@
    "kind": "nav",
    "nav": "team",
    "scan": "v1.0"
+  },
+  {
+   "s": "accessReview",
+   "t": "reviewDecision",
+   "kind": "ref",
+   "label": "instances/{id}/decisions",
+   "desc": "each run's decisions",
+   "scan": "n/a"
+  },
+  {
+   "s": "accessReview",
+   "t": "group",
+   "kind": "ref",
+   "label": "scope (group members)",
+   "scan": "n/a"
+  },
+  {
+   "s": "accessReview",
+   "t": "accessPackage",
+   "kind": "ref",
+   "label": "scope (access package assignments)",
+   "scan": "n/a"
+  },
+  {
+   "s": "reviewDecision",
+   "t": "user",
+   "kind": "ref",
+   "label": "principal",
+   "scan": "n/a"
+  },
+  {
+   "s": "packageAssignment",
+   "t": "accessPackage",
+   "kind": "nav",
+   "nav": "accessPackage",
+   "scan": "v1.0"
+  },
+  {
+   "s": "packageAssignment",
+   "t": "user",
+   "kind": "ref",
+   "label": "target (objectId)",
+   "scan": "n/a"
+  },
+  {
+   "s": "accessPackage",
+   "t": "group",
+   "kind": "ref",
+   "label": "resourceRoleScopes (group membership)",
+   "scan": "n/a"
+  },
+  {
+   "s": "accessPackage",
+   "t": "site",
+   "kind": "ref",
+   "label": "resourceRoleScopes (site role)",
+   "scan": "n/a"
+  },
+  {
+   "s": "accessPackage",
+   "t": "servicePrincipal",
+   "kind": "ref",
+   "label": "resourceRoleScopes (app role)",
+   "scan": "n/a"
+  },
+  {
+   "s": "connectedOrg",
+   "t": "accessPackage",
+   "kind": "ref",
+   "label": "assignment policies",
+   "desc": "policies let its users request packages",
+   "scan": "n/a"
+  },
+  {
+   "s": "connectedOrg",
+   "t": "user",
+   "kind": "nav",
+   "nav": "internalSponsors",
+   "scan": "v1.0"
+  },
+  {
+   "s": "lifecycleWorkflow",
+   "t": "user",
+   "kind": "ref",
+   "label": "employeeHireDate / employeeLeaveDateTime",
+   "desc": "trigger on the user",
+   "scan": "n/a"
+  },
+  {
+   "s": "lifecycleWorkflow",
+   "t": "packageAssignment",
+   "kind": "ref",
+   "label": "tasks",
+   "desc": "tasks can request or remove access package assignments",
+   "scan": "n/a"
+  },
+  {
+   "s": "termsOfUse",
+   "t": "caPolicy",
+   "kind": "ref",
+   "label": "grantControls.termsOfUse",
+   "desc": "a Conditional Access policy requires acceptance",
+   "scan": "n/a"
+  },
+  {
+   "s": "termsOfUse",
+   "t": "user",
+   "kind": "ref",
+   "label": "acceptances (userId)",
+   "scan": "n/a"
+  },
+  {
+   "s": "pimGroups",
+   "t": "group",
+   "kind": "nav",
+   "nav": "group",
+   "scan": "v1.0"
+  },
+  {
+   "s": "pimGroups",
+   "t": "user",
+   "kind": "ref",
+   "label": "principalId",
+   "scan": "n/a"
+  },
+  {
+   "s": "consentRequest",
+   "t": "servicePrincipal",
+   "kind": "ref",
+   "label": "appId",
+   "scan": "n/a"
+  },
+  {
+   "s": "consentRequest",
+   "t": "oauthGrant",
+   "kind": "ref",
+   "label": "approval",
+   "desc": "approving creates the grant",
+   "scan": "n/a"
+  },
+  {
+   "s": "user",
+   "t": "consentRequest",
+   "kind": "discovered",
+   "nav": "appConsentRequestsForApproval",
+   "scan": "beta only"
   }
  ],
  "scenarios": [
@@ -5847,6 +6571,66 @@
   }
  ],
  "recentChanges": [
+  {
+   "date": "2026-11-16",
+   "node": "accessReview",
+   "kind": "new-node",
+   "text": "Access review: scanned for the first time (v1.0)."
+  },
+  {
+   "date": "2026-11-16",
+   "node": "reviewDecision",
+   "kind": "new-node",
+   "text": "Access review decision: scanned for the first time (v1.0)."
+  },
+  {
+   "date": "2026-11-16",
+   "node": "accessPackage",
+   "kind": "new-node",
+   "text": "Access package: scanned for the first time (v1.0)."
+  },
+  {
+   "date": "2026-11-16",
+   "node": "packageAssignment",
+   "kind": "new-node",
+   "text": "Access package assignment: scanned for the first time (v1.0)."
+  },
+  {
+   "date": "2026-11-16",
+   "node": "connectedOrg",
+   "kind": "new-node",
+   "text": "Connected organisation: scanned for the first time (v1.0)."
+  },
+  {
+   "date": "2026-11-16",
+   "node": "lifecycleWorkflow",
+   "kind": "new-node",
+   "text": "Lifecycle workflow: scanned for the first time (v1.0)."
+  },
+  {
+   "date": "2026-11-16",
+   "node": "termsOfUse",
+   "kind": "new-node",
+   "text": "Terms of use: scanned for the first time (v1.0)."
+  },
+  {
+   "date": "2026-11-16",
+   "node": "pimGroups",
+   "kind": "new-node",
+   "text": "PIM for groups: scanned for the first time (v1.0)."
+  },
+  {
+   "date": "2026-11-16",
+   "node": "consentRequest",
+   "kind": "new-node",
+   "text": "Admin consent request: scanned for the first time (v1.0)."
+  },
+  {
+   "date": "2026-11-16",
+   "node": "user",
+   "kind": "link-discovered",
+   "text": "New link User → Admin consent request via 'appConsentRequestsForApproval' (beta only)."
+  },
   {
    "date": "2026-11-16",
    "node": "sensitiveType",
@@ -7046,10 +7830,10 @@
   "permissionNamesAt": "2026-11-16"
  },
  "coverage": {
-  "at": "2026-11-16T11:38:02+00:00",
+  "at": "2026-11-16T11:48:50+00:00",
   "v1Types": 1262,
   "betaOnlyTypes": 1370,
-  "onMap": 86,
+  "onMap": 137,
   "areas": [
    {
     "area": "deviceManagement",
@@ -7079,7 +7863,7 @@
     "area": "identityGovernance",
     "v1": 84,
     "betaOnly": 84,
-    "onMap": 0
+    "onMap": 49
    },
    {
     "area": "sites",
@@ -7277,7 +8061,7 @@
     "area": "agreements",
     "v1": 4,
     "betaOnly": 0,
-    "onMap": 0
+    "onMap": 1
    },
    {
     "area": "search",
@@ -7343,7 +8127,7 @@
     "area": "agreementAcceptances",
     "v1": 1,
     "betaOnly": 0,
-    "onMap": 0
+    "onMap": 1
    },
    {
     "area": "applicationTemplates",

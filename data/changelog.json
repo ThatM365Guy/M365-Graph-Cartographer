@@ -1,6 +1,66 @@
 [
  {
   "date": "2026-11-16",
+  "node": "accessReview",
+  "kind": "new-node",
+  "text": "Access review: scanned for the first time (v1.0)."
+ },
+ {
+  "date": "2026-11-16",
+  "node": "reviewDecision",
+  "kind": "new-node",
+  "text": "Access review decision: scanned for the first time (v1.0)."
+ },
+ {
+  "date": "2026-11-16",
+  "node": "accessPackage",
+  "kind": "new-node",
+  "text": "Access package: scanned for the first time (v1.0)."
+ },
+ {
+  "date": "2026-11-16",
+  "node": "packageAssignment",
+  "kind": "new-node",
+  "text": "Access package assignment: scanned for the first time (v1.0)."
+ },
+ {
+  "date": "2026-11-16",
+  "node": "connectedOrg",
+  "kind": "new-node",
+  "text": "Connected organisation: scanned for the first time (v1.0)."
+ },
+ {
+  "date": "2026-11-16",
+  "node": "lifecycleWorkflow",
+  "kind": "new-node",
+  "text": "Lifecycle workflow: scanned for the first time (v1.0)."
+ },
+ {
+  "date": "2026-11-16",
+  "node": "termsOfUse",
+  "kind": "new-node",
+  "text": "Terms of use: scanned for the first time (v1.0)."
+ },
+ {
+  "date": "2026-11-16",
+  "node": "pimGroups",
+  "kind": "new-node",
+  "text": "PIM for groups: scanned for the first time (v1.0)."
+ },
+ {
+  "date": "2026-11-16",
+  "node": "consentRequest",
+  "kind": "new-node",
+  "text": "Admin consent request: scanned for the first time (v1.0)."
+ },
+ {
+  "date": "2026-11-16",
+  "node": "user",
+  "kind": "link-discovered",
+  "text": "New link User → Admin consent request via 'appConsentRequestsForApproval' (beta only)."
+ },
+ {
+  "date": "2026-11-16",
   "node": "sensitiveType",
   "kind": "new-node",
   "text": "Sensitive info type: scanned for the first time (beta only)."

@@ -82,7 +82,7 @@ def purview_solution(fq: str):
 AREA_FALLBACK = {"directoryObjects"}
 ROOT_ALIASES = {"me": "users", "drive": "drives"}
 # Audit-trail navs inherited from baseItem: on almost every files resource and never worth a chord.
-DISCOVERY_SKIP_NAVS = {"createdByUser", "lastModifiedByUser"}
+DISCOVERY_SKIP_NAVS = {"createdByUser", "lastModifiedByUser", "createdBy", "lastModifiedBy"}
 
 PERM_RE = re.compile(r"\b[A-Za-z][A-Za-z0-9]*(?:-[A-Za-z0-9]+)*(?:\.[A-Z][A-Za-z0-9]*)+\b")
 
