@@ -128,6 +128,51 @@ details summary{cursor:pointer;min-height:32px;font-size:14px}
 .foot{margin-top:24px;font-size:13px;color:var(--mute)}
 .empty{padding:40px;color:var(--mute)}
 
+/* coverage */
+.cov{width:100%;border-collapse:collapse;font-size:13.5px;font-variant-numeric:tabular-nums}
+.cov th{text-align:left;font-weight:500;color:var(--mute);padding:4px 6px 4px 0;border-bottom:1px solid var(--rule)}
+.cov td{padding:5px 6px 5px 0;border-bottom:1px solid var(--rule);overflow-wrap:anywhere}
+.cov th:not(:first-child),.cov td:not(:first-child){text-align:right;white-space:nowrap}
+.cov .on0{color:var(--mute)}
+
+/* scenarios */
+.barwrap{position:relative}
+.chip.scbtn{font-weight:700;border-color:var(--ink)}
+.chip.scbtn[aria-expanded=true]{background:var(--ink);color:var(--bg)}
+.scmenu{position:absolute;z-index:6;top:calc(100% - 4px);left:max(3vw,16px);width:min(380px,calc(100vw - 32px));max-height:min(70vh,560px);overflow-y:auto;background:var(--panel);border:1px solid var(--rule);border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.18);padding:6px 14px 10px}
+.scmenu[hidden]{display:none}
+.scmenu h5,.panel h5{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--mute);margin:12px 0 2px;font-weight:700}
+.sclist{list-style:none;margin:0;padding:0!important}
+.sclist li{margin:0}
+.sclist button{display:block;width:100%;text-align:left;border:0;border-bottom:1px solid var(--rule);background:none;padding:9px 0;min-height:44px;cursor:pointer;font-size:14px}
+.sclist li:last-child button{border-bottom:0}
+.sclist button small{display:block;color:var(--mute);font-size:13px;line-height:1.35}
+.sclist button[aria-current=true]{font-weight:700}
+.sclist button[aria-current=true] small{font-weight:400}
+.sctop{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.clear{border:1px solid var(--ink);background:var(--panel);border-radius:18px;font-size:14px;padding:4px 14px;min-height:36px;cursor:pointer}
+.steps{list-style:none;margin:10px 0 0;padding:0!important}
+.steps>li{margin:0;border-top:1px solid var(--rule);padding:4px 0 10px}
+.steps>li.alt{border-top:1px dashed var(--rule)}
+.steps>li.flash{animation:flash 1.2s ease-out}
+@keyframes flash{from{background:var(--soft)}to{background:transparent}}
+@media (prefers-reduced-motion:reduce){.steps>li.flash{animation:none}}
+.step{display:flex;gap:10px;align-items:center;width:100%;text-align:left;border:0;background:none;padding:6px 0;min-height:44px;cursor:pointer;font-size:15px}
+.num{flex:none;display:inline-grid;place-items:center;min-width:26px;height:26px;padding:0 6px;border-radius:13px;background:var(--brick);color:#fff;font-size:13px;font-weight:700}
+.alt .num{background:transparent;color:var(--brick);border:1.5px solid var(--brick)}
+.step b{font-weight:700}
+.step i{width:9px;height:9px;border-radius:50%;background:var(--c);flex:none}
+.sdo{margin:0 0 6px 36px;font-size:14px}
+.sdl{display:grid;grid-template-columns:84px 1fr;gap:3px 8px;margin:0 0 0 36px;font-size:13.5px}
+.sdl dt{color:var(--mute)}
+.sdl dd{margin:0}
+svg.scen .node:not(.route),svg.scen .wl,svg.scen .hub{opacity:.14}
+svg.scen .rel,svg.scen .spoke,svg.scen .hubspoke{opacity:.05}
+svg.scen .node.route text{font-weight:700}
+.routeln{fill:none;stroke:var(--brick);stroke-width:3.5;stroke-linecap:round;vector-effect:non-scaling-stroke}
+.badge rect{fill:var(--brick);stroke:var(--panel);stroke-width:2}
+.node .badge text{fill:#fff;font-size:11.5px;font-weight:700;stroke:none}
+
 @media (max-width:900px){
  .main{grid-template-columns:1fr;height:auto}
  .mapbox{height:72vh;min-height:440px}
@@ -144,7 +189,7 @@ details summary{cursor:pointer;min-height:32px;font-size:14px}
  </div>
  <label class="search"><input id="q" type="search" placeholder="Search resources or permissions" aria-label="Search the map" autocomplete="off"><span id="qn"></span></label>
 </header>
-<nav class="bar" id="bar" aria-label="Filters"></nav>
+<div class="barwrap"><nav class="bar" id="bar" aria-label="Filters"></nav><div class="scmenu" id="scmenu" role="region" aria-label="Scenarios" hidden></div></div>
 <div class="main">
  <div class="mapbox" id="mapbox">
   <div class="zoom" id="zoom"><button data-z="in" aria-label="Zoom in">+</button><button data-z="out" aria-label="Zoom out">−</button><button data-z="fit" aria-label="Fit to screen">⤢</button></div>
@@ -238,6 +283,7 @@ function init(){
   D.workloads.forEach(w => { const wl = by['wl:'+w.id]; html += `<line class="hubspoke" data-a="${hub.id}" data-b="${wl.id}" x1="0" y1="0" x2="${wl.x}" y2="${wl.y}"/>`; });
   nodes.forEach(n => { const wl = by['wl:'+n.workload]; html += `<line class="spoke" data-a="${wl.id}" data-b="${n.id}" data-w="${n.workload}" x1="${wl.x}" y1="${wl.y}" x2="${n.x}" y2="${n.y}"/>`; });
   edges.forEach((e, i) => { html += `<path class="${relClass(e)}" data-i="${i}" data-a="${e.s}" data-b="${e.t}" d="${curve(by[e.s], by[e.t])}"/>`; });
+  html += '<g id="routes"></g>';
   html += `<g class="hub" data-id="${hub.id}" tabindex="0" role="button" aria-label="${esc(hub.label)}"><g class="sc"><circle r="34"/><text text-anchor="middle" y="-3">Microsoft</text><text text-anchor="middle" y="12">Graph</text></g></g>`;
   D.workloads.forEach(w => {
     const wl = by['wl:'+w.id], nm = w.short || w.label, tw = nm.length*7.2 + 18;
@@ -248,22 +294,26 @@ function init(){
   });
   html += '<g id="elabels"></g>';
   vp.innerHTML = html;
-  const elabels = $('#elabels');
+  const elabels = $('#elabels'), routesEl = $('#routes');
 
   /* ---------- status line ---------- */
   const relCount = edges.filter(e => e.kind !== 'discovered').length;  // curated links only; discovered ones are off by default
+  const nf = x => Number(x).toLocaleString('en-GB'), cov = D.coverage;
   $('#status').textContent = `${nodes.length} resources · ${D.workloads.length} workloads · ${relCount} links · ` +
+    (cov ? `${nf(cov.onMap)} of ${nf(cov.v1Types)} v1.0 types · ` : '') +
     (scanInfo ? `schema scanned ${fmtDate(scanInfo.at)}` : 'schema scan not yet run (curated notes only)');
 
   /* ---------- filters ---------- */
   const hiddenW = new Set(); let showP2 = true, showDisc = false;  // discovered links are review material: off until the chip is pressed
   const bar = $('#bar');
-  bar.innerHTML = D.workloads.map(w => `<button class="chip" style="--c:${w.colour}" data-w="${w.id}" aria-pressed="true"><i></i>${esc(w.label)}</button>`).join('') +
+  const SCEN = D.scenarios || [], SC = {}; SCEN.forEach(x => SC[x.id] = x);
+  bar.innerHTML = (SCEN.length ? `<button class="chip scbtn" id="scbtn" aria-expanded="false" aria-controls="scmenu">Scenarios ▾</button>` : '') + D.workloads.map(w => `<button class="chip" style="--c:${w.colour}" data-w="${w.id}" aria-pressed="true"><i></i>${esc(w.label)}</button>`).join('') +
     `<button class="chip" style="--c:var(--mute)" data-t="p2" aria-pressed="true"><i></i>Phase 2</button>` +
     (edges.some(e => e.kind === 'discovered') ? `<button class="chip" style="--c:var(--brick)" data-t="disc" aria-pressed="false"><i></i>Discovered links</button>` : '');
   $('#zoom').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; b.dataset.z === 'fit' ? fit(true) : zoomBy(b.dataset.z === 'in' ? 1.35 : 1/1.35); });
   bar.addEventListener('click', e => {
     const b = e.target.closest('button'); if (!b) return;
+    if (b.id === 'scbtn') { toggleMenu(); return; }
     const on = b.getAttribute('aria-pressed') !== 'true';
     b.setAttribute('aria-pressed', on);
     if (b.dataset.w) on ? hiddenW.delete(b.dataset.w) : hiddenW.add(b.dataset.w);
@@ -353,8 +403,8 @@ function init(){
     if (ptrs.size) return;
     svg.classList.remove('drag');
     if (!moved && downAt) {
-      if (downTarget) { select(downTarget.dataset.id); if (e.pointerType !== 'mouse') dockTip(downTarget.dataset.id); }
-      else { select(null); hideTip(); }
+      if (downTarget) { activate(downTarget.dataset.id); if (e.pointerType !== 'mouse') dockTip(downTarget.dataset.id); }
+      else { if (!scen) select(null); hideTip(); }   // a stray tap on the background keeps a scenario open
     }
     downAt = null;
   };
@@ -391,7 +441,7 @@ function init(){
   function highlight(id){
     elabels.innerHTML = '';
     vp.querySelectorAll('.on,.sel').forEach(el => el.classList.remove('on','sel'));
-    if (!id) { svg.classList.remove('focus'); return; }
+    if (!id || scen) { svg.classList.remove('focus'); return; }
     svg.classList.add('focus');
     const on = neighbourhood(id);
     vp.querySelectorAll('[data-id]').forEach(el => { if (on.has(el.dataset.id)) el.classList.add('on'); });
@@ -476,7 +526,7 @@ function init(){
   });
   svg.addEventListener('keydown', e => {
     const g = e.target.closest('[data-id]');
-    if (g && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); select(g.dataset.id); }
+    if (g && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); activate(g.dataset.id); }
     if (e.key === 'Escape') { select(null); hideTip(); }
   });
   svg.addEventListener('focusin', e => { const g = e.target.closest('[data-id]'); if (g) highlight(g.dataset.id); });
@@ -539,8 +589,21 @@ function init(){
       </div>
       <h4>Workloads</h4>
       <ul class="links">${D.workloads.map(w => `<li><button class="lk" data-go="wl:${w.id}" style="--c:${w.colour}"><i></i>${esc(w.label)}<small>${nodes.filter(n => n.workload === w.id).length} resources${w.phase === 2 ? ' · phase 2' : ''}</small></button></li>`).join('')}</ul>
+      ${SCEN.length ? `<h4>Scenarios</h4><p>Step-by-step routes across the map for common reviews and investigations.</p>${scenarioList()}` : ''}
+      ${coverageBlock()}
       <h4>Recent changes</h4>${changesFor(null)}
       <p class="foot">Curated notes v${esc(D.meta.curatedVersion)}, ${fmtDate(D.meta.curatedOn)}. ${scanInfo ? `Schema scanned ${fmtDate(scanInfo.at)}: ${scanInfo.v1EntityTypes} entity types in v1.0, ${scanInfo.betaEntityTypes} in beta${scanInfo.permissionsChecked ? `, ${scanInfo.permissionCount} permissions checked` : ''}.` : 'The schema scan has not run yet, so version badges and property lists will appear after the first scan.'} ${esc(D.meta.phase || '')}</p>`;
+  }
+  function coverageBlock(){
+    if (!cov) return '';
+    const row = r => `<tr><td>${esc(r.area)}</td><td class="${r.onMap ? '' : 'on0'}">${nf(r.onMap)} / ${nf(r.v1)}</td><td>${nf(r.betaOnly)}</td></tr>`;
+    const head = '<tr><th scope="col">Area</th><th scope="col">On map / v1.0</th><th scope="col">Beta only</th></tr>';
+    const top = cov.areas.slice(0, 12), rest = cov.areas.slice(12);
+    return `<h4>Coverage</h4>
+      <p>${nf(cov.onMap)} of ${nf(cov.v1Types)} v1.0 entity types are on the map, and ${nf(cov.betaOnlyTypes)} more types are beta only. Each type belongs to the top-level root (such as <code>/security</code>) that reaches it first through containment. The map is curated, so most types are left off on purpose.</p>
+      <table class="cov">${head}${top.map(row).join('')}</table>
+      ${rest.length ? `<details><summary>All ${cov.areas.length} areas</summary><table class="cov">${head}${rest.map(row).join('')}</table></details>` : ''}
+      <p class="foot">The names of the types in each area are in <code>data/coverage.json</code> in the repository.</p>`;
   }
   function renderHub(){
     panel.innerHTML = `${back}<h2>${esc(hub.label)}</h2><p class="lead">${esc(hub.summary)}</p>
@@ -570,6 +633,7 @@ function init(){
       <p class="foot"><button class="copy" data-copy="#${esc(n.id)}" data-link>Copy link to this resource</button></p>`;
   }
   function select(id, fromHash){
+    if (scen) { scen = null; drawScenario(); }
     sel = id && by[id] ? id : null;
     highlight(sel);
     if (!sel) renderOverview();
@@ -578,8 +642,13 @@ function init(){
     if (!fromHash) { try { history.replaceState(null, '', sel && !sel.startsWith('wl:') ? '#' + sel : location.pathname + location.search); } catch(e){} }
   }
   panel.addEventListener('click', async e => {
+    const sc = e.target.closest('[data-scen]');
+    if (sc) { openScenario(sc.dataset.scen); return; }
+    if (e.target.closest('[data-clear]')) { select(null); fit(true); return; }
+    const st = e.target.closest('[data-step]');
+    if (st) { const id = st.dataset.step; if (!visible(id)) showAll(); centreOn(by[id]); flashNode(id); revealMap(); return; }
     const go = e.target.closest('[data-go]');
-    if (go) { const id = go.dataset.go || null; if (id && !visible(id)) { hiddenW.clear(); showP2 = true; bar.querySelectorAll('.chip:not([data-t="disc"])').forEach(c => c.setAttribute('aria-pressed', 'true')); applyFilters(); } select(id); if (id) centreOn(by[id]); return; }
+    if (go) { const id = go.dataset.go || null; if (id && !visible(id)) showAll(); select(id); if (id) centreOn(by[id]); return; }
     const cp = e.target.closest('[data-copy]');
     if (cp) {
       let text = cp.dataset.copy;
@@ -588,6 +657,105 @@ function init(){
       setTimeout(() => { cp.textContent = cp.hasAttribute('data-link') ? 'Copy link to this resource' : 'Copy'; }, 1800);
     }
   });
+
+  /* ---------- scenarios ---------- */
+  let scen = null;
+  const scenGroups = s => s.steps.reduce((g, st) => { if (st.or && g.length) g[g.length-1].push(st); else g.push([st]); return g; }, []);
+  function showAll(){
+    hiddenW.clear(); showP2 = true;
+    bar.querySelectorAll('.chip[data-w],.chip[data-t="p2"]').forEach(c => c.setAttribute('aria-pressed', 'true'));
+    applyFilters();
+  }
+  function scenarioList(){
+    return ['Classic', 'AI'].map(grp => {
+      const items = SCEN.filter(x => x.group === grp);
+      return items.length ? `<h5>${grp}</h5><ul class="sclist">${items.map(x => `<li><button data-scen="${esc(x.id)}"${scen && scen.id === x.id ? ' aria-current="true"' : ''}>${esc(x.label)}<small>${esc(x.summary)}</small></button></li>`).join('')}</ul>` : '';
+    }).join('');
+  }
+  const menu = $('#scmenu'), scbtn = $('#scbtn');
+  function toggleMenu(open){
+    if (!scbtn) return;
+    open = open ?? menu.hidden;
+    if (open) menu.innerHTML = scenarioList();
+    menu.hidden = !open; scbtn.setAttribute('aria-expanded', open);
+    if (open) menu.querySelector('button')?.focus();
+  }
+  menu.addEventListener('click', e => { const b = e.target.closest('[data-scen]'); if (b) { toggleMenu(false); openScenario(b.dataset.scen); } });
+  menu.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { toggleMenu(false); scbtn.focus(); }
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      const bs = [...menu.querySelectorAll('button')], i = bs.indexOf(document.activeElement);
+      e.preventDefault(); bs[(i + (e.key === 'ArrowDown' ? 1 : bs.length - 1)) % bs.length]?.focus();
+    }
+  });
+  document.addEventListener('pointerdown', e => { if (!menu.hidden && !menu.contains(e.target) && !scbtn.contains(e.target)) toggleMenu(false); });
+  function drawScenario(){
+    routesEl.innerHTML = '';
+    vp.querySelectorAll('.badge').forEach(el => el.remove());
+    vp.querySelectorAll('.route').forEach(el => el.classList.remove('route'));
+    svg.classList.toggle('scen', !!scen);
+    if (!scen) return;
+    const groups = scenGroups(scen), nums = {};
+    groups.forEach((g, i) => g.forEach(st => (nums[st.node] ||= new Set()).add(i + 1)));
+    let h = '';
+    for (let i = 0; i < groups.length - 1; i++)
+      for (const a of groups[i]) for (const b of groups[i+1])
+        if (a.node !== b.node) h += `<path class="routeln" d="${curve(by[a.node], by[b.node])}"/>`;
+    routesEl.innerHTML = h;
+    // Neighbouring nodes on the ring are close together, so alternate their badges between two depths.
+    let lastAng = null, deep = false;
+    Object.entries(nums).sort((a, b) => by[a[0]].ang - by[b[0]].ang).forEach(([id, ns]) => {
+      const g = vp.querySelector(`[data-id="${CSS.escape(id)}"]`), n = by[id]; if (!g) return;
+      g.classList.add('route');
+      deep = lastAng !== null && n.ang - lastAng < step*1.5 ? !deep : false; lastAng = n.ang;
+      const txt = [...ns].join(', '), w = Math.max(20, txt.length*7 + 10), d = radius(n) + (deep ? 36 : 13);
+      const bx = -Math.cos(n.ang)*d, byy = -Math.sin(n.ang)*d;   // inside the ring, away from the label
+      g.querySelector('.sc').insertAdjacentHTML('beforeend', `<g class="badge" transform="translate(${bx.toFixed(1)} ${byy.toFixed(1)})"><rect x="${-w/2}" y="-10" width="${w}" height="20" rx="10"/><text text-anchor="middle" dy=".35em">${txt}</text></g>`);
+    });
+  }
+  const permText = (st, n) => st.permission || (n.permissions ? `Delegated: ${n.permissions.delegated} · Application: ${n.permissions.application}` : '');
+  function renderScenario(s){
+    const groups = scenGroups(s);
+    panel.innerHTML = `<div class="sctop">${back}<button class="clear" data-clear>Clear scenario</button></div>
+      <div class="badges"><span class="b">${esc(s.group)}</span><span class="b">${pl(groups.length, 'step')}</span></div>
+      <h2>${esc(s.label)}</h2><p class="lead">${esc(s.summary)}</p>
+      ${s.licence ? `<p><b>Licensing:</b> ${esc(s.licence)}</p>` : ''}
+      <ol class="steps">${groups.map((g, i) => g.map((st, j) => {
+        const n = by[st.node], call = st.call || n.path, perm = permText(st, n), lic = st.licence || n.licence, gotcha = st.note || (n.limits && n.limits[0]);
+        return `<li class="${j ? 'alt' : ''}" data-for="${esc(n.id)}"><button class="step" data-step="${esc(n.id)}" style="--c:${WL[n.workload].colour}"><span class="num">${j ? 'or' : i + 1}</span><i></i><b>${esc(n.label)}</b></button>
+          <p class="sdo">${esc(st.do)}</p>
+          <dl class="sdl">${call ? `<dt>Call</dt><dd><code>${esc(call)}</code></dd>` : ''}${perm ? `<dt>Permission</dt><dd>${esc(perm)}</dd>` : ''}${lic ? `<dt>Licence</dt><dd>${esc(lic)}</dd>` : ''}${gotcha ? `<dt>Gotcha</dt><dd>${esc(gotcha)}</dd>` : ''}</dl></li>`;
+      }).join('')).join('')}</ol>
+      <p class="foot">Select a step to centre the map on it. Calls and permissions come from the resource's own notes unless the step overrides them.</p>`;
+  }
+  function openScenario(id, fromHash){
+    const s = SC[id]; if (!s) return;
+    toggleMenu(false); hideTip();
+    if (s.steps.some(st => !visible(st.node))) showAll();
+    sel = null; highlight(null);
+    scen = s; drawScenario(); renderScenario(s);
+    panel.scrollTop = 0;
+    if (!fromHash) { try { history.replaceState(null, '', '#scenario-' + s.id); } catch(e){} }
+    fit(true);
+  }
+  function flashNode(id){
+    const li = panel.querySelector(`li[data-for="${CSS.escape(id)}"]`); if (!li) return;
+    li.classList.remove('flash'); void li.offsetWidth; li.classList.add('flash');
+  }
+  function revealMap(){
+    const r = box.getBoundingClientRect();
+    if (r.bottom < 80 || r.top > innerHeight - 80) box.scrollIntoView({block:'start', behavior: matchMedia('(prefers-reduced-motion:reduce)').matches ? 'auto' : 'smooth'});
+  }
+  // A click, tap or Enter on a node. Inside a scenario, a node on the route points to its step; any other node leaves the scenario.
+  function activate(id){
+    if (scen && scen.steps.some(st => st.node === id)) {
+      centreOn(by[id]);
+      const li = panel.querySelector(`li[data-for="${CSS.escape(id)}"]`);
+      if (li) { li.scrollIntoView({block:'nearest'}); flashNode(id); }
+      return;
+    }
+    select(id);
+  }
 
   /* ---------- search ---------- */
   const q = $('#q'), qn = $('#qn');
@@ -609,11 +777,12 @@ function init(){
   });
 
   /* ---------- start ---------- */
-  const fromHash = () => { const h = decodeURIComponent((location.hash || '').slice(1)); return h && by[h] ? h : null; };
-  window.addEventListener('hashchange', () => { const h = fromHash(); if (h !== sel) select(h, true); });
+  const fromHash = () => { const h = decodeURIComponent((location.hash || '').slice(1)); return h && (by[h] || (h.startsWith('scenario-') && SC[h.slice(9)])) ? h : null; };
+  const route = h => { if (h && h.startsWith('scenario-')) openScenario(h.slice(9), true); else select(h, true); };
+  window.addEventListener('hashchange', () => { const h = fromHash(); if (h !== (scen ? 'scenario-' + scen.id : sel)) route(h); });
   fit(false);
   applyFilters();
-  select(fromHash(), true);
+  route(fromHash());
 }
 }
 </script>

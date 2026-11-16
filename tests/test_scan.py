@@ -3,6 +3,7 @@ import copy
 import datetime as dt
 import json
 import os
+import re
 import sys
 import unittest
 
@@ -29,6 +30,33 @@ def curated():
         if n["id"] in FIXTURE_TYPES:
             n["entityType"] = FIXTURE_TYPES[n["id"]]
     return cur
+
+
+def scenario_problems(c):
+    """Everything wrong with curated scenarios, as readable strings."""
+    ids, seen, out = {n["id"] for n in c["nodes"]}, set(), []
+    for sc in c.get("scenarios", []):
+        sid = sc.get("id", "?")
+        if not re.fullmatch(r"[A-Za-z0-9-]+", sid):
+            out.append(f"{sid}: id must be ASCII letters, digits and hyphens (it goes in the URL hash)")
+        if sid in seen:
+            out.append(f"{sid}: duplicate id")
+        seen.add(sid)
+        if sc.get("group") not in {"Classic", "AI"}:
+            out.append(f"{sid}: group must be Classic or AI")
+        if not (sc.get("label") and sc.get("summary")):
+            out.append(f"{sid}: needs a label and a summary")
+        steps = sc.get("steps") or []
+        if not steps:
+            out.append(f"{sid}: no steps")
+        elif steps[0].get("or"):
+            out.append(f"{sid}: the first step can't be an alternative")
+        for st in steps:
+            if st.get("node") not in ids:
+                out.append(f"{sid}: missing node {st.get('node')}")
+            if not st.get("do"):
+                out.append(f"{sid}: a step has no 'do'")
+    return out
 
 
 class ParseTests(unittest.TestCase):
@@ -192,6 +220,28 @@ class CuratedIntegrity(unittest.TestCase):
             self.assertIn(e["s"], ids, e)
             self.assertIn(e["t"], ids, e)
             self.assertIn(e["kind"], {"nav", "ref", "action"}, e)
+
+
+    def test_scenarios_reference_real_nodes_and_have_steps(self):
+        c = curated()
+        self.assertTrue(c.get("scenarios"), "no scenarios")
+        self.assertEqual(scenario_problems(c), [])
+
+    def test_scenario_check_catches_bad_data(self):
+        c = curated()
+        c["scenarios"] = [
+            {"id": "a", "label": "A", "group": "AI", "summary": "s", "steps": [{"node": "nope", "do": "x"}]},
+            {"id": "b", "label": "B", "group": "AI", "summary": "s", "steps": []},
+            {"id": "c d", "label": "C", "group": "AI", "summary": "s", "steps": [{"node": "user", "do": "x"}]},
+        ]
+        found = " | ".join(scenario_problems(c))
+        self.assertIn("a: missing node nope", found)
+        self.assertIn("b: no steps", found)
+        self.assertIn("c d: id", found)
+
+    def test_scenarios_are_embedded(self):
+        gm, _ = scan.build_map(curated(), None, scan=False, now=D1)
+        self.assertEqual(len(gm["scenarios"]), len(curated()["scenarios"]))
 
 
 class BuildPageTests(unittest.TestCase):

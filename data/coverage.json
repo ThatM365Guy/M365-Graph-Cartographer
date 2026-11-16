@@ -1,8 +1,8 @@
 {
- "at": "2026-11-16T10:39:01+00:00",
+ "at": "2026-11-16T10:47:00+00:00",
  "v1Types": 1262,
  "betaOnlyTypes": 1370,
- "onMap": 37,
+ "onMap": 47,
  "areas": [
   {
    "area": "deviceManagement",
@@ -261,11 +261,12 @@
    "area": "unrooted",
    "v1": 89,
    "betaOnly": 135,
-   "onMap": 0,
-   "onMapTypes": [],
+   "onMap": 1,
+   "onMapTypes": [
+    "aiInteraction"
+   ],
    "missing": [
     "agreementFileProperties",
-    "aiInteraction",
     "authenticationConditionApplication",
     "b2BRegistrationMetricsBase",
     "b2BRegistrationMetricsInitial",
@@ -359,13 +360,14 @@
    "area": "users",
    "v1": 87,
    "betaOnly": 52,
-   "onMap": 8,
+   "onMap": 9,
    "onMapTypes": [
     "calendar",
     "contact",
     "event",
     "mailFolder",
     "message",
+    "messageRule",
     "todoTask",
     "todoTaskList",
     "user"
@@ -408,7 +410,6 @@
     "linkedResource",
     "longRunningOperation",
     "mailSearchFolder",
-    "messageRule",
     "microsoftAuthenticatorAuthenticationMethod",
     "multiValueLegacyExtendedProperty",
     "note",
@@ -854,8 +855,10 @@
    "area": "policies",
    "v1": 57,
    "betaOnly": 11,
-   "onMap": 0,
-   "onMapTypes": [],
+   "onMap": 1,
+   "onMapTypes": [
+    "conditionalAccessPolicy"
+   ],
    "missing": [
     "activityBasedTimeoutPolicy",
     "adminConsentRequestPolicy",
@@ -868,7 +871,6 @@
     "authenticationStrengthPolicy",
     "authorizationPolicy",
     "claimsMappingPolicy",
-    "conditionalAccessPolicy",
     "crossTenantAccessPolicy",
     "crossTenantAccessPolicyConfigurationDefault",
     "crossTenantAccessPolicyConfigurationPartner",
@@ -1241,8 +1243,10 @@
    "area": "roleManagement",
    "v1": 14,
    "betaOnly": 6,
-   "onMap": 0,
-   "onMapTypes": [],
+   "onMap": 1,
+   "onMapTypes": [
+    "unifiedRoleEligibilitySchedule"
+   ],
    "missing": [
     "appScope",
     "directoryRoleManagementDeletedItemContainer",
@@ -1255,7 +1259,6 @@
     "unifiedRoleAssignmentScheduleInstance",
     "unifiedRoleAssignmentScheduleRequest",
     "unifiedRoleDefinition",
-    "unifiedRoleEligibilitySchedule",
     "unifiedRoleEligibilityScheduleInstance",
     "unifiedRoleEligibilityScheduleRequest"
    ]
@@ -1286,12 +1289,12 @@
    "area": "servicePrincipals",
    "v1": 13,
    "betaOnly": 1,
-   "onMap": 1,
+   "onMap": 2,
    "onMapTypes": [
+    "agentIdentity",
     "servicePrincipal"
    ],
    "missing": [
-    "agentIdentity",
     "agentIdentityBlueprintPrincipal",
     "approvedClientApp",
     "delegatedPermissionClassification",
@@ -1349,12 +1352,12 @@
    "area": "applications",
    "v1": 11,
    "betaOnly": 2,
-   "onMap": 1,
+   "onMap": 2,
    "onMapTypes": [
+    "agentIdentityBlueprint",
     "application"
    ],
    "missing": [
-    "agentIdentityBlueprint",
     "bulkUpload",
     "directoryDefinition",
     "extensionProperty",
@@ -1462,14 +1465,15 @@
    "area": "identityProtection",
    "v1": 7,
    "betaOnly": 6,
-   "onMap": 0,
-   "onMapTypes": [],
+   "onMap": 1,
+   "onMapTypes": [
+    "riskyUser"
+   ],
    "missing": [
     "identityProtectionRoot",
     "riskDetection",
     "riskyServicePrincipal",
     "riskyServicePrincipalHistoryItem",
-    "riskyUser",
     "riskyUserHistoryItem",
     "servicePrincipalRiskDetection"
    ]
@@ -1708,11 +1712,11 @@
    "area": "appRoleAssignments",
    "v1": 1,
    "betaOnly": 0,
-   "onMap": 0,
-   "onMapTypes": [],
-   "missing": [
+   "onMap": 1,
+   "onMapTypes": [
     "appRoleAssignment"
-   ]
+   ],
+   "missing": []
   },
   {
    "area": "authenticationMethodsPolicy",
@@ -1858,11 +1862,11 @@
    "area": "oauth2PermissionGrants",
    "v1": 1,
    "betaOnly": 0,
-   "onMap": 0,
-   "onMapTypes": [],
-   "missing": [
+   "onMap": 1,
+   "onMapTypes": [
     "oAuth2PermissionGrant"
-   ]
+   ],
+   "missing": []
   },
   {
    "area": "permissionGrants",
@@ -1928,11 +1932,11 @@
    "area": "subscribedSkus",
    "v1": 1,
    "betaOnly": 0,
-   "onMap": 0,
-   "onMapTypes": [],
-   "missing": [
+   "onMap": 1,
+   "onMapTypes": [
     "subscribedSku"
-   ]
+   ],
+   "missing": []
   },
   {
    "area": "subscriptions",

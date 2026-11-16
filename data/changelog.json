@@ -1,5 +1,71 @@
 [
  {
+  "date": "2026-11-16",
+  "node": "caPolicy",
+  "kind": "new-node",
+  "text": "Conditional Access policy: scanned for the first time (v1.0)."
+ },
+ {
+  "date": "2026-11-16",
+  "node": "riskyUser",
+  "kind": "new-node",
+  "text": "Risky user: scanned for the first time (v1.0)."
+ },
+ {
+  "date": "2026-11-16",
+  "node": "oauthGrant",
+  "kind": "new-node",
+  "text": "OAuth grant: scanned for the first time (v1.0)."
+ },
+ {
+  "date": "2026-11-16",
+  "node": "appRoleAssignment",
+  "kind": "new-node",
+  "text": "App role assignment: scanned for the first time (v1.0)."
+ },
+ {
+  "date": "2026-11-16",
+  "node": "pimEligibility",
+  "kind": "new-node",
+  "text": "PIM eligibility: scanned for the first time (v1.0)."
+ },
+ {
+  "date": "2026-11-16",
+  "node": "subscribedSku",
+  "kind": "new-node",
+  "text": "Licence: scanned for the first time (v1.0)."
+ },
+ {
+  "date": "2026-11-16",
+  "node": "messageRule",
+  "kind": "new-node",
+  "text": "Inbox rule: scanned for the first time (v1.0)."
+ },
+ {
+  "date": "2026-11-16",
+  "node": "aiInteraction",
+  "kind": "new-node",
+  "text": "Copilot interaction: scanned for the first time (v1.0)."
+ },
+ {
+  "date": "2026-11-16",
+  "node": "purviewAi",
+  "kind": "new-node",
+  "text": "Purview AI policy check: scanned for the first time (v1.0)."
+ },
+ {
+  "date": "2026-11-16",
+  "node": "agentIdentity",
+  "kind": "new-node",
+  "text": "Agent identity: scanned for the first time (v1.0)."
+ },
+ {
+  "date": "2026-11-16",
+  "node": "agentBlueprint",
+  "kind": "new-node",
+  "text": "Agent blueprint: scanned for the first time (v1.0)."
+ },
+ {
   "date": "2026-11-14",
   "node": "sensitivityLabel",
   "kind": "retargeted",

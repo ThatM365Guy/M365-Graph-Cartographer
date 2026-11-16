@@ -1,8 +1,8 @@
 {
  "meta": {
   "title": "M365 Graph Cartographer (MGC)",
-  "curatedVersion": "0.1.0",
-  "curatedOn": "2026-11-14",
+  "curatedVersion": "0.2.0",
+  "curatedOn": "2026-11-16",
   "phase": "Phase 1: broad coverage of the simpler workloads. Purview is stubbed for phase 2.",
   "note": "Hand-written content lives here. The scanner never edits this file; it writes graph-map.json alongside it."
  },
@@ -107,6 +107,18 @@
     "Several APIs are newer and still moving between beta and v1.0. Check the scan status on each node."
    ],
    "short": "Purview"
+  },
+  {
+   "id": "ai",
+   "label": "AI & agents",
+   "short": "AI",
+   "colour": "#d6247a",
+   "summary": "Copilot interaction history, Purview data security APIs for your own AI apps, and Entra Agent ID (agent identities and their blueprints).",
+   "limits": [
+    "Most of these APIs are new. Licensing and preview status drift, so check the date each note was verified.",
+    "Copilot Studio agents are not covered by the Copilot interaction export."
+   ],
+   "docs": "https://learn.microsoft.com/graph/security-datasecurityandgovernance-overview"
   }
  ],
  "hub": {
@@ -987,6 +999,270 @@
     "Plan automation on PowerShell for these. The scanner watches $metadata for new types and will flag any that appear."
    ],
    "docs": "https://learn.microsoft.com/powershell/exchange/scc-powershell"
+  },
+  {
+   "id": "caPolicy",
+   "label": "Conditional Access policy",
+   "workload": "identity",
+   "entityType": "microsoft.graph.conditionalAccessPolicy",
+   "path": "GET /identity/conditionalAccess/policies",
+   "summary": "The tenant's Conditional Access policies: who and what they target, the conditions, and the grant and session controls.",
+   "permissions": {
+    "delegated": "Policy.Read.All",
+    "application": "Policy.Read.All"
+   },
+   "licence": "Entra ID P1. Policies that target agents need Microsoft Agent 365 (included in Microsoft 365 E7) plus Entra ID P1 or Microsoft 365 E3 (checked 16 Nov 2026).",
+   "limits": [
+    "Policies that target all users do not include agent users. Target agents explicitly (all agent identities, selected agents, or by blueprint; preview).",
+    "Agent policies apply only when the agent uses its own identity, not when it acts on behalf of a user.",
+    "Conditional Access is not enforced when a blueprint gets a token to create agent identities."
+   ],
+   "mapping": [
+    "conditions.users and conditions.clientApplications hold the user, group, role, workload identity and agent targets by ID.",
+    "Each sign-in records the policies that applied in appliedConditionalAccessPolicies."
+   ],
+   "docs": "https://learn.microsoft.com/graph/api/conditionalaccessroot-list-policies"
+  },
+  {
+   "id": "riskyUser",
+   "label": "Risky user",
+   "workload": "identity",
+   "entityType": "microsoft.graph.riskyUser",
+   "path": "GET /identityProtection/riskyUsers",
+   "summary": "Users that Entra ID Protection flags as at risk, with risk level, state and history. Admins can confirm compromise or dismiss risk.",
+   "permissions": {
+    "delegated": "IdentityRiskyUser.Read.All",
+    "application": "IdentityRiskyUser.Read.All"
+   },
+   "licence": "Entra ID P2 for full data and the confirmCompromised and dismiss actions. P1 and Free see only medium and high risk users, with no history.",
+   "limits": [
+    "confirmCompromised (sets risk to high) and dismiss (sets it to none) need IdentityRiskyUser.ReadWrite.All and at least Security Administrator.",
+    "$top is capped at 500."
+   ],
+   "mapping": [
+    "The risky user id is the user's object ID, so it joins straight to /users/{id} and to sign-in userId."
+   ],
+   "docs": "https://learn.microsoft.com/graph/api/resources/riskyuser"
+  },
+  {
+   "id": "oauthGrant",
+   "label": "OAuth grant",
+   "workload": "identity",
+   "entityType": "microsoft.graph.oAuth2PermissionGrant",
+   "path": "GET /oauth2PermissionGrants",
+   "summary": "Delegated permission grants: which client app may call which API on behalf of one user or all users, and with which scopes.",
+   "permissions": {
+    "delegated": "Directory.Read.All",
+    "application": "Directory.Read.All"
+   },
+   "licence": "None beyond Entra ID.",
+   "limits": [
+    "/users/{id}/oauth2PermissionGrants returns only that user's own grants, not admin-consented AllPrincipals grants, and does not support application permissions.",
+    "Expect replication delays. Filter on clientId to reduce them."
+   ],
+   "mapping": [
+    "clientId is the object ID of the client service principal; resourceId is the API's service principal (for example Microsoft Graph).",
+    "consentType AllPrincipals means admin consent for everyone; Principal means one user consented."
+   ],
+   "docs": "https://learn.microsoft.com/graph/api/oauth2permissiongrant-list"
+  },
+  {
+   "id": "appRoleAssignment",
+   "label": "App role assignment",
+   "workload": "identity",
+   "entityType": "microsoft.graph.appRoleAssignment",
+   "path": "GET /servicePrincipals/{id}/appRoleAssignedTo · /users/{id}/appRoleAssignments",
+   "summary": "Who holds an app role on an application: users and groups assigned to enterprise apps, and application permissions granted to other apps.",
+   "permissions": {
+    "delegated": "Application.Read.All (appRoleAssignedTo); Directory.Read.All (per user)",
+    "application": "Application.Read.All (appRoleAssignedTo); Directory.Read.All (per user)"
+   },
+   "licence": "None beyond Entra ID. Group assignment to apps needs Entra ID P1.",
+   "limits": [
+    "The per-user list also returns assignments to groups the user is a direct member of.",
+    "Learn lists AppRoleAssignment.ReadWrite.All as the least delegated permission for the per-user list. It also lets an app grant itself more privilege, so prefer Directory.Read.All for read-only tools.",
+    "Expect replication delays. Use ConsistencyLevel: eventual with $count for complete counts."
+   ],
+   "mapping": [
+    "principalId is the user, group or service principal; resourceId is the service principal that owns the role; appRoleId is the role.",
+    "Application permissions granted to an app (for example Mail.Read on Graph) are app role assignments too."
+   ],
+   "docs": "https://learn.microsoft.com/graph/api/serviceprincipal-list-approleassignedto"
+  },
+  {
+   "id": "pimEligibility",
+   "label": "PIM eligibility",
+   "workload": "identity",
+   "entityType": "microsoft.graph.unifiedRoleEligibilitySchedule",
+   "path": "GET /roleManagement/directory/roleEligibilitySchedules",
+   "summary": "Privileged Identity Management eligible assignments: who can activate a directory role, for which scope and until when.",
+   "permissions": {
+    "delegated": "RoleEligibilitySchedule.Read.Directory",
+    "application": "RoleEligibilitySchedule.Read.Directory"
+   },
+   "licence": "Entra ID P2 or Microsoft Entra ID Governance, for eligible users, approvers and reviewers.",
+   "limits": [
+    "Active (permanent or activated) roles are in roleAssignmentSchedules, not here. Review both.",
+    "If the licence lapses, eligible assignments are removed and activation through the API stops."
+   ],
+   "mapping": [
+    "principalId is the user or group; roleDefinitionId matches the directory role's roleTemplateId; directoryScopeId is / or an administrative unit."
+   ],
+   "docs": "https://learn.microsoft.com/graph/api/rbacapplication-list-roleeligibilityschedules"
+  },
+  {
+   "id": "subscribedSku",
+   "label": "Licence",
+   "workload": "identity",
+   "entityType": "microsoft.graph.subscribedSku",
+   "path": "GET /subscribedSkus",
+   "summary": "The tenant's licence SKUs with purchased and consumed units and service plans. Per user, licenseDetails shows what each user holds.",
+   "permissions": {
+    "delegated": "LicenseAssignment.Read.All",
+    "application": "LicenseAssignment.Read.All"
+   },
+   "licence": "None.",
+   "limits": [
+    "GET /users/{id}/licenseDetails lists no application permission on Learn. App-only tools can read assignedLicenses on the user (User.Read.All) instead.",
+    "Group-based licensing errors are written to the user asynchronously, not when the licence is assigned."
+   ],
+   "mapping": [
+    "Join on skuId: user.assignedLicenses, group.assignedLicenses and licenseDetails all carry it.",
+    "user.licenseAssignmentStates shows whether each licence is direct or inherited from a group."
+   ],
+   "docs": "https://learn.microsoft.com/graph/api/subscribedsku-list"
+  },
+  {
+   "id": "messageRule",
+   "label": "Inbox rule",
+   "workload": "outlook",
+   "entityType": "microsoft.graph.messageRule",
+   "path": "GET /users/{id}/mailFolders/inbox/messageRules",
+   "summary": "A user's Inbox rules, including forwardTo, redirectTo and forwardAsAttachmentTo actions that send mail outside the organisation.",
+   "permissions": {
+    "delegated": "MailboxSettings.Read",
+    "application": "MailboxSettings.Read"
+   },
+   "licence": "Exchange Online mailbox.",
+   "limits": [
+    "Only Inbox rules are exposed. Mailbox-level forwarding and transport rules are not in Graph.",
+    "Forwarding is blocked if the remote domain or the outbound spam policy disables automatic forwarding, so a rule can exist and still not forward.",
+    "Forward and redirect rules allow at most 10 recipients."
+   ],
+   "mapping": [
+    "Check actions.forwardTo, redirectTo and forwardAsAttachmentTo for addresses outside your accepted domains."
+   ],
+   "docs": "https://learn.microsoft.com/graph/api/mailfolder-list-messagerules"
+  },
+  {
+   "id": "exGap",
+   "label": "Not in Graph: Exchange",
+   "workload": "outlook",
+   "kind": "gap",
+   "path": "Exchange Online PowerShell",
+   "summary": "Exchange forwarding and mail flow controls that Graph does not expose.",
+   "limits": [
+    "Mailbox-level forwarding: Get-Mailbox (ForwardingAddress, ForwardingSmtpAddress, DeliverToMailboxAndForward) and Set-Mailbox.",
+    "Outbound spam policy: Get-HostedOutboundSpamFilterPolicy, AutoForwardingMode (Automatic, On, Off). Set it explicitly; Automatic now behaves as Off for most tenants.",
+    "Remote domains: Get-RemoteDomain, AutoForwardEnabled.",
+    "Mail flow (transport) rules: Get-TransportRule."
+   ],
+   "mapping": [
+    "When one control allows forwarding and another blocks it, the block usually wins.",
+    "Remote domain settings don't affect admin-set mailbox forwarding or forwarding by transport rules."
+   ],
+   "docs": "https://learn.microsoft.com/defender-office-365/outbound-spam-policies-external-email-forwarding"
+  },
+  {
+   "id": "aiInteraction",
+   "label": "Copilot interaction",
+   "workload": "ai",
+   "entityType": "microsoft.graph.aiInteraction",
+   "path": "GET /copilot/users/{id}/interactionHistory/getAllEnterpriseInteractions",
+   "summary": "A user's Microsoft 365 Copilot prompts and responses across Teams, Word, Outlook and other apps, with the files and links Copilot used.",
+   "permissions": {
+    "delegated": "Not supported",
+    "application": "AiEnterpriseInteraction.Read.All"
+   },
+   "licence": "Microsoft 365 Copilot licence (service plan Microsoft Copilot with Graph-grounded chat) for the user.",
+   "limits": [
+    "Does not return interactions with Copilot Studio agents.",
+    "No delta. A createdDateTime filter needs both a lower and an upper bound; filter on appClass to pick one app.",
+    "Application permission only, so the app can read every licensed user's history. Treat the consent as highly sensitive."
+   ],
+   "mapping": [
+    "contexts and attachments hold the URLs and IDs of the files, mails and messages Copilot used.",
+    "requestId and sessionId pair a prompt with its response."
+   ],
+   "docs": "https://learn.microsoft.com/graph/api/aiinteractionhistory-getallenterpriseinteractions"
+  },
+  {
+   "id": "purviewAi",
+   "label": "Purview AI policy check",
+   "workload": "ai",
+   "kind": "operation",
+   "action": "processContent",
+   "path": "POST /users/{id}/dataSecurityAndGovernance/protectionScopes/compute · processContent · activities/contentActivities",
+   "summary": "Lets your own AI app apply Purview DLP, labels and audit: compute which policies apply, send prompts and responses for a verdict, or just log the activity.",
+   "permissions": {
+    "delegated": "ProtectionScopes.Compute.User, Content.Process.User, ContentActivity.Write",
+    "application": "ProtectionScopes.Compute.User, Content.Process.User, ContentActivity.Write"
+   },
+   "licence": "Pay-as-you-go billing must be enabled for Entra-registered AI apps (charged per request for non-Microsoft 365 AI). Checked 16 Nov 2026.",
+   "limits": [
+    "Cache the ETag from compute and send it as If-None-Match on processContent. Call compute again when protectionScopeState is modified.",
+    "evaluateInline makes the app wait for the verdict; evaluateOffline does not.",
+    "Higher permissions are ProtectionScopes.Compute.All and Content.Process.All."
+   ],
+   "mapping": [
+    "compute: which users, apps and activities are in scope for policy. processContent: the verdict and policy actions (such as block). contentActivities: audit only.",
+    "A tenant-wide compute is at /security/dataSecurityAndGovernance/protectionScopes/compute."
+   ],
+   "docs": "https://learn.microsoft.com/graph/security-datasecurityandgovernance-overview"
+  },
+  {
+   "id": "agentIdentity",
+   "label": "Agent identity",
+   "workload": "ai",
+   "entityType": "microsoft.graph.agentIdentity",
+   "path": "GET /servicePrincipals/microsoft.graph.agentIdentity",
+   "summary": "An Entra Agent ID identity: a service principal subtype that an AI agent signs in with, created from an agent identity blueprint.",
+   "permissions": {
+    "delegated": "AgentIdentity.Read.All",
+    "application": "AgentIdentity.Read.All"
+   },
+   "licence": "Agent ID is available to Entra customers; Conditional Access, ID Protection and Governance for agents need Microsoft Agent 365 (in Microsoft 365 E7 or as an add-on). Learn pages disagree, so treat as drifting (checked 16 Nov 2026).",
+   "limits": [
+    "High-risk Graph permissions (such as Application.ReadWrite.All, RoleManagement.ReadWrite.All, User.ReadWrite.All) cannot be granted to agents.",
+    "The admin consent workflow does not work for agent identities.",
+    "The blueprint's owner can manage every agent identity created from it without a directory role."
+   ],
+   "mapping": [
+    "agentIdentityBlueprintId links to the blueprint. As a service principal it has app role assignments and OAuth grants like any other app.",
+    "Agent sign-ins appear in the sign-in log; the agent property that marks them is beta only."
+   ],
+   "docs": "https://learn.microsoft.com/graph/api/agentidentity-list"
+  },
+  {
+   "id": "agentBlueprint",
+   "label": "Agent blueprint",
+   "workload": "ai",
+   "entityType": "microsoft.graph.agentIdentityBlueprint",
+   "path": "GET /applications/microsoft.graph.agentIdentityBlueprint",
+   "summary": "An agent identity blueprint: an application subtype that defines a kind of agent and creates its agent identities.",
+   "permissions": {
+    "delegated": "AgentIdentityBlueprint.Read.All",
+    "application": "AgentIdentityBlueprint.Read.All"
+   },
+   "licence": "As for agent identity (drifting; checked 16 Nov 2026).",
+   "limits": [
+    "GET /applications also returns blueprints; tell them apart by @odata.type.",
+    "Audit logs record blueprint operations under ApplicationManagement and do not mark them as agents by default."
+   ],
+   "mapping": [
+    "A Conditional Access policy that targets a blueprint covers every agent identity created from it, including later ones."
+   ],
+   "docs": "https://learn.microsoft.com/graph/api/agentidentityblueprint-list"
   }
  ],
  "edges": [
@@ -1336,6 +1612,622 @@
    "t": "user",
    "kind": "ref",
    "label": "userPrincipalName"
+  },
+  {
+   "s": "user",
+   "t": "appRoleAssignment",
+   "kind": "nav",
+   "nav": "appRoleAssignments"
+  },
+  {
+   "s": "servicePrincipal",
+   "t": "appRoleAssignment",
+   "kind": "nav",
+   "nav": "appRoleAssignedTo"
+  },
+  {
+   "s": "appRoleAssignment",
+   "t": "servicePrincipal",
+   "kind": "ref",
+   "label": "resourceId"
+  },
+  {
+   "s": "user",
+   "t": "oauthGrant",
+   "kind": "nav",
+   "nav": "oauth2PermissionGrants"
+  },
+  {
+   "s": "servicePrincipal",
+   "t": "oauthGrant",
+   "kind": "nav",
+   "nav": "oauth2PermissionGrants"
+  },
+  {
+   "s": "user",
+   "t": "servicePrincipal",
+   "kind": "nav",
+   "nav": "appRoleAssignedResources"
+  },
+  {
+   "s": "user",
+   "t": "subscribedSku",
+   "kind": "ref",
+   "label": "assignedLicenses",
+   "desc": "matched by skuId"
+  },
+  {
+   "s": "group",
+   "t": "subscribedSku",
+   "kind": "ref",
+   "label": "assignedLicenses (group-based licensing)",
+   "desc": "matched by skuId"
+  },
+  {
+   "s": "riskyUser",
+   "t": "user",
+   "kind": "ref",
+   "label": "id",
+   "desc": "same object ID as the user"
+  },
+  {
+   "s": "pimEligibility",
+   "t": "directoryRole",
+   "kind": "ref",
+   "label": "roleDefinitionId",
+   "desc": "matched by role template ID"
+  },
+  {
+   "s": "pimEligibility",
+   "t": "user",
+   "kind": "ref",
+   "label": "principalId"
+  },
+  {
+   "s": "mailFolder",
+   "t": "messageRule",
+   "kind": "nav",
+   "nav": "messageRules"
+  },
+  {
+   "s": "messageRule",
+   "t": "exGap",
+   "kind": "ref",
+   "label": "auto-forwarding controls",
+   "desc": "allowed or blocked outside Graph"
+  },
+  {
+   "s": "caPolicy",
+   "t": "user",
+   "kind": "ref",
+   "label": "conditions.users"
+  },
+  {
+   "s": "caPolicy",
+   "t": "agentIdentity",
+   "kind": "ref",
+   "label": "conditions (agents)",
+   "desc": "targets agents by identity or blueprint (preview)"
+  },
+  {
+   "s": "caPolicy",
+   "t": "signIn",
+   "kind": "ref",
+   "label": "appliedConditionalAccessPolicies",
+   "desc": "each sign-in records the policies that applied"
+  },
+  {
+   "s": "user",
+   "t": "aiInteraction",
+   "kind": "ref",
+   "label": "interactionHistory",
+   "via": "copilot/users/{id}/interactionHistory",
+   "desc": "per-user export"
+  },
+  {
+   "s": "aiInteraction",
+   "t": "driveItem",
+   "kind": "ref",
+   "label": "contexts / attachments",
+   "desc": "matched by URL or ID"
+  },
+  {
+   "s": "aiInteraction",
+   "t": "message",
+   "kind": "ref",
+   "label": "contexts / attachments",
+   "desc": "matched by URL or ID"
+  },
+  {
+   "s": "user",
+   "t": "purviewAi",
+   "kind": "nav",
+   "nav": "dataSecurityAndGovernance"
+  },
+  {
+   "s": "purviewAi",
+   "t": "sensitivityLabel",
+   "kind": "ref",
+   "label": "label and DLP policy verdicts"
+  },
+  {
+   "s": "purviewAi",
+   "t": "alert",
+   "kind": "ref",
+   "label": "DLP alerts",
+   "desc": "policy matches surface as alerts"
+  },
+  {
+   "s": "agentBlueprint",
+   "t": "agentIdentity",
+   "kind": "ref",
+   "label": "agentIdentityBlueprintId",
+   "desc": "agent identities created from the blueprint"
+  },
+  {
+   "s": "agentIdentity",
+   "t": "servicePrincipal",
+   "kind": "ref",
+   "label": "subtype of servicePrincipal",
+   "desc": "derived type"
+  },
+  {
+   "s": "agentIdentity",
+   "t": "oauthGrant",
+   "kind": "nav",
+   "nav": "oauth2PermissionGrants"
+  },
+  {
+   "s": "agentIdentity",
+   "t": "signIn",
+   "kind": "ref",
+   "label": "agent sign-ins",
+   "desc": "the agent property is beta only"
+  },
+  {
+   "s": "group",
+   "t": "appRoleAssignment",
+   "kind": "nav",
+   "nav": "appRoleAssignments"
+  },
+  {
+   "s": "agentIdentity",
+   "t": "appRoleAssignment",
+   "kind": "nav",
+   "nav": "appRoleAssignments"
+  }
+ ],
+ "scenarios": [
+  {
+   "id": "secure-offboarding",
+   "label": "Secure offboarding",
+   "group": "Classic",
+   "summary": "A leaver's tokens, group access, app access, files and devices must all be cut off, not just the account disabled.",
+   "licence": "Entra ID (Free). Intune for device actions.",
+   "steps": [
+    {
+     "node": "user",
+     "do": "Block sign-in (accountEnabled false), then revoke refresh tokens and session cookies.",
+     "call": "POST /users/{id}/revokeSignInSessions",
+     "permission": "User.RevokeSessions.All (delegated and application)",
+     "note": "Revocation can take a few minutes, and access tokens already issued stay valid until they expire (usually about an hour)."
+    },
+    {
+     "node": "group",
+     "do": "List memberOf and remove the user from groups, especially role-assignable and privileged ones.",
+     "call": "GET /users/{id}/memberOf",
+     "note": "Dynamic group membership can't be removed by hand; it drops when the user's attributes change."
+    },
+    {
+     "node": "appRoleAssignment",
+     "do": "Remove the user's direct enterprise app assignments.",
+     "call": "GET /users/{id}/appRoleAssignments",
+     "note": "The list includes assignments through groups the user is a direct member of; remove those through the group."
+    },
+    {
+     "node": "drive",
+     "do": "Find the OneDrive and hand its content to the manager before the retention period runs out.",
+     "call": "GET /users/{id}/drive",
+     "note": "Setting the OneDrive access delegate (the manager) is a SharePoint admin setting, not a Graph call."
+    },
+    {
+     "node": "device",
+     "do": "Find the user's registered and owned devices and disable or retire them.",
+     "call": "GET /users/{id}/ownedDevices",
+     "note": "Wipe and retire are Intune actions on managedDevice (/deviceManagement), not on the Entra device object."
+    }
+   ]
+  },
+  {
+   "id": "privileged-access-review",
+   "label": "Privileged access review",
+   "group": "Classic",
+   "summary": "Standing admin roles are the biggest identity risk; a review should cover active and eligible assignments and how they are used.",
+   "licence": "Entra ID P2 or ID Governance for PIM. Entra ID P1 for sign-in logs.",
+   "steps": [
+    {
+     "node": "directoryRole",
+     "do": "List active directory roles and their members.",
+     "call": "GET /directoryRoles?$expand=members",
+     "note": "Only activated roles appear here. Use roleManagement/directory/roleAssignments for the full picture."
+    },
+    {
+     "node": "pimEligibility",
+     "do": "List eligible assignments: who can activate which role, and when that ends."
+    },
+    {
+     "node": "user",
+     "do": "Check each holder: still employed, a cloud-only admin account, MFA registered.",
+     "call": "GET /users/{id}?$select=accountEnabled,onPremisesSyncEnabled,signInActivity",
+     "permission": "User.Read.All + AuditLog.Read.All (signInActivity)"
+    },
+    {
+     "node": "administrativeUnit",
+     "do": "Check roles scoped to administrative units, which a tenant-wide review misses.",
+     "call": "GET /directory/administrativeUnits/{id}/scopedRoleMembers"
+    },
+    {
+     "node": "signIn",
+     "do": "Look for admin sign-ins without MFA or from unusual places.",
+     "call": "GET /auditLogs/signIns?$filter=userId eq '{id}'"
+    }
+   ]
+  },
+  {
+   "id": "risky-app-consent",
+   "label": "Risky app consent review",
+   "group": "Classic",
+   "summary": "Consent phishing and over-permissioned apps give attackers durable access that survives password resets.",
+   "licence": "Entra ID (Free). Entra ID P1 for sign-in logs.",
+   "steps": [
+    {
+     "node": "application",
+     "do": "List apps registered in your tenant and their requested permissions (requiredResourceAccess)."
+    },
+    {
+     "node": "servicePrincipal",
+     "do": "List enterprise apps, including multi-tenant apps from other publishers.",
+     "call": "GET /servicePrincipals?$select=id,appId,displayName,appOwnerOrganizationId,verifiedPublisher"
+    },
+    {
+     "node": "oauthGrant",
+     "do": "Find delegated grants with broad scopes (Mail.Read, Files.Read.All and so on), and whether they are admin or per-user consent."
+    },
+    {
+     "node": "appRoleAssignment",
+     "do": "Find application permissions granted to each app: these work without a signed-in user.",
+     "call": "GET /servicePrincipals/{id}/appRoleAssignments",
+     "note": "Application permissions on Microsoft Graph are app role assignments whose resourceId is the Graph service principal."
+    },
+    {
+     "node": "signIn",
+     "do": "Check whether the app is actually used, and from where.",
+     "call": "GET /beta/auditLogs/signIns?$filter=signInEventTypes/any(t: t eq 'servicePrincipal')",
+     "note": "Service principal sign-ins are beta only; v1.0 returns interactive user sign-ins."
+    }
+   ]
+  },
+  {
+   "id": "guest-external-access",
+   "label": "Guest and external access review",
+   "group": "Classic",
+   "summary": "Guests and shared channels quietly widen who can see your content; access should be reviewed where it is granted.",
+   "licence": "Entra ID (Free). Access reviews need ID Governance or P2.",
+   "steps": [
+    {
+     "node": "user",
+     "do": "List guest accounts and when they last signed in.",
+     "call": "GET /users?$filter=userType eq 'Guest'&$select=displayName,mail,signInActivity",
+     "permission": "User.Read.All + AuditLog.Read.All (signInActivity)"
+    },
+    {
+     "node": "group",
+     "do": "Find which groups and Microsoft 365 groups each guest belongs to.",
+     "call": "GET /users/{id}/memberOf"
+    },
+    {
+     "node": "team",
+     "do": "List the teams behind those groups and their guest settings."
+    },
+    {
+     "node": "channel",
+     "do": "Find shared channels, whose members can come from other tenants without a guest account.",
+     "call": "GET /teams/{id}/channels?$filter=membershipType eq 'shared'",
+     "note": "Shared-channel members from other tenants are not guests, so a guest review misses them."
+    },
+    {
+     "node": "site",
+     "do": "Find the sites behind those teams and channels (shared channels have their own site)."
+    },
+    {
+     "node": "permission",
+     "do": "List sharing links and direct grants, especially anyone and external links.",
+     "call": "GET /drives/{id}/items/{id}/permissions"
+    }
+   ]
+  },
+  {
+   "id": "compromised-account",
+   "label": "Compromised account investigation",
+   "group": "Classic",
+   "summary": "Business email compromise moves fast; you need the alert, the sign-ins, the persistence (rules) and the containment in one sweep.",
+   "licence": "Microsoft Defender XDR. Entra ID P2 for risky users. Entra ID P1 for sign-in logs.",
+   "steps": [
+    {
+     "node": "incident",
+     "do": "Open the Defender XDR incident and its correlated alerts."
+    },
+    {
+     "node": "alert",
+     "do": "Read the alert evidence: user, mailbox, IP addresses, files."
+    },
+    {
+     "node": "riskyUser",
+     "do": "Check the user's risk level and history; confirm compromise to feed ID Protection.",
+     "call": "POST /identityProtection/riskyUsers/confirmCompromised",
+     "permission": "IdentityRiskyUser.ReadWrite.All"
+    },
+    {
+     "node": "signIn",
+     "do": "Review sign-ins for the period: locations, apps, MFA results, legacy protocols."
+    },
+    {
+     "node": "directoryAudit",
+     "do": "Look for changes the attacker made: MFA methods added, app consents, role changes.",
+     "call": "GET /auditLogs/directoryAudits?$filter=initiatedBy/user/id eq '{id}'"
+    },
+    {
+     "node": "messageRule",
+     "do": "Look for Inbox rules that forward, redirect, delete or hide mail."
+    },
+    {
+     "node": "hunting",
+     "do": "Hunt across mail, identity and cloud app events for the same IP addresses and patterns.",
+     "note": "Advanced hunting keeps 30 days of data."
+    },
+    {
+     "node": "user",
+     "do": "Contain: block sign-in, reset the password and revoke sessions.",
+     "call": "POST /users/{id}/revokeSignInSessions",
+     "permission": "User.RevokeSessions.All"
+    }
+   ]
+  },
+  {
+   "id": "dormant-licensed-accounts",
+   "label": "Dormant accounts with active licences",
+   "group": "Classic",
+   "summary": "Unused accounts are an attack surface and a cost; licences on them are money spent for nothing.",
+   "licence": "Entra ID P1 for signInActivity.",
+   "steps": [
+    {
+     "node": "user",
+     "do": "List users with their last successful sign-in and assigned licences.",
+     "call": "GET /users?$select=displayName,accountEnabled,assignedLicenses,signInActivity",
+     "permission": "User.Read.All + AuditLog.Read.All",
+     "note": "signInActivity can lag by up to 24 hours, and lastSuccessfulSignInDateTime has no data before December 2023."
+    },
+    {
+     "node": "signIn",
+     "do": "Confirm inactivity for borderline accounts; non-interactive sign-ins (beta) show background use.",
+     "note": "Sign-in logs are kept for 30 days, so use signInActivity for anything older."
+    },
+    {
+     "node": "subscribedSku",
+     "do": "Map skuId to product names and see consumed against purchased units."
+    },
+    {
+     "node": "group",
+     "do": "Find group-based licence assignments; remove the user from the group rather than the licence.",
+     "call": "GET /groups?$filter=assignedLicenses/$count ne 0&$count=true",
+     "note": "Needs ConsistencyLevel: eventual. Licence errors are written to the user asynchronously."
+    },
+    {
+     "node": "reportRoot",
+     "do": "Confirm per-workload inactivity (mail, OneDrive, Teams) from the activity reports.",
+     "call": "GET /reports/getOffice365ActiveUserDetail(period='D90')",
+     "note": "Reports show concealed names unless the tenant setting is turned off."
+    }
+   ]
+  },
+  {
+   "id": "external-mail-forwarding",
+   "label": "Mail forwarding to external addresses",
+   "group": "Classic",
+   "summary": "Auto-forwarding is a classic exfiltration route, and it can be set in places Graph can't see.",
+   "licence": "Exchange Online. Defender XDR for alerts and hunting.",
+   "steps": [
+    {
+     "node": "user",
+     "do": "List mailbox users in scope.",
+     "call": "GET /users?$filter=mail ne null&$select=id,mail"
+    },
+    {
+     "node": "messageRule",
+     "do": "For each mailbox, find Inbox rules with forwardTo, redirectTo or forwardAsAttachmentTo outside your domains.",
+     "note": "Reading every mailbox's rules app-only needs MailboxSettings.Read for the whole tenant; scope it with RBAC for Applications if you can."
+    },
+    {
+     "node": "exGap",
+     "do": "Check mailbox forwarding, the outbound spam policy, remote domains and transport rules in Exchange Online PowerShell.",
+     "call": "Get-Mailbox · Get-HostedOutboundSpamFilterPolicy · Get-RemoteDomain · Get-TransportRule",
+     "permission": "Exchange Online PowerShell role (for example View-Only Organization Management)"
+    },
+    {
+     "node": "alert",
+     "do": "Look for forwarding alerts, such as suspicious email forwarding activity.",
+     "call": "GET /security/alerts_v2?$filter=title has 'forward'"
+    },
+    {
+     "node": "hunting",
+     "do": "Hunt for mail actually leaving to external recipients.",
+     "call": "POST /security/runHuntingQuery (EmailEvents, where EmailDirection == 'Outbound')"
+    }
+   ]
+  },
+  {
+   "id": "copilot-oversharing",
+   "label": "Oversharing check before Copilot rollout",
+   "group": "AI",
+   "summary": "Copilot surfaces whatever a user can already open, so overshared sites become Copilot answers.",
+   "licence": "Microsoft 365 Copilot. SharePoint Advanced Management for its oversharing reports.",
+   "steps": [
+    {
+     "node": "site",
+     "do": "List sites and spot broadly shared ones (Everyone except external users, large Members groups).",
+     "call": "GET /sites/getAllSites",
+     "note": "getAllSites needs application permissions."
+    },
+    {
+     "node": "permission",
+     "do": "List site and file permissions and sharing links, especially organisation-wide and anyone links."
+    },
+    {
+     "node": "driveItem",
+     "do": "Find sensitive files in those sites (search or by library) and their labels.",
+     "call": "POST /search/query (entityTypes: driveItem)"
+    },
+    {
+     "node": "sensitivityLabel",
+     "do": "Check which labels exist and apply or raise labels on sensitive content.",
+     "call": "POST /drives/{id}/items/{id}/assignSensitivityLabel",
+     "note": "assignSensitivityLabel is a metered API, and app-only calls can't replace the content of a labelled file."
+    },
+    {
+     "node": "reportRoot",
+     "do": "Track Copilot readiness and usage after rollout.",
+     "call": "GET /reports/getMicrosoft365CopilotUsageUserDetail(period='D30')",
+     "note": "Check Learn for the current Copilot usage report endpoints; some are beta."
+    }
+   ]
+  },
+  {
+   "id": "purview-dlp-own-ai",
+   "label": "Apply Purview DLP to your own AI apps",
+   "group": "AI",
+   "summary": "Home-grown AI apps can leak data like any other; the Purview APIs let them honour the same DLP and labels as Microsoft 365.",
+   "licence": "Pay-as-you-go billing for Entra-registered AI apps. Purview DLP licensing for the policies.",
+   "steps": [
+    {
+     "node": "user",
+     "do": "Identify the user the app acts for (delegated) or will act for (application)."
+    },
+    {
+     "node": "purviewAi",
+     "do": "Compute protection scopes, then send each prompt and response to processContent and honour the verdict.",
+     "call": "POST /users/{id}/dataSecurityAndGovernance/protectionScopes/compute, then processContent",
+     "note": "Cache the compute ETag and send it as If-None-Match; call compute again when protectionScopeState is modified."
+    },
+    {
+     "node": "sensitivityLabel",
+     "do": "Read the labels that apply to the content the app retrieves, so it can respect encryption and usage rights.",
+     "call": "GET /users/{id}/dataSecurityAndGovernance/sensitivityLabels"
+    },
+    {
+     "node": "alert",
+     "do": "DLP matches from your app surface as alerts for the security team.",
+     "call": "GET /security/alerts_v2?$filter=serviceSource eq 'microsoftDataLossPrevention'"
+    }
+   ]
+  },
+  {
+   "id": "copilot-interaction-review",
+   "label": "Copilot interaction export and review",
+   "group": "AI",
+   "summary": "Prompts and responses are business records; you may need to export, review, retain or hold them.",
+   "licence": "Microsoft 365 Copilot. Purview (eDiscovery Premium) for review sets and holds.",
+   "steps": [
+    {
+     "node": "user",
+     "do": "Pick the users in scope; only Copilot-licensed users have history."
+    },
+    {
+     "node": "aiInteraction",
+     "do": "Export prompts and responses for a date range, filtered by app if needed.",
+     "call": "GET /copilot/users/{id}/interactionHistory/getAllEnterpriseInteractions?$filter=createdDateTime gt {start} and createdDateTime lt {end}"
+    },
+    {
+     "node": "driveItem",
+     "do": "Follow contexts and attachments to the files Copilot used."
+    },
+    {
+     "node": "message",
+     "do": "Or to the mails and chats it used.",
+     "or": true
+    },
+    {
+     "node": "retentionLabel",
+     "do": "Keep the interactions under a retention policy for Copilot interactions.",
+     "note": "Copilot retention is set by retention policy in Purview, not by labelling each interaction through Graph."
+    },
+    {
+     "node": "ediscoveryCase",
+     "do": "Or put the users on hold and collect Copilot interactions into a case.",
+     "or": true
+    }
+   ]
+  },
+  {
+   "id": "audit-hunt-ai-usage",
+   "label": "Audit and hunt AI usage",
+   "group": "AI",
+   "summary": "Security teams need to see who uses AI, on what data, and spot misuse such as prompt-based exfiltration.",
+   "licence": "Purview Audit (Standard). Defender XDR (with Defender for Cloud Apps) for CloudAppEvents.",
+   "steps": [
+    {
+     "node": "auditLogQuery",
+     "do": "Search the unified audit log for CopilotInteraction records.",
+     "call": "POST /security/auditLog/queries (recordTypeFilters: copilotInteraction)",
+     "note": "Audit queries run asynchronously; poll the query status, then read its records."
+    },
+    {
+     "node": "hunting",
+     "do": "Hunt in CloudAppEvents for AI app activity across users.",
+     "call": "POST /security/runHuntingQuery (CloudAppEvents, where ActionType == 'CopilotInteraction')"
+    },
+    {
+     "node": "user",
+     "do": "Pivot to the users with unusual volume or access patterns."
+    },
+    {
+     "node": "alert",
+     "do": "Check for related alerts, such as DLP or insider risk on AI activity."
+    }
+   ]
+  },
+  {
+   "id": "agent-identity-governance",
+   "label": "Agent identity governance",
+   "group": "AI",
+   "summary": "AI agents now have their own identities; they need an owner, least privilege, Conditional Access and monitoring like any workforce identity.",
+   "licence": "Microsoft Agent 365 (in Microsoft 365 E7) plus Entra ID P1 for Conditional Access on agents. Drifting; checked 16 Nov 2026.",
+   "steps": [
+    {
+     "node": "agentBlueprint",
+     "do": "Inventory blueprints and their owners and sponsors."
+    },
+    {
+     "node": "agentIdentity",
+     "do": "List agent identities and the blueprint each came from.",
+     "call": "GET /servicePrincipals/microsoft.graph.agentIdentity"
+    },
+    {
+     "node": "caPolicy",
+     "do": "Check that a Conditional Access policy targets agent identities or their blueprints.",
+     "note": "Policies for all users don't include agent users; agents need explicit targeting (preview)."
+    },
+    {
+     "node": "oauthGrant",
+     "do": "Review delegated and application permissions granted to agents.",
+     "call": "GET /servicePrincipals/{id}/oauth2PermissionGrants"
+    },
+    {
+     "node": "signIn",
+     "do": "Monitor agent sign-ins.",
+     "call": "GET /beta/auditLogs/signIns?$filter=signInEventTypes/any(t: t eq 'servicePrincipal') and agent/agentType eq 'AgentIdentity'",
+     "note": "The agent property on sign-ins is beta only."
+    }
+   ]
   }
  ]
 }
