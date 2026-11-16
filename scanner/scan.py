@@ -534,8 +534,6 @@ def build_map(curated, prev_map=None, v1_src=None, beta_src=None, token=None, sc
             "at": now.isoformat(timespec="seconds"),
             "v1EntityTypes": len(v1.entities),
             "betaEntityTypes": len(beta.entities),
-            "permissionsChecked": bool(perms),
-            "permissionCount": len(set(perms["application"]) | set(perms["delegated"])) if perms else None,
         }
     else:
         meta["scan"] = (prev_map or {}).get("meta", {}).get("scan")
@@ -544,7 +542,6 @@ def build_map(curated, prev_map=None, v1_src=None, beta_src=None, token=None, sc
         nodes_scan = scan_nodes(curated, v1, beta)
         edges = scan_edges(curated, v1, beta)
         discovered = discover_edges(curated, v1, beta)
-        perm_check = check_permissions(curated, perms) if perms else {}
         changes = diff(curated, prev_map, nodes_scan, discovered, perms, today)
         roots = {"v1.0": sorted(v1.roots), "beta": sorted(beta.roots)}
         cov = summarise_coverage(curated, coverage_types(v1, beta), roots, meta["scan"]["at"])
@@ -553,7 +550,6 @@ def build_map(curated, prev_map=None, v1_src=None, beta_src=None, token=None, sc
         # keep the previous scan results, re-attached to the current curated content
         prev_nodes = {n["id"]: n for n in (prev_map or {}).get("nodes", [])}
         nodes_scan = {k: v["scan"] for k, v in prev_nodes.items() if v.get("scan")}
-        perm_check = {k: v["permCheck"] for k, v in prev_nodes.items() if v.get("permCheck")}
         prev_edges = {(e["s"], e["t"], e.get("nav") or e.get("action") or e.get("label")): e.get("scan")
                       for e in (prev_map or {}).get("edges", [])}
         edges = []
@@ -565,6 +561,23 @@ def build_map(curated, prev_map=None, v1_src=None, beta_src=None, token=None, sc
         changes = []
         cov = (summarise_coverage(curated, prev_coverage["types"], prev_coverage.get("roots") or {},
                                   prev_coverage.get("at")) if prev_coverage and prev_coverage.get("types") else None)
+    # Permission names: fresh from Graph when there is a token, otherwise the list stored by the last
+    # token run, so scans without a token (the weekly Actions run) keep checking names instead of dropping them.
+    prev_state = (prev_map or {}).get("state") or {}
+    if perms:
+        perm_names, perm_at = sorted(set(perms["application"]) | set(perms["delegated"])), today
+    else:
+        prev_scan = (prev_map or {}).get("meta", {}).get("scan") or {}
+        perm_names = prev_state.get("permissionNames")
+        perm_at = (prev_state.get("permissionNamesAt") or prev_scan.get("permissionsCheckedAt")
+                   or (prev_scan.get("at") or "")[:10] or None)
+    perm_check = check_permissions(curated, {"application": perm_names, "delegated": []}) if perm_names else {}
+    if meta.get("scan"):
+        meta["scan"] = dict(meta["scan"])
+        meta["scan"]["permissionsChecked"] = bool(perm_names)
+        meta["scan"]["permissionCount"] = len(perm_names) if perm_names else None
+        meta["scan"]["permissionsCheckedAt"] = perm_at if perm_names else None
+
     if coverage_out is not None and cov:
         coverage_out.clear()
         coverage_out.update(cov)
@@ -579,9 +592,9 @@ def build_map(curated, prev_map=None, v1_src=None, beta_src=None, token=None, sc
         nodes.append(n)
 
     recent = (cap_new_in_graph(changes) + list((prev_map or {}).get("recentChanges", [])))[:RECENT_KEEP]
-    state = dict((prev_map or {}).get("state") or {})
-    if perms:
-        state["permissionNames"] = sorted(set(perms["application"]) | set(perms["delegated"]))
+    state = dict(prev_state)
+    if perm_names:
+        state["permissionNames"], state["permissionNamesAt"] = perm_names, perm_at
 
     graph_map = {
         "meta": meta,

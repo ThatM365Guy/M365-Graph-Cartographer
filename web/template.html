@@ -592,7 +592,7 @@ function init(){
       ${SCEN.length ? `<h4>Scenarios</h4><p>Step-by-step routes across the map for common reviews and investigations.</p>${scenarioList()}` : ''}
       ${coverageBlock()}
       <h4>Recent changes</h4>${changesFor(null)}
-      <p class="foot">Curated notes v${esc(D.meta.curatedVersion)}, ${fmtDate(D.meta.curatedOn)}. ${scanInfo ? `Schema scanned ${fmtDate(scanInfo.at)}: ${scanInfo.v1EntityTypes} entity types in v1.0, ${scanInfo.betaEntityTypes} in beta${scanInfo.permissionsChecked ? `, ${scanInfo.permissionCount} permissions checked` : ''}.` : 'The schema scan has not run yet, so version badges and property lists will appear after the first scan.'} ${esc(D.meta.phase || '')}</p>`;
+      <p class="foot">Curated notes v${esc(D.meta.curatedVersion)}, ${fmtDate(D.meta.curatedOn)}. ${scanInfo ? `Schema scanned ${fmtDate(scanInfo.at)}: ${nf(scanInfo.v1EntityTypes)} entity types in v1.0, ${nf(scanInfo.betaEntityTypes)} in beta${scanInfo.permissionsChecked ? `. Permission names checked against Graph's ${nf(scanInfo.permissionCount)} permissions${scanInfo.permissionsCheckedAt ? ` (list fetched ${fmtDate(scanInfo.permissionsCheckedAt)})` : ''}` : ''}.` : 'The schema scan has not run yet, so version badges and property lists will appear after the first scan.'} ${esc(D.meta.phase || '')}</p>`;
   }
   function coverageBlock(){
     if (!cov) return '';

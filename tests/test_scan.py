@@ -144,6 +144,45 @@ class ScanTests(unittest.TestCase):
         self.assertNotIn("v1.0", " ".join(sum((r["checked"] for r in res.values()), [])))
 
 
+class PermissionCarryOverTests(unittest.TestCase):
+    """Scans without a token re-check names against the list stored by the last token run."""
+
+    def first_with_perms(self):
+        perms = {"application": ["User.Read.All", "Sites.Selected"], "delegated": ["User.Read", "User.ReadBasic.All"]}
+        orig = scan.fetch_permissions
+        scan.fetch_permissions = lambda token: perms
+        try:
+            gm, _ = scan.build_map(curated(), None, os.path.join(FX, "v1.xml"), os.path.join(FX, "beta.xml"),
+                                   token="t", now=D1)
+        finally:
+            scan.fetch_permissions = orig
+        return gm
+
+    def test_scan_without_token_keeps_checking(self):
+        first = self.first_with_perms()
+        self.assertEqual(first["state"]["permissionNamesAt"], "2026-11-14")
+        cur = curated()
+        user = next(n for n in cur["nodes"] if n["id"] == "user")
+        user["permissions"] = {"delegated": "User.Read, User.Raed.All", "application": "User.Read.All"}
+        gm, _ = scan.build_map(cur, first, os.path.join(FX, "v1.xml"), os.path.join(FX, "beta.xml"), now=D2)
+        nodes = {n["id"]: n for n in gm["nodes"]}
+        self.assertEqual(nodes["user"]["permCheck"]["unknown"], ["User.Raed.All"])   # an edit is checked, not stale
+        self.assertTrue(gm["meta"]["scan"]["permissionsChecked"])
+        self.assertEqual(gm["meta"]["scan"]["permissionsCheckedAt"], "2026-11-14")
+        self.assertEqual(gm["meta"]["scan"]["permissionCount"], 4)
+        self.assertEqual(gm["state"]["permissionNames"], first["state"]["permissionNames"])
+
+    def test_no_scan_rechecks_too(self):
+        first = self.first_with_perms()
+        gm, _ = scan.build_map(curated(), first, scan=False, now=D2)
+        self.assertIn("Group.Read.All", next(n for n in gm["nodes"] if n["id"] == "group")["permCheck"]["unknown"])
+
+    def test_never_checked_stays_unchecked(self):
+        gm, _ = scan.build_map(curated(), None, os.path.join(FX, "v1.xml"), os.path.join(FX, "beta.xml"), now=D1)
+        self.assertFalse(gm["meta"]["scan"]["permissionsChecked"])
+        self.assertFalse(any("permCheck" in n for n in gm["nodes"]))
+
+
 class CoverageTests(unittest.TestCase):
     def setUp(self):
         self.v1 = scan.parse_csdl(os.path.join(FX, "v1.xml"))
