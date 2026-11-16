@@ -319,14 +319,22 @@ function init(){
   }).observe(box);
 
   const ptrs = new Map(); let downAt = null, moved = false, pinch = null, downTarget = null;
+  /* Drop any half-finished gesture without selecting anything. Called whenever pointerup may never arrive:
+     right-click (context menu), lost capture, pointer leaving the window, window blur, tab hidden. */
+  function endGesture(){
+    ptrs.clear(); pinch = null; downAt = null; moved = false; downTarget = null;
+    svg.classList.remove('drag');
+  }
   svg.addEventListener('pointerdown', e => {
-    svg.setPointerCapture(e.pointerId);
+    if (e.pointerType === 'mouse' && e.button !== 0) return;   // primary button only; touch and pen always
+    try { svg.setPointerCapture(e.pointerId); } catch (_) { /* pointer already gone */ }
     ptrs.set(e.pointerId, {x:e.clientX, y:e.clientY});
     if (ptrs.size === 1) { downAt = {x:e.clientX, y:e.clientY, tx:view.tx, ty:view.ty}; moved = false; downTarget = e.target.closest('[data-id]'); }
     if (ptrs.size === 2) { const [p, q] = [...ptrs.values()]; pinch = {d: Math.hypot(p.x-q.x, p.y-q.y), k: view.k}; moved = true; }
   });
   svg.addEventListener('pointermove', e => {
     if (!ptrs.has(e.pointerId)) return;
+    if (e.pointerType === 'mouse' && e.buttons === 0) { endGesture(); return; }   // button released where we could not see it
     ptrs.set(e.pointerId, {x:e.clientX, y:e.clientY});
     if (ptrs.size === 2 && pinch) {
       const [p, q] = [...ptrs.values()], r = box.getBoundingClientRect();
@@ -352,6 +360,17 @@ function init(){
   };
   svg.addEventListener('pointerup', up);
   svg.addEventListener('pointercancel', up);
+  svg.addEventListener('lostpointercapture', e => {
+    // Fires after a normal pointerup too, by which time the pointer is already gone from ptrs.
+    if (!ptrs.has(e.pointerId)) return;
+    ptrs.delete(e.pointerId);
+    if (ptrs.size < 2) pinch = null;
+    if (!ptrs.size) endGesture();
+  });
+  svg.addEventListener('contextmenu', endGesture);
+  document.documentElement.addEventListener('pointerleave', e => { if (e.pointerType === 'mouse') endGesture(); });
+  window.addEventListener('blur', endGesture);
+  document.addEventListener('visibilitychange', () => { if (document.hidden) endGesture(); });
   svg.addEventListener('wheel', e => {
     e.preventDefault();
     const r = box.getBoundingClientRect();
