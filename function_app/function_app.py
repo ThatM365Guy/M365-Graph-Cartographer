@@ -67,12 +67,16 @@ def run_scan(force_permissions: bool = False) -> dict:
     if force_permissions or os.environ.get("CHECK_PERMISSIONS", "false").lower() == "true":
         token = cred.get_token("https://graph.microsoft.com/.default").token
 
-    graph_map, changes = scan.build_map(curated, previous, token=token, scan=True)
+    coverage: dict = {}
+    graph_map, changes = scan.build_map(curated, previous, token=token, scan=True,
+                                        prev_coverage=_read_json(container, "coverage.json"), coverage_out=coverage)
     changelog = changes + (_read_json(container, "changelog.json", []) or [])
 
     _write(container, "graph-map.json", json.dumps(graph_map, ensure_ascii=False), "application/json")
     _write(container, "changelog.json", json.dumps(changelog[: scan.CHANGELOG_KEEP], ensure_ascii=False, indent=1),
            "application/json")
+    if coverage:
+        _write(container, "coverage.json", json.dumps(coverage, ensure_ascii=False), "application/json")
     _write(container, "index.html", build_page.render(template, graph_map), "text/html; charset=utf-8")
 
     summary = {"changes": len(changes), "scan": graph_map["meta"].get("scan"),

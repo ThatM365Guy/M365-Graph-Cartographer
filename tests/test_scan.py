@@ -79,7 +79,7 @@ class ScanTests(unittest.TestCase):
         self.assertEqual(scan.parse_csdl(os.path.join(FX, "v1.xml")).effective("microsoft.graph.site")["navs"]["createdByUser"],
                          "microsoft.graph.user")
         self.assertFalse([e for e in gm["edges"] if e["kind"] == "discovered" and e["nav"] in scan.DISCOVERY_SKIP_NAVS])
-        self.assertEqual([c["kind"] for c in changes], ["baseline"])
+        self.assertEqual([c["kind"] for c in changes], ["baseline", "graph-baseline"])
 
     def test_second_scan_reports_changes(self):
         first, _ = self.run_scan("v1.xml", "beta.xml")
@@ -114,6 +114,69 @@ class ScanTests(unittest.TestCase):
         self.assertEqual(res["user"]["unknown"], [])
         self.assertIn("Group.Read.All", res["group"]["unknown"])
         self.assertNotIn("v1.0", " ".join(sum((r["checked"] for r in res.values()), [])))
+
+
+class CoverageTests(unittest.TestCase):
+    def setUp(self):
+        self.v1 = scan.parse_csdl(os.path.join(FX, "v1.xml"))
+        self.beta = scan.parse_csdl(os.path.join(FX, "beta.xml"))
+
+    def test_parse_roots_and_containment(self):
+        self.assertEqual(self.v1.roots["users"], "microsoft.graph.user")
+        self.assertEqual(self.v1.roots["security"], "microsoft.graph.security.security")
+        self.assertEqual(self.v1.effective("microsoft.graph.user")["contained"], {"drive"})
+        self.assertIn("items", self.v1.effective("microsoft.graph.drive")["contained"])
+
+    def test_areas_follow_containment_from_the_nearest_root(self):
+        area = scan.assign_areas(self.v1)
+        self.assertEqual(area["microsoft.graph.user"], "users")          # /me is an alias of /users
+        self.assertEqual(area["microsoft.graph.group"], "groups")
+        self.assertEqual(area["microsoft.graph.drive"], "sites")         # equally close to users/groups/sites: priority
+        self.assertEqual(area["microsoft.graph.itemRetentionLabel"], "sites")   # three levels down
+        self.assertEqual(area["microsoft.graph.security.alert"], "security")
+        self.assertEqual(area["microsoft.graph.baseItem"], "unrooted")   # no containment path reaches it
+
+    def test_coverage_report_and_page_summary(self):
+        gm_out = {}
+        gm, _ = scan.build_map(curated(), None, os.path.join(FX, "v1.xml"), os.path.join(FX, "beta.xml"),
+                               now=D1, coverage_out=gm_out)
+        self.assertEqual(gm_out["v1Types"], len(self.v1.entities))
+        self.assertEqual(gm_out["betaOnlyTypes"], 1)                    # sensitivityLabel
+        sites = next(a for a in gm_out["areas"] if a["area"] == "sites")
+        self.assertIn("driveItem", sites["onMapTypes"])
+        self.assertIn("itemRetentionLabel", sites["missing"])
+        self.assertEqual(gm["coverage"]["onMap"], gm_out["onMap"])
+        self.assertNotIn("missing", json.dumps(gm["coverage"]))         # the page gets counts only
+        self.assertNotIn("types", gm["coverage"])
+
+    def test_new_in_graph_entries_and_cap(self):
+        first_cov = {}
+        first, _ = scan.build_map(curated(), None, os.path.join(FX, "v1.xml"), os.path.join(FX, "beta.xml"),
+                                  now=D1, coverage_out=first_cov)
+        cov = {}
+        _, changes = scan.build_map(curated(), first, os.path.join(FX, "v1_later.xml"), os.path.join(FX, "beta.xml"),
+                                    now=D2, prev_coverage=first_cov, coverage_out=cov)
+        texts = " | ".join(c["text"] for c in changes)
+        self.assertIn("New in Graph v1.0: riskyUser", texts)
+        self.assertIn("Promoted from beta to v1.0: security.sensitivityLabel", texts)
+        self.assertIn("New top-level root in v1.0: /drives", texts)
+        self.assertNotIn("graph-baseline", [c["kind"] for c in changes])
+        many = [{"date": "2026-11-21", "node": None, "kind": "graph-new-type", "text": str(i)} for i in range(12)]
+        capped = scan.cap_new_in_graph(many)
+        self.assertEqual(len(capped), scan.NEW_IN_GRAPH_RECENT + 1)
+        self.assertIn("7 more new v1.0 types", capped[-1]["text"])
+
+    def test_no_scan_recounts_from_previous_coverage(self):
+        cov = {}
+        first, _ = scan.build_map(curated(), None, os.path.join(FX, "v1.xml"), os.path.join(FX, "beta.xml"),
+                                  now=D1, coverage_out=cov)
+        cur = curated()
+        cur["nodes"] = [n for n in cur["nodes"] if n["id"] != "driveItem"]
+        cur["edges"] = [e for e in cur["edges"] if "driveItem" not in (e["s"], e["t"])]
+        again = {}
+        gm, _ = scan.build_map(cur, first, scan=False, now=D2, prev_coverage=cov, coverage_out=again)
+        self.assertEqual(gm["coverage"]["onMap"], cov["onMap"] - 1)
+        self.assertIn("driveItem", next(a for a in again["areas"] if a["area"] == "sites")["missing"])
 
 
 class CuratedIntegrity(unittest.TestCase):
