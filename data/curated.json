@@ -1875,7 +1875,8 @@
     "Filter pending requests with userConsentRequests/any(u:u/status eq 'InProgress')."
    ],
    "mapping": [
-    "appId identifies the app; approving creates an OAuth grant or app role assignment for it."
+    "appId identifies the app; approving creates an OAuth grant or app role assignment for it.",
+    "A reviewer's own queue: /users/{id}/appConsentRequestsForApproval (beta only)."
    ],
    "docs": "https://learn.microsoft.com/graph/api/appconsentapprovalroute-list-appconsentrequests"
   }
@@ -2664,6 +2665,12 @@
    "kind": "ref",
    "label": "approval",
    "desc": "approving creates the grant"
+  },
+  {
+   "s": "user",
+   "t": "consentRequest",
+   "kind": "nav",
+   "nav": "appConsentRequestsForApproval"
   }
  ],
  "scenarios": [

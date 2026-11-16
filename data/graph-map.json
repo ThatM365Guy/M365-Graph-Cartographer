@@ -5,9 +5,9 @@
   "curatedOn": "2026-11-16",
   "phase": "Purview covered in depth from 0.3.0: information protection, records, eDiscovery, audit, privacy and the data security API, with what Graph does not cover.",
   "note": "Hand-written content lives here. The scanner never edits this file; it writes graph-map.json alongside it.",
-  "generatedAt": "2026-11-16T11:48:50+00:00",
+  "generatedAt": "2026-11-16T11:52:53+00:00",
   "scan": {
-   "at": "2026-11-16T11:48:50+00:00",
+   "at": "2026-11-16T11:52:53+00:00",
    "v1EntityTypes": 1262,
    "betaEntityTypes": 2624,
    "permissionsChecked": true,
@@ -5050,7 +5050,8 @@
     "Filter pending requests with userConsentRequests/any(u:u/status eq 'InProgress')."
    ],
    "mapping": [
-    "appId identifies the app; approving creates an OAuth grant or app role assignment for it."
+    "appId identifies the app; approving creates an OAuth grant or app role assignment for it.",
+    "A reviewer's own queue: /users/{id}/appConsentRequestsForApproval (beta only)."
    ],
    "docs": "https://learn.microsoft.com/graph/api/appconsentapprovalroute-list-appconsentrequests",
    "scan": {
@@ -5993,7 +5994,7 @@
   {
    "s": "user",
    "t": "consentRequest",
-   "kind": "discovered",
+   "kind": "nav",
    "nav": "appConsentRequestsForApproval",
    "scan": "beta only"
   }
@@ -7830,7 +7831,7 @@
   "permissionNamesAt": "2026-11-16"
  },
  "coverage": {
-  "at": "2026-11-16T11:48:50+00:00",
+  "at": "2026-11-16T11:52:53+00:00",
   "v1Types": 1262,
   "betaOnlyTypes": 1370,
   "onMap": 137,
