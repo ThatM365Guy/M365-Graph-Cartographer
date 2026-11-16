@@ -182,7 +182,7 @@ svg.scen .node.route text{font-weight:700}
  .mapbox{height:72vh;min-height:440px}
  .panel{border-left:0;border-top:1px solid var(--rule)}
 }
-@media (max-width:600px){.top{padding-top:14px}.search{flex-basis:100%}.bar{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding-bottom:10px}.bar::-webkit-scrollbar{display:none}.chip{font-size:13px;padding:4px 10px;flex:none;white-space:nowrap}}
+@media (max-width:600px){.node > .sc > text{font-size:12px}.top{padding-top:14px}.search{flex-basis:100%}.bar{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding-bottom:10px}.bar::-webkit-scrollbar{display:none}.chip{font-size:13px;padding:4px 10px;flex:none;white-space:nowrap}}
 </style>
 </head>
 <body>
@@ -241,7 +241,7 @@ function init(){
   const scanInfo = D.meta && D.meta.scan;
 
   /* ---------- layout: hub at 0,0; workloads on R1; resources on R2 ---------- */
-  const R1 = 205, R2 = 360, GAP = 1.1;
+  const R1 = 205, R2 = 360, GAP = 0.8;   // GAP: empty slots between workload sectors (0.8 since 70+ nodes)
   const groups = D.workloads.map(w => ({w, items: nodes.filter(n => n.workload === w.id)}));
   const slots = groups.reduce((a, g) => a + g.items.length + GAP, 0);
   const step = 2*Math.PI / slots;
@@ -357,11 +357,14 @@ function init(){
     const placed = [];
     D.workloads.forEach(w => {
       const wl = by["wl:"+w.id], pw = ((w.short || w.label).length*7.2 + 18 + 4)/k, ph = 27/k;
-      let x = Math.cos(wl.ang)*R1, y = Math.sin(wl.ang)*R1;
-      for (const r of [R1, R1 + 58, R1 - 62, R1 + 100, R1 + 28, R1 - 32, R1 - 88]) {
+      // First candidate with no overlap wins; if none is clear, take the one with the least overlap.
+      let x = 0, y = 0, best = Infinity;
+      for (const r of [R1, R1 + 58, R1 - 62, R1 + 100, R1 + 28, R1 - 32, R1 - 88, R1 + 80, R1 - 48, R1 + 14, R1 - 16]) {
         const cx = Math.cos(wl.ang)*r, cy = Math.sin(wl.ang)*r;
-        const clearHub = Math.abs(cx) > pw/2 + 40/k || Math.abs(cy) > ph/2 + 40/k;
-        if (clearHub && !placed.some(q => Math.abs(q.x - cx) < (q.w + pw)/2 && Math.abs(q.y - cy) < (q.h + ph)/2)) { x = cx; y = cy; break; }
+        if (!(Math.abs(cx) > pw/2 + 40/k || Math.abs(cy) > ph/2 + 40/k)) continue;   // too close to the hub
+        const over = placed.reduce((t, q) => t + Math.max(0, (q.w + pw)/2 - Math.abs(q.x - cx)) * Math.max(0, (q.h + ph)/2 - Math.abs(q.y - cy)), 0);
+        if (over < best) { best = over; x = cx; y = cy; }
+        if (!over) break;
       }
       placed.push({x, y, w: pw, h: ph});
       if (x === wl.x && y === wl.y) return;
@@ -732,14 +735,20 @@ function init(){
       for (const a of groups[i]) for (const b of groups[i+1])
         if (a.node !== b.node) h += `<path class="routeln" d="${curve(by[a.node], by[b.node])}"/>`;
     routesEl.innerHTML = h;
-    // Neighbouring nodes on the ring are close together, so alternate their badges between two depths.
-    let lastAng = null, deep = false;
+    // Badges keep a fixed screen size and sit on the inside of the ring, away from the labels. Neighbouring route
+    // nodes are close together at the fitted zoom, so each badge takes the first depth (in screen px) that clears
+    // the badges already placed. Zooming in only spreads them further apart.
+    const k = view.k, placed = [];
     Object.entries(nums).sort((a, b) => by[a[0]].ang - by[b[0]].ang).forEach(([id, ns]) => {
       const g = vp.querySelector(`[data-id="${CSS.escape(id)}"]`), n = by[id]; if (!g) return;
       g.classList.add('route');
-      deep = lastAng !== null && n.ang - lastAng < step*1.5 ? !deep : false; lastAng = n.ang;
-      const txt = [...ns].join(', '), w = Math.max(20, txt.length*7 + 10), d = radius(n) + (deep ? 36 : 13);
-      const bx = -Math.cos(n.ang)*d, byy = -Math.sin(n.ang)*d;   // inside the ring, away from the label
+      const txt = [...ns].join(', '), w = Math.max(20, txt.length*7 + 10);
+      let bx = 0, byy = 0;
+      for (const extra of [13, 35, 57, 79, 101]) {
+        const d = radius(n) + extra, ox = -Math.cos(n.ang)*d, oy = -Math.sin(n.ang)*d, sx = n.x*k + ox, sy = n.y*k + oy;
+        bx = ox; byy = oy;
+        if (!placed.some(q => Math.abs(q.x - sx) < (q.w + w)/2 + 2 && Math.abs(q.y - sy) < 22)) { placed.push({x: sx, y: sy, w}); break; }
+      }
       g.querySelector('.sc').insertAdjacentHTML('beforeend', `<g class="badge" transform="translate(${bx.toFixed(1)} ${byy.toFixed(1)})"><rect x="${-w/2}" y="-10" width="${w}" height="20" rx="10"/><text text-anchor="middle" dy=".35em">${txt}</text></g>`);
     });
   }
@@ -764,10 +773,9 @@ function init(){
     toggleMenu(false); hideTip();
     if (s.steps.some(st => !visible(st.node))) showAll();
     sel = null; highlight(null);
-    scen = s; drawScenario(); renderScenario(s);
+    scen = s; fit(true); drawScenario(); renderScenario(s);   // fit first: badge placement uses the fitted zoom
     panel.scrollTop = 0;
     if (!fromHash) { try { history.replaceState(null, '', '#scenario-' + s.id); } catch(e){} }
-    fit(true);
   }
   function flashNode(id){
     const li = panel.querySelector(`li[data-for="${CSS.escape(id)}"]`); if (!li) return;
