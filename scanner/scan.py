@@ -51,6 +51,33 @@ AREA_PRIORITY = [
     "employeeExperience", "external", "connections", "storage", "planner",
 ]
 AREA_LAST = ["users", "groups", "me"]
+# Purview lens: tags types by Purview solution from their short name (first match wins). Defender's
+# security.caseManagement.* is not Purview and is left out. Keep the patterns narrow; review them when coverage
+# reports a "New in Graph" type that looks like Purview.
+PURVIEW_SOLUTIONS = [
+    ("Information protection", r"sensitivityLabel|security\.sensitivityLabel|security\.informationProtection\w*|"
+                               r"informationProtection\w*|sensitivityPolicySettings|sensitiveType|exactMatch\w+|"
+                               r"dataClassificationService|labelContentRight|usageRightsIncluded|dataLossPreventionPolicy|"
+                               r"classificationJobResponse|classificationGradingJobResponse|evaluateLabelJobResponse|"
+                               r"dlpEvaluatePoliciesJobResponse|fileClassificationRequest|textClassificationRequest"),
+    ("Records", r"security\.(retention\w+|filePlan\w+|dispositionReviewStage|authorityTemplate|categoryTemplate|"
+                r"citationTemplate|departmentTemplate|subcategoryTemplate|labelsRoot|triggersRoot|triggerTypesRoot)|"
+                r"itemRetentionLabel"),
+    ("eDiscovery", r"security\.(ediscovery\w+|casesRoot|caseOperation|case|dataSource|dataSourceContainer|siteSource|"
+                   r"userSource|unifiedGroupSource|search)|ediscovery\.\w+|compliance"),
+    ("Audit", r"security\.(audit\w+|autoAuditingConfiguration|dlp\.\w+)"),
+    ("Privacy", r"subjectRightsRequest|privacy|authoredNote"),
+    ("Data security API", r"dataSecurityAndGovernance|userDataSecurityAndGovernance|tenantDataSecurityAndGovernance|"
+                          r"\w+ProtectionScopeContainer|activitiesContainer|contentActivity"),
+]
+_PURVIEW_RE = [(name, re.compile(rf"(?:{pat})")) for name, pat in PURVIEW_SOLUTIONS]
+
+
+def purview_solution(fq: str):
+    short = fq[len("microsoft.graph."):] if fq.startswith("microsoft.graph.") else fq
+    return next((name for name, rx in _PURVIEW_RE if rx.fullmatch(short)), None)
+
+
 # Polymorphic roots that hold every directory object: they only get types no other root reaches.
 AREA_FALLBACK = {"directoryObjects"}
 ROOT_ALIASES = {"me": "users", "drive": "drives"}
@@ -376,7 +403,26 @@ def coverage_types(v1: Schema, beta: Schema) -> dict:
 def summarise_coverage(curated: dict, types: dict, roots: dict, at: str | None) -> dict:
     """Full coverage report (for coverage.json) from a type index and the curated map."""
     on_map = {n["entityType"] for n in curated["nodes"] if n.get("entityType")}
+    for n in curated["nodes"]:          # types a node documents alongside its own (covers[])
+        on_map.update(n.get("covers") or [])
     areas: dict[str, dict] = {}
+    purview = {name: {"solution": name, "v1": 0, "betaOnly": 0, "onMap": 0, "onMapTypes": [], "missing": [],
+                      "betaOnlyTypes": []} for name, _ in PURVIEW_SOLUTIONS}
+    for fq, t in types.items():
+        sol = purview_solution(fq)
+        if not sol:
+            continue
+        r = purview[sol]
+        if t["status"] != "v1.0":
+            r["betaOnly"] += 1
+            r["betaOnlyTypes"].append(_short(fq))
+        elif fq in on_map:
+            r["onMap"] += 1
+            r["onMapTypes"].append(_short(fq))
+        else:
+            r["missing"].append(_short(fq))
+        if t["status"] == "v1.0":
+            r["v1"] += 1
     for fq, t in types.items():
         a = areas.setdefault(t["area"], {"area": t["area"], "v1": 0, "betaOnly": 0, "onMap": 0,
                                          "onMapTypes": [], "missing": []})
@@ -396,6 +442,12 @@ def summarise_coverage(curated: dict, types: dict, roots: dict, at: str | None) 
         "betaOnlyTypes": sum(r["betaOnly"] for r in rows),
         "onMap": sum(r["onMap"] for r in rows),
         "areas": rows,
+        "purview": {
+            "v1": sum(r["v1"] for r in purview.values()),
+            "betaOnly": sum(r["betaOnly"] for r in purview.values()),
+            "onMap": sum(r["onMap"] for r in purview.values()),
+            "solutions": list(purview.values()),
+        },
         "roots": roots,
         "types": types,
     }
@@ -406,7 +458,10 @@ def coverage_summary(cov: dict | None) -> dict | None:
     if not cov:
         return None
     return {k: cov[k] for k in ("at", "v1Types", "betaOnlyTypes", "onMap")} | {
-        "areas": [{k: r[k] for k in ("area", "v1", "betaOnly", "onMap")} for r in cov["areas"]]}
+        "areas": [{k: r[k] for k in ("area", "v1", "betaOnly", "onMap")} for r in cov["areas"]]} | ({
+        "purview": {k: cov["purview"][k] for k in ("v1", "betaOnly", "onMap")} | {
+            "solutions": [{k: r[k] for k in ("solution", "v1", "betaOnly", "onMap")} for r in cov["purview"]["solutions"]]}
+    } if cov.get("purview") else {})
 
 
 def coverage_changes(prev: dict | None, cur: dict, today: str) -> list:
