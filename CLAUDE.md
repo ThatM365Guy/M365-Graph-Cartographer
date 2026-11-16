@@ -77,8 +77,8 @@ To check the page visually, open `dist/index.html` in a browser. Test at a deskt
 
 ## Status (16 Nov 2026)
 
-- `main`: 40 resources, 8 workloads. Hotfix on 16 Nov 2026 (commit "Fix stuck pan/hover after right-click or interrupted drag"): a right-click or a drag released outside the window left the pan stuck on and hover cards off. Deployed green.
-- `feature/scenarios` (not merged; awaiting the owner's review): 52 resources, 9 workloads (new: AI & agents), 86 curated links, 12 scenarios, coverage report. 20 tests pass.
+- Hotfix on 16 Nov 2026 (commit "Fix stuck pan/hover after right-click or interrupted drag"): a right-click or a drag released outside the window left the pan stuck on and hover cards off.
+- Live since 16 Nov 2026 (PR #1 from `feature/scenarios`, deployed green): 52 resources, 9 workloads (new: AI & agents), 86 curated links, 12 scenarios, coverage report. 20 tests pass.
 - First live scan baseline 14 Nov 2026: 1,262 v1.0 and 2,624 beta entity types (1,370 beta only). Every typed node and every curated nav/action link resolves; all 47 typed nodes on the branch are in v1.0.
 - **Permission check first run 16 Nov 2026** (`--permissions`, az CLI token): 1,036 Graph permission names; every name on the map exists, and each sits on the right side (delegated or application). Rerun it whenever permissions are edited.
 - Curation decisions taken after the first scan:
@@ -115,12 +115,11 @@ To check the page visually, open `dist/index.html` in a browser. Test at a deskt
 
 ## Next steps (in order)
 
-1. Owner review of `feature/scenarios`, then merge to `main` (it deploys straight to the live site).
-2. Tier 2 nodes, ordered by the coverage report: identity governance (access reviews, access packages, lifecycle workflows), authentication methods and registration details, risk detections and risky service principals, cross-tenant access policy, Intune (managed devices, compliance policies), attack simulation and Secure Score control profiles, threat intelligence, subject rights requests, service health and Message centre, provisioning logs.
-3. Phase 2: the Purview deep dive (labels and label actions, DLP alerts via alerts_v2, IRM, eDiscovery, audit, records management, DSPM for AI) and a fuller "not in Graph / PowerShell only" map.
-4. Sample requests per node with an "Open in Graph Explorer" link, and per-permission links to graphpermissions.merill.net.
-5. Coverage: follow function return types (for example `getAllEnterpriseInteractions` -> `aiInteraction`) so fewer types land in `unrooted`.
-6. Later, an opt-in private overlay of a tenant's own app permissions (never on the public build).
+1. Tier 2 nodes, ordered by the coverage report: identity governance (access reviews, access packages, lifecycle workflows), authentication methods and registration details, risk detections and risky service principals, cross-tenant access policy, Intune (managed devices, compliance policies), attack simulation and Secure Score control profiles, threat intelligence, subject rights requests, service health and Message centre, provisioning logs.
+2. Phase 2: the Purview deep dive (labels and label actions, DLP alerts via alerts_v2, IRM, eDiscovery, audit, records management, DSPM for AI) and a fuller "not in Graph / PowerShell only" map.
+3. Sample requests per node with an "Open in Graph Explorer" link, and per-permission links to graphpermissions.merill.net.
+4. Coverage: follow function return types (for example `getAllEnterpriseInteractions` -> `aiInteraction`) so fewer types land in `unrooted`.
+5. Later, an opt-in private overlay of a tenant's own app permissions (never on the public build).
 
 ## Naming
 
