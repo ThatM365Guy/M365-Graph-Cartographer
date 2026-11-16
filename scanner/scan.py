@@ -436,12 +436,25 @@ def summarise_coverage(curated: dict, types: dict, roots: dict, at: str | None) 
         else:
             a["missing"].append(_short(fq))
     rows = sorted(areas.values(), key=lambda r: (-r["v1"], -r["betaOnly"], r["area"].lower()))
+    # Per service (workload): the types its own nodes put on the map (entityType + covers[]). A type shared by
+    # two services counts for each; Graph areas don't line up with workloads, so there is no per-service total.
+    services = []
+    for w in curated.get("workloads", []):
+        mine = set()
+        for n in curated["nodes"]:
+            if n.get("workload") == w["id"]:
+                mine.update([n["entityType"]] if n.get("entityType") else [])
+                mine.update(n.get("covers") or [])
+        services.append({"workload": w["id"],
+                         "onMap": sum(1 for fq in mine if types.get(fq, {}).get("status") == "v1.0"),
+                         "betaOnly": sum(1 for fq in mine if fq in types and types[fq]["status"] != "v1.0")})
     return {
         "at": at,
         "v1Types": sum(r["v1"] for r in rows),
         "betaOnlyTypes": sum(r["betaOnly"] for r in rows),
         "onMap": sum(r["onMap"] for r in rows),
         "areas": rows,
+        "services": services,
         "purview": {
             "v1": sum(r["v1"] for r in purview.values()),
             "betaOnly": sum(r["betaOnly"] for r in purview.values()),
@@ -459,6 +472,7 @@ def coverage_summary(cov: dict | None) -> dict | None:
         return None
     return {k: cov[k] for k in ("at", "v1Types", "betaOnlyTypes", "onMap")} | {
         "areas": [{k: r[k] for k in ("area", "v1", "betaOnly", "onMap")} for r in cov["areas"]]} | ({
+        "services": cov["services"]} if cov.get("services") else {}) | ({
         "purview": {k: cov["purview"][k] for k in ("v1", "betaOnly", "onMap")} | {
             "solutions": [{k: r[k] for k in ("solution", "v1", "betaOnly", "onMap")} for r in cov["purview"]["solutions"]]}
     } if cov.get("purview") else {})
@@ -667,6 +681,13 @@ def build_map(curated, prev_map=None, v1_src=None, beta_src=None, token=None, sc
     return graph_map, changes
 
 
+def unsorted_nodes(curated: dict) -> list:
+    """Nodes with no sub-service yet (or one their workload doesn't list). The page shows them under a
+    temporary "Unsorted" sub-service; a person files them by setting node.subservice in curated.json."""
+    subs = {w["id"]: {s.get("id") for s in w.get("subservices") or []} for w in curated.get("workloads", [])}
+    return [n["id"] for n in curated.get("nodes", []) if n.get("subservice") not in subs.get(n.get("workload"), set())]
+
+
 def _load(path, default=None):
     if path and os.path.exists(path):
         with open(path, encoding="utf-8") as f:
@@ -714,6 +735,10 @@ def main(argv=None):
     print(f"nodes={len(graph_map['nodes'])} edges={len(graph_map['edges'])} "
           f"scanned={'yes' if not a.no_scan else 'no'} v1Types={s.get('v1EntityTypes')} "
           f"betaTypes={s.get('betaEntityTypes')} changes={len(changes)}")
+    unsorted = unsorted_nodes(curated)
+    if unsorted:
+        print(f"unsorted: {len(unsorted)} node(s) have no sub-service yet, so the page shows them under "
+              f"'Unsorted'. File them in curated.json (node.subservice): {', '.join(unsorted)}")
     return graph_map, changes
 
 
