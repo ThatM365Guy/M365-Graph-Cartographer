@@ -3,6 +3,7 @@ import copy
 import datetime as dt
 import json
 import os
+import re
 import sys
 import unittest
 
@@ -29,6 +30,33 @@ def curated():
         if n["id"] in FIXTURE_TYPES:
             n["entityType"] = FIXTURE_TYPES[n["id"]]
     return cur
+
+
+def scenario_problems(c):
+    """Everything wrong with curated scenarios, as readable strings."""
+    ids, seen, out = {n["id"] for n in c["nodes"]}, set(), []
+    for sc in c.get("scenarios", []):
+        sid = sc.get("id", "?")
+        if not re.fullmatch(r"[A-Za-z0-9-]+", sid):
+            out.append(f"{sid}: id must be ASCII letters, digits and hyphens (it goes in the URL hash)")
+        if sid in seen:
+            out.append(f"{sid}: duplicate id")
+        seen.add(sid)
+        if sc.get("group") not in {"Classic", "AI"}:
+            out.append(f"{sid}: group must be Classic or AI")
+        if not (sc.get("label") and sc.get("summary")):
+            out.append(f"{sid}: needs a label and a summary")
+        steps = sc.get("steps") or []
+        if not steps:
+            out.append(f"{sid}: no steps")
+        elif steps[0].get("or"):
+            out.append(f"{sid}: the first step can't be an alternative")
+        for st in steps:
+            if st.get("node") not in ids:
+                out.append(f"{sid}: missing node {st.get('node')}")
+            if not st.get("do"):
+                out.append(f"{sid}: a step has no 'do'")
+    return out
 
 
 class ParseTests(unittest.TestCase):
@@ -79,7 +107,7 @@ class ScanTests(unittest.TestCase):
         self.assertEqual(scan.parse_csdl(os.path.join(FX, "v1.xml")).effective("microsoft.graph.site")["navs"]["createdByUser"],
                          "microsoft.graph.user")
         self.assertFalse([e for e in gm["edges"] if e["kind"] == "discovered" and e["nav"] in scan.DISCOVERY_SKIP_NAVS])
-        self.assertEqual([c["kind"] for c in changes], ["baseline"])
+        self.assertEqual([c["kind"] for c in changes], ["baseline", "graph-baseline"])
 
     def test_second_scan_reports_changes(self):
         first, _ = self.run_scan("v1.xml", "beta.xml")
@@ -116,6 +144,108 @@ class ScanTests(unittest.TestCase):
         self.assertNotIn("v1.0", " ".join(sum((r["checked"] for r in res.values()), [])))
 
 
+class PermissionCarryOverTests(unittest.TestCase):
+    """Scans without a token re-check names against the list stored by the last token run."""
+
+    def first_with_perms(self):
+        perms = {"application": ["User.Read.All", "Sites.Selected"], "delegated": ["User.Read", "User.ReadBasic.All"]}
+        orig = scan.fetch_permissions
+        scan.fetch_permissions = lambda token: perms
+        try:
+            gm, _ = scan.build_map(curated(), None, os.path.join(FX, "v1.xml"), os.path.join(FX, "beta.xml"),
+                                   token="t", now=D1)
+        finally:
+            scan.fetch_permissions = orig
+        return gm
+
+    def test_scan_without_token_keeps_checking(self):
+        first = self.first_with_perms()
+        self.assertEqual(first["state"]["permissionNamesAt"], "2026-11-14")
+        cur = curated()
+        user = next(n for n in cur["nodes"] if n["id"] == "user")
+        user["permissions"] = {"delegated": "User.Read, User.Raed.All", "application": "User.Read.All"}
+        gm, _ = scan.build_map(cur, first, os.path.join(FX, "v1.xml"), os.path.join(FX, "beta.xml"), now=D2)
+        nodes = {n["id"]: n for n in gm["nodes"]}
+        self.assertEqual(nodes["user"]["permCheck"]["unknown"], ["User.Raed.All"])   # an edit is checked, not stale
+        self.assertTrue(gm["meta"]["scan"]["permissionsChecked"])
+        self.assertEqual(gm["meta"]["scan"]["permissionsCheckedAt"], "2026-11-14")
+        self.assertEqual(gm["meta"]["scan"]["permissionCount"], 4)
+        self.assertEqual(gm["state"]["permissionNames"], first["state"]["permissionNames"])
+
+    def test_no_scan_rechecks_too(self):
+        first = self.first_with_perms()
+        gm, _ = scan.build_map(curated(), first, scan=False, now=D2)
+        self.assertIn("Group.Read.All", next(n for n in gm["nodes"] if n["id"] == "group")["permCheck"]["unknown"])
+
+    def test_never_checked_stays_unchecked(self):
+        gm, _ = scan.build_map(curated(), None, os.path.join(FX, "v1.xml"), os.path.join(FX, "beta.xml"), now=D1)
+        self.assertFalse(gm["meta"]["scan"]["permissionsChecked"])
+        self.assertFalse(any("permCheck" in n for n in gm["nodes"]))
+
+
+class CoverageTests(unittest.TestCase):
+    def setUp(self):
+        self.v1 = scan.parse_csdl(os.path.join(FX, "v1.xml"))
+        self.beta = scan.parse_csdl(os.path.join(FX, "beta.xml"))
+
+    def test_parse_roots_and_containment(self):
+        self.assertEqual(self.v1.roots["users"], "microsoft.graph.user")
+        self.assertEqual(self.v1.roots["security"], "microsoft.graph.security.security")
+        self.assertEqual(self.v1.effective("microsoft.graph.user")["contained"], {"drive"})
+        self.assertIn("items", self.v1.effective("microsoft.graph.drive")["contained"])
+
+    def test_areas_follow_containment_from_the_nearest_root(self):
+        area = scan.assign_areas(self.v1)
+        self.assertEqual(area["microsoft.graph.user"], "users")          # /me is an alias of /users
+        self.assertEqual(area["microsoft.graph.group"], "groups")
+        self.assertEqual(area["microsoft.graph.drive"], "sites")         # equally close to users/groups/sites: priority
+        self.assertEqual(area["microsoft.graph.itemRetentionLabel"], "sites")   # three levels down
+        self.assertEqual(area["microsoft.graph.security.alert"], "security")
+        self.assertEqual(area["microsoft.graph.baseItem"], "unrooted")   # no containment path reaches it
+
+    def test_coverage_report_and_page_summary(self):
+        gm_out = {}
+        gm, _ = scan.build_map(curated(), None, os.path.join(FX, "v1.xml"), os.path.join(FX, "beta.xml"),
+                               now=D1, coverage_out=gm_out)
+        self.assertEqual(gm_out["v1Types"], len(self.v1.entities))
+        self.assertEqual(gm_out["betaOnlyTypes"], 1)                    # sensitivityLabel
+        sites = next(a for a in gm_out["areas"] if a["area"] == "sites")
+        self.assertIn("driveItem", sites["onMapTypes"])
+        self.assertIn("itemRetentionLabel", sites["missing"])
+        self.assertEqual(gm["coverage"]["onMap"], gm_out["onMap"])
+        self.assertNotIn("missing", json.dumps(gm["coverage"]))         # the page gets counts only
+        self.assertNotIn("types", gm["coverage"])
+
+    def test_new_in_graph_entries_and_cap(self):
+        first_cov = {}
+        first, _ = scan.build_map(curated(), None, os.path.join(FX, "v1.xml"), os.path.join(FX, "beta.xml"),
+                                  now=D1, coverage_out=first_cov)
+        cov = {}
+        _, changes = scan.build_map(curated(), first, os.path.join(FX, "v1_later.xml"), os.path.join(FX, "beta.xml"),
+                                    now=D2, prev_coverage=first_cov, coverage_out=cov)
+        texts = " | ".join(c["text"] for c in changes)
+        self.assertIn("New in Graph v1.0: riskyUser", texts)
+        self.assertIn("Promoted from beta to v1.0: security.sensitivityLabel", texts)
+        self.assertIn("New top-level root in v1.0: /drives", texts)
+        self.assertNotIn("graph-baseline", [c["kind"] for c in changes])
+        many = [{"date": "2026-11-21", "node": None, "kind": "graph-new-type", "text": str(i)} for i in range(12)]
+        capped = scan.cap_new_in_graph(many)
+        self.assertEqual(len(capped), scan.NEW_IN_GRAPH_RECENT + 1)
+        self.assertIn("7 more new v1.0 types", capped[-1]["text"])
+
+    def test_no_scan_recounts_from_previous_coverage(self):
+        cov = {}
+        first, _ = scan.build_map(curated(), None, os.path.join(FX, "v1.xml"), os.path.join(FX, "beta.xml"),
+                                  now=D1, coverage_out=cov)
+        cur = curated()
+        cur["nodes"] = [n for n in cur["nodes"] if n["id"] != "driveItem"]
+        cur["edges"] = [e for e in cur["edges"] if "driveItem" not in (e["s"], e["t"])]
+        again = {}
+        gm, _ = scan.build_map(cur, first, scan=False, now=D2, prev_coverage=cov, coverage_out=again)
+        self.assertEqual(gm["coverage"]["onMap"], cov["onMap"] - 1)
+        self.assertIn("driveItem", next(a for a in again["areas"] if a["area"] == "sites")["missing"])
+
+
 class CuratedIntegrity(unittest.TestCase):
     def test_edges_reference_real_nodes_and_workloads(self):
         c = curated()
@@ -129,6 +259,28 @@ class CuratedIntegrity(unittest.TestCase):
             self.assertIn(e["s"], ids, e)
             self.assertIn(e["t"], ids, e)
             self.assertIn(e["kind"], {"nav", "ref", "action"}, e)
+
+
+    def test_scenarios_reference_real_nodes_and_have_steps(self):
+        c = curated()
+        self.assertTrue(c.get("scenarios"), "no scenarios")
+        self.assertEqual(scenario_problems(c), [])
+
+    def test_scenario_check_catches_bad_data(self):
+        c = curated()
+        c["scenarios"] = [
+            {"id": "a", "label": "A", "group": "AI", "summary": "s", "steps": [{"node": "nope", "do": "x"}]},
+            {"id": "b", "label": "B", "group": "AI", "summary": "s", "steps": []},
+            {"id": "c d", "label": "C", "group": "AI", "summary": "s", "steps": [{"node": "user", "do": "x"}]},
+        ]
+        found = " | ".join(scenario_problems(c))
+        self.assertIn("a: missing node nope", found)
+        self.assertIn("b: no steps", found)
+        self.assertIn("c d: id", found)
+
+    def test_scenarios_are_embedded(self):
+        gm, _ = scan.build_map(curated(), None, scan=False, now=D1)
+        self.assertEqual(len(gm["scenarios"]), len(curated()["scenarios"]))
 
 
 class BuildPageTests(unittest.TestCase):

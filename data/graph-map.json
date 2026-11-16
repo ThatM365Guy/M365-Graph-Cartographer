@@ -1,17 +1,18 @@
 {
  "meta": {
   "title": "M365 Graph Cartographer (MGC)",
-  "curatedVersion": "0.1.0",
-  "curatedOn": "2026-11-14",
+  "curatedVersion": "0.2.0",
+  "curatedOn": "2026-11-16",
   "phase": "Phase 1: broad coverage of the simpler workloads. Purview is stubbed for phase 2.",
   "note": "Hand-written content lives here. The scanner never edits this file; it writes graph-map.json alongside it.",
-  "generatedAt": "2026-11-16T10:35:29+00:00",
+  "generatedAt": "2026-11-16T11:06:24+00:00",
   "scan": {
-   "at": "2026-11-16T10:35:29+00:00",
+   "at": "2026-11-16T11:06:24+00:00",
    "v1EntityTypes": 1262,
    "betaEntityTypes": 2624,
-   "permissionsChecked": false,
-   "permissionCount": null
+   "permissionsChecked": true,
+   "permissionCount": 1036,
+   "permissionsCheckedAt": "2026-11-16"
   }
  },
  "workloads": [
@@ -115,6 +116,18 @@
     "Several APIs are newer and still moving between beta and v1.0. Check the scan status on each node."
    ],
    "short": "Purview"
+  },
+  {
+   "id": "ai",
+   "label": "AI & agents",
+   "short": "AI",
+   "colour": "#d6247a",
+   "summary": "Copilot interaction history, Purview data security APIs for your own AI apps, and Entra Agent ID (agent identities and their blueprints).",
+   "limits": [
+    "Most of these APIs are new. Licensing and preview status drift, so check the date each note was verified.",
+    "Copilot Studio agents are not covered by the Copilot interaction export."
+   ],
+   "docs": "https://learn.microsoft.com/graph/security-datasecurityandgovernance-overview"
   }
  ],
  "hub": {
@@ -349,6 +362,14 @@
      "microsoft.graph.directoryObject",
      "microsoft.graph.entity"
     ]
+   },
+   "permCheck": {
+    "checked": [
+     "User.Read",
+     "User.Read.All",
+     "User.ReadBasic.All"
+    ],
+    "unknown": []
    }
   },
   {
@@ -477,6 +498,13 @@
      "microsoft.graph.directoryObject",
      "microsoft.graph.entity"
     ]
+   },
+   "permCheck": {
+    "checked": [
+     "Group.Read.All",
+     "GroupMember.Read.All"
+    ],
+    "unknown": []
    }
   },
   {
@@ -575,6 +603,12 @@
      "microsoft.graph.directoryObject",
      "microsoft.graph.entity"
     ]
+   },
+   "permCheck": {
+    "checked": [
+     "Application.Read.All"
+    ],
+    "unknown": []
    }
   },
   {
@@ -680,6 +714,12 @@
      "microsoft.graph.directoryObject",
      "microsoft.graph.entity"
     ]
+   },
+   "permCheck": {
+    "checked": [
+     "Application.Read.All"
+    ],
+    "unknown": []
    }
   },
   {
@@ -765,6 +805,12 @@
      "microsoft.graph.directoryObject",
      "microsoft.graph.entity"
     ]
+   },
+   "permCheck": {
+    "checked": [
+     "Device.Read.All"
+    ],
+    "unknown": []
    }
   },
   {
@@ -813,6 +859,12 @@
      "microsoft.graph.directoryObject",
      "microsoft.graph.entity"
     ]
+   },
+   "permCheck": {
+    "checked": [
+     "AdministrativeUnit.Read.All"
+    ],
+    "unknown": []
    }
   },
   {
@@ -854,6 +906,12 @@
      "microsoft.graph.directoryObject",
      "microsoft.graph.entity"
     ]
+   },
+   "permCheck": {
+    "checked": [
+     "RoleManagement.Read.Directory"
+    ],
+    "unknown": []
    }
   },
   {
@@ -931,6 +989,14 @@
      "microsoft.graph.outlookItem",
      "microsoft.graph.entity"
     ]
+   },
+   "permCheck": {
+    "checked": [
+     "Mail.Read",
+     "Mail.ReadBasic",
+     "Mail.ReadBasic.All"
+    ],
+    "unknown": []
    }
   },
   {
@@ -981,6 +1047,14 @@
     "baseTypes": [
      "microsoft.graph.entity"
     ]
+   },
+   "permCheck": {
+    "checked": [
+     "Mail.Read",
+     "Mail.ReadBasic",
+     "Mail.ReadBasic.All"
+    ],
+    "unknown": []
    }
   },
   {
@@ -1067,6 +1141,14 @@
      "microsoft.graph.outlookItem",
      "microsoft.graph.entity"
     ]
+   },
+   "permCheck": {
+    "checked": [
+     "Calendars.Read",
+     "Calendars.ReadBasic",
+     "Calendars.ReadBasic.All"
+    ],
+    "unknown": []
    }
   },
   {
@@ -1124,6 +1206,14 @@
     "baseTypes": [
      "microsoft.graph.entity"
     ]
+   },
+   "permCheck": {
+    "checked": [
+     "Calendars.Read",
+     "Calendars.ReadBasic",
+     "Calendars.ReadBasic.All"
+    ],
+    "unknown": []
    }
   },
   {
@@ -1210,6 +1300,12 @@
      "microsoft.graph.outlookItem",
      "microsoft.graph.entity"
     ]
+   },
+   "permCheck": {
+    "checked": [
+     "Contacts.Read"
+    ],
+    "unknown": []
    }
   },
   {
@@ -1294,6 +1390,13 @@
      "microsoft.graph.baseItem",
      "microsoft.graph.entity"
     ]
+   },
+   "permCheck": {
+    "checked": [
+     "Sites.Read.All",
+     "Sites.Selected"
+    ],
+    "unknown": []
    }
   },
   {
@@ -1355,6 +1458,13 @@
      "microsoft.graph.baseItem",
      "microsoft.graph.entity"
     ]
+   },
+   "permCheck": {
+    "checked": [
+     "Sites.Read.All",
+     "Sites.Selected"
+    ],
+    "unknown": []
    }
   },
   {
@@ -1412,6 +1522,13 @@
      "microsoft.graph.baseItem",
      "microsoft.graph.entity"
     ]
+   },
+   "permCheck": {
+    "checked": [
+     "Sites.Read.All",
+     "Sites.Selected"
+    ],
+    "unknown": []
    }
   },
   {
@@ -1474,6 +1591,14 @@
      "microsoft.graph.baseItem",
      "microsoft.graph.entity"
     ]
+   },
+   "permCheck": {
+    "checked": [
+     "Files.Read",
+     "Files.Read.All",
+     "Sites.Selected"
+    ],
+    "unknown": []
    }
   },
   {
@@ -1565,6 +1690,14 @@
      "microsoft.graph.baseItem",
      "microsoft.graph.entity"
     ]
+   },
+   "permCheck": {
+    "checked": [
+     "Files.Read",
+     "Files.Read.All",
+     "Sites.Selected"
+    ],
+    "unknown": []
    }
   },
   {
@@ -1610,6 +1743,14 @@
     "baseTypes": [
      "microsoft.graph.entity"
     ]
+   },
+   "permCheck": {
+    "checked": [
+     "Files.Read.All",
+     "Sites.Read.All",
+     "Sites.Selected"
+    ],
+    "unknown": []
    }
   },
   {
@@ -1698,6 +1839,13 @@
     "baseTypes": [
      "microsoft.graph.entity"
     ]
+   },
+   "permCheck": {
+    "checked": [
+     "Team.ReadBasic.All",
+     "TeamSettings.Read.All"
+    ],
+    "unknown": []
    }
   },
   {
@@ -1760,6 +1908,12 @@
     "baseTypes": [
      "microsoft.graph.entity"
     ]
+   },
+   "permCheck": {
+    "checked": [
+     "Channel.ReadBasic.All"
+    ],
+    "unknown": []
    }
   },
   {
@@ -1817,6 +1971,14 @@
     "baseTypes": [
      "microsoft.graph.entity"
     ]
+   },
+   "permCheck": {
+    "checked": [
+     "Chat.Read",
+     "Chat.Read.All",
+     "Chat.ReadBasic"
+    ],
+    "unknown": []
    }
   },
   {
@@ -1879,6 +2041,14 @@
     "baseTypes": [
      "microsoft.graph.entity"
     ]
+   },
+   "permCheck": {
+    "checked": [
+     "ChannelMessage.Read.All",
+     "Chat.Read",
+     "Chat.Read.All"
+    ],
+    "unknown": []
    }
   },
   {
@@ -1971,6 +2141,13 @@
      "microsoft.graph.onlineMeetingBase",
      "microsoft.graph.entity"
     ]
+   },
+   "permCheck": {
+    "checked": [
+     "OnlineMeetings.Read",
+     "OnlineMeetings.Read.All"
+    ],
+    "unknown": []
    }
   },
   {
@@ -2024,6 +2201,13 @@
     "baseTypes": [
      "microsoft.graph.entity"
     ]
+   },
+   "permCheck": {
+    "checked": [
+     "Tasks.Read",
+     "Tasks.Read.All"
+    ],
+    "unknown": []
    }
   },
   {
@@ -2096,6 +2280,13 @@
     "baseTypes": [
      "microsoft.graph.entity"
     ]
+   },
+   "permCheck": {
+    "checked": [
+     "Tasks.Read",
+     "Tasks.Read.All"
+    ],
+    "unknown": []
    }
   },
   {
@@ -2136,6 +2327,13 @@
     "baseTypes": [
      "microsoft.graph.entity"
     ]
+   },
+   "permCheck": {
+    "checked": [
+     "Tasks.Read",
+     "Tasks.Read.All"
+    ],
+    "unknown": []
    }
   },
   {
@@ -2190,6 +2388,13 @@
     "baseTypes": [
      "microsoft.graph.entity"
     ]
+   },
+   "permCheck": {
+    "checked": [
+     "Tasks.Read",
+     "Tasks.Read.All"
+    ],
+    "unknown": []
    }
   },
   {
@@ -2247,6 +2452,12 @@
      "userInsights"
     ],
     "baseTypes": []
+   },
+   "permCheck": {
+    "checked": [
+     "Reports.Read.All"
+    ],
+    "unknown": []
    }
   },
   {
@@ -2359,6 +2570,12 @@
     "baseTypes": [
      "microsoft.graph.entity"
     ]
+   },
+   "permCheck": {
+    "checked": [
+     "AuditLog.Read.All"
+    ],
+    "unknown": []
    }
   },
   {
@@ -2405,6 +2622,12 @@
     "baseTypes": [
      "microsoft.graph.entity"
     ]
+   },
+   "permCheck": {
+    "checked": [
+     "AuditLog.Read.All"
+    ],
+    "unknown": []
    }
   },
   {
@@ -2473,6 +2696,12 @@
     "baseTypes": [
      "microsoft.graph.entity"
     ]
+   },
+   "permCheck": {
+    "checked": [
+     "SecurityAlert.Read.All"
+    ],
+    "unknown": []
    }
   },
   {
@@ -2529,6 +2758,12 @@
     "baseTypes": [
      "microsoft.graph.entity"
     ]
+   },
+   "permCheck": {
+    "checked": [
+     "SecurityIncident.Read.All"
+    ],
+    "unknown": []
    }
   },
   {
@@ -2571,6 +2806,12 @@
     "baseTypes": [
      "microsoft.graph.entity"
     ]
+   },
+   "permCheck": {
+    "checked": [
+     "SecurityEvents.Read.All"
+    ],
+    "unknown": []
    }
   },
   {
@@ -2597,6 +2838,12 @@
    "docs": "https://learn.microsoft.com/graph/api/security-security-runhuntingquery",
    "scan": {
     "status": "v1.0"
+   },
+   "permCheck": {
+    "checked": [
+     "ThreatHunting.Read.All"
+    ],
+    "unknown": []
    }
   },
   {
@@ -2652,6 +2899,15 @@
     "baseTypes": [
      "microsoft.graph.entity"
     ]
+   },
+   "permCheck": {
+    "checked": [
+     "InformationProtectionPolicy.Read",
+     "InformationProtectionPolicy.Read.All",
+     "SensitivityLabel.Read",
+     "SensitivityLabels.Read.All"
+    ],
+    "unknown": []
    }
   },
   {
@@ -2703,6 +2959,12 @@
     "baseTypes": [
      "microsoft.graph.entity"
     ]
+   },
+   "permCheck": {
+    "checked": [
+     "RecordsManagement.Read.All"
+    ],
+    "unknown": []
    }
   },
   {
@@ -2757,6 +3019,12 @@
      "microsoft.graph.security.case",
      "microsoft.graph.entity"
     ]
+   },
+   "permCheck": {
+    "checked": [
+     "eDiscovery.Read.All"
+    ],
+    "unknown": []
    }
   },
   {
@@ -2808,6 +3076,15 @@
     "baseTypes": [
      "microsoft.graph.entity"
     ]
+   },
+   "permCheck": {
+    "checked": [
+     "AuditLogsQuery-Entra.Read.All",
+     "AuditLogsQuery-Exchange.Read.All",
+     "AuditLogsQuery-SharePoint.Read.All",
+     "AuditLogsQuery.Read.All"
+    ],
+    "unknown": []
    }
   },
   {
@@ -2829,6 +3106,703 @@
     "Plan automation on PowerShell for these. The scanner watches $metadata for new types and will flag any that appear."
    ],
    "docs": "https://learn.microsoft.com/powershell/exchange/scc-powershell"
+  },
+  {
+   "id": "caPolicy",
+   "label": "Conditional Access policy",
+   "workload": "identity",
+   "entityType": "microsoft.graph.conditionalAccessPolicy",
+   "path": "GET /identity/conditionalAccess/policies",
+   "summary": "The tenant's Conditional Access policies: who and what they target, the conditions, and the grant and session controls.",
+   "permissions": {
+    "delegated": "Policy.Read.All",
+    "application": "Policy.Read.All"
+   },
+   "licence": "Entra ID P1. Policies that target agents need Microsoft Agent 365 (included in Microsoft 365 E7) plus Entra ID P1 or Microsoft 365 E3 (checked 16 Nov 2026).",
+   "limits": [
+    "Policies that target all users do not include agent users. Target agents explicitly (all agent identities, selected agents, or by blueprint; preview).",
+    "Agent policies apply only when the agent uses its own identity, not when it acts on behalf of a user.",
+    "Conditional Access is not enforced when a blueprint gets a token to create agent identities."
+   ],
+   "mapping": [
+    "conditions.users and conditions.clientApplications hold the user, group, role, workload identity and agent targets by ID.",
+    "Each sign-in records the policies that applied in appliedConditionalAccessPolicies."
+   ],
+   "docs": "https://learn.microsoft.com/graph/api/conditionalaccessroot-list-policies",
+   "scan": {
+    "status": "v1.0",
+    "props": [
+     "conditions",
+     "createdDateTime",
+     "deletedDateTime",
+     "description",
+     "displayName",
+     "grantControls",
+     "id",
+     "modifiedDateTime",
+     "sessionControls",
+     "state",
+     "templateId"
+    ],
+    "navs": {},
+    "betaOnlyProps": [],
+    "betaOnlyNavs": [],
+    "baseTypes": [
+     "microsoft.graph.policyDeletableItem"
+    ]
+   },
+   "permCheck": {
+    "checked": [
+     "Policy.Read.All"
+    ],
+    "unknown": []
+   }
+  },
+  {
+   "id": "riskyUser",
+   "label": "Risky user",
+   "workload": "identity",
+   "entityType": "microsoft.graph.riskyUser",
+   "path": "GET /identityProtection/riskyUsers",
+   "summary": "Users that Entra ID Protection flags as at risk, with risk level, state and history. Admins can confirm compromise or dismiss risk.",
+   "permissions": {
+    "delegated": "IdentityRiskyUser.Read.All",
+    "application": "IdentityRiskyUser.Read.All"
+   },
+   "licence": "Entra ID P2 for full data and the confirmCompromised and dismiss actions. P1 and Free see only medium and high risk users, with no history.",
+   "limits": [
+    "confirmCompromised (sets risk to high) and dismiss (sets it to none) need IdentityRiskyUser.ReadWrite.All and at least Security Administrator.",
+    "$top is capped at 500."
+   ],
+   "mapping": [
+    "The risky user id is the user's object ID, so it joins straight to /users/{id} and to sign-in userId."
+   ],
+   "docs": "https://learn.microsoft.com/graph/api/resources/riskyuser",
+   "scan": {
+    "status": "v1.0",
+    "props": [
+     "id",
+     "isDeleted",
+     "isProcessing",
+     "riskDetail",
+     "riskLastUpdatedDateTime",
+     "riskLevel",
+     "riskState",
+     "userDisplayName",
+     "userPrincipalName"
+    ],
+    "navs": {
+     "history": "microsoft.graph.riskyUserHistoryItem"
+    },
+    "betaOnlyProps": [],
+    "betaOnlyNavs": [],
+    "baseTypes": [
+     "microsoft.graph.entity"
+    ]
+   },
+   "permCheck": {
+    "checked": [
+     "IdentityRiskyUser.Read.All"
+    ],
+    "unknown": []
+   }
+  },
+  {
+   "id": "oauthGrant",
+   "label": "OAuth grant",
+   "workload": "identity",
+   "entityType": "microsoft.graph.oAuth2PermissionGrant",
+   "path": "GET /oauth2PermissionGrants",
+   "summary": "Delegated permission grants: which client app may call which API on behalf of one user or all users, and with which scopes.",
+   "permissions": {
+    "delegated": "Directory.Read.All",
+    "application": "Directory.Read.All"
+   },
+   "licence": "None beyond Entra ID.",
+   "limits": [
+    "/users/{id}/oauth2PermissionGrants returns only that user's own grants, not admin-consented AllPrincipals grants, and does not support application permissions.",
+    "Expect replication delays. Filter on clientId to reduce them."
+   ],
+   "mapping": [
+    "clientId is the object ID of the client service principal; resourceId is the API's service principal (for example Microsoft Graph).",
+    "consentType AllPrincipals means admin consent for everyone; Principal means one user consented."
+   ],
+   "docs": "https://learn.microsoft.com/graph/api/oauth2permissiongrant-list",
+   "scan": {
+    "status": "v1.0",
+    "props": [
+     "clientId",
+     "consentType",
+     "id",
+     "principalId",
+     "resourceId",
+     "scope"
+    ],
+    "navs": {},
+    "betaOnlyProps": [
+     "expiryTime",
+     "startTime"
+    ],
+    "betaOnlyNavs": [],
+    "baseTypes": [
+     "microsoft.graph.entity"
+    ]
+   },
+   "permCheck": {
+    "checked": [
+     "Directory.Read.All"
+    ],
+    "unknown": []
+   }
+  },
+  {
+   "id": "appRoleAssignment",
+   "label": "App role assignment",
+   "workload": "identity",
+   "entityType": "microsoft.graph.appRoleAssignment",
+   "path": "GET /servicePrincipals/{id}/appRoleAssignedTo · /users/{id}/appRoleAssignments",
+   "summary": "Who holds an app role on an application: users and groups assigned to enterprise apps, and application permissions granted to other apps.",
+   "permissions": {
+    "delegated": "Application.Read.All (appRoleAssignedTo); Directory.Read.All (per user)",
+    "application": "Application.Read.All (appRoleAssignedTo); Directory.Read.All (per user)"
+   },
+   "licence": "None beyond Entra ID. Group assignment to apps needs Entra ID P1.",
+   "limits": [
+    "The per-user list also returns assignments to groups the user is a direct member of.",
+    "Learn lists AppRoleAssignment.ReadWrite.All as the least delegated permission for the per-user list. It also lets an app grant itself more privilege, so prefer Directory.Read.All for read-only tools.",
+    "Expect replication delays. Use ConsistencyLevel: eventual with $count for complete counts."
+   ],
+   "mapping": [
+    "principalId is the user, group or service principal; resourceId is the service principal that owns the role; appRoleId is the role.",
+    "Application permissions granted to an app (for example Mail.Read on Graph) are app role assignments too."
+   ],
+   "docs": "https://learn.microsoft.com/graph/api/serviceprincipal-list-approleassignedto",
+   "scan": {
+    "status": "v1.0",
+    "props": [
+     "appRoleId",
+     "createdDateTime",
+     "deletedDateTime",
+     "id",
+     "principalDisplayName",
+     "principalId",
+     "principalType",
+     "resourceDisplayName",
+     "resourceId"
+    ],
+    "navs": {},
+    "betaOnlyProps": [
+     "creationTimestamp"
+    ],
+    "betaOnlyNavs": [],
+    "baseTypes": [
+     "microsoft.graph.directoryObject",
+     "microsoft.graph.entity"
+    ]
+   },
+   "permCheck": {
+    "checked": [
+     "Application.Read.All",
+     "Directory.Read.All"
+    ],
+    "unknown": []
+   }
+  },
+  {
+   "id": "pimEligibility",
+   "label": "PIM eligibility",
+   "workload": "identity",
+   "entityType": "microsoft.graph.unifiedRoleEligibilitySchedule",
+   "path": "GET /roleManagement/directory/roleEligibilitySchedules",
+   "summary": "Privileged Identity Management eligible assignments: who can activate a directory role, for which scope and until when.",
+   "permissions": {
+    "delegated": "RoleEligibilitySchedule.Read.Directory",
+    "application": "RoleEligibilitySchedule.Read.Directory"
+   },
+   "licence": "Entra ID P2 or Microsoft Entra ID Governance, for eligible users, approvers and reviewers.",
+   "limits": [
+    "Active (permanent or activated) roles are in roleAssignmentSchedules, not here. Review both.",
+    "If the licence lapses, eligible assignments are removed and activation through the API stops."
+   ],
+   "mapping": [
+    "principalId is the user or group; roleDefinitionId matches the directory role's roleTemplateId; directoryScopeId is / or an administrative unit."
+   ],
+   "docs": "https://learn.microsoft.com/graph/api/rbacapplication-list-roleeligibilityschedules",
+   "scan": {
+    "status": "v1.0",
+    "props": [
+     "appScopeId",
+     "createdDateTime",
+     "createdUsing",
+     "directoryScopeId",
+     "id",
+     "memberType",
+     "modifiedDateTime",
+     "principalId",
+     "roleDefinitionId",
+     "scheduleInfo",
+     "status"
+    ],
+    "navs": {
+     "appScope": "microsoft.graph.appScope",
+     "directoryScope": "microsoft.graph.directoryObject",
+     "principal": "microsoft.graph.directoryObject",
+     "roleDefinition": "microsoft.graph.unifiedRoleDefinition"
+    },
+    "betaOnlyProps": [],
+    "betaOnlyNavs": [],
+    "baseTypes": [
+     "microsoft.graph.unifiedRoleScheduleBase",
+     "microsoft.graph.entity"
+    ]
+   },
+   "permCheck": {
+    "checked": [
+     "RoleEligibilitySchedule.Read.Directory"
+    ],
+    "unknown": []
+   }
+  },
+  {
+   "id": "subscribedSku",
+   "label": "Licence",
+   "workload": "identity",
+   "entityType": "microsoft.graph.subscribedSku",
+   "path": "GET /subscribedSkus",
+   "summary": "The tenant's licence SKUs with purchased and consumed units and service plans. Per user, licenseDetails shows what each user holds.",
+   "permissions": {
+    "delegated": "LicenseAssignment.Read.All",
+    "application": "LicenseAssignment.Read.All"
+   },
+   "licence": "None.",
+   "limits": [
+    "GET /users/{id}/licenseDetails lists no application permission on Learn. App-only tools can read assignedLicenses on the user (User.Read.All) instead.",
+    "Group-based licensing errors are written to the user asynchronously, not when the licence is assigned."
+   ],
+   "mapping": [
+    "Join on skuId: user.assignedLicenses, group.assignedLicenses and licenseDetails all carry it.",
+    "user.licenseAssignmentStates shows whether each licence is direct or inherited from a group."
+   ],
+   "docs": "https://learn.microsoft.com/graph/api/subscribedsku-list",
+   "scan": {
+    "status": "v1.0",
+    "props": [
+     "accountId",
+     "accountName",
+     "appliesTo",
+     "capabilityStatus",
+     "consumedUnits",
+     "id",
+     "prepaidUnits",
+     "servicePlans",
+     "skuId",
+     "skuPartNumber",
+     "subscriptionIds"
+    ],
+    "navs": {},
+    "betaOnlyProps": [],
+    "betaOnlyNavs": [],
+    "baseTypes": [
+     "microsoft.graph.entity"
+    ]
+   },
+   "permCheck": {
+    "checked": [
+     "LicenseAssignment.Read.All"
+    ],
+    "unknown": []
+   }
+  },
+  {
+   "id": "messageRule",
+   "label": "Inbox rule",
+   "workload": "outlook",
+   "entityType": "microsoft.graph.messageRule",
+   "path": "GET /users/{id}/mailFolders/inbox/messageRules",
+   "summary": "A user's Inbox rules, including forwardTo, redirectTo and forwardAsAttachmentTo actions that send mail outside the organisation.",
+   "permissions": {
+    "delegated": "MailboxSettings.Read",
+    "application": "MailboxSettings.Read"
+   },
+   "licence": "Exchange Online mailbox.",
+   "limits": [
+    "Only Inbox rules are exposed. Mailbox-level forwarding and transport rules are not in Graph.",
+    "Forwarding is blocked if the remote domain or the outbound spam policy disables automatic forwarding, so a rule can exist and still not forward.",
+    "Forward and redirect rules allow at most 10 recipients."
+   ],
+   "mapping": [
+    "Check actions.forwardTo, redirectTo and forwardAsAttachmentTo for addresses outside your accepted domains."
+   ],
+   "docs": "https://learn.microsoft.com/graph/api/mailfolder-list-messagerules",
+   "scan": {
+    "status": "v1.0",
+    "props": [
+     "actions",
+     "conditions",
+     "displayName",
+     "exceptions",
+     "hasError",
+     "id",
+     "isEnabled",
+     "isReadOnly",
+     "sequence"
+    ],
+    "navs": {},
+    "betaOnlyProps": [],
+    "betaOnlyNavs": [],
+    "baseTypes": [
+     "microsoft.graph.entity"
+    ]
+   },
+   "permCheck": {
+    "checked": [
+     "MailboxSettings.Read"
+    ],
+    "unknown": []
+   }
+  },
+  {
+   "id": "exGap",
+   "label": "Not in Graph: Exchange",
+   "workload": "outlook",
+   "kind": "gap",
+   "path": "Exchange Online PowerShell",
+   "summary": "Exchange forwarding and mail flow controls that Graph does not expose.",
+   "limits": [
+    "Mailbox-level forwarding: Get-Mailbox (ForwardingAddress, ForwardingSmtpAddress, DeliverToMailboxAndForward) and Set-Mailbox.",
+    "Outbound spam policy: Get-HostedOutboundSpamFilterPolicy, AutoForwardingMode (Automatic, On, Off). Set it explicitly; Automatic now behaves as Off for most tenants.",
+    "Remote domains: Get-RemoteDomain, AutoForwardEnabled.",
+    "Mail flow (transport) rules: Get-TransportRule."
+   ],
+   "mapping": [
+    "When one control allows forwarding and another blocks it, the block usually wins.",
+    "Remote domain settings don't affect admin-set mailbox forwarding or forwarding by transport rules."
+   ],
+   "docs": "https://learn.microsoft.com/defender-office-365/outbound-spam-policies-external-email-forwarding"
+  },
+  {
+   "id": "aiInteraction",
+   "label": "Copilot interaction",
+   "workload": "ai",
+   "entityType": "microsoft.graph.aiInteraction",
+   "path": "GET /copilot/users/{id}/interactionHistory/getAllEnterpriseInteractions",
+   "summary": "A user's Microsoft 365 Copilot prompts and responses across Teams, Word, Outlook and other apps, with the files and links Copilot used.",
+   "permissions": {
+    "delegated": "Not supported",
+    "application": "AiEnterpriseInteraction.Read.All"
+   },
+   "licence": "Microsoft 365 Copilot licence (service plan Microsoft Copilot with Graph-grounded chat) for the user.",
+   "limits": [
+    "Does not return interactions with Copilot Studio agents.",
+    "No delta. A createdDateTime filter needs both a lower and an upper bound; filter on appClass to pick one app.",
+    "Application permission only, so the app can read every licensed user's history. Treat the consent as highly sensitive."
+   ],
+   "mapping": [
+    "contexts and attachments hold the URLs and IDs of the files, mails and messages Copilot used.",
+    "requestId and sessionId pair a prompt with its response."
+   ],
+   "docs": "https://learn.microsoft.com/graph/api/aiinteractionhistory-getallenterpriseinteractions",
+   "scan": {
+    "status": "v1.0",
+    "props": [
+     "appClass",
+     "attachments",
+     "body",
+     "contexts",
+     "conversationType",
+     "createdDateTime",
+     "etag",
+     "from",
+     "id",
+     "interactionType",
+     "links",
+     "locale",
+     "mentions",
+     "requestId",
+     "sessionId"
+    ],
+    "navs": {},
+    "betaOnlyProps": [],
+    "betaOnlyNavs": [],
+    "baseTypes": [
+     "microsoft.graph.entity"
+    ]
+   },
+   "permCheck": {
+    "checked": [
+     "AiEnterpriseInteraction.Read.All"
+    ],
+    "unknown": []
+   }
+  },
+  {
+   "id": "purviewAi",
+   "label": "Purview AI policy check",
+   "workload": "ai",
+   "kind": "operation",
+   "action": "processContent",
+   "path": "POST /users/{id}/dataSecurityAndGovernance/protectionScopes/compute · processContent · activities/contentActivities",
+   "summary": "Lets your own AI app apply Purview DLP, labels and audit: compute which policies apply, send prompts and responses for a verdict, or just log the activity.",
+   "permissions": {
+    "delegated": "ProtectionScopes.Compute.User, Content.Process.User, ContentActivity.Write",
+    "application": "ProtectionScopes.Compute.User, Content.Process.User, ContentActivity.Write"
+   },
+   "licence": "Pay-as-you-go billing must be enabled for Entra-registered AI apps (charged per request for non-Microsoft 365 AI). Checked 16 Nov 2026.",
+   "limits": [
+    "Cache the ETag from compute and send it as If-None-Match on processContent. Call compute again when protectionScopeState is modified.",
+    "evaluateInline makes the app wait for the verdict; evaluateOffline does not.",
+    "Higher permissions are ProtectionScopes.Compute.All and Content.Process.All."
+   ],
+   "mapping": [
+    "compute: which users, apps and activities are in scope for policy. processContent: the verdict and policy actions (such as block). contentActivities: audit only.",
+    "A tenant-wide compute is at /security/dataSecurityAndGovernance/protectionScopes/compute."
+   ],
+   "docs": "https://learn.microsoft.com/graph/security-datasecurityandgovernance-overview",
+   "scan": {
+    "status": "v1.0"
+   },
+   "permCheck": {
+    "checked": [
+     "Content.Process.User",
+     "ContentActivity.Write",
+     "ProtectionScopes.Compute.User"
+    ],
+    "unknown": []
+   }
+  },
+  {
+   "id": "agentIdentity",
+   "label": "Agent identity",
+   "workload": "ai",
+   "entityType": "microsoft.graph.agentIdentity",
+   "path": "GET /servicePrincipals/microsoft.graph.agentIdentity",
+   "summary": "An Entra Agent ID identity: a service principal subtype that an AI agent signs in with, created from an agent identity blueprint.",
+   "permissions": {
+    "delegated": "AgentIdentity.Read.All",
+    "application": "AgentIdentity.Read.All"
+   },
+   "licence": "Agent ID is available to Entra customers; Conditional Access, ID Protection and Governance for agents need Microsoft Agent 365 (in Microsoft 365 E7 or as an add-on). Learn pages disagree, so treat as drifting (checked 16 Nov 2026).",
+   "limits": [
+    "High-risk Graph permissions (such as Application.ReadWrite.All, RoleManagement.ReadWrite.All, User.ReadWrite.All) cannot be granted to agents.",
+    "The admin consent workflow does not work for agent identities.",
+    "The blueprint's owner can manage every agent identity created from it without a directory role."
+   ],
+   "mapping": [
+    "agentIdentityBlueprintId links to the blueprint. As a service principal it has app role assignments and OAuth grants like any other app.",
+    "Agent sign-ins appear in the sign-in log; the agent property that marks them is beta only."
+   ],
+   "docs": "https://learn.microsoft.com/graph/api/agentidentity-list",
+   "scan": {
+    "status": "v1.0",
+    "props": [
+     "accountEnabled",
+     "addIns",
+     "agentIdentityBlueprintId",
+     "alternativeNames",
+     "appDescription",
+     "appDisplayName",
+     "appId",
+     "appOwnerOrganizationId",
+     "appRoleAssignmentRequired",
+     "appRoles",
+     "applicationTemplateId",
+     "createdByAppId",
+     "createdDateTime",
+     "customSecurityAttributes",
+     "deletedDateTime",
+     "description",
+     "disabledByMicrosoftStatus",
+     "displayName",
+     "homepage",
+     "id",
+     "info",
+     "isDisabled",
+     "keyCredentials",
+     "loginUrl",
+     "logoutUrl",
+     "managerApplications",
+     "notes",
+     "notificationEmailAddresses",
+     "oauth2PermissionScopes",
+     "passwordCredentials",
+     "preferredSingleSignOnMode",
+     "preferredTokenSigningKeyThumbprint",
+     "replyUrls",
+     "resourceSpecificApplicationPermissions",
+     "samlSingleSignOnSettings",
+     "servicePrincipalNames",
+     "servicePrincipalType",
+     "signInAudience",
+     "tags",
+     "tokenEncryptionKeyId",
+     "verifiedPublisher"
+    ],
+    "navs": {
+     "appManagementPolicies": "microsoft.graph.appManagementPolicy",
+     "appRoleAssignedTo": "microsoft.graph.appRoleAssignment",
+     "appRoleAssignments": "microsoft.graph.appRoleAssignment",
+     "claimsMappingPolicies": "microsoft.graph.claimsMappingPolicy",
+     "createdObjects": "microsoft.graph.directoryObject",
+     "delegatedPermissionClassifications": "microsoft.graph.delegatedPermissionClassification",
+     "endpoints": "microsoft.graph.endpoint",
+     "federatedIdentityCredentials": "microsoft.graph.federatedIdentityCredential",
+     "homeRealmDiscoveryPolicies": "microsoft.graph.homeRealmDiscoveryPolicy",
+     "lifecycle": "microsoft.graph.identityGovernance.identityLifecycle",
+     "memberOf": "microsoft.graph.directoryObject",
+     "oauth2PermissionGrants": "microsoft.graph.oAuth2PermissionGrant",
+     "ownedObjects": "microsoft.graph.directoryObject",
+     "owners": "microsoft.graph.directoryObject",
+     "remoteDesktopSecurityConfiguration": "microsoft.graph.remoteDesktopSecurityConfiguration",
+     "sponsors": "microsoft.graph.directoryObject",
+     "synchronization": "microsoft.graph.synchronization",
+     "tokenIssuancePolicies": "microsoft.graph.tokenIssuancePolicy",
+     "tokenLifetimePolicies": "microsoft.graph.tokenLifetimePolicy",
+     "transitiveMemberOf": "microsoft.graph.directoryObject"
+    },
+    "betaOnlyProps": [
+     "clientIdMetadataDocumentUrl",
+     "errorUrl",
+     "hasClientIdMetadataDocument",
+     "idJag",
+     "instanceMode",
+     "isHardDeleteProtectionEnabled",
+     "lifecyclePolicyComplianceState",
+     "lifecyclePolicyComplianceStateLastModifiedDateTime",
+     "lifecyclePolicyComplianceStateReason",
+     "lifecyclePolicyNonComplianceDisablementDateTime",
+     "passwordSingleSignOnSettings",
+     "preferredTokenSigningKeyEndDateTime",
+     "publishedPermissionScopes",
+     "publisherName",
+     "samlMetadataUrl"
+    ],
+    "betaOnlyNavs": [
+     "claimsPolicy",
+     "communicationConfiguration",
+     "inheritedAppRoleAssignments",
+     "inheritedOauth2PermissionGrants",
+     "licenseDetails",
+     "permissionGrantPreApprovalPolicies"
+    ],
+    "baseTypes": [
+     "microsoft.graph.servicePrincipal",
+     "microsoft.graph.directoryObject",
+     "microsoft.graph.entity"
+    ]
+   },
+   "permCheck": {
+    "checked": [
+     "AgentIdentity.Read.All"
+    ],
+    "unknown": []
+   }
+  },
+  {
+   "id": "agentBlueprint",
+   "label": "Agent blueprint",
+   "workload": "ai",
+   "entityType": "microsoft.graph.agentIdentityBlueprint",
+   "path": "GET /applications/microsoft.graph.agentIdentityBlueprint",
+   "summary": "An agent identity blueprint: an application subtype that defines a kind of agent and creates its agent identities.",
+   "permissions": {
+    "delegated": "AgentIdentityBlueprint.Read.All",
+    "application": "AgentIdentityBlueprint.Read.All"
+   },
+   "licence": "As for agent identity (drifting; checked 16 Nov 2026).",
+   "limits": [
+    "GET /applications also returns blueprints; tell them apart by @odata.type.",
+    "Audit logs record blueprint operations under ApplicationManagement and do not mark them as agents by default."
+   ],
+   "mapping": [
+    "A Conditional Access policy that targets a blueprint covers every agent identity created from it, including later ones."
+   ],
+   "docs": "https://learn.microsoft.com/graph/api/agentidentityblueprint-list",
+   "scan": {
+    "status": "v1.0",
+    "props": [
+     "addIns",
+     "api",
+     "appId",
+     "appRoles",
+     "applicationTemplateId",
+     "authenticationBehaviors",
+     "certification",
+     "createdByAppId",
+     "createdDateTime",
+     "defaultRedirectUri",
+     "deletedDateTime",
+     "description",
+     "disabledByMicrosoftStatus",
+     "displayName",
+     "groupMembershipClaims",
+     "id",
+     "identifierUris",
+     "info",
+     "isDeviceOnlyAuthSupported",
+     "isDisabled",
+     "isFallbackPublicClient",
+     "keyCredentials",
+     "logo",
+     "managerApplications",
+     "nativeAuthenticationApisEnabled",
+     "notes",
+     "oauth2RequirePostResponse",
+     "optionalClaims",
+     "parentalControlSettings",
+     "passwordCredentials",
+     "publicClient",
+     "publisherDomain",
+     "requestSignatureVerification",
+     "requiredResourceAccess",
+     "samlMetadataUrl",
+     "serviceManagementReference",
+     "servicePrincipalLockConfiguration",
+     "signInAudience",
+     "spa",
+     "tags",
+     "tokenEncryptionKeyId",
+     "uniqueName",
+     "verifiedPublisher",
+     "web"
+    ],
+    "navs": {
+     "appManagementPolicies": "microsoft.graph.appManagementPolicy",
+     "createdOnBehalfOf": "microsoft.graph.directoryObject",
+     "extensionProperties": "microsoft.graph.extensionProperty",
+     "federatedIdentityCredentials": "microsoft.graph.federatedIdentityCredential",
+     "homeRealmDiscoveryPolicies": "microsoft.graph.homeRealmDiscoveryPolicy",
+     "inheritablePermissions": "microsoft.graph.inheritablePermission",
+     "owners": "microsoft.graph.directoryObject",
+     "sponsors": "microsoft.graph.directoryObject",
+     "synchronization": "microsoft.graph.synchronization",
+     "tokenIssuancePolicies": "microsoft.graph.tokenIssuancePolicy",
+     "tokenLifetimePolicies": "microsoft.graph.tokenLifetimePolicy"
+    },
+    "betaOnlyProps": [
+     "idJag",
+     "identifierUriConfiguration",
+     "isHardDeleteProtectionEnabled",
+     "isSingleInstance",
+     "onPremisesPublishing",
+     "signInAudienceRestrictions",
+     "windows"
+    ],
+    "betaOnlyNavs": [
+     "communicationConfiguration",
+     "connectorGroup"
+    ],
+    "baseTypes": [
+     "microsoft.graph.application",
+     "microsoft.graph.directoryObject",
+     "microsoft.graph.entity"
+    ]
+   },
+   "permCheck": {
+    "checked": [
+     "AgentIdentityBlueprint.Read.All"
+    ],
+    "unknown": []
+   }
   }
  ],
  "edges": [
@@ -3237,21 +4211,724 @@
    "scan": "n/a"
   },
   {
-   "s": "team",
-   "t": "user",
-   "kind": "discovered",
-   "nav": "owners",
-   "scan": "beta only"
+   "s": "user",
+   "t": "appRoleAssignment",
+   "kind": "nav",
+   "nav": "appRoleAssignments",
+   "scan": "v1.0"
+  },
+  {
+   "s": "servicePrincipal",
+   "t": "appRoleAssignment",
+   "kind": "nav",
+   "nav": "appRoleAssignedTo",
+   "scan": "v1.0"
+  },
+  {
+   "s": "appRoleAssignment",
+   "t": "servicePrincipal",
+   "kind": "ref",
+   "label": "resourceId",
+   "scan": "n/a"
+  },
+  {
+   "s": "user",
+   "t": "oauthGrant",
+   "kind": "nav",
+   "nav": "oauth2PermissionGrants",
+   "scan": "v1.0"
+  },
+  {
+   "s": "servicePrincipal",
+   "t": "oauthGrant",
+   "kind": "nav",
+   "nav": "oauth2PermissionGrants",
+   "scan": "v1.0"
   },
   {
    "s": "user",
    "t": "servicePrincipal",
-   "kind": "discovered",
+   "kind": "nav",
    "nav": "appRoleAssignedResources",
+   "scan": "beta only"
+  },
+  {
+   "s": "user",
+   "t": "subscribedSku",
+   "kind": "ref",
+   "label": "assignedLicenses",
+   "desc": "matched by skuId",
+   "scan": "n/a"
+  },
+  {
+   "s": "group",
+   "t": "subscribedSku",
+   "kind": "ref",
+   "label": "assignedLicenses (group-based licensing)",
+   "desc": "matched by skuId",
+   "scan": "n/a"
+  },
+  {
+   "s": "riskyUser",
+   "t": "user",
+   "kind": "ref",
+   "label": "id",
+   "desc": "same object ID as the user",
+   "scan": "n/a"
+  },
+  {
+   "s": "pimEligibility",
+   "t": "directoryRole",
+   "kind": "ref",
+   "label": "roleDefinitionId",
+   "desc": "matched by role template ID",
+   "scan": "n/a"
+  },
+  {
+   "s": "pimEligibility",
+   "t": "user",
+   "kind": "ref",
+   "label": "principalId",
+   "scan": "n/a"
+  },
+  {
+   "s": "mailFolder",
+   "t": "messageRule",
+   "kind": "nav",
+   "nav": "messageRules",
+   "scan": "v1.0"
+  },
+  {
+   "s": "messageRule",
+   "t": "exGap",
+   "kind": "ref",
+   "label": "auto-forwarding controls",
+   "desc": "allowed or blocked outside Graph",
+   "scan": "n/a"
+  },
+  {
+   "s": "caPolicy",
+   "t": "user",
+   "kind": "ref",
+   "label": "conditions.users",
+   "scan": "n/a"
+  },
+  {
+   "s": "caPolicy",
+   "t": "agentIdentity",
+   "kind": "ref",
+   "label": "conditions (agents)",
+   "desc": "targets agents by identity or blueprint (preview)",
+   "scan": "n/a"
+  },
+  {
+   "s": "caPolicy",
+   "t": "signIn",
+   "kind": "ref",
+   "label": "appliedConditionalAccessPolicies",
+   "desc": "each sign-in records the policies that applied",
+   "scan": "n/a"
+  },
+  {
+   "s": "user",
+   "t": "aiInteraction",
+   "kind": "ref",
+   "label": "interactionHistory",
+   "via": "copilot/users/{id}/interactionHistory",
+   "desc": "per-user export",
+   "scan": "n/a"
+  },
+  {
+   "s": "aiInteraction",
+   "t": "driveItem",
+   "kind": "ref",
+   "label": "contexts / attachments",
+   "desc": "matched by URL or ID",
+   "scan": "n/a"
+  },
+  {
+   "s": "aiInteraction",
+   "t": "message",
+   "kind": "ref",
+   "label": "contexts / attachments",
+   "desc": "matched by URL or ID",
+   "scan": "n/a"
+  },
+  {
+   "s": "user",
+   "t": "purviewAi",
+   "kind": "nav",
+   "nav": "dataSecurityAndGovernance",
+   "scan": "v1.0"
+  },
+  {
+   "s": "purviewAi",
+   "t": "sensitivityLabel",
+   "kind": "ref",
+   "label": "label and DLP policy verdicts",
+   "scan": "n/a"
+  },
+  {
+   "s": "purviewAi",
+   "t": "alert",
+   "kind": "ref",
+   "label": "DLP alerts",
+   "desc": "policy matches surface as alerts",
+   "scan": "n/a"
+  },
+  {
+   "s": "agentBlueprint",
+   "t": "agentIdentity",
+   "kind": "ref",
+   "label": "agentIdentityBlueprintId",
+   "desc": "agent identities created from the blueprint",
+   "scan": "n/a"
+  },
+  {
+   "s": "agentIdentity",
+   "t": "servicePrincipal",
+   "kind": "ref",
+   "label": "subtype of servicePrincipal",
+   "desc": "derived type",
+   "scan": "n/a"
+  },
+  {
+   "s": "agentIdentity",
+   "t": "oauthGrant",
+   "kind": "nav",
+   "nav": "oauth2PermissionGrants",
+   "scan": "v1.0"
+  },
+  {
+   "s": "agentIdentity",
+   "t": "signIn",
+   "kind": "ref",
+   "label": "agent sign-ins",
+   "desc": "the agent property is beta only",
+   "scan": "n/a"
+  },
+  {
+   "s": "group",
+   "t": "appRoleAssignment",
+   "kind": "nav",
+   "nav": "appRoleAssignments",
+   "scan": "v1.0"
+  },
+  {
+   "s": "agentIdentity",
+   "t": "appRoleAssignment",
+   "kind": "nav",
+   "nav": "appRoleAssignments",
+   "scan": "v1.0"
+  },
+  {
+   "s": "team",
+   "t": "user",
+   "kind": "nav",
+   "nav": "owners",
    "scan": "beta only"
   }
  ],
+ "scenarios": [
+  {
+   "id": "secure-offboarding",
+   "label": "Secure offboarding",
+   "group": "Classic",
+   "summary": "A leaver's tokens, group access, app access, files and devices must all be cut off, not just the account disabled.",
+   "licence": "Entra ID (Free). Intune for device actions.",
+   "steps": [
+    {
+     "node": "user",
+     "do": "Block sign-in (accountEnabled false), then revoke refresh tokens and session cookies.",
+     "call": "POST /users/{id}/revokeSignInSessions",
+     "permission": "User.RevokeSessions.All (delegated and application)",
+     "note": "Revocation can take a few minutes, and access tokens already issued stay valid until they expire (usually about an hour)."
+    },
+    {
+     "node": "group",
+     "do": "List memberOf and remove the user from groups, especially role-assignable and privileged ones.",
+     "call": "GET /users/{id}/memberOf",
+     "note": "Dynamic group membership can't be removed by hand; it drops when the user's attributes change."
+    },
+    {
+     "node": "appRoleAssignment",
+     "do": "Remove the user's direct enterprise app assignments.",
+     "call": "GET /users/{id}/appRoleAssignments",
+     "note": "The list includes assignments through groups the user is a direct member of; remove those through the group."
+    },
+    {
+     "node": "drive",
+     "do": "Find the OneDrive and hand its content to the manager before the retention period runs out.",
+     "call": "GET /users/{id}/drive",
+     "note": "Setting the OneDrive access delegate (the manager) is a SharePoint admin setting, not a Graph call."
+    },
+    {
+     "node": "device",
+     "do": "Find the user's registered and owned devices and disable or retire them.",
+     "call": "GET /users/{id}/ownedDevices",
+     "note": "Wipe and retire are Intune actions on managedDevice (/deviceManagement), not on the Entra device object."
+    }
+   ]
+  },
+  {
+   "id": "privileged-access-review",
+   "label": "Privileged access review",
+   "group": "Classic",
+   "summary": "Standing admin roles are the biggest identity risk; a review should cover active and eligible assignments and how they are used.",
+   "licence": "Entra ID P2 or ID Governance for PIM. Entra ID P1 for sign-in logs.",
+   "steps": [
+    {
+     "node": "directoryRole",
+     "do": "List active directory roles and their members.",
+     "call": "GET /directoryRoles?$expand=members",
+     "note": "Only activated roles appear here. Use roleManagement/directory/roleAssignments for the full picture."
+    },
+    {
+     "node": "pimEligibility",
+     "do": "List eligible assignments: who can activate which role, and when that ends."
+    },
+    {
+     "node": "user",
+     "do": "Check each holder: still employed, a cloud-only admin account, MFA registered.",
+     "call": "GET /users/{id}?$select=accountEnabled,onPremisesSyncEnabled,signInActivity",
+     "permission": "User.Read.All + AuditLog.Read.All (signInActivity)"
+    },
+    {
+     "node": "administrativeUnit",
+     "do": "Check roles scoped to administrative units, which a tenant-wide review misses.",
+     "call": "GET /directory/administrativeUnits/{id}/scopedRoleMembers"
+    },
+    {
+     "node": "signIn",
+     "do": "Look for admin sign-ins without MFA or from unusual places.",
+     "call": "GET /auditLogs/signIns?$filter=userId eq '{id}'"
+    }
+   ]
+  },
+  {
+   "id": "risky-app-consent",
+   "label": "Risky app consent review",
+   "group": "Classic",
+   "summary": "Consent phishing and over-permissioned apps give attackers durable access that survives password resets.",
+   "licence": "Entra ID (Free). Entra ID P1 for sign-in logs.",
+   "steps": [
+    {
+     "node": "application",
+     "do": "List apps registered in your tenant and their requested permissions (requiredResourceAccess)."
+    },
+    {
+     "node": "servicePrincipal",
+     "do": "List enterprise apps, including multi-tenant apps from other publishers.",
+     "call": "GET /servicePrincipals?$select=id,appId,displayName,appOwnerOrganizationId,verifiedPublisher"
+    },
+    {
+     "node": "oauthGrant",
+     "do": "Find delegated grants with broad scopes (Mail.Read, Files.Read.All and so on), and whether they are admin or per-user consent."
+    },
+    {
+     "node": "appRoleAssignment",
+     "do": "Find application permissions granted to each app: these work without a signed-in user.",
+     "call": "GET /servicePrincipals/{id}/appRoleAssignments",
+     "note": "Application permissions on Microsoft Graph are app role assignments whose resourceId is the Graph service principal."
+    },
+    {
+     "node": "signIn",
+     "do": "Check whether the app is actually used, and from where.",
+     "call": "GET /beta/auditLogs/signIns?$filter=signInEventTypes/any(t: t eq 'servicePrincipal')",
+     "note": "Service principal sign-ins are beta only; v1.0 returns interactive user sign-ins."
+    }
+   ]
+  },
+  {
+   "id": "guest-external-access",
+   "label": "Guest and external access review",
+   "group": "Classic",
+   "summary": "Guests and shared channels quietly widen who can see your content; access should be reviewed where it is granted.",
+   "licence": "Entra ID (Free). Access reviews need ID Governance or P2.",
+   "steps": [
+    {
+     "node": "user",
+     "do": "List guest accounts and when they last signed in.",
+     "call": "GET /users?$filter=userType eq 'Guest'&$select=displayName,mail,signInActivity",
+     "permission": "User.Read.All + AuditLog.Read.All (signInActivity)"
+    },
+    {
+     "node": "group",
+     "do": "Find which groups and Microsoft 365 groups each guest belongs to.",
+     "call": "GET /users/{id}/memberOf"
+    },
+    {
+     "node": "team",
+     "do": "List the teams behind those groups and their guest settings."
+    },
+    {
+     "node": "channel",
+     "do": "Find shared channels, whose members can come from other tenants without a guest account.",
+     "call": "GET /teams/{id}/channels?$filter=membershipType eq 'shared'",
+     "note": "Shared-channel members from other tenants are not guests, so a guest review misses them."
+    },
+    {
+     "node": "site",
+     "do": "Find the sites behind those teams and channels (shared channels have their own site)."
+    },
+    {
+     "node": "permission",
+     "do": "List sharing links and direct grants, especially anyone and external links.",
+     "call": "GET /drives/{id}/items/{id}/permissions"
+    }
+   ]
+  },
+  {
+   "id": "compromised-account",
+   "label": "Compromised account investigation",
+   "group": "Classic",
+   "summary": "Business email compromise moves fast; you need the alert, the sign-ins, the persistence (rules) and the containment in one sweep.",
+   "licence": "Microsoft Defender XDR. Entra ID P2 for risky users. Entra ID P1 for sign-in logs.",
+   "steps": [
+    {
+     "node": "incident",
+     "do": "Open the Defender XDR incident and its correlated alerts."
+    },
+    {
+     "node": "alert",
+     "do": "Read the alert evidence: user, mailbox, IP addresses, files."
+    },
+    {
+     "node": "riskyUser",
+     "do": "Check the user's risk level and history; confirm compromise to feed ID Protection.",
+     "call": "POST /identityProtection/riskyUsers/confirmCompromised",
+     "permission": "IdentityRiskyUser.ReadWrite.All"
+    },
+    {
+     "node": "signIn",
+     "do": "Review sign-ins for the period: locations, apps, MFA results, legacy protocols."
+    },
+    {
+     "node": "directoryAudit",
+     "do": "Look for changes the attacker made: MFA methods added, app consents, role changes.",
+     "call": "GET /auditLogs/directoryAudits?$filter=initiatedBy/user/id eq '{id}'"
+    },
+    {
+     "node": "messageRule",
+     "do": "Look for Inbox rules that forward, redirect, delete or hide mail."
+    },
+    {
+     "node": "hunting",
+     "do": "Hunt across mail, identity and cloud app events for the same IP addresses and patterns.",
+     "note": "Advanced hunting keeps 30 days of data."
+    },
+    {
+     "node": "user",
+     "do": "Contain: block sign-in, reset the password and revoke sessions.",
+     "call": "POST /users/{id}/revokeSignInSessions",
+     "permission": "User.RevokeSessions.All"
+    }
+   ]
+  },
+  {
+   "id": "dormant-licensed-accounts",
+   "label": "Dormant accounts with active licences",
+   "group": "Classic",
+   "summary": "Unused accounts are an attack surface and a cost; licences on them are money spent for nothing.",
+   "licence": "Entra ID P1 for signInActivity.",
+   "steps": [
+    {
+     "node": "user",
+     "do": "List users with their last successful sign-in and assigned licences.",
+     "call": "GET /users?$select=displayName,accountEnabled,assignedLicenses,signInActivity",
+     "permission": "User.Read.All + AuditLog.Read.All",
+     "note": "signInActivity can lag by up to 24 hours, and lastSuccessfulSignInDateTime has no data before December 2023."
+    },
+    {
+     "node": "signIn",
+     "do": "Confirm inactivity for borderline accounts; non-interactive sign-ins (beta) show background use.",
+     "note": "Sign-in logs are kept for 30 days, so use signInActivity for anything older."
+    },
+    {
+     "node": "subscribedSku",
+     "do": "Map skuId to product names and see consumed against purchased units."
+    },
+    {
+     "node": "group",
+     "do": "Find group-based licence assignments; remove the user from the group rather than the licence.",
+     "call": "GET /groups?$filter=assignedLicenses/$count ne 0&$count=true",
+     "note": "Needs ConsistencyLevel: eventual. Licence errors are written to the user asynchronously."
+    },
+    {
+     "node": "reportRoot",
+     "do": "Confirm per-workload inactivity (mail, OneDrive, Teams) from the activity reports.",
+     "call": "GET /reports/getOffice365ActiveUserDetail(period='D90')",
+     "note": "Reports show concealed names unless the tenant setting is turned off."
+    }
+   ]
+  },
+  {
+   "id": "external-mail-forwarding",
+   "label": "Mail forwarding to external addresses",
+   "group": "Classic",
+   "summary": "Auto-forwarding is a classic exfiltration route, and it can be set in places Graph can't see.",
+   "licence": "Exchange Online. Defender XDR for alerts and hunting.",
+   "steps": [
+    {
+     "node": "user",
+     "do": "List mailbox users in scope.",
+     "call": "GET /users?$filter=mail ne null&$select=id,mail"
+    },
+    {
+     "node": "messageRule",
+     "do": "For each mailbox, find Inbox rules with forwardTo, redirectTo or forwardAsAttachmentTo outside your domains.",
+     "note": "Reading every mailbox's rules app-only needs MailboxSettings.Read for the whole tenant; scope it with RBAC for Applications if you can."
+    },
+    {
+     "node": "exGap",
+     "do": "Check mailbox forwarding, the outbound spam policy, remote domains and transport rules in Exchange Online PowerShell.",
+     "call": "Get-Mailbox · Get-HostedOutboundSpamFilterPolicy · Get-RemoteDomain · Get-TransportRule",
+     "permission": "Exchange Online PowerShell role (for example View-Only Organization Management)"
+    },
+    {
+     "node": "alert",
+     "do": "Look for forwarding alerts, such as suspicious email forwarding activity.",
+     "call": "GET /security/alerts_v2?$filter=title has 'forward'"
+    },
+    {
+     "node": "hunting",
+     "do": "Hunt for mail actually leaving to external recipients.",
+     "call": "POST /security/runHuntingQuery (EmailEvents, where EmailDirection == 'Outbound')"
+    }
+   ]
+  },
+  {
+   "id": "copilot-oversharing",
+   "label": "Oversharing check before Copilot rollout",
+   "group": "AI",
+   "summary": "Copilot surfaces whatever a user can already open, so overshared sites become Copilot answers.",
+   "licence": "Microsoft 365 Copilot. SharePoint Advanced Management for its oversharing reports.",
+   "steps": [
+    {
+     "node": "site",
+     "do": "List sites and spot broadly shared ones (Everyone except external users, large Members groups).",
+     "call": "GET /sites/getAllSites",
+     "note": "getAllSites needs application permissions."
+    },
+    {
+     "node": "permission",
+     "do": "List site and file permissions and sharing links, especially organisation-wide and anyone links."
+    },
+    {
+     "node": "driveItem",
+     "do": "Find sensitive files in those sites (search or by library) and their labels.",
+     "call": "POST /search/query (entityTypes: driveItem)"
+    },
+    {
+     "node": "sensitivityLabel",
+     "do": "Check which labels exist and apply or raise labels on sensitive content.",
+     "call": "POST /drives/{id}/items/{id}/assignSensitivityLabel",
+     "note": "assignSensitivityLabel is a metered API, and app-only calls can't replace the content of a labelled file."
+    },
+    {
+     "node": "reportRoot",
+     "do": "Track Copilot readiness and usage after rollout.",
+     "call": "GET /reports/getMicrosoft365CopilotUsageUserDetail(period='D30')",
+     "note": "Check Learn for the current Copilot usage report endpoints; some are beta."
+    }
+   ]
+  },
+  {
+   "id": "purview-dlp-own-ai",
+   "label": "Apply Purview DLP to your own AI apps",
+   "group": "AI",
+   "summary": "Home-grown AI apps can leak data like any other; the Purview APIs let them honour the same DLP and labels as Microsoft 365.",
+   "licence": "Pay-as-you-go billing for Entra-registered AI apps. Purview DLP licensing for the policies.",
+   "steps": [
+    {
+     "node": "user",
+     "do": "Identify the user the app acts for (delegated) or will act for (application)."
+    },
+    {
+     "node": "purviewAi",
+     "do": "Compute protection scopes, then send each prompt and response to processContent and honour the verdict.",
+     "call": "POST /users/{id}/dataSecurityAndGovernance/protectionScopes/compute, then processContent",
+     "note": "Cache the compute ETag and send it as If-None-Match; call compute again when protectionScopeState is modified."
+    },
+    {
+     "node": "sensitivityLabel",
+     "do": "Read the labels that apply to the content the app retrieves, so it can respect encryption and usage rights.",
+     "call": "GET /users/{id}/dataSecurityAndGovernance/sensitivityLabels"
+    },
+    {
+     "node": "alert",
+     "do": "DLP matches from your app surface as alerts for the security team.",
+     "call": "GET /security/alerts_v2?$filter=serviceSource eq 'microsoftDataLossPrevention'"
+    }
+   ]
+  },
+  {
+   "id": "copilot-interaction-review",
+   "label": "Copilot interaction export and review",
+   "group": "AI",
+   "summary": "Prompts and responses are business records; you may need to export, review, retain or hold them.",
+   "licence": "Microsoft 365 Copilot. Purview (eDiscovery Premium) for review sets and holds.",
+   "steps": [
+    {
+     "node": "user",
+     "do": "Pick the users in scope; only Copilot-licensed users have history."
+    },
+    {
+     "node": "aiInteraction",
+     "do": "Export prompts and responses for a date range, filtered by app if needed.",
+     "call": "GET /copilot/users/{id}/interactionHistory/getAllEnterpriseInteractions?$filter=createdDateTime gt {start} and createdDateTime lt {end}"
+    },
+    {
+     "node": "driveItem",
+     "do": "Follow contexts and attachments to the files Copilot used."
+    },
+    {
+     "node": "message",
+     "do": "Or to the mails and chats it used.",
+     "or": true
+    },
+    {
+     "node": "retentionLabel",
+     "do": "Keep the interactions under a retention policy for Copilot interactions.",
+     "note": "Copilot retention is set by retention policy in Purview, not by labelling each interaction through Graph."
+    },
+    {
+     "node": "ediscoveryCase",
+     "do": "Or put the users on hold and collect Copilot interactions into a case.",
+     "or": true
+    }
+   ]
+  },
+  {
+   "id": "audit-hunt-ai-usage",
+   "label": "Audit and hunt AI usage",
+   "group": "AI",
+   "summary": "Security teams need to see who uses AI, on what data, and spot misuse such as prompt-based exfiltration.",
+   "licence": "Purview Audit (Standard). Defender XDR (with Defender for Cloud Apps) for CloudAppEvents.",
+   "steps": [
+    {
+     "node": "auditLogQuery",
+     "do": "Search the unified audit log for CopilotInteraction records.",
+     "call": "POST /security/auditLog/queries (recordTypeFilters: copilotInteraction)",
+     "note": "Audit queries run asynchronously; poll the query status, then read its records."
+    },
+    {
+     "node": "hunting",
+     "do": "Hunt in CloudAppEvents for AI app activity across users.",
+     "call": "POST /security/runHuntingQuery (CloudAppEvents, where ActionType == 'CopilotInteraction')"
+    },
+    {
+     "node": "user",
+     "do": "Pivot to the users with unusual volume or access patterns."
+    },
+    {
+     "node": "alert",
+     "do": "Check for related alerts, such as DLP or insider risk on AI activity."
+    }
+   ]
+  },
+  {
+   "id": "agent-identity-governance",
+   "label": "Agent identity governance",
+   "group": "AI",
+   "summary": "AI agents now have their own identities; they need an owner, least privilege, Conditional Access and monitoring like any workforce identity.",
+   "licence": "Microsoft Agent 365 (in Microsoft 365 E7) plus Entra ID P1 for Conditional Access on agents. Drifting; checked 16 Nov 2026.",
+   "steps": [
+    {
+     "node": "agentBlueprint",
+     "do": "Inventory blueprints and their owners and sponsors."
+    },
+    {
+     "node": "agentIdentity",
+     "do": "List agent identities and the blueprint each came from.",
+     "call": "GET /servicePrincipals/microsoft.graph.agentIdentity"
+    },
+    {
+     "node": "caPolicy",
+     "do": "Check that a Conditional Access policy targets agent identities or their blueprints.",
+     "note": "Policies for all users don't include agent users; agents need explicit targeting (preview)."
+    },
+    {
+     "node": "oauthGrant",
+     "do": "Review delegated and application permissions granted to agents.",
+     "call": "GET /servicePrincipals/{id}/oauth2PermissionGrants"
+    },
+    {
+     "node": "signIn",
+     "do": "Monitor agent sign-ins.",
+     "call": "GET /beta/auditLogs/signIns?$filter=signInEventTypes/any(t: t eq 'servicePrincipal') and agent/agentType eq 'AgentIdentity'",
+     "note": "The agent property on sign-ins is beta only."
+    }
+   ]
+  }
+ ],
  "recentChanges": [
+  {
+   "date": "2026-11-16",
+   "node": "caPolicy",
+   "kind": "new-node",
+   "text": "Conditional Access policy: scanned for the first time (v1.0)."
+  },
+  {
+   "date": "2026-11-16",
+   "node": "riskyUser",
+   "kind": "new-node",
+   "text": "Risky user: scanned for the first time (v1.0)."
+  },
+  {
+   "date": "2026-11-16",
+   "node": "oauthGrant",
+   "kind": "new-node",
+   "text": "OAuth grant: scanned for the first time (v1.0)."
+  },
+  {
+   "date": "2026-11-16",
+   "node": "appRoleAssignment",
+   "kind": "new-node",
+   "text": "App role assignment: scanned for the first time (v1.0)."
+  },
+  {
+   "date": "2026-11-16",
+   "node": "pimEligibility",
+   "kind": "new-node",
+   "text": "PIM eligibility: scanned for the first time (v1.0)."
+  },
+  {
+   "date": "2026-11-16",
+   "node": "subscribedSku",
+   "kind": "new-node",
+   "text": "Licence: scanned for the first time (v1.0)."
+  },
+  {
+   "date": "2026-11-16",
+   "node": "messageRule",
+   "kind": "new-node",
+   "text": "Inbox rule: scanned for the first time (v1.0)."
+  },
+  {
+   "date": "2026-11-16",
+   "node": "aiInteraction",
+   "kind": "new-node",
+   "text": "Copilot interaction: scanned for the first time (v1.0)."
+  },
+  {
+   "date": "2026-11-16",
+   "node": "purviewAi",
+   "kind": "new-node",
+   "text": "Purview AI policy check: scanned for the first time (v1.0)."
+  },
+  {
+   "date": "2026-11-16",
+   "node": "agentIdentity",
+   "kind": "new-node",
+   "text": "Agent identity: scanned for the first time (v1.0)."
+  },
+  {
+   "date": "2026-11-16",
+   "node": "agentBlueprint",
+   "kind": "new-node",
+   "text": "Agent blueprint: scanned for the first time (v1.0)."
+  },
   {
    "date": "2026-11-14",
    "node": "sensitivityLabel",
@@ -3265,5 +4942,1845 @@
    "text": "First schema scan. Results recorded as the baseline."
   }
  ],
- "state": {}
+ "state": {
+  "permissionNames": [
+   "APIConnectors.Read.All",
+   "APIConnectors.ReadWrite.All",
+   "AccessReview.Read.All",
+   "AccessReview.ReadWrite.All",
+   "AccessReview.ReadWrite.Membership",
+   "Acronym.Read.All",
+   "AdministrativeUnit.Read.All",
+   "AdministrativeUnit.ReadBasic.All",
+   "AdministrativeUnit.ReadWrite.All",
+   "AdministrativeUnit.ReadWriteBasic.All",
+   "AdministrativeUnitMember.ReadWrite.All",
+   "AgentCard.Read.All",
+   "AgentCard.ReadWrite.All",
+   "AgentCard.ReadWrite.ManagedBy",
+   "AgentCardManifest.Read.All",
+   "AgentCardManifest.ReadWrite.All",
+   "AgentCardManifest.ReadWrite.ManagedBy",
+   "AgentCollection.Read.All",
+   "AgentCollection.Read.Global",
+   "AgentCollection.Read.Quarantined",
+   "AgentCollection.ReadWrite.All",
+   "AgentCollection.ReadWrite.Global",
+   "AgentCollection.ReadWrite.ManagedBy",
+   "AgentCollection.ReadWrite.Quarantined",
+   "AgentCommunicationConfiguration.Read",
+   "AgentCommunicationConfiguration.Read.All",
+   "AgentCommunicationConfiguration.ReadWrite",
+   "AgentCommunicationConfiguration.ReadWrite.All",
+   "AgentIdUser.ReadWrite.All",
+   "AgentIdUser.ReadWrite.IdentityParentedBy",
+   "AgentIdentity.Create.All",
+   "AgentIdentity.CreateAsManager",
+   "AgentIdentity.DeleteRestore.All",
+   "AgentIdentity.EnableDisable.All",
+   "AgentIdentity.Read.All",
+   "AgentIdentity.ReadWrite.All",
+   "AgentIdentityBlueprint.AddRemoveCreds.All",
+   "AgentIdentityBlueprint.Create",
+   "AgentIdentityBlueprint.DeleteRestore.All",
+   "AgentIdentityBlueprint.Read.All",
+   "AgentIdentityBlueprint.ReadWrite.All",
+   "AgentIdentityBlueprint.UpdateAuthProperties.All",
+   "AgentIdentityBlueprint.UpdateBranding.All",
+   "AgentIdentityBlueprintPrincipal.Create",
+   "AgentIdentityBlueprintPrincipal.DeleteRestore.All",
+   "AgentIdentityBlueprintPrincipal.EnableDisable.All",
+   "AgentIdentityBlueprintPrincipal.Read.All",
+   "AgentIdentityBlueprintPrincipal.ReadWrite.All",
+   "AgentInstance.Read.All",
+   "AgentInstance.ReadWrite.All",
+   "AgentInstance.ReadWrite.ManagedBy",
+   "AgentRegistration.Read.All",
+   "AgentRegistration.ReadWrite.All",
+   "Agreement.Read.All",
+   "Agreement.ReadWrite.All",
+   "AgreementAcceptance.Read",
+   "AgreementAcceptance.Read.All",
+   "AiEnterpriseInteraction.Read",
+   "AiEnterpriseInteraction.Read.All",
+   "Analytics.Read",
+   "AppCatalog.Read.All",
+   "AppCatalog.ReadWrite.All",
+   "AppCatalog.Submit",
+   "AppCertTrustConfiguration.Read.All",
+   "AppCertTrustConfiguration.ReadWrite.All",
+   "AppFederatedCredentialIssuers.Read.All",
+   "AppFederatedCredentialIssuers.ReadWrite.All",
+   "AppRoleAssignment.ReadWrite.All",
+   "Application-RemoteDesktopConfig.ReadWrite.All",
+   "Application.Read.All",
+   "Application.ReadUpdate.All",
+   "Application.ReadWrite.All",
+   "Application.ReadWrite.OwnedBy",
+   "ApprovalSolution.Read",
+   "ApprovalSolution.Read.All",
+   "ApprovalSolution.ReadWrite",
+   "ApprovalSolution.ReadWrite.All",
+   "ApprovalSolutionResponse.ReadWrite",
+   "AttackSimulation.Read.All",
+   "AttackSimulation.ReadWrite.All",
+   "AuditActivity.Read",
+   "AuditActivity.Write",
+   "AuditLog.Read.All",
+   "AuditLogsQuery-CRM.Read.All",
+   "AuditLogsQuery-Endpoint.Read.All",
+   "AuditLogsQuery-Entra.Read.All",
+   "AuditLogsQuery-Exchange.Read.All",
+   "AuditLogsQuery-OneDrive.Read.All",
+   "AuditLogsQuery-SharePoint.Read.All",
+   "AuditLogsQuery.Read.All",
+   "AuthenticationContext.Read.All",
+   "AuthenticationContext.ReadWrite.All",
+   "AutomationRules.Read.All",
+   "AutomationRules.ReadWrite.All",
+   "BackupRestore-Configuration.Read.All",
+   "BackupRestore-Configuration.ReadWrite.All",
+   "BackupRestore-Control.Read.All",
+   "BackupRestore-Control.ReadWrite.All",
+   "BackupRestore-Monitor.Read.All",
+   "BackupRestore-Restore.Read.All",
+   "BackupRestore-Restore.ReadWrite.All",
+   "BackupRestore-Search.Read.All",
+   "BillingConfiguration.ReadWrite.All",
+   "BitlockerKey.Read.All",
+   "BitlockerKey.ReadBasic.All",
+   "Bookings.Manage.All",
+   "Bookings.Read.All",
+   "Bookings.ReadWrite.All",
+   "BookingsAppointment.ReadWrite.All",
+   "Bookmark.Read.All",
+   "BrowserSiteLists.Read.All",
+   "BrowserSiteLists.ReadWrite.All",
+   "BusinessScenarioConfig.Read.All",
+   "BusinessScenarioConfig.Read.OwnedBy",
+   "BusinessScenarioConfig.ReadWrite.All",
+   "BusinessScenarioConfig.ReadWrite.OwnedBy",
+   "BusinessScenarioData.Read.OwnedBy",
+   "BusinessScenarioData.ReadWrite.OwnedBy",
+   "Calendars.Read",
+   "Calendars.Read.All",
+   "Calendars.Read.Shared",
+   "Calendars.ReadBasic",
+   "Calendars.ReadBasic.All",
+   "Calendars.ReadWrite",
+   "Calendars.ReadWrite.All",
+   "Calendars.ReadWrite.Shared",
+   "CallAiInsights.Read.All",
+   "CallDelegation.Read",
+   "CallDelegation.Read.All",
+   "CallDelegation.ReadWrite",
+   "CallDelegation.ReadWrite.All",
+   "CallEvents-Emergency.Read.All",
+   "CallEvents.Read",
+   "CallEvents.Read.All",
+   "CallRecord-PstnCalls.Read.All",
+   "CallRecordings.Read.All",
+   "CallRecords.Read.All",
+   "CallTranscripts.Read.All",
+   "Calls.AccessMedia.All",
+   "Calls.Initiate.All",
+   "Calls.InitiateGroupCall.All",
+   "Calls.JoinGroupCall.All",
+   "Calls.JoinGroupCallAsGuest.All",
+   "Calls.ReportSyntheticMedia.All",
+   "CaseManagement.ConfigManage.All",
+   "CaseManagement.Read.All",
+   "CaseManagement.ReadWrite.All",
+   "ChangeManagement.Read.All",
+   "Channel.Create",
+   "Channel.Delete.All",
+   "Channel.ReadBasic.All",
+   "ChannelMember.Read.All",
+   "ChannelMember.ReadWrite.All",
+   "ChannelMessage.Edit",
+   "ChannelMessage.Read.All",
+   "ChannelMessage.ReadWrite",
+   "ChannelMessage.Send",
+   "ChannelMessage.UpdatePolicyViolation.All",
+   "ChannelSettings.Read.All",
+   "ChannelSettings.ReadWrite.All",
+   "Chat.Create",
+   "Chat.ManageDeletion.All",
+   "Chat.Read",
+   "Chat.Read.All",
+   "Chat.Read.WhereInstalled",
+   "Chat.ReadBasic",
+   "Chat.ReadBasic.All",
+   "Chat.ReadBasic.WhereInstalled",
+   "Chat.ReadWrite",
+   "Chat.ReadWrite.All",
+   "Chat.ReadWrite.WhereInstalled",
+   "Chat.UpdatePolicyViolation.All",
+   "ChatMember.Read",
+   "ChatMember.Read.All",
+   "ChatMember.Read.WhereInstalled",
+   "ChatMember.ReadWrite",
+   "ChatMember.ReadWrite.All",
+   "ChatMember.ReadWrite.WhereInstalled",
+   "ChatMessage.Read",
+   "ChatMessage.Read.All",
+   "ChatMessage.Send",
+   "CloudApp-Discovery.Read.All",
+   "CloudLicensing.ClaimLicenses.All",
+   "CloudPC.Read.All",
+   "CloudPC.ReadWrite.All",
+   "Community.Read.All",
+   "Community.ReadWrite.All",
+   "ConfigurationMonitoring.Read.All",
+   "ConfigurationMonitoring.ReadWrite.All",
+   "ConsentRequest.Create",
+   "ConsentRequest.Read",
+   "ConsentRequest.Read.All",
+   "ConsentRequest.ReadApprove.All",
+   "ConsentRequest.ReadWrite.All",
+   "Contacts-OnPremisesSyncBehavior.ReadWrite.All",
+   "Contacts.Read",
+   "Contacts.Read.Shared",
+   "Contacts.ReadWrite",
+   "Contacts.ReadWrite.Shared",
+   "Content.Process.All",
+   "Content.Process.User",
+   "ContentActivity.Read",
+   "ContentActivity.Write",
+   "ContentHub-Catalog.Read.All",
+   "ContentHub-Installed.Read.All",
+   "ContentHub-Installed.ReadWrite.All",
+   "Contracts.Read.All",
+   "CopilotConversation.Delete",
+   "CopilotCostManagement-Assignment.Read.All",
+   "CopilotCostManagement-Assignment.ReadWrite.All",
+   "CopilotCostManagement-CreditReq.Read.All",
+   "CopilotCostManagement-CreditReq.ReadWrite.All",
+   "CopilotCostManagement-Policy.Read.All",
+   "CopilotCostManagement-Policy.ReadWrite.All",
+   "CopilotCostManagement-Reports.Read.All",
+   "CopilotCostManagement-UserData.Read.All",
+   "CopilotCostManagement.Read.All",
+   "CopilotPackages.Read.All",
+   "CopilotPackages.ReadWrite.All",
+   "CopilotPolicySettings.Read",
+   "CopilotPolicySettings.ReadWrite",
+   "CopilotSettings-LimitedMode.Read",
+   "CopilotSettings-LimitedMode.ReadWrite",
+   "CrossTenantContentMigration.Read.All",
+   "CrossTenantContentMigration.ReadWrite.All",
+   "CrossTenantIdentityMapping.Read.All",
+   "CrossTenantIdentityMapping.ReadWrite.All",
+   "CrossTenantInformation.ReadBasic.All",
+   "CrossTenantUserProfileSharing.Read",
+   "CrossTenantUserProfileSharing.Read.All",
+   "CrossTenantUserProfileSharing.ReadWrite",
+   "CrossTenantUserProfileSharing.ReadWrite.All",
+   "CustomAuthenticationExtension.Read.All",
+   "CustomAuthenticationExtension.ReadWrite.All",
+   "CustomAuthenticationExtension.Receive.Payload",
+   "CustomDetection.Read.All",
+   "CustomDetection.ReadWrite.All",
+   "CustomObject.Read.All",
+   "CustomObject.ReadWrite.All",
+   "CustomObjectDefinition.Read.All",
+   "CustomObjectDefinition.ReadBasic.All",
+   "CustomObjectDefinition.ReadWrite.All",
+   "CustomSecAttributeAssignment.Read.All",
+   "CustomSecAttributeAssignment.ReadWrite.All",
+   "CustomSecAttributeAuditLogs.Read.All",
+   "CustomSecAttributeDefinition.Read.All",
+   "CustomSecAttributeDefinition.ReadWrite.All",
+   "CustomSecAttributeProvisioning.Read.All",
+   "CustomSecAttributeProvisioning.ReadWrite.All",
+   "CustomTags.Read.All",
+   "CustomTags.ReadWrite.All",
+   "DelegatedAdminRelationship.Read.All",
+   "DelegatedAdminRelationship.ReadWrite.All",
+   "DelegatedPermissionGrant.Read.All",
+   "DelegatedPermissionGrant.ReadWrite.All",
+   "Device.Command",
+   "Device.CreateFromOwnedTemplate",
+   "Device.Read",
+   "Device.Read.All",
+   "Device.ReadWrite.All",
+   "DeviceLocalCredential.Read.All",
+   "DeviceLocalCredential.ReadBasic.All",
+   "DeviceManagementApps.Read.All",
+   "DeviceManagementApps.ReadWrite.All",
+   "DeviceManagementCloudCA.Read.All",
+   "DeviceManagementCloudCA.ReadWrite.All",
+   "DeviceManagementConfiguration.Read.All",
+   "DeviceManagementConfiguration.ReadWrite.All",
+   "DeviceManagementDeploymentPlans.Read.All",
+   "DeviceManagementDeploymentPlans.ReadWrite.All",
+   "DeviceManagementManagedDevices.PrivilegedOperations.All",
+   "DeviceManagementManagedDevices.Read.All",
+   "DeviceManagementManagedDevices.ReadWrite.All",
+   "DeviceManagementRBAC.Read.All",
+   "DeviceManagementRBAC.ReadWrite.All",
+   "DeviceManagementScripts.Read.All",
+   "DeviceManagementScripts.ReadWrite.All",
+   "DeviceManagementServiceConfig.Read.All",
+   "DeviceManagementServiceConfig.ReadWrite.All",
+   "DeviceTemplate.Create",
+   "DeviceTemplate.Read.All",
+   "DeviceTemplate.ReadWrite.All",
+   "Directory.AccessAsUser.All",
+   "Directory.Read.All",
+   "Directory.ReadWrite.All",
+   "DirectoryRecommendations.Read.All",
+   "DirectoryRecommendations.ReadWrite.All",
+   "Domain-InternalFederation.Read.All",
+   "Domain-InternalFederation.ReadWrite.All",
+   "Domain.Read.All",
+   "Domain.ReadWrite.All",
+   "EAS.AccessAsUser.All",
+   "EWS.AccessAsUser.All",
+   "EduAdministration.Read",
+   "EduAdministration.Read.All",
+   "EduAdministration.ReadWrite",
+   "EduAdministration.ReadWrite.All",
+   "EduAssignments.Read",
+   "EduAssignments.Read.All",
+   "EduAssignments.ReadBasic",
+   "EduAssignments.ReadBasic.All",
+   "EduAssignments.ReadWrite",
+   "EduAssignments.ReadWrite.All",
+   "EduAssignments.ReadWriteBasic",
+   "EduAssignments.ReadWriteBasic.All",
+   "EduCurricula.Read",
+   "EduCurricula.Read.All",
+   "EduCurricula.ReadWrite",
+   "EduCurricula.ReadWrite.All",
+   "EduReports-Reading.Read.All",
+   "EduReports-Reading.ReadAnonymous.All",
+   "EduReports-Reflect.Read.All",
+   "EduReports-Reflect.ReadAnonymous.All",
+   "EduRoster.Read",
+   "EduRoster.Read.All",
+   "EduRoster.ReadBasic",
+   "EduRoster.ReadBasic.All",
+   "EduRoster.ReadWrite",
+   "EduRoster.ReadWrite.All",
+   "EngagementConversation.Migration.All",
+   "EngagementConversation.Read.All",
+   "EngagementConversation.ReadWrite.All",
+   "EngagementExport.Read.All",
+   "EngagementMeetingConversation.Read.All",
+   "EngagementRole.Read",
+   "EngagementRole.Read.All",
+   "EngagementRole.ReadWrite.All",
+   "EntitlementManagement.Read.All",
+   "EntitlementManagement.ReadWrite.All",
+   "EntitlementMgmt-SubjectAccess.ReadWrite",
+   "EntraBackup.Read.All",
+   "EntraBackup.ReadWrite.Preview",
+   "EntraBackup.ReadWrite.Recovery",
+   "EventListener.Read.All",
+   "EventListener.ReadWrite.All",
+   "ExchangeMessageTrace.Read.All",
+   "ExternalConnection.Read.All",
+   "ExternalConnection.ReadWrite.All",
+   "ExternalConnection.ReadWrite.OwnedBy",
+   "ExternalItem.Read.All",
+   "ExternalItem.ReadWrite.All",
+   "ExternalItem.ReadWrite.OwnedBy",
+   "ExternalUserProfile.Read.All",
+   "ExternalUserProfile.ReadWrite.All",
+   "Family.Read",
+   "FileIngestion.Ingest",
+   "FileIngestionHybridOnboarding.Manage",
+   "FileStorageContainer.Manage.All",
+   "FileStorageContainer.Selected",
+   "FileStorageContainerType.Manage.All",
+   "FileStorageContainerTypeReg.Manage.All",
+   "FileStorageContainerTypeReg.Selected",
+   "Files.Read",
+   "Files.Read.All",
+   "Files.Read.Selected",
+   "Files.ReadWrite",
+   "Files.ReadWrite.All",
+   "Files.ReadWrite.AppFolder",
+   "Files.ReadWrite.Selected",
+   "Files.SelectedOperations.Selected",
+   "Financials.ReadWrite.All",
+   "Goals-Export.Read.All",
+   "Goals-Export.ReadWrite.All",
+   "Group-Conversation.Read.All",
+   "Group-Conversation.ReadWrite.All",
+   "Group-NestingSupport.ReadWrite.All",
+   "Group-OnPremisesSyncBehavior.ReadWrite.All",
+   "Group-PreferredDataLocation.ReadWrite.All",
+   "Group-XTenantIdentitySync.Read.All",
+   "Group.Create",
+   "Group.ManageProtection.All",
+   "Group.Read.All",
+   "Group.ReadBasic.All",
+   "Group.ReadWrite.All",
+   "GroupMember.Read.All",
+   "GroupMember.ReadBasic.All",
+   "GroupMember.ReadWrite.All",
+   "GroupSettings.Read.All",
+   "GroupSettings.ReadWrite.All",
+   "HardDeletionSetting.ReadWrite.Enable",
+   "HealthMonitoringAlert.Read.All",
+   "HealthMonitoringAlert.ReadWrite.All",
+   "HealthMonitoringAlertConfig.Read.All",
+   "HealthMonitoringAlertConfig.ReadWrite.All",
+   "IMAP.AccessAsUser.All",
+   "IdentityDiagnostic.Read",
+   "IdentityDiagnostic.Read.All",
+   "IdentityDiagnostic.StartDiagnosis",
+   "IdentityDiagnostic.StartDiagnosis.All",
+   "IdentityNotifications.Read.All",
+   "IdentityNotifications.ReadWrite.All",
+   "IdentityProvider.Read.All",
+   "IdentityProvider.ReadWrite.All",
+   "IdentityRiskEvent.Read.All",
+   "IdentityRiskEvent.ReadWrite.All",
+   "IdentityRiskyAgent.Read.All",
+   "IdentityRiskyAgent.ReadWrite.All",
+   "IdentityRiskyServicePrincipal.Read.All",
+   "IdentityRiskyServicePrincipal.ReadWrite.All",
+   "IdentityRiskyUser.Read.All",
+   "IdentityRiskyUser.ReadWrite.All",
+   "IdentityUserFlow.Read.All",
+   "IdentityUserFlow.ReadWrite.All",
+   "IndustryData-DataConnector.Read.All",
+   "IndustryData-DataConnector.ReadWrite.All",
+   "IndustryData-DataConnector.Upload",
+   "IndustryData-InboundFlow.Read.All",
+   "IndustryData-InboundFlow.ReadWrite.All",
+   "IndustryData-OutboundFlow.Read.All",
+   "IndustryData-OutboundFlow.ReadWrite.All",
+   "IndustryData-ReferenceDefinition.Read.All",
+   "IndustryData-ReferenceDefinition.ReadWrite.All",
+   "IndustryData-Run.Read.All",
+   "IndustryData-Run.Start",
+   "IndustryData-SourceSystem.Read.All",
+   "IndustryData-SourceSystem.ReadWrite.All",
+   "IndustryData-TimePeriod.Read.All",
+   "IndustryData-TimePeriod.ReadWrite.All",
+   "IndustryData.ReadBasic.All",
+   "InfoProtectABACPolicy.Read.All",
+   "InfoProtectABACPolicy.ReadWrite.All",
+   "InfoProtectAttributeAssignment.Read",
+   "InfoProtectAttributeAssignment.Read.All",
+   "InfoProtectAttributeAssignment.ReadWrite.All",
+   "InfoProtectAttributeDefinition.Read.All",
+   "InfoProtectAttributeDefinition.ReadWrite.All",
+   "InformationProtectionConfig.Read",
+   "InformationProtectionConfig.Read.All",
+   "InformationProtectionContent.Sign.All",
+   "InformationProtectionContent.Write.All",
+   "InformationProtectionPolicy.Read",
+   "InformationProtectionPolicy.Read.All",
+   "Insights-UserMetric.Read.All",
+   "LearningAssignedCourse.Read",
+   "LearningAssignedCourse.Read.All",
+   "LearningAssignedCourse.ReadWrite.All",
+   "LearningContent.Read.All",
+   "LearningContent.ReadWrite.All",
+   "LearningProvider.Read",
+   "LearningProvider.ReadWrite",
+   "LearningSelfInitiatedCourse.Read",
+   "LearningSelfInitiatedCourse.Read.All",
+   "LearningSelfInitiatedCourse.ReadWrite.All",
+   "LicenseAssignment.Read.All",
+   "LicenseAssignment.ReadWrite.All",
+   "LifecyclePolicies-AgentId.Read.All",
+   "LifecyclePolicies-AgentId.ReadWrite.All",
+   "LifecyclePolicies-Guests.Read.All",
+   "LifecyclePolicies-Guests.ReadWrite.All",
+   "LifecycleWorkflows-CustomExt.Read.All",
+   "LifecycleWorkflows-CustomExt.ReadWrite.All",
+   "LifecycleWorkflows-Reports.Read.All",
+   "LifecycleWorkflows-Workflow.Activate",
+   "LifecycleWorkflows-Workflow.Read.All",
+   "LifecycleWorkflows-Workflow.ReadBasic.All",
+   "LifecycleWorkflows-Workflow.ReadWrite.All",
+   "LifecycleWorkflows.Read.All",
+   "LifecycleWorkflows.ReadWrite.All",
+   "ListItems.SelectedOperations.Selected",
+   "Lists.SelectedOperations.Selected",
+   "LockboxRequest.Read.All",
+   "LockboxRequest.ReadWrite.All",
+   "LockboxSettings.Read.All",
+   "LockboxSettings.ReadWrite.All",
+   "MCP.Server.Access",
+   "Mail-Advanced.ReadWrite",
+   "Mail-Advanced.ReadWrite.All",
+   "Mail-Advanced.ReadWrite.Shared",
+   "Mail.Read",
+   "Mail.Read.Shared",
+   "Mail.ReadBasic",
+   "Mail.ReadBasic.All",
+   "Mail.ReadBasic.Shared",
+   "Mail.ReadWrite",
+   "Mail.ReadWrite.Shared",
+   "Mail.Send",
+   "Mail.Send.Shared",
+   "MailTips.ReadBasic.All",
+   "MailTips.ReadBasic.Shared",
+   "MailboxConfigItem.Read",
+   "MailboxConfigItem.ReadWrite",
+   "MailboxFolder.Read",
+   "MailboxFolder.Read.All",
+   "MailboxFolder.ReadWrite",
+   "MailboxFolder.ReadWrite.All",
+   "MailboxItem.Export",
+   "MailboxItem.Export.All",
+   "MailboxItem.ImportExport",
+   "MailboxItem.ImportExport.All",
+   "MailboxItem.Read",
+   "MailboxItem.Read.All",
+   "MailboxItem.ReadWrite",
+   "MailboxItem.ReadWrite.All",
+   "MailboxSettings.Read",
+   "MailboxSettings.ReadWrite",
+   "ManagedTenants.Read.All",
+   "ManagedTenants.ReadWrite.All",
+   "Member.Read.Hidden",
+   "MultiTenantOrganization.Read.All",
+   "MultiTenantOrganization.ReadBasic.All",
+   "MultiTenantOrganization.ReadWrite.All",
+   "MutualTlsOauthConfiguration.Read.All",
+   "MutualTlsOauthConfiguration.ReadWrite.All",
+   "NetworkAccess-Reports.Read.All",
+   "NetworkAccess.Read.All",
+   "NetworkAccess.ReadWrite.All",
+   "NetworkAccessBranch.Read.All",
+   "NetworkAccessBranch.ReadWrite.All",
+   "NetworkAccessPolicy.Read.All",
+   "NetworkAccessPolicy.ReadWrite.All",
+   "Notes.Create",
+   "Notes.Read",
+   "Notes.Read.All",
+   "Notes.ReadWrite",
+   "Notes.ReadWrite.All",
+   "Notes.ReadWrite.CreatedByApp",
+   "Notifications.ReadWrite.CreatedByApp",
+   "OnPremDirectorySynchronization.Read.All",
+   "OnPremDirectorySynchronization.ReadWrite.All",
+   "OnPremisesPublishingProfiles.ReadWrite.All",
+   "OnlineMeetingAiInsight.Read.All",
+   "OnlineMeetingAiInsight.Read.Chat",
+   "OnlineMeetingArtifact.Read.All",
+   "OnlineMeetingRecording.Read.All",
+   "OnlineMeetingTranscript.Read.All",
+   "OnlineMeetings.Read",
+   "OnlineMeetings.Read.All",
+   "OnlineMeetings.ReadWrite",
+   "OnlineMeetings.ReadWrite.All",
+   "OrgContact.Read.All",
+   "OrgSettings-AppsAndServices.Read.All",
+   "OrgSettings-AppsAndServices.ReadWrite.All",
+   "OrgSettings-DynamicsVoice.Read.All",
+   "OrgSettings-DynamicsVoice.ReadWrite.All",
+   "OrgSettings-Forms.Read.All",
+   "OrgSettings-Forms.ReadWrite.All",
+   "OrgSettings-Microsoft365Install.Read.All",
+   "OrgSettings-Microsoft365Install.ReadWrite.All",
+   "OrgSettings-Todo.Read.All",
+   "OrgSettings-Todo.ReadWrite.All",
+   "Organization.Read.All",
+   "Organization.ReadWrite.All",
+   "OrganizationalBranding.Read.All",
+   "OrganizationalBranding.ReadWrite.All",
+   "POP.AccessAsUser.All",
+   "PartnerBilling.Read.All",
+   "PartnerSecurity.Read.All",
+   "PartnerSecurity.ReadWrite.All",
+   "PendingExternalUserProfile.Read.All",
+   "PendingExternalUserProfile.ReadWrite.All",
+   "People.Read",
+   "People.Read.All",
+   "PeopleSettings.Read.All",
+   "PeopleSettings.ReadWrite.All",
+   "Perception.Manage.All",
+   "Perception.Read.All",
+   "Place.Read.All",
+   "Place.ReadWrite.All",
+   "PlaceDevice.Read.All",
+   "PlaceDevice.ReadWrite.All",
+   "PlaceDeviceTelemetry.ReadWrite.All",
+   "Policy.Read.All",
+   "Policy.Read.AuthenticationMethod",
+   "Policy.Read.B2BManagementPolicy",
+   "Policy.Read.ConditionalAccess",
+   "Policy.Read.CrossTenantAccess",
+   "Policy.Read.DeviceConfiguration",
+   "Policy.Read.IdentityProtection",
+   "Policy.Read.PermissionGrant",
+   "Policy.Read.Recovery",
+   "Policy.Read.SecurityDefaults",
+   "Policy.ReadWrite.AccessReview",
+   "Policy.ReadWrite.ApplicationConfiguration",
+   "Policy.ReadWrite.AuthenticationFlows",
+   "Policy.ReadWrite.AuthenticationMethod",
+   "Policy.ReadWrite.Authorization",
+   "Policy.ReadWrite.B2BManagementPolicy",
+   "Policy.ReadWrite.ConditionalAccess",
+   "Policy.ReadWrite.ConsentRequest",
+   "Policy.ReadWrite.CrossTenantAccess",
+   "Policy.ReadWrite.CrossTenantCapability",
+   "Policy.ReadWrite.DeviceConfiguration",
+   "Policy.ReadWrite.ExternalIdentities",
+   "Policy.ReadWrite.FeatureRollout",
+   "Policy.ReadWrite.FedTokenValidation",
+   "Policy.ReadWrite.IdentityProtection",
+   "Policy.ReadWrite.MobilityManagement",
+   "Policy.ReadWrite.PermissionGrant",
+   "Policy.ReadWrite.Recovery",
+   "Policy.ReadWrite.SecurityDefaults",
+   "Policy.ReadWrite.TrustFramework",
+   "PreAuthorizationGrant.Read.All",
+   "Presence.Read",
+   "Presence.Read.All",
+   "Presence.ReadWrite",
+   "Presence.ReadWrite.All",
+   "PrintConnector.Read.All",
+   "PrintConnector.ReadWrite.All",
+   "PrintJob.Create",
+   "PrintJob.Manage.All",
+   "PrintJob.Read",
+   "PrintJob.Read.All",
+   "PrintJob.ReadBasic",
+   "PrintJob.ReadBasic.All",
+   "PrintJob.ReadWrite",
+   "PrintJob.ReadWrite.All",
+   "PrintJob.ReadWriteBasic",
+   "PrintJob.ReadWriteBasic.All",
+   "PrintSettings.Read.All",
+   "PrintSettings.ReadWrite.All",
+   "PrintTaskDefinition.ReadWrite.All",
+   "Printer.Create",
+   "Printer.FullControl.All",
+   "Printer.Read.All",
+   "Printer.ReadWrite.All",
+   "PrinterShare.Read.All",
+   "PrinterShare.ReadBasic.All",
+   "PrinterShare.ReadWrite.All",
+   "PrivilegedAccess-CustomExt.Read.All",
+   "PrivilegedAccess-CustomExt.ReadWrite.All",
+   "PrivilegedAccess.Read.AzureAD",
+   "PrivilegedAccess.Read.AzureADGroup",
+   "PrivilegedAccess.Read.AzureResources",
+   "PrivilegedAccess.ReadWrite.AzureAD",
+   "PrivilegedAccess.ReadWrite.AzureADGroup",
+   "PrivilegedAccess.ReadWrite.AzureResources",
+   "PrivilegedAssignmentSchedule.Read.AzureADGroup",
+   "PrivilegedAssignmentSchedule.Read.EntraAppRole",
+   "PrivilegedAssignmentSchedule.ReadWrite.AzureADGroup",
+   "PrivilegedAssignmentSchedule.ReadWrite.EntraAppRole",
+   "PrivilegedAssignmentSchedule.Remove.AzureADGroup",
+   "PrivilegedEligibilitySchedule.Read.AzureADGroup",
+   "PrivilegedEligibilitySchedule.Read.EntraAppRole",
+   "PrivilegedEligibilitySchedule.ReadWrite.AzureADGroup",
+   "PrivilegedEligibilitySchedule.ReadWrite.EntraAppRole",
+   "PrivilegedEligibilitySchedule.Remove.AzureADGroup",
+   "ProfilePhoto.Read.All",
+   "ProfilePhoto.ReadWrite.All",
+   "ProgramControl.Read.All",
+   "ProgramControl.ReadWrite.All",
+   "ProtectionScopes.Compute.All",
+   "ProtectionScopes.Compute.User",
+   "ProvisioningLog.Read.All",
+   "PublicKeyInfrastructure.Read.All",
+   "PublicKeyInfrastructure.ReadWrite.All",
+   "PullPrintPrinter.FullControl.All",
+   "PullPrintPrinter.Read.All",
+   "PullPrintPrinter.ReadWrite.All",
+   "QnA.Read.All",
+   "RealTimeActivityFeed.Read.All",
+   "RecordsManagement.Read.All",
+   "RecordsManagement.ReadWrite.All",
+   "RemoteTenantGroups.Read.All",
+   "ReportSettings.Read.All",
+   "ReportSettings.ReadWrite.All",
+   "Reports.Read.All",
+   "Repository.Read.All",
+   "Repository.ReadWrite.All",
+   "ResourcePolicyAssignment.Read.All",
+   "ResourcePolicyAssignment.ReadWrite.All",
+   "ResourcePolicyConfiguration.Read.All",
+   "ResourcePolicyConfiguration.ReadWrite.All",
+   "ResourcePolicyDefinition.Read.All",
+   "ResourcePolicyDefinition.ReadWrite.All",
+   "ResourcePolicyEvaluation.Read.All",
+   "ResourceSpecificPermissionGrant.ReadForChat",
+   "ResourceSpecificPermissionGrant.ReadForChat.All",
+   "ResourceSpecificPermissionGrant.ReadForTeam",
+   "ResourceSpecificPermissionGrant.ReadForTeam.All",
+   "ResourceSpecificPermissionGrant.ReadForUser",
+   "ResourceSpecificPermissionGrant.ReadForUser.All",
+   "RiskPreventionProviders.Read.All",
+   "RiskPreventionProviders.ReadWrite.All",
+   "RoleAssignmentSchedule.Read.Directory",
+   "RoleAssignmentSchedule.ReadWrite.Directory",
+   "RoleAssignmentSchedule.Remove.Directory",
+   "RoleEligibilitySchedule.Read.Directory",
+   "RoleEligibilitySchedule.ReadWrite.Directory",
+   "RoleEligibilitySchedule.Remove.Directory",
+   "RoleManagement-Authorization.Read.All",
+   "RoleManagement-Authorization.ReadWrite.All",
+   "RoleManagement.Read.All",
+   "RoleManagement.Read.CloudPC",
+   "RoleManagement.Read.Defender",
+   "RoleManagement.Read.Directory",
+   "RoleManagement.Read.Exchange",
+   "RoleManagement.ReadWrite.CloudPC",
+   "RoleManagement.ReadWrite.Defender",
+   "RoleManagement.ReadWrite.Directory",
+   "RoleManagement.ReadWrite.Exchange",
+   "RoleManagementAlert.Read.Directory",
+   "RoleManagementAlert.ReadWrite.Directory",
+   "RoleManagementPolicy.Read.AzureADGroup",
+   "RoleManagementPolicy.Read.Directory",
+   "RoleManagementPolicy.Read.EntraAppRole",
+   "RoleManagementPolicy.ReadWrite.AzureADGroup",
+   "RoleManagementPolicy.ReadWrite.Directory",
+   "RoleManagementPolicy.ReadWrite.EntraAppRole",
+   "SMTP.Send",
+   "Schedule-WorkingTime.ReadWrite.All",
+   "Schedule.Read.All",
+   "Schedule.ReadWrite.All",
+   "SchedulePermissions.ReadWrite.All",
+   "SearchConfiguration.Read.All",
+   "SearchConfiguration.ReadWrite.All",
+   "SecurityActions.Read.All",
+   "SecurityActions.ReadWrite.All",
+   "SecurityAlert.Create.All",
+   "SecurityAlert.Read.All",
+   "SecurityAlert.ReadWrite.All",
+   "SecurityAnalyzedMessage.Read.All",
+   "SecurityAnalyzedMessage.ReadWrite.All",
+   "SecurityCopilotWorkspaces.Read.All",
+   "SecurityCopilotWorkspaces.ReadWrite.All",
+   "SecurityEvents.Read.All",
+   "SecurityEvents.ReadWrite.All",
+   "SecurityIdentitiesAccount.Read.All",
+   "SecurityIdentitiesActions.ReadWrite.All",
+   "SecurityIdentitiesAutoConfig.Read.All",
+   "SecurityIdentitiesAutoConfig.ReadWrite.All",
+   "SecurityIdentitiesHealth.Read.All",
+   "SecurityIdentitiesHealth.ReadWrite.All",
+   "SecurityIdentitiesMigration.Read.All",
+   "SecurityIdentitiesMigration.ReadWrite.All",
+   "SecurityIdentitiesSensors.Read.All",
+   "SecurityIdentitiesSensors.ReadWrite.All",
+   "SecurityIdentitiesUserActions.Read.All",
+   "SecurityIdentitiesUserActions.ReadWrite.All",
+   "SecurityIncident.Read.All",
+   "SecurityIncident.ReadWrite.All",
+   "SensitivityLabel.Evaluate",
+   "SensitivityLabel.Evaluate.All",
+   "SensitivityLabel.Read",
+   "SensitivityLabels.Read.All",
+   "SentimentSurvey.Export.All",
+   "ServiceActivity-Exchange.Read.All",
+   "ServiceActivity-Microsoft365Web.Read.All",
+   "ServiceActivity-OneDrive.Read.All",
+   "ServiceActivity-Teams.Read.All",
+   "ServiceHealth.Read.All",
+   "ServiceMessage.Read.All",
+   "ServiceMessageViewpoint.Write",
+   "ServicePrincipalEndpoint.Read.All",
+   "ServicePrincipalEndpoint.ReadWrite.All",
+   "SharePointCrossTenantMigration.Manage.All",
+   "SharePointCrossTenantMigration.Read.All",
+   "SharePointTenantSettings.Read.All",
+   "SharePointTenantSettings.ReadWrite.All",
+   "ShortNotes.Read",
+   "ShortNotes.Read.All",
+   "ShortNotes.ReadWrite",
+   "ShortNotes.ReadWrite.All",
+   "SignInIdentifier.Read.All",
+   "SignInIdentifier.ReadWrite.All",
+   "Sites.Archive.All",
+   "Sites.Create.All",
+   "Sites.FullControl.All",
+   "Sites.Manage.All",
+   "Sites.Read.All",
+   "Sites.ReadWrite.All",
+   "Sites.Selected",
+   "SpiffeTrustDomain.Read.All",
+   "SpiffeTrustDomain.ReadWrite.All",
+   "Storyline.ReadWrite.All",
+   "SubjectNameRegistration.ReadWrite",
+   "SubjectRightsRequest.Read.All",
+   "SubjectRightsRequest.ReadWrite.All",
+   "Subscription.Read.All",
+   "Synchronization.Read.All",
+   "Synchronization.ReadWrite.All",
+   "SynchronizationData-User.Upload",
+   "SynchronizationData-User.Upload.OwnedBy",
+   "SynchronizationMetadata.Read.All",
+   "SynchronizationMetadata.Read.OwnedBy",
+   "SynchronizationMetadata.ReadWrite.All",
+   "SynchronizationMetadata.ReadWrite.OwnedBy",
+   "Tasks.Read",
+   "Tasks.Read.All",
+   "Tasks.Read.Shared",
+   "Tasks.ReadWrite",
+   "Tasks.ReadWrite.All",
+   "Tasks.ReadWrite.Shared",
+   "Team.Create",
+   "Team.ReadBasic.All",
+   "TeamMember.Read.All",
+   "TeamMember.ReadWrite.All",
+   "TeamMember.ReadWriteNonOwnerRole.All",
+   "TeamSettings.Read.All",
+   "TeamSettings.ReadWrite.All",
+   "TeamTemplates.Read",
+   "TeamTemplates.Read.All",
+   "TeamsActivity.Read",
+   "TeamsActivity.Read.All",
+   "TeamsActivity.Send",
+   "TeamsAppInstallation.ManageSelectedForChat",
+   "TeamsAppInstallation.ManageSelectedForChat.All",
+   "TeamsAppInstallation.ManageSelectedForTeam",
+   "TeamsAppInstallation.ManageSelectedForTeam.All",
+   "TeamsAppInstallation.ManageSelectedForUser",
+   "TeamsAppInstallation.ManageSelectedForUser.All",
+   "TeamsAppInstallation.Read.All",
+   "TeamsAppInstallation.ReadForChat",
+   "TeamsAppInstallation.ReadForChat.All",
+   "TeamsAppInstallation.ReadForTeam",
+   "TeamsAppInstallation.ReadForTeam.All",
+   "TeamsAppInstallation.ReadForUser",
+   "TeamsAppInstallation.ReadForUser.All",
+   "TeamsAppInstallation.ReadSelectedForChat",
+   "TeamsAppInstallation.ReadSelectedForChat.All",
+   "TeamsAppInstallation.ReadSelectedForTeam",
+   "TeamsAppInstallation.ReadSelectedForTeam.All",
+   "TeamsAppInstallation.ReadSelectedForUser",
+   "TeamsAppInstallation.ReadSelectedForUser.All",
+   "TeamsAppInstallation.ReadWriteAndConsentForChat",
+   "TeamsAppInstallation.ReadWriteAndConsentForChat.All",
+   "TeamsAppInstallation.ReadWriteAndConsentForTeam",
+   "TeamsAppInstallation.ReadWriteAndConsentForTeam.All",
+   "TeamsAppInstallation.ReadWriteAndConsentForUser",
+   "TeamsAppInstallation.ReadWriteAndConsentForUser.All",
+   "TeamsAppInstallation.ReadWriteAndConsentSelfForChat",
+   "TeamsAppInstallation.ReadWriteAndConsentSelfForChat.All",
+   "TeamsAppInstallation.ReadWriteAndConsentSelfForTeam",
+   "TeamsAppInstallation.ReadWriteAndConsentSelfForTeam.All",
+   "TeamsAppInstallation.ReadWriteAndConsentSelfForUser",
+   "TeamsAppInstallation.ReadWriteAndConsentSelfForUser.All",
+   "TeamsAppInstallation.ReadWriteForChat",
+   "TeamsAppInstallation.ReadWriteForChat.All",
+   "TeamsAppInstallation.ReadWriteForTeam",
+   "TeamsAppInstallation.ReadWriteForTeam.All",
+   "TeamsAppInstallation.ReadWriteForUser",
+   "TeamsAppInstallation.ReadWriteForUser.All",
+   "TeamsAppInstallation.ReadWriteSelectedForChat",
+   "TeamsAppInstallation.ReadWriteSelectedForChat.All",
+   "TeamsAppInstallation.ReadWriteSelectedForTeam",
+   "TeamsAppInstallation.ReadWriteSelectedForTeam.All",
+   "TeamsAppInstallation.ReadWriteSelectedForUser",
+   "TeamsAppInstallation.ReadWriteSelectedForUser.All",
+   "TeamsAppInstallation.ReadWriteSelfForChat",
+   "TeamsAppInstallation.ReadWriteSelfForChat.All",
+   "TeamsAppInstallation.ReadWriteSelfForTeam",
+   "TeamsAppInstallation.ReadWriteSelfForTeam.All",
+   "TeamsAppInstallation.ReadWriteSelfForUser",
+   "TeamsAppInstallation.ReadWriteSelfForUser.All",
+   "TeamsPolicyUserAssign.ReadWrite.All",
+   "TeamsResourceAccount.Read.All",
+   "TeamsTab.Create",
+   "TeamsTab.Read.All",
+   "TeamsTab.ReadWrite.All",
+   "TeamsTab.ReadWriteForChat",
+   "TeamsTab.ReadWriteForChat.All",
+   "TeamsTab.ReadWriteForTeam",
+   "TeamsTab.ReadWriteForTeam.All",
+   "TeamsTab.ReadWriteForUser",
+   "TeamsTab.ReadWriteForUser.All",
+   "TeamsTab.ReadWriteSelfForChat",
+   "TeamsTab.ReadWriteSelfForChat.All",
+   "TeamsTab.ReadWriteSelfForTeam",
+   "TeamsTab.ReadWriteSelfForTeam.All",
+   "TeamsTab.ReadWriteSelfForUser",
+   "TeamsTab.ReadWriteSelfForUser.All",
+   "TeamsTelephoneNumber.Read.All",
+   "TeamsTelephoneNumber.ReadWrite.All",
+   "TeamsUserConfiguration.Read.All",
+   "Teamwork.Migrate.All",
+   "Teamwork.Read.All",
+   "TeamworkAppSettings.Read.All",
+   "TeamworkAppSettings.ReadWrite.All",
+   "TeamworkCustomEmoji.Create",
+   "TeamworkCustomEmoji.Create.All",
+   "TeamworkCustomEmoji.Read",
+   "TeamworkCustomEmoji.Read.All",
+   "TeamworkDevice.Read.All",
+   "TeamworkDevice.ReadWrite.All",
+   "TeamworkSection.Read",
+   "TeamworkSection.Read.All",
+   "TeamworkSection.ReadWrite",
+   "TeamworkSection.ReadWrite.All",
+   "TeamworkTag.Read",
+   "TeamworkTag.Read.All",
+   "TeamworkTag.ReadWrite",
+   "TeamworkTag.ReadWrite.All",
+   "TeamworkTargetedMessage.Read.All",
+   "TeamworkTargetedMessage.ReadWrite",
+   "TeamworkUserInteraction.Read.All",
+   "TenantGovernance-Invitation.Read.All",
+   "TenantGovernance-Invitation.ReadWrite.All",
+   "TenantGovernance-PolicyTemplate.Read.All",
+   "TenantGovernance-PolicyTemplate.ReadWrite.All",
+   "TenantGovernance-RelatedTenant.Read.All",
+   "TenantGovernance-RelatedTenant.ReadWrite.All",
+   "TenantGovernance-Relationship.Read.All",
+   "TenantGovernance-Relationship.ReadWrite.All",
+   "TenantGovernance-Request.Read.All",
+   "TenantGovernance-Request.ReadWrite.All",
+   "TenantGovernance-Setting.Read.All",
+   "TenantGovernance-Setting.ReadWrite.All",
+   "TermStore.Read.All",
+   "TermStore.ReadWrite.All",
+   "ThreatAssessment.Read.All",
+   "ThreatAssessment.ReadWrite.All",
+   "ThreatHunting.Read.All",
+   "ThreatHunting.ReadWrite.All",
+   "ThreatIndicators.Read.All",
+   "ThreatIndicators.ReadWrite.OwnedBy",
+   "ThreatIntelligence.Read.All",
+   "ThreatSubmission.Read",
+   "ThreatSubmission.Read.All",
+   "ThreatSubmission.ReadWrite",
+   "ThreatSubmission.ReadWrite.All",
+   "ThreatSubmissionPolicy.ReadWrite.All",
+   "Topic.Read.All",
+   "TrustFrameworkKeySet.Read.All",
+   "TrustFrameworkKeySet.ReadWrite.All",
+   "UnifiedGroupMember.Read.AsGuest",
+   "User-ConvertToInternal.ReadWrite.All",
+   "User-LifeCycleInfo.Read.All",
+   "User-LifeCycleInfo.ReadWrite.All",
+   "User-Mail.ReadWrite.All",
+   "User-OnPremisesSyncBehavior.ReadWrite.All",
+   "User-PasswordProfile.ReadWrite.All",
+   "User-Phone.ReadWrite.All",
+   "User.Create",
+   "User.DeleteRestore.All",
+   "User.EnableDisableAccount.All",
+   "User.Export.All",
+   "User.Invite.All",
+   "User.ManageIdentities.All",
+   "User.Read",
+   "User.Read.All",
+   "User.ReadBasic.All",
+   "User.ReadUpdate.All",
+   "User.ReadWrite",
+   "User.ReadWrite.All",
+   "User.ReadWrite.CrossCloud",
+   "User.RevokeSessions.All",
+   "UserActivity.ReadWrite.CreatedByApp",
+   "UserAuthMethod-Email.Delete.All",
+   "UserAuthMethod-Email.Read",
+   "UserAuthMethod-Email.Read.All",
+   "UserAuthMethod-Email.ReadWrite",
+   "UserAuthMethod-Email.ReadWrite.All",
+   "UserAuthMethod-External.Delete.All",
+   "UserAuthMethod-External.Read",
+   "UserAuthMethod-External.Read.All",
+   "UserAuthMethod-External.ReadWrite",
+   "UserAuthMethod-External.ReadWrite.All",
+   "UserAuthMethod-HardwareOATH.Delete.All",
+   "UserAuthMethod-HardwareOATH.Read",
+   "UserAuthMethod-HardwareOATH.Read.All",
+   "UserAuthMethod-HardwareOATH.ReadWrite",
+   "UserAuthMethod-HardwareOATH.ReadWrite.All",
+   "UserAuthMethod-MicrosoftAuthApp.Delete.All",
+   "UserAuthMethod-MicrosoftAuthApp.Read",
+   "UserAuthMethod-MicrosoftAuthApp.Read.All",
+   "UserAuthMethod-MicrosoftAuthApp.ReadWrite",
+   "UserAuthMethod-MicrosoftAuthApp.ReadWrite.All",
+   "UserAuthMethod-Passkey.Delete.All",
+   "UserAuthMethod-Passkey.Read",
+   "UserAuthMethod-Passkey.Read.All",
+   "UserAuthMethod-Passkey.ReadWrite",
+   "UserAuthMethod-Passkey.ReadWrite.All",
+   "UserAuthMethod-Password.Read",
+   "UserAuthMethod-Password.Read.All",
+   "UserAuthMethod-Password.ReadWrite",
+   "UserAuthMethod-Password.ReadWrite.All",
+   "UserAuthMethod-Phone.Delete.All",
+   "UserAuthMethod-Phone.Read",
+   "UserAuthMethod-Phone.Read.All",
+   "UserAuthMethod-Phone.ReadWrite",
+   "UserAuthMethod-Phone.ReadWrite.All",
+   "UserAuthMethod-PlatformCred.Delete.All",
+   "UserAuthMethod-PlatformCred.Read",
+   "UserAuthMethod-PlatformCred.Read.All",
+   "UserAuthMethod-PlatformCred.ReadWrite",
+   "UserAuthMethod-PlatformCred.ReadWrite.All",
+   "UserAuthMethod-QR.Delete.All",
+   "UserAuthMethod-QR.Read",
+   "UserAuthMethod-QR.Read.All",
+   "UserAuthMethod-QR.ReadWrite",
+   "UserAuthMethod-QR.ReadWrite.All",
+   "UserAuthMethod-ResourceKey.Delete.All",
+   "UserAuthMethod-ResourceKey.Read.All",
+   "UserAuthMethod-ResourceKey.ReadWrite.All",
+   "UserAuthMethod-SoftwareOATH.Delete.All",
+   "UserAuthMethod-SoftwareOATH.Read",
+   "UserAuthMethod-SoftwareOATH.Read.All",
+   "UserAuthMethod-SoftwareOATH.ReadWrite",
+   "UserAuthMethod-SoftwareOATH.ReadWrite.All",
+   "UserAuthMethod-TAP.Delete.All",
+   "UserAuthMethod-TAP.Read",
+   "UserAuthMethod-TAP.Read.All",
+   "UserAuthMethod-TAP.ReadWrite",
+   "UserAuthMethod-TAP.ReadWrite.All",
+   "UserAuthMethod-WindowsHello.Delete.All",
+   "UserAuthMethod-WindowsHello.Read",
+   "UserAuthMethod-WindowsHello.Read.All",
+   "UserAuthMethod-WindowsHello.ReadWrite",
+   "UserAuthMethod-WindowsHello.ReadWrite.All",
+   "UserAuthenticationMethod.Delete.All",
+   "UserAuthenticationMethod.Read",
+   "UserAuthenticationMethod.Read.All",
+   "UserAuthenticationMethod.ReadWrite",
+   "UserAuthenticationMethod.ReadWrite.All",
+   "UserCertificateIds.ReadWrite.All",
+   "UserCloudClipboard.Read",
+   "UserNotification.ReadWrite.CreatedByApp",
+   "UserShiftPreferences.Read.All",
+   "UserShiftPreferences.ReadWrite.All",
+   "UserTeamwork.Read",
+   "UserTeamwork.Read.All",
+   "UserTimelineActivity.Write.CreatedByApp",
+   "UserWindowsSettings.Read.All",
+   "UserWindowsSettings.ReadWrite.All",
+   "VerifiedId-Profile.Read.All",
+   "VerifiedId-Profile.ReadWrite.All",
+   "VirtualAppointment.Read",
+   "VirtualAppointment.Read.All",
+   "VirtualAppointment.ReadWrite",
+   "VirtualAppointment.ReadWrite.All",
+   "VirtualAppointmentNotification.Send",
+   "VirtualEvent.Read",
+   "VirtualEvent.Read.All",
+   "VirtualEvent.ReadWrite",
+   "VirtualEventRegistration-Anon.ReadWrite.All",
+   "WindowsUpdates.Read.All",
+   "WindowsUpdates.ReadWrite.All",
+   "Workbooks.Read.All",
+   "Workbooks.ReadWrite.All",
+   "WorkforceIntegration.Read.All",
+   "WorkforceIntegration.ReadWrite.All",
+   "eDiscovery.Read.All",
+   "eDiscovery.ReadWrite.All",
+   "email",
+   "offline_access",
+   "openid",
+   "profile"
+  ],
+  "permissionNamesAt": "2026-11-16"
+ },
+ "coverage": {
+  "at": "2026-11-16T11:06:24+00:00",
+  "v1Types": 1262,
+  "betaOnlyTypes": 1370,
+  "onMap": 47,
+  "areas": [
+   {
+    "area": "deviceManagement",
+    "v1": 134,
+    "betaOnly": 376,
+    "onMap": 0
+   },
+   {
+    "area": "security",
+    "v1": 100,
+    "betaOnly": 76,
+    "onMap": 7
+   },
+   {
+    "area": "unrooted",
+    "v1": 89,
+    "betaOnly": 135,
+    "onMap": 1
+   },
+   {
+    "area": "users",
+    "v1": 87,
+    "betaOnly": 52,
+    "onMap": 9
+   },
+   {
+    "area": "identityGovernance",
+    "v1": 84,
+    "betaOnly": 84,
+    "onMap": 0
+   },
+   {
+    "area": "sites",
+    "v1": 76,
+    "betaOnly": 7,
+    "onMap": 5
+   },
+   {
+    "area": "deviceAppManagement",
+    "v1": 75,
+    "betaOnly": 59,
+    "onMap": 0
+   },
+   {
+    "area": "solutions",
+    "v1": 59,
+    "betaOnly": 27,
+    "onMap": 0
+   },
+   {
+    "area": "identity",
+    "v1": 58,
+    "betaOnly": 11,
+    "onMap": 0
+   },
+   {
+    "area": "policies",
+    "v1": 57,
+    "betaOnly": 11,
+    "onMap": 1
+   },
+   {
+    "area": "admin",
+    "v1": 38,
+    "betaOnly": 68,
+    "onMap": 0
+   },
+   {
+    "area": "communications",
+    "v1": 36,
+    "betaOnly": 10,
+    "onMap": 1
+   },
+   {
+    "area": "directory",
+    "v1": 33,
+    "betaOnly": 18,
+    "onMap": 1
+   },
+   {
+    "area": "teams",
+    "v1": 29,
+    "betaOnly": 3,
+    "onMap": 2
+   },
+   {
+    "area": "education",
+    "v1": 26,
+    "betaOnly": 0,
+    "onMap": 0
+   },
+   {
+    "area": "reports",
+    "v1": 21,
+    "betaOnly": 27,
+    "onMap": 1
+   },
+   {
+    "area": "storage",
+    "v1": 21,
+    "betaOnly": 0,
+    "onMap": 0
+   },
+   {
+    "area": "authenticationMethodConfigurations",
+    "v1": 17,
+    "betaOnly": 2,
+    "onMap": 0
+   },
+   {
+    "area": "places",
+    "v1": 15,
+    "betaOnly": 0,
+    "onMap": 0
+   },
+   {
+    "area": "roleManagement",
+    "v1": 14,
+    "betaOnly": 6,
+    "onMap": 1
+   },
+   {
+    "area": "print",
+    "v1": 13,
+    "betaOnly": 2,
+    "onMap": 0
+   },
+   {
+    "area": "servicePrincipals",
+    "v1": 13,
+    "betaOnly": 1,
+    "onMap": 2
+   },
+   {
+    "area": "copilot",
+    "v1": 11,
+    "betaOnly": 31,
+    "onMap": 0
+   },
+   {
+    "area": "security (namespace)",
+    "v1": 11,
+    "betaOnly": 9,
+    "onMap": 0
+   },
+   {
+    "area": "applications",
+    "v1": 11,
+    "betaOnly": 2,
+    "onMap": 2
+   },
+   {
+    "area": "tenantRelationships",
+    "v1": 10,
+    "betaOnly": 38,
+    "onMap": 0
+   },
+   {
+    "area": "employeeExperience",
+    "v1": 10,
+    "betaOnly": 1,
+    "onMap": 0
+   },
+   {
+    "area": "planner",
+    "v1": 9,
+    "betaOnly": 16,
+    "onMap": 2
+   },
+   {
+    "area": "informationProtection",
+    "v1": 9,
+    "betaOnly": 4,
+    "onMap": 0
+   },
+   {
+    "area": "connections",
+    "v1": 8,
+    "betaOnly": 1,
+    "onMap": 0
+   },
+   {
+    "area": "identityProtection",
+    "v1": 7,
+    "betaOnly": 6,
+    "onMap": 1
+   },
+   {
+    "area": "chats",
+    "v1": 7,
+    "betaOnly": 0,
+    "onMap": 2
+   },
+   {
+    "area": "domainDnsRecords",
+    "v1": 6,
+    "betaOnly": 0,
+    "onMap": 0
+   },
+   {
+    "area": "teamwork",
+    "v1": 5,
+    "betaOnly": 8,
+    "onMap": 0
+   },
+   {
+    "area": "groups",
+    "v1": 5,
+    "betaOnly": 0,
+    "onMap": 1
+   },
+   {
+    "area": "auditLogs",
+    "v1": 4,
+    "betaOnly": 7,
+    "onMap": 2
+   },
+   {
+    "area": "appCatalogs",
+    "v1": 4,
+    "betaOnly": 2,
+    "onMap": 0
+   },
+   {
+    "area": "agreements",
+    "v1": 4,
+    "betaOnly": 0,
+    "onMap": 0
+   },
+   {
+    "area": "search",
+    "v1": 4,
+    "betaOnly": 0,
+    "onMap": 0
+   },
+   {
+    "area": "organization",
+    "v1": 3,
+    "betaOnly": 5,
+    "onMap": 0
+   },
+   {
+    "area": "devices",
+    "v1": 3,
+    "betaOnly": 2,
+    "onMap": 1
+   },
+   {
+    "area": "contacts",
+    "v1": 2,
+    "betaOnly": 0,
+    "onMap": 0
+   },
+   {
+    "area": "external",
+    "v1": 1,
+    "betaOnly": 38,
+    "onMap": 0
+   },
+   {
+    "area": "compliance",
+    "v1": 1,
+    "betaOnly": 22,
+    "onMap": 0
+   },
+   {
+    "area": "domains",
+    "v1": 1,
+    "betaOnly": 1,
+    "onMap": 0
+   },
+   {
+    "area": "drives",
+    "v1": 1,
+    "betaOnly": 1,
+    "onMap": 1
+   },
+   {
+    "area": "identityGovernance (namespace)",
+    "v1": 1,
+    "betaOnly": 1,
+    "onMap": 0
+   },
+   {
+    "area": "identityProviders",
+    "v1": 1,
+    "betaOnly": 1,
+    "onMap": 0
+   },
+   {
+    "area": "agreementAcceptances",
+    "v1": 1,
+    "betaOnly": 0,
+    "onMap": 0
+   },
+   {
+    "area": "applicationTemplates",
+    "v1": 1,
+    "betaOnly": 0,
+    "onMap": 0
+   },
+   {
+    "area": "appRoleAssignments",
+    "v1": 1,
+    "betaOnly": 0,
+    "onMap": 1
+   },
+   {
+    "area": "authenticationMethodsPolicy",
+    "v1": 1,
+    "betaOnly": 0,
+    "onMap": 0
+   },
+   {
+    "area": "callRecords (namespace)",
+    "v1": 1,
+    "betaOnly": 0,
+    "onMap": 0
+   },
+   {
+    "area": "certificateBasedAuthConfiguration",
+    "v1": 1,
+    "betaOnly": 0,
+    "onMap": 0
+   },
+   {
+    "area": "contracts",
+    "v1": 1,
+    "betaOnly": 0,
+    "onMap": 0
+   },
+   {
+    "area": "dataPolicyOperations",
+    "v1": 1,
+    "betaOnly": 0,
+    "onMap": 0
+   },
+   {
+    "area": "directoryRoles",
+    "v1": 1,
+    "betaOnly": 0,
+    "onMap": 1
+   },
+   {
+    "area": "directoryRoleTemplates",
+    "v1": 1,
+    "betaOnly": 0,
+    "onMap": 0
+   },
+   {
+    "area": "entraRecoveryServices (namespace)",
+    "v1": 1,
+    "betaOnly": 0,
+    "onMap": 0
+   },
+   {
+    "area": "filterOperators",
+    "v1": 1,
+    "betaOnly": 0,
+    "onMap": 0
+   },
+   {
+    "area": "functions",
+    "v1": 1,
+    "betaOnly": 0,
+    "onMap": 0
+   },
+   {
+    "area": "groupLifecyclePolicies",
+    "v1": 1,
+    "betaOnly": 0,
+    "onMap": 0
+   },
+   {
+    "area": "groupSettings",
+    "v1": 1,
+    "betaOnly": 0,
+    "onMap": 0
+   },
+   {
+    "area": "groupSettingTemplates",
+    "v1": 1,
+    "betaOnly": 0,
+    "onMap": 0
+   },
+   {
+    "area": "invitations",
+    "v1": 1,
+    "betaOnly": 0,
+    "onMap": 0
+   },
+   {
+    "area": "oauth2PermissionGrants",
+    "v1": 1,
+    "betaOnly": 0,
+    "onMap": 1
+   },
+   {
+    "area": "permissionGrants",
+    "v1": 1,
+    "betaOnly": 0,
+    "onMap": 0
+   },
+   {
+    "area": "privacy",
+    "v1": 1,
+    "betaOnly": 0,
+    "onMap": 0
+   },
+   {
+    "area": "schemaExtensions",
+    "v1": 1,
+    "betaOnly": 0,
+    "onMap": 0
+   },
+   {
+    "area": "scopedRoleMemberships",
+    "v1": 1,
+    "betaOnly": 0,
+    "onMap": 0
+   },
+   {
+    "area": "search (namespace)",
+    "v1": 1,
+    "betaOnly": 0,
+    "onMap": 0
+   },
+   {
+    "area": "shares",
+    "v1": 1,
+    "betaOnly": 0,
+    "onMap": 0
+   },
+   {
+    "area": "subscribedSkus",
+    "v1": 1,
+    "betaOnly": 0,
+    "onMap": 1
+   },
+   {
+    "area": "subscriptions",
+    "v1": 1,
+    "betaOnly": 0,
+    "onMap": 0
+   },
+   {
+    "area": "teamsAdministration (namespace)",
+    "v1": 1,
+    "betaOnly": 0,
+    "onMap": 0
+   },
+   {
+    "area": "teamsTemplates",
+    "v1": 1,
+    "betaOnly": 0,
+    "onMap": 0
+   },
+   {
+    "area": "financials",
+    "v1": 0,
+    "betaOnly": 37,
+    "onMap": 0
+   },
+   {
+    "area": "networkAccess",
+    "v1": 0,
+    "betaOnly": 37,
+    "onMap": 0
+   },
+   {
+    "area": "filteringPolicies",
+    "v1": 0,
+    "betaOnly": 14,
+    "onMap": 0
+   },
+   {
+    "area": "dataClassification",
+    "v1": 0,
+    "betaOnly": 10,
+    "onMap": 0
+   },
+   {
+    "area": "threatSubmission",
+    "v1": 0,
+    "betaOnly": 9,
+    "onMap": 0
+   },
+   {
+    "area": "onPremisesPublishingProfiles",
+    "v1": 0,
+    "betaOnly": 7,
+    "onMap": 0
+   },
+   {
+    "area": "activitystatistics",
+    "v1": 0,
+    "betaOnly": 6,
+    "onMap": 0
+   },
+   {
+    "area": "networkaccess (namespace)",
+    "v1": 0,
+    "betaOnly": 6,
+    "onMap": 0
+   },
+   {
+    "area": "security.dlp (namespace)",
+    "v1": 0,
+    "betaOnly": 6,
+    "onMap": 0
+   },
+   {
+    "area": "agentRegistry",
+    "v1": 0,
+    "betaOnly": 4,
+    "onMap": 0
+   },
+   {
+    "area": "conditionalAccess",
+    "v1": 0,
+    "betaOnly": 4,
+    "onMap": 0
+   },
+   {
+    "area": "approvalWorkflowProviders",
+    "v1": 0,
+    "betaOnly": 3,
+    "onMap": 0
+   },
+   {
+    "area": "mobilityManagementPolicies",
+    "v1": 0,
+    "betaOnly": 3,
+    "onMap": 0
+   },
+   {
+    "area": "monitoring",
+    "v1": 0,
+    "betaOnly": 3,
+    "onMap": 0
+   },
+   {
+    "area": "privilegedRoles",
+    "v1": 0,
+    "betaOnly": 3,
+    "onMap": 0
+   },
+   {
+    "area": "trustFramework",
+    "v1": 0,
+    "betaOnly": 3,
+    "onMap": 0
+   },
+   {
+    "area": "agents",
+    "v1": 0,
+    "betaOnly": 2,
+    "onMap": 0
+   },
+   {
+    "area": "authenticationMethodDevices",
+    "v1": 0,
+    "betaOnly": 2,
+    "onMap": 0
+   },
+   {
+    "area": "cloudLicensing (namespace)",
+    "v1": 0,
+    "betaOnly": 2,
+    "onMap": 0
+   },
+   {
+    "area": "workplace",
+    "v1": 0,
+    "betaOnly": 2,
+    "onMap": 0
+   },
+   {
+    "area": "accessReviewDecisions",
+    "v1": 0,
+    "betaOnly": 1,
+    "onMap": 0
+   },
+   {
+    "area": "accessReviews",
+    "v1": 0,
+    "betaOnly": 1,
+    "onMap": 0
+   },
+   {
+    "area": "allowedDataLocations",
+    "v1": 0,
+    "betaOnly": 1,
+    "onMap": 0
+   },
+   {
+    "area": "app",
+    "v1": 0,
+    "betaOnly": 1,
+    "onMap": 0
+   },
+   {
+    "area": "businessFlowTemplates",
+    "v1": 0,
+    "betaOnly": 1,
+    "onMap": 0
+   },
+   {
+    "area": "certificateAuthorities",
+    "v1": 0,
+    "betaOnly": 1,
+    "onMap": 0
+   },
+   {
+    "area": "commands",
+    "v1": 0,
+    "betaOnly": 1,
+    "onMap": 0
+   },
+   {
+    "area": "directorySettingTemplates",
+    "v1": 0,
+    "betaOnly": 1,
+    "onMap": 0
+   },
+   {
+    "area": "ediscovery (namespace)",
+    "v1": 0,
+    "betaOnly": 1,
+    "onMap": 0
+   },
+   {
+    "area": "governanceResources",
+    "v1": 0,
+    "betaOnly": 1,
+    "onMap": 0
+   },
+   {
+    "area": "governanceRoleAssignmentRequests",
+    "v1": 0,
+    "betaOnly": 1,
+    "onMap": 0
+   },
+   {
+    "area": "governanceRoleAssignments",
+    "v1": 0,
+    "betaOnly": 1,
+    "onMap": 0
+   },
+   {
+    "area": "governanceRoleDefinitions",
+    "v1": 0,
+    "betaOnly": 1,
+    "onMap": 0
+   },
+   {
+    "area": "governanceRoleSettings",
+    "v1": 0,
+    "betaOnly": 1,
+    "onMap": 0
+   },
+   {
+    "area": "governanceSubjects",
+    "v1": 0,
+    "betaOnly": 1,
+    "onMap": 0
+   },
+   {
+    "area": "industryData (namespace)",
+    "v1": 0,
+    "betaOnly": 1,
+    "onMap": 0
+   },
+   {
+    "area": "managedTenants (namespace)",
+    "v1": 0,
+    "betaOnly": 1,
+    "onMap": 0
+   },
+   {
+    "area": "messageEvents",
+    "v1": 0,
+    "betaOnly": 1,
+    "onMap": 0
+   },
+   {
+    "area": "messageRecipients",
+    "v1": 0,
+    "betaOnly": 1,
+    "onMap": 0
+   },
+   {
+    "area": "messageTraces",
+    "v1": 0,
+    "betaOnly": 1,
+    "onMap": 0
+   },
+   {
+    "area": "network",
+    "v1": 0,
+    "betaOnly": 1,
+    "onMap": 0
+   },
+   {
+    "area": "payloadResponse",
+    "v1": 0,
+    "betaOnly": 1,
+    "onMap": 0
+   },
+   {
+    "area": "privilegedAccess",
+    "v1": 0,
+    "betaOnly": 1,
+    "onMap": 0
+   },
+   {
+    "area": "privilegedApproval",
+    "v1": 0,
+    "betaOnly": 1,
+    "onMap": 0
+   },
+   {
+    "area": "privilegedOperationEvents",
+    "v1": 0,
+    "betaOnly": 1,
+    "onMap": 0
+   },
+   {
+    "area": "privilegedRoleAssignmentRequests",
+    "v1": 0,
+    "betaOnly": 1,
+    "onMap": 0
+   },
+   {
+    "area": "privilegedRoleAssignments",
+    "v1": 0,
+    "betaOnly": 1,
+    "onMap": 0
+   },
+   {
+    "area": "privilegedSignupStatus",
+    "v1": 0,
+    "betaOnly": 1,
+    "onMap": 0
+   },
+   {
+    "area": "programControls",
+    "v1": 0,
+    "betaOnly": 1,
+    "onMap": 0
+   },
+   {
+    "area": "programControlTypes",
+    "v1": 0,
+    "betaOnly": 1,
+    "onMap": 0
+   },
+   {
+    "area": "programs",
+    "v1": 0,
+    "betaOnly": 1,
+    "onMap": 0
+   },
+   {
+    "area": "security.caseManagement (namespace)",
+    "v1": 0,
+    "betaOnly": 1,
+    "onMap": 0
+   },
+   {
+    "area": "settings",
+    "v1": 0,
+    "betaOnly": 1,
+    "onMap": 0
+   },
+   {
+    "area": "teamTemplateDefinition",
+    "v1": 0,
+    "betaOnly": 1,
+    "onMap": 0
+   },
+   {
+    "area": "templates",
+    "v1": 0,
+    "betaOnly": 1,
+    "onMap": 0
+   },
+   {
+    "area": "windowsUpdates (namespace)",
+    "v1": 0,
+    "betaOnly": 1,
+    "onMap": 0
+   }
+  ]
+ }
 }

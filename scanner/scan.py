@@ -8,6 +8,8 @@ Microsoft Graph service principal, and writes:
 
   graph-map.json   curated content + scan results (what the page renders)
   changelog.json   cumulative list of changes detected between scans
+  coverage.json    every entity type grouped by area (its top-level root), with
+                   the ones not on the map listed by name
 
 Standard library only, so it runs the same locally, in GitHub Actions and in
 an Azure Function. The scanner never edits curated.json.
@@ -34,8 +36,24 @@ from xml.etree.ElementTree import iterparse
 V1_URL = "https://graph.microsoft.com/v1.0/$metadata"
 BETA_URL = "https://graph.microsoft.com/beta/$metadata"
 GRAPH_APP_ID = "00000003-0000-0000-c000-000000000000"
-CHANGELOG_KEEP = 500
+CHANGELOG_KEEP = 2000
 RECENT_KEEP = 60
+# "New in Graph" entries per kind that go into recentChanges; the rest are summarised (full list in changelog.json).
+NEW_IN_GRAPH_RECENT = 5
+# Roots are areas. When a type is equally close to two roots, the earlier one in AREA_PRIORITY wins, then
+# other roots alphabetically, then AREA_LAST: broad hubs (/users contains mail, calendars, drives and much more)
+# that would otherwise swallow the specific areas.
+AREA_PRIORITY = [
+    "security", "identityGovernance", "identityProtection", "identity", "policies", "roleManagement",
+    "applications", "servicePrincipals", "devices", "directoryRoles", "directory", "auditLogs",
+    "deviceManagement", "deviceAppManagement", "copilot", "solutions", "admin", "sites", "drives", "teams",
+    "chats", "communications", "reports", "informationProtection", "compliance", "print", "education",
+    "employeeExperience", "external", "connections", "storage", "planner",
+]
+AREA_LAST = ["users", "groups", "me"]
+# Polymorphic roots that hold every directory object: they only get types no other root reaches.
+AREA_FALLBACK = {"directoryObjects"}
+ROOT_ALIASES = {"me": "users", "drive": "drives"}
 # Audit-trail navs inherited from baseItem: on almost every files resource and never worth a chord.
 DISCOVERY_SKIP_NAVS = {"createdByUser", "lastModifiedByUser"}
 
@@ -52,9 +70,10 @@ def _local(tag: str) -> str:
 class Schema:
     """Entity types, navigation properties and bound operations from one $metadata document."""
 
-    def __init__(self, entities: dict, ops: dict):
-        self.entities = entities  # fq -> {"base": fq|None, "props": [..], "navs": {name: fq}}
+    def __init__(self, entities: dict, ops: dict, roots: dict | None = None):
+        self.entities = entities  # fq -> {"base": fq|None, "props": [..], "navs": {name: fq}, "contained": {name}}
         self.ops = ops            # binding fq -> {name: "Action"|"Function"}
+        self.roots = roots or {}  # EntityContainer EntitySet/Singleton name -> fq
         self._cache: dict = {}
 
     def effective(self, fq: str):
@@ -63,7 +82,7 @@ class Schema:
             return self._cache[fq]
         if fq not in self.entities:
             return None
-        props, navs, chain, seen = set(), {}, [], set()
+        props, navs, contained, chain, seen = set(), {}, set(), [], set()
         cur = fq
         while cur and cur in self.entities and cur not in seen:
             seen.add(cur)
@@ -72,8 +91,9 @@ class Schema:
             props.update(e["props"])
             for k, v in e["navs"].items():
                 navs.setdefault(k, v)
+            contained.update(e.get("contained", ()))
             cur = e["base"]
-        out = {"props": props, "navs": navs, "chain": chain}
+        out = {"props": props, "navs": navs, "contained": contained, "chain": chain}
         self._cache[fq] = out
         return out
 
@@ -85,12 +105,21 @@ class Schema:
     def operation_anywhere(self, name: str) -> bool:
         return any(name in names for names in self.ops.values())
 
+    def derived(self) -> dict:
+        """base fq -> [directly derived fq]."""
+        out: dict[str, list] = {}
+        for fq, e in self.entities.items():
+            if e["base"]:
+                out.setdefault(e["base"], []).append(fq)
+        return out
+
 
 def parse_csdl(source) -> Schema:
     """Parse a CSDL/EDMX document (path or binary file object) with iterparse to keep memory low."""
     aliases: dict[str, str] = {}
     raw_entities: dict[str, dict] = {}
     raw_ops: list[dict] = []
+    raw_roots: list[tuple] = []
     ns = alias = None
     cur = None
     op = None
@@ -108,7 +137,11 @@ def parse_csdl(source) -> Schema:
             elif tag == "Property" and cur:
                 raw_entities[cur]["props"].append(el.get("Name"))
             elif tag == "NavigationProperty" and cur:
-                raw_entities[cur]["navs"].append((el.get("Name"), el.get("Type")))
+                raw_entities[cur]["navs"].append((el.get("Name"), el.get("Type"), el.get("ContainsTarget") == "true"))
+            elif tag == "EntitySet":
+                raw_roots.append((el.get("Name"), el.get("EntityType"), (ns, alias)))
+            elif tag == "Singleton":
+                raw_roots.append((el.get("Name"), el.get("Type"), (ns, alias)))
             elif tag in ("Action", "Function"):
                 op = {"name": el.get("Name"), "kind": tag, "bound": el.get("IsBound") == "true",
                       "binding": None, "ctx": (ns, alias)}
@@ -142,13 +175,15 @@ def parse_csdl(source) -> Schema:
         entities[fq] = {
             "base": resolve(e["base"], e["ctx"]),
             "props": e["props"],
-            "navs": {n: resolve(t, e["ctx"]) for n, t in e["navs"]},
+            "navs": {n: resolve(t, e["ctx"]) for n, t, _ in e["navs"]},
+            "contained": {n for n, _, c in e["navs"] if c},
         }
     ops: dict[str, dict] = {}
     for o in raw_ops:
         key = resolve(o["binding"], o["ctx"]) if o["bound"] else "(unbound)"
         ops.setdefault(key, {})[o["name"]] = o["kind"]
-    return Schema(entities, ops)
+    roots = {name: resolve(t, ctx) for name, t, ctx in raw_roots}
+    return Schema(entities, ops, roots)
 
 
 # --------------------------------------------------------------------------- fetching
@@ -268,6 +303,155 @@ def check_permissions(curated: dict, perms: dict) -> dict:
     return out
 
 
+# --------------------------------------------------------------------------- coverage
+
+
+def _short(fq: str) -> str:
+    return fq[len("microsoft.graph."):] if fq.startswith("microsoft.graph.") else fq
+
+
+def _root_order(name: str):
+    if name in AREA_PRIORITY:
+        return (0, AREA_PRIORITY.index(name), "")
+    if name in AREA_LAST:
+        return (2, AREA_LAST.index(name), "")
+    return (1, 0, name.lower())
+
+
+def assign_areas(schema: Schema) -> dict:
+    """fq -> area for every entity type: the nearest top-level root that reaches it through containment
+    (ties go to AREA_PRIORITY), else '<namespace> (namespace)' for sub-namespaces, else 'unrooted'.
+    A collection or nav of type X also holds X's derived types, so those count as reached too."""
+    derived = schema.derived()
+
+    def with_derived(fq):
+        out, stack = [], [fq]
+        while stack:
+            t = stack.pop()
+            if t in schema.entities and t not in out:
+                out.append(t)
+                stack.extend(derived.get(t, []))
+        return out
+
+    area: dict[str, str] = {}
+
+    def spread(seeds):
+        queue = []
+        for name in seeds:
+            for t in with_derived(schema.roots[name]):
+                if t not in area:
+                    area[t] = ROOT_ALIASES.get(name, name)
+                    queue.append(t)
+        i = 0
+        while i < len(queue):       # breadth first, so the nearest root wins
+            t = queue[i]
+            i += 1
+            eff = schema.effective(t)
+            for nav in sorted(eff["contained"]):
+                for c in with_derived(eff["navs"].get(nav)):
+                    if c not in area:
+                        area[c] = area[t]
+                        queue.append(c)
+
+    ordered = sorted(schema.roots, key=_root_order)
+    spread([r for r in ordered if r not in AREA_FALLBACK])
+    spread([r for r in ordered if r in AREA_FALLBACK])   # only claims what no other root reaches
+    for fq in schema.entities:
+        if fq not in area:
+            ns = fq.rpartition(".")[0]
+            area[fq] = f"{_short(ns)} (namespace)" if ns.startswith("microsoft.graph.") else "unrooted"
+    return area
+
+
+def coverage_types(v1: Schema, beta: Schema) -> dict:
+    """fq -> {"area", "status"} for every v1.0 type and every beta-only type."""
+    a1, ab = assign_areas(v1), assign_areas(beta)
+    out = {fq: {"area": a1[fq], "status": "v1.0"} for fq in v1.entities}
+    for fq in beta.entities:
+        if fq not in out:
+            out[fq] = {"area": ab[fq], "status": "beta only"}
+    return dict(sorted(out.items()))
+
+
+def summarise_coverage(curated: dict, types: dict, roots: dict, at: str | None) -> dict:
+    """Full coverage report (for coverage.json) from a type index and the curated map."""
+    on_map = {n["entityType"] for n in curated["nodes"] if n.get("entityType")}
+    areas: dict[str, dict] = {}
+    for fq, t in types.items():
+        a = areas.setdefault(t["area"], {"area": t["area"], "v1": 0, "betaOnly": 0, "onMap": 0,
+                                         "onMapTypes": [], "missing": []})
+        if t["status"] != "v1.0":
+            a["betaOnly"] += 1
+            continue
+        a["v1"] += 1
+        if fq in on_map:
+            a["onMap"] += 1
+            a["onMapTypes"].append(_short(fq))
+        else:
+            a["missing"].append(_short(fq))
+    rows = sorted(areas.values(), key=lambda r: (-r["v1"], -r["betaOnly"], r["area"].lower()))
+    return {
+        "at": at,
+        "v1Types": sum(r["v1"] for r in rows),
+        "betaOnlyTypes": sum(r["betaOnly"] for r in rows),
+        "onMap": sum(r["onMap"] for r in rows),
+        "areas": rows,
+        "roots": roots,
+        "types": types,
+    }
+
+
+def coverage_summary(cov: dict | None) -> dict | None:
+    """Counts only, for embedding in the page. Names stay in coverage.json."""
+    if not cov:
+        return None
+    return {k: cov[k] for k in ("at", "v1Types", "betaOnlyTypes", "onMap")} | {
+        "areas": [{k: r[k] for k in ("area", "v1", "betaOnly", "onMap")} for r in cov["areas"]]}
+
+
+def coverage_changes(prev: dict | None, cur: dict, today: str) -> list:
+    """'New in Graph' entries since the previous coverage report: new v1.0 types, promotions, new roots."""
+    if not prev or not prev.get("types"):
+        return [{"date": today, "node": None, "kind": "graph-baseline",
+                 "text": f"Coverage baseline: {cur['v1Types']:,} v1.0 and {cur['betaOnlyTypes']:,} beta-only entity types."}]
+    out = []
+    old = prev["types"]
+    for fq, t in cur["types"].items():
+        if t["status"] != "v1.0":
+            continue
+        was = old.get(fq)
+        if not was:
+            out.append({"date": today, "node": None, "kind": "graph-new-type",
+                        "text": f"New in Graph v1.0: {_short(fq)} ({t['area']})."})
+        elif was["status"] != "v1.0":
+            out.append({"date": today, "node": None, "kind": "graph-promoted",
+                        "text": f"Promoted from beta to v1.0: {_short(fq)} ({t['area']})."})
+    for ver in ("v1.0", "beta"):
+        for name in sorted(set(cur["roots"].get(ver, [])) - set((prev.get("roots") or {}).get(ver, []))):
+            out.append({"date": today, "node": None, "kind": "graph-new-root",
+                        "text": f"New top-level root in {ver}: /{name}."})
+    return out
+
+
+def cap_new_in_graph(changes: list) -> list:
+    """Keep at most NEW_IN_GRAPH_RECENT entries per 'New in Graph' kind and summarise the rest."""
+    out, seen = [], {}
+    for c in changes:
+        k = c["kind"]
+        if not k.startswith("graph-") or k == "graph-baseline":
+            out.append(c)
+            continue
+        seen[k] = seen.get(k, 0) + 1
+        if seen[k] <= NEW_IN_GRAPH_RECENT:
+            out.append(c)
+    words = {"graph-new-type": "new v1.0 types", "graph-promoted": "promotions to v1.0", "graph-new-root": "new roots"}
+    for k, n in seen.items():
+        if n > NEW_IN_GRAPH_RECENT:
+            out.append({"date": changes[0]["date"], "node": None, "kind": k,
+                        "text": f"…and {n - NEW_IN_GRAPH_RECENT} more {words[k]} (full list in changelog.json)."})
+    return out
+
+
 # --------------------------------------------------------------------------- diff
 
 
@@ -329,7 +513,10 @@ def diff(curated, prev_map, nodes_scan, discovered, perms, today):
 # --------------------------------------------------------------------------- build
 
 
-def build_map(curated, prev_map=None, v1_src=None, beta_src=None, token=None, scan=True, now=None):
+def build_map(curated, prev_map=None, v1_src=None, beta_src=None, token=None, scan=True, now=None,
+              prev_coverage=None, coverage_out=None):
+    """Returns (graph_map, changes). Pass a dict as coverage_out to receive the full coverage report
+    (for coverage.json); prev_coverage is the previous one, used for 'New in Graph' entries and by --no-scan."""
     now = now or dt.datetime.now(dt.timezone.utc)
     today = now.date().isoformat()
     v1 = beta = None
@@ -347,8 +534,6 @@ def build_map(curated, prev_map=None, v1_src=None, beta_src=None, token=None, sc
             "at": now.isoformat(timespec="seconds"),
             "v1EntityTypes": len(v1.entities),
             "betaEntityTypes": len(beta.entities),
-            "permissionsChecked": bool(perms),
-            "permissionCount": len(set(perms["application"]) | set(perms["delegated"])) if perms else None,
         }
     else:
         meta["scan"] = (prev_map or {}).get("meta", {}).get("scan")
@@ -357,13 +542,14 @@ def build_map(curated, prev_map=None, v1_src=None, beta_src=None, token=None, sc
         nodes_scan = scan_nodes(curated, v1, beta)
         edges = scan_edges(curated, v1, beta)
         discovered = discover_edges(curated, v1, beta)
-        perm_check = check_permissions(curated, perms) if perms else {}
         changes = diff(curated, prev_map, nodes_scan, discovered, perms, today)
+        roots = {"v1.0": sorted(v1.roots), "beta": sorted(beta.roots)}
+        cov = summarise_coverage(curated, coverage_types(v1, beta), roots, meta["scan"]["at"])
+        changes += coverage_changes(prev_coverage, cov, today)
     else:
         # keep the previous scan results, re-attached to the current curated content
         prev_nodes = {n["id"]: n for n in (prev_map or {}).get("nodes", [])}
         nodes_scan = {k: v["scan"] for k, v in prev_nodes.items() if v.get("scan")}
-        perm_check = {k: v["permCheck"] for k, v in prev_nodes.items() if v.get("permCheck")}
         prev_edges = {(e["s"], e["t"], e.get("nav") or e.get("action") or e.get("label")): e.get("scan")
                       for e in (prev_map or {}).get("edges", [])}
         edges = []
@@ -373,6 +559,28 @@ def build_map(curated, prev_map=None, v1_src=None, beta_src=None, token=None, sc
             edges.append(e)
         discovered = [e for e in (prev_map or {}).get("edges", []) if e["kind"] == "discovered"]
         changes = []
+        cov = (summarise_coverage(curated, prev_coverage["types"], prev_coverage.get("roots") or {},
+                                  prev_coverage.get("at")) if prev_coverage and prev_coverage.get("types") else None)
+    # Permission names: fresh from Graph when there is a token, otherwise the list stored by the last
+    # token run, so scans without a token (the weekly Actions run) keep checking names instead of dropping them.
+    prev_state = (prev_map or {}).get("state") or {}
+    if perms:
+        perm_names, perm_at = sorted(set(perms["application"]) | set(perms["delegated"])), today
+    else:
+        prev_scan = (prev_map or {}).get("meta", {}).get("scan") or {}
+        perm_names = prev_state.get("permissionNames")
+        perm_at = (prev_state.get("permissionNamesAt") or prev_scan.get("permissionsCheckedAt")
+                   or (prev_scan.get("at") or "")[:10] or None)
+    perm_check = check_permissions(curated, {"application": perm_names, "delegated": []}) if perm_names else {}
+    if meta.get("scan"):
+        meta["scan"] = dict(meta["scan"])
+        meta["scan"]["permissionsChecked"] = bool(perm_names)
+        meta["scan"]["permissionCount"] = len(perm_names) if perm_names else None
+        meta["scan"]["permissionsCheckedAt"] = perm_at if perm_names else None
+
+    if coverage_out is not None and cov:
+        coverage_out.clear()
+        coverage_out.update(cov)
 
     nodes = []
     for n in curated["nodes"]:
@@ -383,10 +591,10 @@ def build_map(curated, prev_map=None, v1_src=None, beta_src=None, token=None, sc
             n["permCheck"] = perm_check[n["id"]]
         nodes.append(n)
 
-    recent = (changes + list((prev_map or {}).get("recentChanges", [])))[:RECENT_KEEP]
-    state = dict((prev_map or {}).get("state") or {})
-    if perms:
-        state["permissionNames"] = sorted(set(perms["application"]) | set(perms["delegated"]))
+    recent = (cap_new_in_graph(changes) + list((prev_map or {}).get("recentChanges", [])))[:RECENT_KEEP]
+    state = dict(prev_state)
+    if perm_names:
+        state["permissionNames"], state["permissionNamesAt"] = perm_names, perm_at
 
     graph_map = {
         "meta": meta,
@@ -394,9 +602,13 @@ def build_map(curated, prev_map=None, v1_src=None, beta_src=None, token=None, sc
         "hub": curated["hub"],
         "nodes": nodes,
         "edges": edges + discovered,
+        "scenarios": curated.get("scenarios", []),
         "recentChanges": recent,
         "state": state,
     }
+    summary = coverage_summary(cov) or (prev_map or {}).get("coverage")
+    if summary:
+        graph_map["coverage"] = summary
     return graph_map, changes
 
 
@@ -421,6 +633,7 @@ def main(argv=None):
     ap.add_argument("--previous", help="previous graph-map.json (defaults to --out)")
     ap.add_argument("--out", default="data/graph-map.json")
     ap.add_argument("--changelog", default="data/changelog.json")
+    ap.add_argument("--coverage", default="data/coverage.json")
     ap.add_argument("--v1", default=V1_URL, help="URL or file for v1.0 $metadata")
     ap.add_argument("--beta", default=BETA_URL, help="URL or file for beta $metadata")
     ap.add_argument("--no-scan", action="store_true", help="merge curated content only; keep previous scan results")
@@ -433,8 +646,12 @@ def main(argv=None):
     if a.permissions and not token:
         print("warning: --permissions given but GRAPH_TOKEN is not set; skipping permission check", file=sys.stderr)
 
-    graph_map, changes = build_map(curated, prev, a.v1, a.beta, token, scan=not a.no_scan)
+    cov: dict = {}
+    graph_map, changes = build_map(curated, prev, a.v1, a.beta, token, scan=not a.no_scan,
+                                   prev_coverage=_load(a.coverage), coverage_out=cov)
     _save(a.out, graph_map)
+    if cov:
+        _save(a.coverage, cov)
     log = changes + (_load(a.changelog, []) or [])
     _save(a.changelog, log[:CHANGELOG_KEEP])
 

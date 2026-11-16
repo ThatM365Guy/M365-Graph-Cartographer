@@ -25,11 +25,18 @@
    <EntityType Name="site" BaseType="graph.baseItem"><NavigationProperty Name="drive" Type="graph.drive" ContainsTarget="true"/></EntityType>
    <EntityType Name="permission" BaseType="graph.entity"><Property Name="roles" Type="Collection(Edm.String)"/></EntityType>
    <EntityType Name="itemRetentionLabel" BaseType="graph.entity"><Property Name="name" Type="Edm.String"/></EntityType>
+   <EntityContainer Name="GraphService">
+    <EntitySet Name="users" EntityType="microsoft.graph.user"/>
+    <EntitySet Name="groups" EntityType="microsoft.graph.group"/>
+    <EntitySet Name="sites" EntityType="microsoft.graph.site"/>
+    <Singleton Name="me" Type="microsoft.graph.user"/>
+    <Singleton Name="security" Type="microsoft.graph.security.security"/>
+   </EntityContainer>
    <Action Name="assignSensitivityLabel" IsBound="true"><Parameter Name="bindingParameter" Type="graph.driveItem"/><Parameter Name="sensitivityLabelId" Type="Edm.String"/></Action>
    <Annotations Target="microsoft.graph.user"><Annotation Term="Org.OData.Core.V1.Description" String="ignored"/></Annotations>
   </Schema>
   <Schema Namespace="microsoft.graph.security" xmlns="http://docs.oasis-open.org/odata/ns/edm">
-   <EntityType Name="security" BaseType="graph.entity"/>
+   <EntityType Name="security" BaseType="graph.entity"><NavigationProperty Name="alerts_v2" Type="Collection(microsoft.graph.security.alert)" ContainsTarget="true"/><NavigationProperty Name="incidents" Type="Collection(microsoft.graph.security.incident)" ContainsTarget="true"/></EntityType>
    <EntityType Name="alert" BaseType="graph.entity"><Property Name="title" Type="Edm.String"/></EntityType>
    <EntityType Name="incident" BaseType="graph.entity"><NavigationProperty Name="alerts" Type="Collection(microsoft.graph.security.alert)"/></EntityType>
    <Action Name="runHuntingQuery" IsBound="true"><Parameter Name="bindingParameter" Type="microsoft.graph.security.security"/><Parameter Name="query" Type="Edm.String"/></Action>
