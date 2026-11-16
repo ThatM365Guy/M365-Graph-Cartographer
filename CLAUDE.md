@@ -80,7 +80,7 @@ To check the page visually, open `dist/index.html` in a browser. Test at a deskt
 
 - Hotfix on 16 Nov 2026 (commit "Fix stuck pan/hover after right-click or interrupted drag"): a right-click or a drag released outside the window left the pan stuck on and hover cards off.
 - Live since 16 Nov 2026 (PR #1 from `feature/scenarios`, deployed green): 52 resources, 9 workloads (new: AI & agents), 86 curated links, 12 scenarios, coverage report. 20 tests pass.
-- `feature/purview-phase2` (not merged; awaiting the owner's review): Purview brought to full depth. 64 resources, 9 workloads, 106 curated links, 15 scenarios (3 new in the Purview group), no phase-2 nodes left. Coverage: 86 of 1,262 v1.0 types on the map; Purview 41 of 62 (was 4 of 62). 23 tests pass. Purview data security API (id `purviewAi`, kept for links and hashes) moved from AI to Purview and now covers any app. Scenario 9's DLP alert filter (`dataLossPrevention`, not `microsoftDataLossPrevention`) and scenario 11's record type (`CopilotInteraction`, PascalCase) were corrected.
+- Live since 16 Nov 2026 (PR #2 from `feature/purview-phase2`, deployed green): Purview brought to full depth. 64 resources, 9 workloads, 106 curated links, 15 scenarios (3 new in the Purview group), no phase-2 nodes left. Coverage: 86 of 1,262 v1.0 types on the map; Purview 41 of 62 (was 4 of 62). 23 tests pass. Purview data security API (id `purviewAi`, kept for links and hashes) moved from AI to Purview and now covers any app. Scenario 9's DLP alert filter (`dataLossPrevention`, not `microsoftDataLossPrevention`) and scenario 11's record type (`CopilotInteraction`, PascalCase) were corrected.
 - First live scan baseline 14 Nov 2026: 1,262 v1.0 and 2,624 beta entity types (1,370 beta only). Every typed node and every curated nav/action link resolves; all 47 typed nodes on the branch are in v1.0.
 - **Permission check first run 16 Nov 2026** (`--permissions`, az CLI token): 1,036 Graph permission names; every name on the map exists, and each sits on the right side (delegated or application). Rerun it whenever permissions are edited.
 - Curation decisions taken after the first scan:
@@ -129,7 +129,7 @@ To check the page visually, open `dist/index.html` in a browser. Test at a deskt
 ## Next steps (in order)
 
 1. Tier 2 nodes, ordered by the coverage report: identity governance (access reviews, access packages, lifecycle workflows), authentication methods and registration details, risk detections and risky service principals, cross-tenant access policy, Intune (managed devices, compliance policies), attack simulation and Secure Score control profiles, threat intelligence, subject rights requests, service health and Message centre, provisioning logs.
-2. Purview follow-ups: owner review and merge of `feature/purview-phase2`; recheck the Learn/$metadata conflicts above on each scan; Priva licensing for subject rights requests (not re-checked); DLP alert licensing for alerts_v2 (unconfirmed).
+2. Purview follow-ups: recheck the Learn/$metadata conflicts above on each scan; Priva licensing for subject rights requests (not re-checked); DLP alert licensing for alerts_v2 (unconfirmed).
 3. Sample requests per node with an "Open in Graph Explorer" link, and per-permission links to graphpermissions.merill.net.
 4. Coverage: follow function return types (for example `getAllEnterpriseInteractions` -> `aiInteraction`) so fewer types land in `unrooted`.
 5. Later, an opt-in private overlay of a tenant's own app permissions (never on the public build).
