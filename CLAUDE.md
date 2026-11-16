@@ -78,7 +78,7 @@ To check the page visually, open `dist/index.html` in a browser. Test at a deskt
 ## Status (16 Nov 2026)
 
 - `main`: 40 resources, 8 workloads. Hotfix on 16 Nov 2026 (commit "Fix stuck pan/hover after right-click or interrupted drag"): a right-click or a drag released outside the window left the pan stuck on and hover cards off. Deployed green.
-- `feature/scenarios` (not merged; awaiting the owner's review): 52 resources, 9 workloads (new: AI & agents), 85 curated links, 12 scenarios, coverage report. 17 tests pass.
+- `feature/scenarios` (not merged; awaiting the owner's review): 52 resources, 9 workloads (new: AI & agents), 86 curated links, 12 scenarios, coverage report. 17 tests pass.
 - First live scan baseline 14 Nov 2026: 1,262 v1.0 and 2,624 beta entity types (1,370 beta only). Every typed node and every curated nav/action link resolves; all 47 typed nodes on the branch are in v1.0.
 - **Permission check first run 16 Nov 2026** (`--permissions`, az CLI token): 1,036 Graph permission names; every name on the map exists, and each sits on the right side (delegated or application). Rerun it whenever permissions are edited.
 - Curation decisions taken after the first scan:
@@ -86,10 +86,11 @@ To check the page visually, open `dist/index.html` in a browser. Test at a deskt
   - Drive item → Retention label is a `ref` labelled "retentionLabel (applied label)", described as "matched by label name, not ID".
   - Curated from discovery: site/list/listItem → permission, event → calendar, group → calendar, user → site (`followedSites`), and on the branch user → servicePrincipal (`appRoleAssignedResources`, beta only), group → appRoleAssignment, agentIdentity → appRoleAssignment.
   - A curated `entityType` change is logged once as `retargeted`; `createdByUser`/`lastModifiedByUser` are never discovered; parallel discovered links draw as one chord; discovered links are hidden by default.
-- Still uncurated (beta only, waiting for the owner): team → user (`owners`).
+- Curated on 16 Nov 2026 at the owner's request: team → user (`owners`, beta only). No discovered links remain uncurated.
 - **Live** at https://thatm365guy.github.io/M365-Graph-Cartographer/ from the public repo `ThatM365Guy/M365-Graph-Cartographer` (`main`), deployed by `.github/workflows/scan.yml` (actions checkout v7, setup-python v7, upload-pages-artifact v5, deploy-pages v5 on Node 24). Runs fully green since 14 Nov 2026.
 - GitHub settings: Pages source is GitHub Actions with HTTPS enforced. The job runs in the `github-pages` environment, which only allows deploys from `main`, and the push trigger is limited to `main`. Actions are restricted to GitHub-owned actions; a third-party action needs that setting changed first. The default workflow token is read-only and the workflow asks for write itself. `main` has no branch protection, because mgc-bot pushes to it.
 - Every push to `main` that touches `curated.json` or the template publishes straight to the live site, and mgc-bot then commits refreshed data. Pull before pushing, and use a branch for larger changes, merging to `main` when ready.
+- Known: the Actions scan runs without a token, so each scheduled scan drops the permission-check results (`permCheck`, `permissionsChecked`) until someone reruns `--permissions` locally.
 - Known, not fixed: at phone width the outermost resource labels clip at the left and right edges (behaviour from v0.1).
 - Facts checked against Microsoft Learn on 14 Nov 2026:
   - Advanced hunting: 30 days of data, 100,000 rows, 50 MB results, at least 45 calls per minute, 3-minute timeout.
