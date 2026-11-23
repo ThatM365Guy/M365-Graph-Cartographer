@@ -5,10 +5,10 @@
   "curatedOn": "2026-11-16",
   "phase": "Purview covered in depth from 0.3.0: information protection, records, eDiscovery, audit, privacy and the data security API, with what Graph does not cover.",
   "note": "Hand-written content lives here. The scanner never edits this file; it writes graph-map.json alongside it.",
-  "generatedAt": "2026-11-16T14:31:52+00:00",
+  "generatedAt": "2026-11-23T16:17:05+00:00",
   "scan": {
-   "at": "2026-11-16T14:31:52+00:00",
-   "v1EntityTypes": 1262,
+   "at": "2026-11-23T16:17:05+00:00",
+   "v1EntityTypes": 1264,
    "betaEntityTypes": 2624,
    "permissionsChecked": true,
    "permissionCount": 1036,
@@ -2151,6 +2151,7 @@
      "targetedMessages": "microsoft.graph.targetedChatMessage"
     },
     "betaOnlyProps": [
+     "channelMigrationDetails",
      "createdBy"
     ],
     "betaOnlyNavs": [
@@ -2224,6 +2225,7 @@
     },
     "betaOnlyProps": [
      "citations",
+     "migrationDetails",
      "onBehalfOf"
     ],
     "betaOnlyNavs": [],
@@ -3880,6 +3882,10 @@
      "info",
      "isDisabled",
      "keyCredentials",
+     "lifecyclePolicyComplianceState",
+     "lifecyclePolicyComplianceStateLastModifiedDateTime",
+     "lifecyclePolicyComplianceStateReason",
+     "lifecyclePolicyNonComplianceDisablementDateTime",
      "loginUrl",
      "logoutUrl",
      "managerApplications",
@@ -3928,10 +3934,6 @@
      "idJag",
      "instanceMode",
      "isHardDeleteProtectionEnabled",
-     "lifecyclePolicyComplianceState",
-     "lifecyclePolicyComplianceStateLastModifiedDateTime",
-     "lifecyclePolicyComplianceStateReason",
-     "lifecyclePolicyNonComplianceDisablementDateTime",
      "passwordSingleSignOnSettings",
      "preferredTokenSigningKeyEndDateTime",
      "publishedPermissionScopes",
@@ -6800,6 +6802,42 @@
  ],
  "recentChanges": [
   {
+   "date": "2026-11-23",
+   "node": "agentIdentity",
+   "kind": "props-added",
+   "text": "Agent identity: new v1.0 property 'lifecyclePolicyComplianceState'."
+  },
+  {
+   "date": "2026-11-23",
+   "node": "agentIdentity",
+   "kind": "props-added",
+   "text": "Agent identity: new v1.0 property 'lifecyclePolicyComplianceStateLastModifiedDateTime'."
+  },
+  {
+   "date": "2026-11-23",
+   "node": "agentIdentity",
+   "kind": "props-added",
+   "text": "Agent identity: new v1.0 property 'lifecyclePolicyComplianceStateReason'."
+  },
+  {
+   "date": "2026-11-23",
+   "node": "agentIdentity",
+   "kind": "props-added",
+   "text": "Agent identity: new v1.0 property 'lifecyclePolicyNonComplianceDisablementDateTime'."
+  },
+  {
+   "date": "2026-11-23",
+   "node": null,
+   "kind": "graph-promoted",
+   "text": "Promoted from beta to v1.0: pullPrintPrinter (print)."
+  },
+  {
+   "date": "2026-11-23",
+   "node": null,
+   "kind": "graph-promoted",
+   "text": "Promoted from beta to v1.0: pullPrintPrinterCreateOperation (print)."
+  },
+  {
    "date": "2026-11-16",
    "node": "accessReview",
    "kind": "new-node",
@@ -8058,9 +8096,9 @@
   "permissionNamesAt": "2026-11-16"
  },
  "coverage": {
-  "at": "2026-11-16T14:31:52+00:00",
-  "v1Types": 1262,
-  "betaOnlyTypes": 1370,
+  "at": "2026-11-23T16:17:05+00:00",
+  "v1Types": 1264,
+  "betaOnlyTypes": 1368,
   "onMap": 137,
   "areas": [
    {
@@ -8072,7 +8110,7 @@
    {
     "area": "security",
     "v1": 100,
-    "betaOnly": 76,
+    "betaOnly": 75,
     "onMap": 36
    },
    {
@@ -8138,7 +8176,7 @@
    {
     "area": "directory",
     "v1": 33,
-    "betaOnly": 18,
+    "betaOnly": 19,
     "onMap": 1
    },
    {
@@ -8178,16 +8216,16 @@
     "onMap": 0
    },
    {
+    "area": "print",
+    "v1": 15,
+    "betaOnly": 0,
+    "onMap": 0
+   },
+   {
     "area": "roleManagement",
     "v1": 14,
     "betaOnly": 6,
     "onMap": 1
-   },
-   {
-    "area": "print",
-    "v1": 13,
-    "betaOnly": 2,
-    "onMap": 0
    },
    {
     "area": "servicePrincipals",

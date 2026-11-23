@@ -1,5 +1,41 @@
 [
  {
+  "date": "2026-11-23",
+  "node": "agentIdentity",
+  "kind": "props-added",
+  "text": "Agent identity: new v1.0 property 'lifecyclePolicyComplianceState'."
+ },
+ {
+  "date": "2026-11-23",
+  "node": "agentIdentity",
+  "kind": "props-added",
+  "text": "Agent identity: new v1.0 property 'lifecyclePolicyComplianceStateLastModifiedDateTime'."
+ },
+ {
+  "date": "2026-11-23",
+  "node": "agentIdentity",
+  "kind": "props-added",
+  "text": "Agent identity: new v1.0 property 'lifecyclePolicyComplianceStateReason'."
+ },
+ {
+  "date": "2026-11-23",
+  "node": "agentIdentity",
+  "kind": "props-added",
+  "text": "Agent identity: new v1.0 property 'lifecyclePolicyNonComplianceDisablementDateTime'."
+ },
+ {
+  "date": "2026-11-23",
+  "node": null,
+  "kind": "graph-promoted",
+  "text": "Promoted from beta to v1.0: pullPrintPrinter (print)."
+ },
+ {
+  "date": "2026-11-23",
+  "node": null,
+  "kind": "graph-promoted",
+  "text": "Promoted from beta to v1.0: pullPrintPrinterCreateOperation (print)."
+ },
+ {
   "date": "2026-11-16",
   "node": "accessReview",
   "kind": "new-node",

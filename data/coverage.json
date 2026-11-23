@@ -1,7 +1,7 @@
 {
- "at": "2026-11-16T14:31:52+00:00",
- "v1Types": 1262,
- "betaOnlyTypes": 1370,
+ "at": "2026-11-23T16:17:05+00:00",
+ "v1Types": 1264,
+ "betaOnlyTypes": 1368,
  "onMap": 137,
  "areas": [
   {
@@ -150,7 +150,7 @@
   {
    "area": "security",
    "v1": 100,
-   "betaOnly": 76,
+   "betaOnly": 75,
    "onMap": 36,
    "onMapTypes": [
     "authoredNote",
@@ -1016,7 +1016,7 @@
   {
    "area": "directory",
    "v1": 33,
-   "betaOnly": 18,
+   "betaOnly": 19,
    "onMap": 1,
    "onMapTypes": [
     "administrativeUnit"
@@ -1242,6 +1242,30 @@
    ]
   },
   {
+   "area": "print",
+   "v1": 15,
+   "betaOnly": 0,
+   "onMap": 0,
+   "onMapTypes": [],
+   "missing": [
+    "print",
+    "printConnector",
+    "printDocument",
+    "printJob",
+    "printOperation",
+    "printService",
+    "printServiceEndpoint",
+    "printTask",
+    "printTaskDefinition",
+    "printTaskTrigger",
+    "printer",
+    "printerCreateOperation",
+    "printerShare",
+    "pullPrintPrinter",
+    "pullPrintPrinterCreateOperation"
+   ]
+  },
+  {
    "area": "roleManagement",
    "v1": 14,
    "betaOnly": 6,
@@ -1263,28 +1287,6 @@
     "unifiedRoleDefinition",
     "unifiedRoleEligibilityScheduleInstance",
     "unifiedRoleEligibilityScheduleRequest"
-   ]
-  },
-  {
-   "area": "print",
-   "v1": 13,
-   "betaOnly": 2,
-   "onMap": 0,
-   "onMapTypes": [],
-   "missing": [
-    "print",
-    "printConnector",
-    "printDocument",
-    "printJob",
-    "printOperation",
-    "printService",
-    "printServiceEndpoint",
-    "printTask",
-    "printTaskDefinition",
-    "printTaskTrigger",
-    "printer",
-    "printerCreateOperation",
-    "printerShare"
    ]
   },
   {
@@ -6279,6 +6281,10 @@
    "area": "entraRecoveryServices (namespace)",
    "status": "v1.0"
   },
+  "microsoft.graph.entraRecoveryServices.recoveryConfiguration": {
+   "area": "directory",
+   "status": "beta only"
+  },
   "microsoft.graph.entraRecoveryServices.recoveryJob": {
    "area": "directory",
    "status": "v1.0"
@@ -7360,10 +7366,6 @@
    "status": "beta only"
   },
   "microsoft.graph.investigationInput": {
-   "area": "security",
-   "status": "beta only"
-  },
-  "microsoft.graph.investigationMessage": {
    "area": "security",
    "status": "beta only"
   },
@@ -9809,11 +9811,11 @@
   },
   "microsoft.graph.pullPrintPrinter": {
    "area": "print",
-   "status": "beta only"
+   "status": "v1.0"
   },
   "microsoft.graph.pullPrintPrinterCreateOperation": {
    "area": "print",
-   "status": "beta only"
+   "status": "v1.0"
   },
   "microsoft.graph.purchaseInvoice": {
    "area": "financials",
