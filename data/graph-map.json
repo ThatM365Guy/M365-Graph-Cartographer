@@ -1,13 +1,13 @@
 {
  "meta": {
   "title": "M365 Graph Cartographer (MGC)",
-  "curatedVersion": "0.8.0",
+  "curatedVersion": "0.9.0",
   "curatedOn": "2026-11-28",
   "phase": "Purview covered in depth from 0.3.0: information protection, records, eDiscovery, audit, privacy and the data security API, with what Graph does not cover.",
   "note": "Hand-written content lives here. The scanner never edits this file; it writes graph-map.json alongside it.",
-  "generatedAt": "2026-11-28T13:23:20+00:00",
+  "generatedAt": "2026-11-28T13:38:11+00:00",
   "scan": {
-   "at": "2026-11-28T13:23:20+00:00",
+   "at": "2026-11-28T13:38:11+00:00",
    "v1EntityTypes": 1264,
    "betaEntityTypes": 2625,
    "permissionsCatalogue": {
@@ -6393,6 +6393,177 @@
    }
   },
   {
+   "id": "authMethodsPolicy",
+   "label": "Authentication methods policy",
+   "workload": "policies",
+   "subservice": "authentication",
+   "entityType": "microsoft.graph.authenticationMethodsPolicy",
+   "path": "GET /policies/authenticationMethodsPolicy",
+   "summary": "Which sign-in methods (passkeys and FIDO2, Microsoft Authenticator, Temporary Access Pass, SMS and others) are enabled in the tenant, and for which users and groups.",
+   "permissions": {
+    "delegated": "Policy.Read.AuthenticationMethod",
+    "application": "Policy.Read.AuthenticationMethod"
+   },
+   "limits": [
+    "Delegated callers need Global Reader or Authentication Policy Administrator (checked on Microsoft Learn, 28 Nov 2026).",
+    "Not available in the China (21Vianet) cloud."
+   ],
+   "mapping": [
+    "Each method's configuration is under authenticationMethodConfigurations, with includeTargets naming users and groups."
+   ],
+   "docs": "https://learn.microsoft.com/graph/api/resources/authenticationmethodspolicy",
+   "scan": {
+    "status": "v1.0",
+    "props": [
+     "description",
+     "displayName",
+     "id",
+     "lastModifiedDateTime",
+     "policyMigrationState",
+     "policyVersion",
+     "reconfirmationInDays",
+     "registrationEnforcement"
+    ],
+    "navs": {
+     "authenticationMethodConfigurations": "microsoft.graph.authenticationMethodConfiguration"
+    },
+    "betaOnlyProps": [
+     "deletedDateTime",
+     "microsoftAuthenticatorPlatformSettings",
+     "reportSuspiciousActivitySettings",
+     "systemCredentialPreferences"
+    ],
+    "betaOnlyNavs": [],
+    "baseTypes": [
+     "microsoft.graph.entity"
+    ]
+   },
+   "permCheck": {
+    "checked": [
+     "Policy.Read.AuthenticationMethod"
+    ],
+    "unknown": []
+   }
+  },
+  {
+   "id": "authStrength",
+   "label": "Authentication strength policy",
+   "workload": "policies",
+   "subservice": "authentication",
+   "entityType": "microsoft.graph.authenticationStrengthPolicy",
+   "path": "GET /policies/authenticationStrengthPolicies",
+   "summary": "The combinations of sign-in methods a Conditional Access policy can require: the built-in strengths (Multifactor authentication, Passwordless MFA, Phishing-resistant MFA) and any custom ones.",
+   "permissions": {
+    "delegated": "Policy.Read.AuthenticationMethod",
+    "application": "Policy.Read.AuthenticationMethod"
+   },
+   "limits": [
+    "A Conditional Access policy can't combine an authentication strength with the mfa grant control (checked on Microsoft Learn, 28 Nov 2026)."
+   ],
+   "mapping": [
+    "Built-in Phishing-resistant MFA has id 00000000-0000-0000-0000-000000000004 (windowsHelloForBusiness, fido2, x509CertificateMultiFactor).",
+    "Conditional Access policies point to a strength through the grantControls.authenticationStrength relationship."
+   ],
+   "docs": "https://learn.microsoft.com/graph/api/resources/authenticationstrengthpolicy",
+   "scan": {
+    "status": "v1.0",
+    "props": [
+     "allowedCombinations",
+     "createdDateTime",
+     "description",
+     "displayName",
+     "id",
+     "modifiedDateTime",
+     "policyType",
+     "requirementsSatisfied"
+    ],
+    "navs": {
+     "combinationConfigurations": "microsoft.graph.authenticationCombinationConfiguration"
+    },
+    "betaOnlyProps": [
+     "deletedDateTime"
+    ],
+    "betaOnlyNavs": [],
+    "baseTypes": [
+     "microsoft.graph.entity"
+    ]
+   },
+   "permCheck": {
+    "checked": [
+     "Policy.Read.AuthenticationMethod"
+    ],
+    "unknown": []
+   }
+  },
+  {
+   "id": "spSettings",
+   "label": "SharePoint tenant settings",
+   "workload": "admin",
+   "subservice": "product-admin",
+   "entityType": "microsoft.graph.sharepointSettings",
+   "path": "GET /admin/sharepoint/settings",
+   "summary": "Tenant-wide SharePoint and OneDrive settings, including the external sharing level (sharingCapability) and allowed or blocked sharing domains.",
+   "permissions": {
+    "delegated": "SharePointTenantSettings.Read.All",
+    "application": "SharePointTenantSettings.Read.All"
+   },
+   "limits": [
+    "Delegated callers need Global Reader or SharePoint Administrator (checked on Microsoft Learn, 28 Nov 2026).",
+    "sharingCapability is disabled, externalUserSharingOnly, externalUserAndGuestSharing or existingExternalUserSharingOnly; the Graph page doesn't say which value allows Anyone links."
+   ],
+   "mapping": [
+    "sharingDomainRestrictionMode (none, allowList, blockList) with sharingAllowedDomainList and sharingBlockedDomainList."
+   ],
+   "docs": "https://learn.microsoft.com/graph/api/resources/sharepointsettings",
+   "scan": {
+    "status": "v1.0",
+    "props": [
+     "allowedDomainGuidsForSyncApp",
+     "availableManagedPathsForSiteCreation",
+     "deletedUserPersonalSiteRetentionPeriodInDays",
+     "excludedFileExtensionsForSyncApp",
+     "id",
+     "idleSessionSignOut",
+     "imageTaggingOption",
+     "isCommentingOnSitePagesEnabled",
+     "isFileActivityNotificationEnabled",
+     "isLegacyAuthProtocolsEnabled",
+     "isLoopEnabled",
+     "isMacSyncAppEnabled",
+     "isRequireAcceptingUserToMatchInvitedUserEnabled",
+     "isResharingByExternalUsersEnabled",
+     "isSharePointMobileNotificationEnabled",
+     "isSharePointNewsfeedEnabled",
+     "isSiteCreationEnabled",
+     "isSiteCreationUIEnabled",
+     "isSitePagesCreationEnabled",
+     "isSitesStorageLimitAutomatic",
+     "isSyncButtonHiddenOnPersonalSite",
+     "isUnmanagedSyncAppForTenantRestricted",
+     "personalSiteDefaultStorageLimitInMB",
+     "sharingAllowedDomainList",
+     "sharingBlockedDomainList",
+     "sharingCapability",
+     "sharingDomainRestrictionMode",
+     "siteCreationDefaultManagedPath",
+     "siteCreationDefaultStorageLimitInMB",
+     "tenantDefaultTimezone"
+    ],
+    "navs": {},
+    "betaOnlyProps": [],
+    "betaOnlyNavs": [],
+    "baseTypes": [
+     "microsoft.graph.entity"
+    ]
+   },
+   "permCheck": {
+    "checked": [
+     "SharePointTenantSettings.Read.All"
+    ],
+    "unknown": []
+   }
+  },
+  {
    "id": "gen-accessPackageResourceEnvironment",
    "label": "Access package resource environment",
    "entityType": "microsoft.graph.accessPackageResourceEnvironment",
@@ -8955,65 +9126,6 @@
    "area": "authenticationMethodConfigurations"
   },
   {
-   "id": "gen-authenticationMethodsPolicy",
-   "label": "Authentication methods policy",
-   "entityType": "microsoft.graph.authenticationMethodsPolicy",
-   "tier": "generated",
-   "path": "/authenticationMethodsPolicy",
-   "itemPath": "/authenticationMethodsPolicy",
-   "altPaths": [
-    "/policies/authenticationMethodsPolicy"
-   ],
-   "variants": [],
-   "ops": {
-    "actions": [],
-    "functions": []
-   },
-   "scan": {
-    "status": "v1.0",
-    "props": [
-     "description",
-     "displayName",
-     "id",
-     "lastModifiedDateTime",
-     "policyMigrationState",
-     "policyVersion",
-     "reconfirmationInDays",
-     "registrationEnforcement"
-    ],
-    "navs": {
-     "authenticationMethodConfigurations": "microsoft.graph.authenticationMethodConfiguration"
-    },
-    "betaOnlyProps": [
-     "deletedDateTime",
-     "microsoftAuthenticatorPlatformSettings",
-     "reportSuspiciousActivitySettings",
-     "systemCredentialPreferences"
-    ],
-    "betaOnlyNavs": [],
-    "baseTypes": [
-     "microsoft.graph.entity"
-    ]
-   },
-   "links": 2,
-   "permissions": {
-    "delegated": "Policy.Read.AuthenticationMethod, Policy.ReadWrite.AuthenticationMethod",
-    "application": "Policy.Read.AuthenticationMethod, Policy.ReadWrite.AuthenticationMethod"
-   },
-   "permissionsPath": "/policies/authenticationmethodspolicy",
-   "docs": "https://learn.microsoft.com/graph/api/resources/authenticationmethodspolicy?view=graph-rest-1.0",
-   "workload": "policies",
-   "subservice": "authentication",
-   "area": "authenticationMethodsPolicy",
-   "permCheck": {
-    "checked": [
-     "Policy.Read.AuthenticationMethod",
-     "Policy.ReadWrite.AuthenticationMethod"
-    ],
-    "unknown": []
-   }
-  },
-  {
    "id": "gen-authenticationMethodsRoot",
    "label": "Authentication methods root",
    "entityType": "microsoft.graph.authenticationMethodsRoot",
@@ -9054,65 +9166,6 @@
    "workload": "policies",
    "subservice": "authentication",
    "area": "reports"
-  },
-  {
-   "id": "gen-authenticationStrengthPolicy",
-   "label": "Authentication strength policy",
-   "entityType": "microsoft.graph.authenticationStrengthPolicy",
-   "tier": "generated",
-   "path": "/policies/authenticationStrengthPolicies",
-   "itemPath": "/policies/authenticationStrengthPolicies/{id}",
-   "altPaths": [
-    "/identity/conditionalAccess/authenticationStrength/policies"
-   ],
-   "variants": [],
-   "ops": {
-    "actions": [
-     "updateAllowedCombinations"
-    ],
-    "functions": [
-     "usage"
-    ]
-   },
-   "scan": {
-    "status": "v1.0",
-    "props": [
-     "allowedCombinations",
-     "createdDateTime",
-     "description",
-     "displayName",
-     "id",
-     "modifiedDateTime",
-     "policyType",
-     "requirementsSatisfied"
-    ],
-    "navs": {
-     "combinationConfigurations": "microsoft.graph.authenticationCombinationConfiguration"
-    },
-    "betaOnlyProps": [
-     "deletedDateTime"
-    ],
-    "betaOnlyNavs": [],
-    "baseTypes": [
-     "microsoft.graph.entity"
-    ]
-   },
-   "links": 3,
-   "permissions": {
-    "delegated": "Policy.Read.AuthenticationMethod",
-    "application": "Policy.Read.AuthenticationMethod"
-   },
-   "permissionsPath": "/policies/authenticationstrengthpolicies/{id}",
-   "docs": "https://learn.microsoft.com/graph/api/resources/authenticationstrengthpolicy?view=graph-rest-1.0",
-   "workload": "policies",
-   "subservice": "authentication",
-   "area": "policies",
-   "permCheck": {
-    "checked": [
-     "Policy.Read.AuthenticationMethod"
-    ],
-    "unknown": []
-   }
   },
   {
    "id": "gen-authenticationStrengthRoot",
@@ -39416,78 +39469,6 @@
    "workload": "admin",
    "subservice": "product-admin",
    "area": "admin"
-  },
-  {
-   "id": "gen-sharepointSettings",
-   "label": "SharePoint settings",
-   "entityType": "microsoft.graph.sharepointSettings",
-   "tier": "generated",
-   "path": "/admin/sharepoint/settings",
-   "itemPath": "/admin/sharepoint/settings",
-   "altPaths": [],
-   "variants": [],
-   "ops": {
-    "actions": [],
-    "functions": []
-   },
-   "scan": {
-    "status": "v1.0",
-    "props": [
-     "allowedDomainGuidsForSyncApp",
-     "availableManagedPathsForSiteCreation",
-     "deletedUserPersonalSiteRetentionPeriodInDays",
-     "excludedFileExtensionsForSyncApp",
-     "id",
-     "idleSessionSignOut",
-     "imageTaggingOption",
-     "isCommentingOnSitePagesEnabled",
-     "isFileActivityNotificationEnabled",
-     "isLegacyAuthProtocolsEnabled",
-     "isLoopEnabled",
-     "isMacSyncAppEnabled",
-     "isRequireAcceptingUserToMatchInvitedUserEnabled",
-     "isResharingByExternalUsersEnabled",
-     "isSharePointMobileNotificationEnabled",
-     "isSharePointNewsfeedEnabled",
-     "isSiteCreationEnabled",
-     "isSiteCreationUIEnabled",
-     "isSitePagesCreationEnabled",
-     "isSitesStorageLimitAutomatic",
-     "isSyncButtonHiddenOnPersonalSite",
-     "isUnmanagedSyncAppForTenantRestricted",
-     "personalSiteDefaultStorageLimitInMB",
-     "sharingAllowedDomainList",
-     "sharingBlockedDomainList",
-     "sharingCapability",
-     "sharingDomainRestrictionMode",
-     "siteCreationDefaultManagedPath",
-     "siteCreationDefaultStorageLimitInMB",
-     "tenantDefaultTimezone"
-    ],
-    "navs": {},
-    "betaOnlyProps": [],
-    "betaOnlyNavs": [],
-    "baseTypes": [
-     "microsoft.graph.entity"
-    ]
-   },
-   "links": 1,
-   "permissions": {
-    "delegated": "SharePointTenantSettings.Read.All, SharePointTenantSettings.ReadWrite.All",
-    "application": "SharePointTenantSettings.Read.All, SharePointTenantSettings.ReadWrite.All"
-   },
-   "permissionsPath": "/admin/sharepoint/settings",
-   "docs": "https://learn.microsoft.com/graph/api/resources/sharepointsettings?view=graph-rest-1.0",
-   "workload": "admin",
-   "subservice": "product-admin",
-   "area": "admin",
-   "permCheck": {
-    "checked": [
-     "SharePointTenantSettings.Read.All",
-     "SharePointTenantSettings.ReadWrite.All"
-    ],
-    "unknown": []
-   }
   },
   {
    "id": "gen-shift",
@@ -97335,6 +97316,14 @@
    "label": "correlationId",
    "desc": "the sign-in's correlation ID; null when the detection isn't tied to a sign-in",
    "scan": "n/a"
+  },
+  {
+   "s": "caPolicy",
+   "t": "authStrength",
+   "kind": "ref",
+   "label": "grantControls.authenticationStrength",
+   "desc": "the strength a policy requires",
+   "scan": "n/a"
   }
  ],
  "scenarios": [
@@ -98099,9 +98088,405 @@
      "do": "List incidents and advisories that aren't resolved yet (isResolved false)."
     }
    ]
+  },
+  {
+   "id": "app-permission-review",
+   "label": "Least-privilege review of apps' and agents' Graph permissions",
+   "group": "Classic",
+   "summary": "Apps and agents often hold far more Graph permission than they use, and every unused permission is attack surface.",
+   "licence": "Entra ID Free for the grants; Entra ID P1 or P2 for the last-used report.",
+   "steps": [
+    {
+     "node": "servicePrincipal",
+     "do": "Find Microsoft Graph's service principal in your tenant.",
+     "call": "GET /servicePrincipals(appId='00000003-0000-0000-c000-000000000000')",
+     "note": "The appId is the same in every tenant; the object id is not."
+    },
+    {
+     "node": "appRoleAssignment",
+     "do": "List every app and agent holding Graph application permissions.",
+     "call": "GET /servicePrincipals(appId='00000003-0000-0000-c000-000000000000')/appRoleAssignedTo",
+     "permission": "Application.Read.All (delegated and application)",
+     "note": "Recently granted or removed assignments can show late because of replication delay."
+    },
+    {
+     "node": "oauthGrant",
+     "do": "List delegated grants to Graph.",
+     "call": "GET /oauth2PermissionGrants?$filter=resourceId eq '{graphServicePrincipalObjectId}'",
+     "note": "resourceId is the object id of Graph's service principal in your tenant, not its appId."
+    },
+    {
+     "node": "agentIdentity",
+     "do": "Pick out the agent identities among the holders and review them with their owners."
+    },
+    {
+     "node": "reportRoot",
+     "do": "Check when each app last signed in.",
+     "call": "GET https://graph.microsoft.com/beta/reports/servicePrincipalSignInActivities?$filter=appId eq '{appId}'",
+     "permission": "AuditLog.Read.All (delegated and application)",
+     "licence": "Entra ID P1 or P2",
+     "note": "Beta only. A timestamp alone doesn't prove the sign-in succeeded."
+    }
+   ],
+   "seeAlso": [
+    "risky-app-consent",
+    "workload-identity-hygiene",
+    "agent-identity-governance"
+   ]
+  },
+  {
+   "id": "passkey-migration",
+   "label": "Phishing-resistant MFA migration tracking (passkeys)",
+   "group": "Classic",
+   "summary": "Passkeys and other phishing-resistant methods only protect users who have registered them and are required to use them.",
+   "licence": "Entra ID P1 or P2 for the registration report and Conditional Access.",
+   "steps": [
+    {
+     "node": "registrationDetails",
+     "do": "Count who isn't passwordless capable yet.",
+     "call": "GET /reports/authenticationMethods/userRegistrationDetails?$filter=isPasswordlessCapable eq false",
+     "note": "Learn names passKeyDeviceBound as an example methodsRegistered value but gives no full list. Disabled users aren't returned."
+    },
+    {
+     "node": "authMethodsPolicy",
+     "do": "See which methods, including passkeys (FIDO2), are enabled, and for whom."
+    },
+    {
+     "node": "authStrength",
+     "do": "Confirm the built-in Phishing-resistant MFA strength and any custom strengths."
+    },
+    {
+     "node": "caPolicy",
+     "do": "Find the Conditional Access policies that require that strength, and who they exclude.",
+     "note": "The strength is the grantControls.authenticationStrength relationship, not a built-in control."
+    },
+    {
+     "node": "authMethod",
+     "do": "Check the remaining users one by one.",
+     "note": "Learn advises against this API for whole-population audits. How a user actually signed in (authenticationDetails) is only in beta sign-in logs."
+    }
+   ],
+   "seeAlso": [
+    "ca-coverage-gaps"
+   ]
+  },
+  {
+   "id": "sharing-link-audit",
+   "label": "\"Anyone\" and organisation-wide sharing link audit",
+   "group": "Classic",
+   "summary": "Anyone links work for whoever holds them and organisation-wide links reach every employee, so both are easy oversharing.",
+   "licence": "None stated for the Graph calls; Purview Audit for the audit search.",
+   "steps": [
+    {
+     "node": "spSettings",
+     "do": "Read the tenant's external sharing level (sharingCapability)."
+    },
+    {
+     "node": "site",
+     "do": "List every site.",
+     "call": "GET /sites/getAllSites",
+     "permission": "Sites.Read.All (application only)",
+     "note": "No delegated permission; results are paged."
+    },
+    {
+     "node": "driveItem",
+     "do": "Walk each drive and flag items whose sharing changed.",
+     "call": "GET /drives/{id}/root/delta  (Prefer: deltashowremovedasdeleted, deltatraversepermissiongaps, deltashowsharingchanges)",
+     "permission": "Sites.FullControl.All (application)",
+     "note": "Learn says processing permissions this way needs Sites.FullControl.All, a high permission."
+    },
+    {
+     "node": "permission",
+     "do": "List each flagged item's permissions and keep links whose link.scope is anonymous or organization.",
+     "note": "The driveItem shared.scope property is deprecated; use /permissions."
+    },
+    {
+     "node": "auditLogQuery",
+     "do": "Find who created and used the links (AnonymousLinkCreated, AnonymousLinkUsed, CompanyLinkCreated).",
+     "note": "Learn doesn't explicitly tie these operations to the SharePointSharingOperation record type, so filter by operation name. Read-only, uses POST."
+    }
+   ],
+   "seeAlso": [
+    "copilot-oversharing"
+   ]
+  },
+  {
+   "id": "workload-identity-hygiene",
+   "label": "Workload identity hygiene: expiring secrets, unused and over-permissioned apps",
+   "group": "Classic",
+   "summary": "Forgotten app credentials and permissions outlive the projects that needed them; expired secrets break things and long-lived ones get stolen.",
+   "licence": "Entra ID Free; Entra ID P1 or P2 for credential last use.",
+   "steps": [
+    {
+     "node": "application",
+     "do": "List apps with their secrets and certificates and pick out those near expiry.",
+     "call": "GET /applications?$select=id,appId,displayName,passwordCredentials,keyCredentials",
+     "permission": "Application.Read.All (delegated and application)",
+     "note": "Filter on endDateTime in your own code (no documented $filter on expiry). $select of keyCredentials is throttled at 150 requests a minute per tenant."
+    },
+    {
+     "node": "servicePrincipal",
+     "do": "Do the same for service principals, which can hold credentials too.",
+     "call": "GET /servicePrincipals?$select=id,appId,displayName,passwordCredentials,keyCredentials"
+    },
+    {
+     "node": "application",
+     "do": "Find apps with fewer than two owners.",
+     "call": "GET /applications?$filter=owners/$count eq 0 or owners/$count eq 1&$count=true  (ConsistencyLevel: eventual)",
+     "permission": "Application.Read.All (delegated and application)"
+    },
+    {
+     "node": "reportRoot",
+     "do": "Check when each credential was last used.",
+     "call": "GET https://graph.microsoft.com/beta/reports/appCredentialSignInActivities",
+     "permission": "AuditLog.Read.All (delegated and application)",
+     "note": "Beta only; the API page states no licence."
+    },
+    {
+     "node": "appRoleAssignment",
+     "do": "List the application permissions each app holds.",
+     "call": "GET /servicePrincipals/{id}/appRoleAssignments"
+    },
+    {
+     "node": "riskyServicePrincipal",
+     "do": "Check whether any of them are flagged at risk."
+    }
+   ],
+   "seeAlso": [
+    "app-permission-review",
+    "workload-identity-triage"
+   ]
+  },
+  {
+   "id": "label-copilot-readiness",
+   "label": "Sensitivity label coverage as a Copilot readiness gate",
+   "group": "AI",
+   "summary": "Copilot respects sensitivity labels, so unlabelled sensitive content is the gap to close before a wide roll-out.",
+   "licence": "Entra ID P1 for group labels; Purview licensing for the labels themselves.",
+   "steps": [
+    {
+     "node": "sensitivityLabel",
+     "do": "List the labels in use."
+    },
+    {
+     "node": "group",
+     "do": "Check the container labels on Microsoft 365 groups and their team sites.",
+     "call": "GET /groups/{id}?$select=assignedLabels",
+     "permission": "Group.Read.All (delegated and application)",
+     "note": "assignedLabels needs $select and Entra ID P1. The site resource has no label property."
+    },
+    {
+     "node": "site",
+     "do": "List every site.",
+     "call": "GET /sites/getAllSites",
+     "permission": "Sites.Read.All (application only)"
+    },
+    {
+     "node": "driveItem",
+     "do": "Read each file's sensitivity label.",
+     "call": "POST /drives/{id}/items/{id}/extractSensitivityLabels",
+     "permission": "Files.Read.All (delegated and application)",
+     "note": "driveItem has no label property. The call can refresh the stored label metadata; it isn't supported for SharePoint Embedded and returns 423 Locked for double key encrypted files. Read-only, uses POST."
+    },
+    {
+     "node": "purviewGap",
+     "do": "Get labelled-versus-unlabelled counts outside Graph: Purview content explorer or the SharePoint Advanced Management sensitivity label report.",
+     "note": "Learn documents no Graph API for label coverage counts."
+    }
+   ],
+   "seeAlso": [
+    "copilot-oversharing",
+    "sharing-link-audit"
+   ]
+  },
+  {
+   "id": "ca-coverage-gaps",
+   "label": "Conditional Access coverage and gap analysis",
+   "group": "Classic",
+   "summary": "Policies with wide exclusions, report-only policies and apps nobody targeted leave sign-ins with no Conditional Access at all.",
+   "licence": "Entra ID P1.",
+   "steps": [
+    {
+     "node": "caPolicy",
+     "do": "List policies with their state and include and exclude lists.",
+     "note": "enabledForReportingButNotEnforced means report-only: it logs, it doesn't enforce."
+    },
+    {
+     "node": "group",
+     "do": "Resolve the excluded groups, including break-glass accounts.",
+     "call": "GET /groups/{id}/members"
+    },
+    {
+     "node": "signIn",
+     "do": "Find sign-ins that no policy applied to.",
+     "call": "GET /auditLogs/signIns?$filter=conditionalAccessStatus eq 'notApplied' and createdDateTime ge {date}",
+     "permission": "AuditLog.Read.All plus Policy.Read.ConditionalAccess",
+     "note": "Without a policy permission, appliedConditionalAccessPolicies is silently left out of the results."
+    },
+    {
+     "node": "caPolicy",
+     "do": "Test a user and app against your policies with What If.",
+     "call": "POST /identity/conditionalAccess/evaluate",
+     "permission": "Policy.Read.ConditionalAccess (delegated and application)",
+     "note": "Pass an app ID, not an app group such as Office 365; conditions you leave unset don't match. Read-only, uses POST."
+    },
+    {
+     "node": "crossTenantAccess",
+     "do": "Check inbound trust (MFA and device claims) for guests from partner tenants."
+    }
+   ],
+   "seeAlso": [
+    "passkey-migration",
+    "device-compliance-gap"
+   ]
+  },
+  {
+   "id": "ews-migration",
+   "label": "EWS to Graph migration of mail-integrated apps",
+   "group": "Classic",
+   "summary": "EWS in Exchange Online began phased disablement on 1 October 2026 and is fully retired on 1 April 2027, so apps still on it have to move to Graph.",
+   "licence": "None stated.",
+   "steps": [
+    {
+     "node": "exGap",
+     "do": "Start with the EWS usage report in the Microsoft 365 admin center (Reports, Usage, Exchange, EWS usage): app ID, SOAP action, call volume and last activity.",
+     "note": "Learn documents no Graph endpoint for this report. Data is aggregated weekly and can lag up to 10 days."
+    },
+    {
+     "node": "servicePrincipal",
+     "do": "Find the Office 365 Exchange Online service principal.",
+     "call": "GET /servicePrincipals(appId='00000002-0000-0ff1-ce00-000000000000')"
+    },
+    {
+     "node": "appRoleAssignment",
+     "do": "List apps holding full_access_as_app (EWS with access to every mailbox).",
+     "call": "GET /servicePrincipals(appId='00000002-0000-0ff1-ce00-000000000000')/appRoleAssignedTo",
+     "permission": "Application.Read.All (delegated and application)"
+    },
+    {
+     "node": "oauthGrant",
+     "do": "List delegated grants that include EWS.AccessAsUser.All.",
+     "call": "GET /oauth2PermissionGrants?$filter=resourceId eq '{exchangeServicePrincipalObjectId}'"
+    },
+    {
+     "node": "application",
+     "do": "Find each app's owners so someone can plan its move to Graph.",
+     "call": "GET /applications(appId='{appId}')/owners",
+     "note": "Learn's guide: Migrate Exchange Web Services (EWS) apps to Microsoft Graph."
+    }
+   ],
+   "seeAlso": [
+    "app-permission-review"
+   ]
+  },
+  {
+   "id": "rot-cleanup",
+   "label": "ROT clean-up: stale, duplicate and orphaned content",
+   "group": "Cost and hygiene",
+   "summary": "Redundant, obsolete and trivial content costs storage, slows search and feeds Copilot stale answers; clear it without breaking retention.",
+   "licence": "None stated for the Graph calls.",
+   "steps": [
+    {
+     "node": "reportRoot",
+     "do": "Pull SharePoint site usage with last activity date and storage used.",
+     "call": "GET /reports/getSharePointSiteUsageDetail(period='D180')",
+     "permission": "Reports.Read.All (delegated and application)",
+     "note": "If displayConcealedNames is on (GET /admin/reportSettings, ReportSettings.Read.All), site and owner names come back hashed."
+    },
+    {
+     "node": "site",
+     "do": "Open the stale sites."
+    },
+    {
+     "node": "drive",
+     "do": "Check each drive's quota and owner."
+    },
+    {
+     "node": "driveItem",
+     "do": "List files with delta and pick out the old ones by lastModifiedDateTime.",
+     "call": "GET /drives/{id}/root/delta",
+     "note": "Delta has no $filter, so filter in your own code. Learn describes no duplicate-detection method in Graph."
+    },
+    {
+     "node": "driveItem",
+     "do": "Count versions on large files.",
+     "call": "GET /drives/{id}/items/{id}/versions",
+     "note": "Versions come newest first and $orderby isn't supported."
+    },
+    {
+     "node": "retentionLabel",
+     "do": "Read each file's retention label before anything is marked for deletion.",
+     "call": "GET /drives/{id}/items/{id}/retentionLabel",
+     "permission": "Files.Read.All (delegated and application)",
+     "note": "Don't delete when isDeleteAllowed is false or the record is locked."
+    }
+   ],
+   "seeAlso": [
+    "leaver-event-retention"
+   ]
+  },
+  {
+   "id": "licence-cleanup",
+   "label": "Licence clean-up, including Copilot seats",
+   "group": "Cost and hygiene",
+   "summary": "Licences on disabled, idle or duplicate assignments are money spent for nothing, and Copilot seats are the most expensive to waste.",
+   "licence": "Entra ID P1 or P2 for sign-in activity.",
+   "steps": [
+    {
+     "node": "subscribedSku",
+     "do": "Compare licences bought (prepaidUnits.enabled) with licences used (consumedUnits)."
+    },
+    {
+     "node": "user",
+     "do": "List licensed users with their last sign-in.",
+     "call": "GET /users?$select=id,userPrincipalName,accountEnabled,assignedLicenses,signInActivity",
+     "permission": "User.Read.All plus AuditLog.Read.All",
+     "licence": "Entra ID P1 or P2",
+     "note": "Page size is up to 500 with signInActivity; a signInActivity filter can't be combined with other filters; there's no data before April 2020."
+    },
+    {
+     "node": "user",
+     "do": "Find disabled accounts that still hold licences.",
+     "call": "GET /users?$filter=accountEnabled eq false and assignedLicenses/$count ne 0&$count=true  (ConsistencyLevel: eventual)",
+     "note": "This combination follows Learn's documented rules, but Learn shows no exact example."
+    },
+    {
+     "node": "group",
+     "do": "Check group-based licensing: licenseAssignmentStates.assignedByGroup on users names the group, and group.assignedLicenses needs $select.",
+     "note": "Remove an inherited licence from the group, not the user."
+    },
+    {
+     "node": "reportRoot",
+     "do": "Check Copilot usage per user before reassigning seats.",
+     "call": "GET /copilot/reports/getMicrosoft365CopilotUsageUserDetail(period='D28')",
+     "permission": "Reports.Read.All (delegated and application)",
+     "note": "v1.0 returns CSV and covers Copilot-licensed users only; delegated callers need a role such as AI Administrator or Reports Reader."
+    }
+   ],
+   "seeAlso": [
+    "dormant-licensed-accounts"
+   ]
   }
  ],
  "recentChanges": [
+  {
+   "date": "2026-11-28",
+   "node": "authMethodsPolicy",
+   "kind": "new-node",
+   "text": "Authentication methods policy: scanned for the first time (v1.0)."
+  },
+  {
+   "date": "2026-11-28",
+   "node": "authStrength",
+   "kind": "new-node",
+   "text": "Authentication strength policy: scanned for the first time (v1.0)."
+  },
+  {
+   "date": "2026-11-28",
+   "node": "spSettings",
+   "kind": "new-node",
+   "text": "SharePoint tenant settings: scanned for the first time (v1.0)."
+  },
   {
    "date": "2026-11-28",
    "node": "authMethod",
@@ -99477,11 +99862,11 @@
   }
  },
  "coverage": {
-  "at": "2026-11-28T13:23:20+00:00",
+  "at": "2026-11-28T13:38:11+00:00",
   "v1Types": 1264,
   "betaOnlyTypes": 1369,
   "onMap": 1264,
-  "curated": 153,
+  "curated": 156,
   "betaOnMap": 1369,
   "areas": [
    {
@@ -99553,7 +99938,7 @@
     "v1": 57,
     "betaOnly": 12,
     "onMap": 57,
-    "curated": 4,
+    "curated": 5,
     "betaOnMap": 12
    },
    {
@@ -99569,7 +99954,7 @@
     "v1": 41,
     "betaOnly": 70,
     "onMap": 41,
-    "curated": 5,
+    "curated": 6,
     "betaOnMap": 70
    },
    {
@@ -99881,7 +100266,7 @@
     "v1": 1,
     "betaOnly": 0,
     "onMap": 1,
-    "curated": 0,
+    "curated": 1,
     "betaOnMap": 0
    },
    {
@@ -100485,7 +100870,7 @@
    {
     "workload": "policies",
     "onMap": 97,
-    "curated": 5,
+    "curated": 7,
     "betaOnly": 31
    },
    {
@@ -100533,7 +100918,7 @@
    {
     "workload": "admin",
     "onMap": 41,
-    "curated": 3,
+    "curated": 4,
     "betaOnly": 28
    },
    {

@@ -52,8 +52,8 @@ def scenario_problems(c):
         if sid in seen:
             out.append(f"{sid}: duplicate id")
         seen.add(sid)
-        if sc.get("group") not in {"Classic", "AI", "Purview"}:
-            out.append(f"{sid}: group must be Classic, AI or Purview")
+        if sc.get("group") not in {"Classic", "AI", "Purview", "Cost and hygiene"}:
+            out.append(f"{sid}: group must be Classic, AI, Purview or Cost and hygiene")
         if not (sc.get("label") and sc.get("summary")):
             out.append(f"{sid}: needs a label and a summary")
         steps = sc.get("steps") or []

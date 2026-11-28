@@ -341,7 +341,7 @@ function init(){
   const lastScan = scanInfo ? new Date(scanInfo.at) : new Date();
   const changed = new Set(recent.filter(c => c.node && SCHEMA_KINDS.test(c.kind) && (lastScan - new Date(c.date)) < 8*864e5).map(c => c.node));
   const SCEN = D.scenarios || [], SC = {}; SCEN.forEach(x => SC[x.id] = x);
-  const SCEN_GROUPS = ['Classic', 'AI', 'Purview'];
+  const SCEN_GROUPS = ['Classic', 'AI', 'Purview', 'Cost and hygiene'];
   const scenGroups = s => s.steps.reduce((g, st) => { if (st.or && g.length) g[g.length-1].push(st); else g.push([st]); return g; }, []);
   const cov = D.coverage;
   const FAMILIES = {identity: 'Identity', collaboration: 'Collaboration', security: 'Security & compliance', ai: 'AI'};

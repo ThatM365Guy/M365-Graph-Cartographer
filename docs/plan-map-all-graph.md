@@ -210,7 +210,7 @@ Propose new scenarios that use them.
 - microsoft-graph-devx-content: commit b9a67f1, `permissions/new/permissions.json`
 - MGC repository: CLAUDE.md, `data/coverage.json` and `data/changelog.json` at `f0f3a58` (Scan 2026-11-23).
 
-#### Phase 6 proposals (28 Nov 2026, waiting for the owner's approval; nothing written into curated.json)
+#### Phase 6 scenarios (owner approved all nine on 28 Nov 2026; written into curated.json, curated 0.9.0)
 
 Every call, filter, permission and catch below was checked on Microsoft Learn on 28 Nov 2026. Where a step names no permission or licence, it uses the node's own (already checked) notes. "(read-only, uses POST)" marks the few read calls that need POST, for Phase 7's allow list.
 
@@ -295,7 +295,7 @@ To check before writing: Learn doesn't describe a duplicate-detection method; th
 
 Start these only when the owner says go. The same ground rules apply: stop and ask before anything that touches GitHub or Azure, and never invent permission names, API paths or cmdlet names.
 
-- [ ] Phase 6: nine new scenarios (proposals written 28 Nov 2026 on branch `claude/phase6-scenarios`, stacked on Phase 5; waiting for the owner)
+- [x] Phase 6: nine new scenarios (branch `claude/phase6-scenarios`, stacked on Phase 5; owner approved all nine on 28 Nov 2026; written and committed locally)
 - [ ] Phase 7: script examples for every scenario
 
 #### Phase 6: nine new scenarios
