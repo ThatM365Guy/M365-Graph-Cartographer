@@ -402,11 +402,17 @@ def coverage_types(v1: Schema, beta: Schema) -> dict:
 
 def summarise_coverage(curated: dict, types: dict, roots: dict, at: str | None) -> dict:
     """Full coverage report (for coverage.json) from a type index and the curated map."""
-    on_map = {n["entityType"] for n in curated["nodes"] if n.get("entityType")}
-    for n in curated["nodes"]:          # types a node documents alongside its own (covers[])
-        on_map.update(n.get("covers") or [])
+    # "onMap" counts every type the map places (curated or generated entries); "curated" counts only the types
+    # with hand-written entries. They are the same until the generated tier exists.
+    def placed(nodes):
+        out = {n["entityType"] for n in nodes if n.get("entityType")}
+        for n in nodes:                 # types a node documents alongside its own (covers[])
+            out.update(n.get("covers") or [])
+        return out
+    on_map = placed(curated["nodes"])
+    hand = placed([n for n in curated["nodes"] if n.get("tier") != "generated"])
     areas: dict[str, dict] = {}
-    purview = {name: {"solution": name, "v1": 0, "betaOnly": 0, "onMap": 0, "onMapTypes": [], "missing": [],
+    purview = {name: {"solution": name, "v1": 0, "betaOnly": 0, "onMap": 0, "curated": 0, "onMapTypes": [], "missing": [],
                       "betaOnlyTypes": []} for name, _ in PURVIEW_SOLUTIONS}
     for fq, t in types.items():
         sol = purview_solution(fq)
@@ -418,13 +424,14 @@ def summarise_coverage(curated: dict, types: dict, roots: dict, at: str | None) 
             r["betaOnlyTypes"].append(_short(fq))
         elif fq in on_map:
             r["onMap"] += 1
+            r["curated"] += fq in hand
             r["onMapTypes"].append(_short(fq))
         else:
             r["missing"].append(_short(fq))
         if t["status"] == "v1.0":
             r["v1"] += 1
     for fq, t in types.items():
-        a = areas.setdefault(t["area"], {"area": t["area"], "v1": 0, "betaOnly": 0, "onMap": 0,
+        a = areas.setdefault(t["area"], {"area": t["area"], "v1": 0, "betaOnly": 0, "onMap": 0, "curated": 0,
                                          "onMapTypes": [], "missing": []})
         if t["status"] != "v1.0":
             a["betaOnly"] += 1
@@ -432,6 +439,7 @@ def summarise_coverage(curated: dict, types: dict, roots: dict, at: str | None) 
         a["v1"] += 1
         if fq in on_map:
             a["onMap"] += 1
+            a["curated"] += fq in hand
             a["onMapTypes"].append(_short(fq))
         else:
             a["missing"].append(_short(fq))
@@ -440,25 +448,24 @@ def summarise_coverage(curated: dict, types: dict, roots: dict, at: str | None) 
     # two services counts for each; Graph areas don't line up with workloads, so there is no per-service total.
     services = []
     for w in curated.get("workloads", []):
-        mine = set()
-        for n in curated["nodes"]:
-            if n.get("workload") == w["id"]:
-                mine.update([n["entityType"]] if n.get("entityType") else [])
-                mine.update(n.get("covers") or [])
+        mine = placed([n for n in curated["nodes"] if n.get("workload") == w["id"]])
         services.append({"workload": w["id"],
                          "onMap": sum(1 for fq in mine if types.get(fq, {}).get("status") == "v1.0"),
+                         "curated": sum(1 for fq in mine & hand if types.get(fq, {}).get("status") == "v1.0"),
                          "betaOnly": sum(1 for fq in mine if fq in types and types[fq]["status"] != "v1.0")})
     return {
         "at": at,
         "v1Types": sum(r["v1"] for r in rows),
         "betaOnlyTypes": sum(r["betaOnly"] for r in rows),
         "onMap": sum(r["onMap"] for r in rows),
+        "curated": sum(r["curated"] for r in rows),
         "areas": rows,
         "services": services,
         "purview": {
             "v1": sum(r["v1"] for r in purview.values()),
             "betaOnly": sum(r["betaOnly"] for r in purview.values()),
             "onMap": sum(r["onMap"] for r in purview.values()),
+            "curated": sum(r["curated"] for r in purview.values()),
             "solutions": list(purview.values()),
         },
         "roots": roots,
@@ -470,11 +477,12 @@ def coverage_summary(cov: dict | None) -> dict | None:
     """Counts only, for embedding in the page. Names stay in coverage.json."""
     if not cov:
         return None
-    return {k: cov[k] for k in ("at", "v1Types", "betaOnlyTypes", "onMap")} | {
-        "areas": [{k: r[k] for k in ("area", "v1", "betaOnly", "onMap")} for r in cov["areas"]]} | ({
+    return {k: cov[k] for k in ("at", "v1Types", "betaOnlyTypes", "onMap", "curated") if k in cov} | {
+        "areas": [{k: r[k] for k in ("area", "v1", "betaOnly", "onMap", "curated") if k in r} for r in cov["areas"]]} | ({
         "services": cov["services"]} if cov.get("services") else {}) | ({
-        "purview": {k: cov["purview"][k] for k in ("v1", "betaOnly", "onMap")} | {
-            "solutions": [{k: r[k] for k in ("solution", "v1", "betaOnly", "onMap")} for r in cov["purview"]["solutions"]]}
+        "purview": {k: cov["purview"][k] for k in ("v1", "betaOnly", "onMap", "curated") if k in cov["purview"]} | {
+            "solutions": [{k: r[k] for k in ("solution", "v1", "betaOnly", "onMap", "curated") if k in r}
+                          for r in cov["purview"]["solutions"]]}
     } if cov.get("purview") else {})
 
 

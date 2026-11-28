@@ -1,8 +1,8 @@
 {
  "meta": {
   "title": "M365 Graph Cartographer (MGC)",
-  "curatedVersion": "0.5.0",
-  "curatedOn": "2026-11-16",
+  "curatedVersion": "0.6.0",
+  "curatedOn": "2026-11-28",
   "phase": "Purview covered in depth from 0.3.0: information protection, records, eDiscovery, audit, privacy and the data security API, with what Graph does not cover.",
   "note": "Hand-written content lives here. The scanner never edits this file; it writes graph-map.json alongside it."
  },
@@ -67,6 +67,39 @@
     {
      "id": "lifecycle-consent",
      "label": "Lifecycle & consent"
+    }
+   ]
+  },
+  {
+   "id": "policies",
+   "label": "Policies",
+   "short": "Policies",
+   "colour": "#368fa1",
+   "family": "identity",
+   "planned": true,
+   "summary": "Tenant-wide Entra policies under /policies and /identity/conditionalAccess: Conditional Access, authentication methods and strengths, cross-tenant access, app and consent policies, and token and sign-in policies.",
+   "limits": [],
+   "docs": "https://learn.microsoft.com/graph/api/resources/policyroot?view=graph-rest-1.0",
+   "subservices": [
+    {
+     "id": "conditional-access",
+     "label": "Conditional Access"
+    },
+    {
+     "id": "authentication",
+     "label": "Authentication methods & strengths"
+    },
+    {
+     "id": "cross-tenant",
+     "label": "Cross-tenant access"
+    },
+    {
+     "id": "app-consent",
+     "label": "App & consent policies"
+    },
+    {
+     "id": "token-sign-in",
+     "label": "Token & sign-in policies"
     }
    ]
   },
@@ -155,6 +188,37 @@
    ]
   },
   {
+   "id": "communications",
+   "label": "Communications",
+   "short": "Comms",
+   "colour": "#5a642b",
+   "family": "collaboration",
+   "planned": true,
+   "summary": "Cloud communications under /communications: calls and call records, online meetings with their recordings, transcripts and attendance, and presence.",
+   "limits": [
+    "You may not use the cloud communications APIs to record or otherwise persist media content from calls or meetings that your application accesses (checked on Microsoft Learn, 28 Nov 2026)."
+   ],
+   "docs": "https://learn.microsoft.com/graph/api/resources/communications-api-overview?view=graph-rest-1.0",
+   "subservices": [
+    {
+     "id": "calls-records",
+     "label": "Calls & call records"
+    },
+    {
+     "id": "online-meetings",
+     "label": "Online meetings"
+    },
+    {
+     "id": "presence",
+     "label": "Presence"
+    },
+    {
+     "id": "meeting-conversations",
+     "label": "Meeting conversations"
+    }
+   ]
+  },
+  {
    "id": "tasks",
    "label": "Tasks & planning",
    "colour": "#7f8f2a",
@@ -174,6 +238,103 @@
     {
      "id": "to-do",
      "label": "To Do"
+    }
+   ]
+  },
+  {
+   "id": "solutions",
+   "label": "Solutions",
+   "short": "Solutions",
+   "colour": "#2e6b69",
+   "family": "collaboration",
+   "planned": true,
+   "summary": "Business solutions under /solutions: Microsoft Bookings, Microsoft 365 Backup, virtual events (webinars and town halls) and cross-tenant migration.",
+   "limits": [],
+   "docs": "https://learn.microsoft.com/graph/api/resources/solutionsroot?view=graph-rest-1.0",
+   "subservices": [
+    {
+     "id": "bookings",
+     "label": "Bookings"
+    },
+    {
+     "id": "backup",
+     "label": "Backup & restore"
+    },
+    {
+     "id": "virtual-events",
+     "label": "Virtual events"
+    },
+    {
+     "id": "migrations",
+     "label": "Cross-tenant migration"
+    }
+   ]
+  },
+  {
+   "id": "education",
+   "label": "Education",
+   "short": "Education",
+   "colour": "#089b4d",
+   "family": "collaboration",
+   "planned": true,
+   "summary": "Education data under /education: schools, classes and education users from School Data Sync, assignments and submissions, and Reflect and Reading Coach reports.",
+   "limits": [],
+   "docs": "https://learn.microsoft.com/graph/api/resources/education-overview?view=graph-rest-1.0",
+   "subservices": [
+    {
+     "id": "schools-classes",
+     "label": "Schools & classes"
+    },
+    {
+     "id": "education-users",
+     "label": "Education users"
+    },
+    {
+     "id": "assignments",
+     "label": "Assignments & submissions"
+    },
+    {
+     "id": "grading",
+     "label": "Rubrics & grading"
+    },
+    {
+     "id": "education-reports",
+     "label": "Reflect & Reading Coach"
+    }
+   ]
+  },
+  {
+   "id": "admin",
+   "label": "Admin & service health",
+   "short": "Admin",
+   "colour": "#b37a0f",
+   "family": "security",
+   "planned": true,
+   "summary": "Microsoft 365 admin settings under /admin: service health and Message centre, configuration monitoring (baselines and drift), Exchange, SharePoint and Teams admin settings, Microsoft 365 Apps and Edge, and people settings.",
+   "limits": [
+    "Delegated callers of the service communications API need an admin role (checked on Microsoft Learn, 28 Nov 2026)."
+   ],
+   "docs": "https://learn.microsoft.com/graph/api/resources/service-communications-api-overview?view=graph-rest-1.0",
+   "subservices": [
+    {
+     "id": "service-health",
+     "label": "Service health & Message centre"
+    },
+    {
+     "id": "configuration-monitoring",
+     "label": "Configuration monitoring"
+    },
+    {
+     "id": "product-admin",
+     "label": "Exchange, SharePoint & Teams admin"
+    },
+    {
+     "id": "apps-browser",
+     "label": "Microsoft 365 Apps & Edge"
+    },
+    {
+     "id": "people-settings",
+     "label": "People & report settings"
     }
    ]
   },
@@ -220,6 +381,45 @@
     {
      "id": "hunting-posture",
      "label": "Hunting & posture"
+    }
+   ]
+  },
+  {
+   "id": "devices",
+   "label": "Devices (Intune)",
+   "short": "Devices",
+   "colour": "#d42a5c",
+   "family": "security",
+   "planned": true,
+   "summary": "Intune device and app management under /deviceManagement and /deviceAppManagement: managed devices, compliance and configuration policies, apps and app protection, Windows 365 Cloud PCs and endpoint analytics.",
+   "limits": [
+    "The Microsoft Graph API for Intune needs an active Intune licence for the tenant (checked on Microsoft Learn, 28 Nov 2026)."
+   ],
+   "docs": "https://learn.microsoft.com/graph/api/resources/intune-graph-overview?view=graph-rest-1.0",
+   "subservices": [
+    {
+     "id": "managed-devices",
+     "label": "Managed devices"
+    },
+    {
+     "id": "compliance-configuration",
+     "label": "Compliance & configuration"
+    },
+    {
+     "id": "apps-protection",
+     "label": "Apps & app protection"
+    },
+    {
+     "id": "cloud-pc",
+     "label": "Windows 365 Cloud PC"
+    },
+    {
+     "id": "endpoint-analytics",
+     "label": "Endpoint analytics"
+    },
+    {
+     "id": "intune-admin",
+     "label": "Intune roles & connectors"
     }
    ]
   },

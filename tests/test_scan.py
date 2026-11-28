@@ -341,7 +341,8 @@ class SubserviceTests(unittest.TestCase):
         c = curated()
         self.assertEqual(build_page.subservice_problems(c), ([], []))
         self.assertEqual(scan.unsorted_nodes(c), [])
-        self.assertEqual(sum(len(w["subservices"]) for w in c["workloads"]), 31)
+        self.assertEqual(sum(len(w["subservices"]) for w in c["workloads"]), 60)
+        self.assertEqual(len(c["workloads"]), 16)
         self.assertTrue(all(w.get("family") in {"identity", "collaboration", "security", "ai"} for w in c["workloads"]))
 
     def test_fields_reach_graph_map_and_page(self):
@@ -379,6 +380,17 @@ class SubserviceTests(unittest.TestCase):
         msg = self._broken(lambda gm: gm["workloads"][0]["subservices"].append({"id": "spare", "label": "Spare"}))
         self.assertIn("identity: sub-service 'spare' has no nodes", msg)
 
+    def test_planned_service_may_have_empty_subservices(self):
+        gm, _ = scan.build_map(curated(), None, scan=False, now=D1)
+        planned = [w for w in gm["workloads"] if w.get("planned")]
+        self.assertTrue(planned)
+        self.assertFalse(any(n["workload"] == planned[0]["id"] for n in gm["nodes"]))
+        build_page.render(self.TPL, gm)                       # empty sub-services are fine while planned
+        planned[0].pop("planned")
+        with self.assertRaises(build_page.BuildError) as cm:
+            build_page.render(self.TPL, gm)
+        self.assertIn(f"{planned[0]['id']}: sub-service", str(cm.exception))
+
     def test_build_fails_on_duplicate_subservice_id(self):
         msg = self._broken(lambda gm: gm["workloads"][0]["subservices"].append({"id": "directory", "label": "Again"}))
         self.assertIn("identity: sub-service id 'directory' is used twice", msg)
@@ -390,6 +402,25 @@ class SubserviceTests(unittest.TestCase):
         svc = gm["coverage"]["services"]
         self.assertEqual([r["workload"] for r in svc], [w["id"] for w in curated()["workloads"]])
         self.assertGreaterEqual(sum(r["onMap"] for r in svc), gm["coverage"]["onMap"])
+
+    def test_coverage_counts_mapped_and_curated_apart(self):
+        with open(os.path.join(ROOT, "data", "coverage.json"), encoding="utf-8") as f:
+            prev = json.load(f)
+        c = curated()
+        gm, _ = scan.build_map(c, None, scan=False, now=D1, prev_coverage=prev)
+        cov = gm["coverage"]
+        self.assertEqual(cov["curated"], cov["onMap"])         # nothing generated yet
+        self.assertTrue(all(r["curated"] == r["onMap"] for r in cov["areas"]))
+        # a generated entry counts as mapped, not curated
+        fq = next(t for t, v in prev["types"].items() if v["status"] == "v1.0" and v["area"] == "deviceManagement")
+        c["nodes"].append({"id": "genTest", "label": "Generated test", "workload": "devices", "subservice": "managed-devices",
+                           "entityType": fq, "tier": "generated"})
+        gm2, _ = scan.build_map(c, None, scan=False, now=D1, prev_coverage=prev)
+        cov2 = gm2["coverage"]
+        self.assertEqual(cov2["onMap"], cov["onMap"] + 1)
+        self.assertEqual(cov2["curated"], cov["curated"])
+        dev = next(r for r in cov2["services"] if r["workload"] == "devices")
+        self.assertEqual((dev["onMap"], dev["curated"]), (1, 0))
 
     def test_same_subservice_id_in_two_workloads_is_fine(self):
         gm, _ = scan.build_map(curated(), None, scan=False, now=D1)
