@@ -296,7 +296,7 @@ To check before writing: Learn doesn't describe a duplicate-detection method; th
 Start these only when the owner says go. The same ground rules apply: stop and ask before anything that touches GitHub or Azure, and never invent permission names, API paths or cmdlet names.
 
 - [x] Phase 6: nine new scenarios (branch `claude/phase6-scenarios`, stacked on Phase 5; owner approved all nine on 28 Nov 2026; written and committed locally)
-- [ ] Phase 7: script examples for every scenario
+- [x] Phase 7: script examples for every scenario (branch `claude/phase7-scripts`, cut from `main` after PR #10, committed locally 28 Nov 2026; no script is marked Tested yet)
 
 #### Phase 6: nine new scenarios
 
@@ -355,3 +355,14 @@ Every scenario gets a script that people can run themselves: the 15 that exist a
    - A script is marked "Tested" only after the owner has run it in their own dev tenant. Record the date.
    - Don't run scripts against any tenant yourself. Give the owner the exact commands to run.
 7. Later, not now. A separate remediation tier of write scripts, with `-WhatIf` on by default and a clear warning.
+
+#### Phase 7 decisions (28 Nov 2026)
+
+- **One script per scenario, all 30** (21 before Phase 6 plus the 9 from Phase 6), in `scripts/scenarios/<scenario-id>.ps1`, written as one CSV per step into a dated folder. Every script shares the same small helpers (paging, safe property reads, one CSV per step, a failed step warns and the script goes on) so each file stands alone for download.
+- **Steps that change data are left out** and named in the header. Where a read gives the same picture, the script reads instead: risk state instead of confirmCompromised, existing retention events instead of creating one, and for the legal hold scenario (every step writes) an overview of existing cases, custodians, holds, searches and review sets.
+- **Application-only steps** (getAllSites without `-SiteId`, getAllEnterpriseInteractions) are skipped with a message in a delegated session; `-UseExistingConnection` runs them in an app-only session.
+- **Allow list** (`scripts/allowlist.json`): runHuntingQuery, auditLog/queries, extractSensitivityLabels, conditionalAccess/evaluate and search/query. Scripts call them with `Invoke-MgGraphRequest -Method POST` (predictable JSON); the page shows the cmdlets (`Start-MgSecurityHuntingQuery`, `Invoke-MgExtractDriveItemSensitivityLabel`, `Test-MgIdentityConditionalAccess`, `Invoke-MgQuerySearch`).
+- **Step PowerShell** lives on each step in `curated.json` (`ps`); a step that changes data has `psNote` instead; outside-Graph steps have neither. `tests/check_scripts.ps1` checks each against `Find-MgGraphCommand` (the cmdlet's URI must match the step's call) and binds every cmdlet's parameters with PowerShell's static parameter binder. Calls the SDK has no cmdlet for use `Invoke-MgGraphRequest -Method GET` (`/me`, audit log records, Copilot reports and interactions, message trace, the agent identity casts, beta endpoints).
+- **Correction found on the way:** the Copilot oversharing scenario's last step called `/reports/getMicrosoft365CopilotUsageUserDetail(period='D30')`, which is the beta-only report written without `/beta`. It now uses the v1.0 `/copilot/reports/getMicrosoft365CopilotUsageUserDetail(period='D28')`, as the licence clean-up scenario does.
+- **Audit permission:** the scripts ask for `AuditLogsQuery.Read.All`. Learn lists narrower workload permissions (such as `AuditLogsQuery-Entra.Read.All`) but doesn't say which one covers CopilotInteraction, DLP or sharing records.
+- **Page:** each step has an HTTP / PowerShell switch (remembered per viewer) with a Copy button; each scenario has a "Download script" button (the scripts are embedded in the page and downloaded from a Blob, so the page still makes no runtime fetches) with "read-only" and the Tested date or "not yet tested in a tenant", and the as-is note.

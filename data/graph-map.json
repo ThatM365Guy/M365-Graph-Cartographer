@@ -1,11 +1,11 @@
 {
  "meta": {
   "title": "M365 Graph Cartographer (MGC)",
-  "curatedVersion": "0.9.0",
+  "curatedVersion": "0.10.0",
   "curatedOn": "2026-11-28",
   "phase": "Purview covered in depth from 0.3.0: information protection, records, eDiscovery, audit, privacy and the data security API, with what Graph does not cover.",
   "note": "Hand-written content lives here. The scanner never edits this file; it writes graph-map.json alongside it.",
-  "generatedAt": "2026-11-28T14:38:53+00:00",
+  "generatedAt": "2026-11-28T15:11:10+00:00",
   "scan": {
    "at": "2026-11-28T14:38:53+00:00",
    "v1EntityTypes": 1264,
@@ -17,8 +17,9 @@
     "path": "permissions/new/permissions.json"
    },
    "learnDocs": {
-    "commit": "951930b591f9248117793f036e0b13cb779769d1",
-    "branch": "main",
+    "commit": "f4c8ebb6140e234b6a5f74c1c13d9aa385fef5f1",
+    "date": "2026-11-24T00:42:28Z",
+    "message": "Merging changes synced from https://github.com/microsoftgraph/microsoft-graph-docs (branch live)",
     "repo": "microsoftgraph/microsoft-graph-docs-contrib",
     "path": "api-reference/v1.0/resources"
    },
@@ -97338,31 +97339,36 @@
      "do": "Block sign-in (accountEnabled false), then revoke refresh tokens and session cookies.",
      "call": "POST /users/{id}/revokeSignInSessions",
      "permission": "User.RevokeSessions.All (delegated and application)",
-     "note": "Revocation can take a few minutes, and access tokens already issued stay valid until they expire (usually about an hour)."
+     "note": "Revocation can take a few minutes, and access tokens already issued stay valid until they expire (usually about an hour).",
+     "psNote": "This step changes data, so the read-only script leaves it out."
     },
     {
      "node": "group",
      "do": "List memberOf and remove the user from groups, especially role-assignable and privileged ones.",
      "call": "GET /users/{id}/memberOf",
-     "note": "Dynamic group membership can't be removed by hand; it drops when the user's attributes change."
+     "note": "Dynamic group membership can't be removed by hand; it drops when the user's attributes change.",
+     "ps": "Get-MgUserMemberOf -UserId $userId -All"
     },
     {
      "node": "appRoleAssignment",
      "do": "Remove the user's direct enterprise app assignments.",
      "call": "GET /users/{id}/appRoleAssignments",
-     "note": "The list includes assignments through groups the user is a direct member of; remove those through the group."
+     "note": "The list includes assignments through groups the user is a direct member of; remove those through the group.",
+     "ps": "Get-MgUserAppRoleAssignment -UserId $userId -All"
     },
     {
      "node": "drive",
      "do": "Find the OneDrive and hand its content to the manager before the retention period runs out.",
      "call": "GET /users/{id}/drive",
-     "note": "Setting the OneDrive access delegate (the manager) is a SharePoint admin setting, not a Graph call."
+     "note": "Setting the OneDrive access delegate (the manager) is a SharePoint admin setting, not a Graph call.",
+     "ps": "Get-MgUserDefaultDrive -UserId $userId"
     },
     {
      "node": "device",
      "do": "Find the user's registered and owned devices and disable or retire them.",
      "call": "GET /users/{id}/ownedDevices",
-     "note": "Wipe and retire are Intune actions on managedDevice (/deviceManagement), not on the Entra device object."
+     "note": "Wipe and retire are Intune actions on managedDevice (/deviceManagement), not on the Entra device object.",
+     "ps": "Get-MgUserOwnedDevice -UserId $userId -All"
     }
    ],
    "seeAlso": [
@@ -97385,27 +97391,32 @@
      "node": "directoryRole",
      "do": "List active directory roles and their members.",
      "call": "GET /directoryRoles?$expand=members",
-     "note": "Only activated roles appear here. Use roleManagement/directory/roleAssignments for the full picture."
+     "note": "Only activated roles appear here. Use roleManagement/directory/roleAssignments for the full picture.",
+     "ps": "Get-MgDirectoryRole -ExpandProperty members -All"
     },
     {
      "node": "pimEligibility",
-     "do": "List eligible assignments: who can activate which role, and when that ends."
+     "do": "List eligible assignments: who can activate which role, and when that ends.",
+     "ps": "Get-MgRoleManagementDirectoryRoleEligibilitySchedule -All"
     },
     {
      "node": "user",
      "do": "Check each holder: still employed, a cloud-only admin account, MFA registered.",
      "call": "GET /users/{id}?$select=accountEnabled,onPremisesSyncEnabled,signInActivity",
-     "permission": "User.Read.All + AuditLog.Read.All (signInActivity)"
+     "permission": "User.Read.All + AuditLog.Read.All (signInActivity)",
+     "ps": "Get-MgUser -UserId $userId -Property accountEnabled,onPremisesSyncEnabled,signInActivity"
     },
     {
      "node": "administrativeUnit",
      "do": "Check roles scoped to administrative units, which a tenant-wide review misses.",
-     "call": "GET /directory/administrativeUnits/{id}/scopedRoleMembers"
+     "call": "GET /directory/administrativeUnits/{id}/scopedRoleMembers",
+     "ps": "Get-MgDirectoryAdministrativeUnitScopedRoleMember -AdministrativeUnitId $administrativeUnitId -All"
     },
     {
      "node": "signIn",
      "do": "Look for admin sign-ins without MFA or from unusual places.",
-     "call": "GET /auditLogs/signIns?$filter=userId eq '{id}'"
+     "call": "GET /auditLogs/signIns?$filter=userId eq '{id}'",
+     "ps": "Get-MgAuditLogSignIn -Filter \"userId eq '$userId'\" -Top 100"
     }
    ]
   },
@@ -97418,28 +97429,33 @@
    "steps": [
     {
      "node": "application",
-     "do": "List apps registered in your tenant and their requested permissions (requiredResourceAccess)."
+     "do": "List apps registered in your tenant and their requested permissions (requiredResourceAccess).",
+     "ps": "Get-MgApplication -ApplicationId $applicationObjectId"
     },
     {
      "node": "servicePrincipal",
      "do": "List enterprise apps, including multi-tenant apps from other publishers.",
-     "call": "GET /servicePrincipals?$select=id,appId,displayName,appOwnerOrganizationId,verifiedPublisher"
+     "call": "GET /servicePrincipals?$select=id,appId,displayName,appOwnerOrganizationId,verifiedPublisher",
+     "ps": "Get-MgServicePrincipal -All -Property id,appId,displayName,appOwnerOrganizationId,verifiedPublisher"
     },
     {
      "node": "oauthGrant",
-     "do": "Find delegated grants with broad scopes (Mail.Read, Files.Read.All and so on), and whether they are admin or per-user consent."
+     "do": "Find delegated grants with broad scopes (Mail.Read, Files.Read.All and so on), and whether they are admin or per-user consent.",
+     "ps": "Get-MgOauth2PermissionGrant -All"
     },
     {
      "node": "appRoleAssignment",
      "do": "Find application permissions granted to each app: these work without a signed-in user.",
      "call": "GET /servicePrincipals/{id}/appRoleAssignments",
-     "note": "Application permissions on Microsoft Graph are app role assignments whose resourceId is the Graph service principal."
+     "note": "Application permissions on Microsoft Graph are app role assignments whose resourceId is the Graph service principal.",
+     "ps": "Get-MgServicePrincipalAppRoleAssignment -ServicePrincipalId $servicePrincipalId -All"
     },
     {
      "node": "signIn",
      "do": "Check whether the app is actually used, and from where.",
      "call": "GET /beta/auditLogs/signIns?$filter=signInEventTypes/any(t: t eq 'servicePrincipal')",
-     "note": "Service principal sign-ins are beta only; v1.0 returns interactive user sign-ins."
+     "note": "Service principal sign-ins are beta only; v1.0 returns interactive user sign-ins.",
+     "ps": "Invoke-MgGraphRequest -Method GET -Uri \"https://graph.microsoft.com/beta/auditLogs/signIns?`$filter=signInEventTypes/any(t: t eq 'servicePrincipal')\""
     }
    ]
   },
@@ -97454,31 +97470,37 @@
      "node": "user",
      "do": "List guest accounts and when they last signed in.",
      "call": "GET /users?$filter=userType eq 'Guest'&$select=displayName,mail,signInActivity",
-     "permission": "User.Read.All + AuditLog.Read.All (signInActivity)"
+     "permission": "User.Read.All + AuditLog.Read.All (signInActivity)",
+     "ps": "Get-MgUser -Filter \"userType eq 'Guest'\" -Property id,displayName,mail,signInActivity -All"
     },
     {
      "node": "group",
      "do": "Find which groups and Microsoft 365 groups each guest belongs to.",
-     "call": "GET /users/{id}/memberOf"
+     "call": "GET /users/{id}/memberOf",
+     "ps": "Get-MgUserMemberOf -UserId $guestId -All"
     },
     {
      "node": "team",
-     "do": "List the teams behind those groups and their guest settings."
+     "do": "List the teams behind those groups and their guest settings.",
+     "ps": "Get-MgTeam -TeamId $groupId"
     },
     {
      "node": "channel",
      "do": "Find shared channels, whose members can come from other tenants without a guest account.",
      "call": "GET /teams/{id}/channels?$filter=membershipType eq 'shared'",
-     "note": "Shared-channel members from other tenants are not guests, so a guest review misses them."
+     "note": "Shared-channel members from other tenants are not guests, so a guest review misses them.",
+     "ps": "Get-MgTeamChannel -TeamId $teamId -Filter \"membershipType eq 'shared'\""
     },
     {
      "node": "site",
-     "do": "Find the sites behind those teams and channels (shared channels have their own site)."
+     "do": "Find the sites behind those teams and channels (shared channels have their own site).",
+     "ps": "Get-MgSite -SiteId $siteId"
     },
     {
      "node": "permission",
      "do": "List sharing links and direct grants, especially anyone and external links.",
-     "call": "GET /drives/{id}/items/{id}/permissions"
+     "call": "GET /drives/{id}/items/{id}/permissions",
+     "ps": "Get-MgDriveItemPermission -DriveId $driveId -DriveItemId $itemId -All"
     }
    ]
   },
@@ -97491,41 +97513,49 @@
    "steps": [
     {
      "node": "incident",
-     "do": "Open the Defender XDR incident and its correlated alerts."
+     "do": "Open the Defender XDR incident and its correlated alerts.",
+     "ps": "Get-MgSecurityIncident -ExpandProperty alerts -Top 50"
     },
     {
      "node": "alert",
-     "do": "Read the alert evidence: user, mailbox, IP addresses, files."
+     "do": "Read the alert evidence: user, mailbox, IP addresses, files.",
+     "ps": "Get-MgSecurityAlertV2 -Top 100"
     },
     {
      "node": "riskyUser",
      "do": "Check the user's risk level and history; confirm compromise to feed ID Protection.",
      "call": "POST /identityProtection/riskyUsers/confirmCompromised",
-     "permission": "IdentityRiskyUser.ReadWrite.All"
+     "permission": "IdentityRiskyUser.ReadWrite.All",
+     "psNote": "This step changes data, so the read-only script leaves it out."
     },
     {
      "node": "signIn",
-     "do": "Review sign-ins for the period: locations, apps, MFA results, legacy protocols."
+     "do": "Review sign-ins for the period: locations, apps, MFA results, legacy protocols.",
+     "ps": "Get-MgAuditLogSignIn -Filter \"userId eq '$userId'\" -Top 100"
     },
     {
      "node": "directoryAudit",
      "do": "Look for changes the attacker made: MFA methods added, app consents, role changes.",
-     "call": "GET /auditLogs/directoryAudits?$filter=initiatedBy/user/id eq '{id}'"
+     "call": "GET /auditLogs/directoryAudits?$filter=initiatedBy/user/id eq '{id}'",
+     "ps": "Get-MgAuditLogDirectoryAudit -Filter \"initiatedBy/user/id eq '$userId'\" -All"
     },
     {
      "node": "messageRule",
-     "do": "Look for Inbox rules that forward, redirect, delete or hide mail."
+     "do": "Look for Inbox rules that forward, redirect, delete or hide mail.",
+     "ps": "Get-MgUserMailFolderMessageRule -UserId $userId -MailFolderId inbox"
     },
     {
      "node": "hunting",
      "do": "Hunt across mail, identity and cloud app events for the same IP addresses and patterns.",
-     "note": "Advanced hunting keeps 30 days of data."
+     "note": "Advanced hunting keeps 30 days of data.",
+     "ps": "Start-MgSecurityHuntingQuery -BodyParameter @{ Query = \"CloudAppEvents | where AccountObjectId == '$userId' | take 100\"; Timespan = 'P30D' }  # read-only, uses POST"
     },
     {
      "node": "user",
      "do": "Contain: block sign-in, reset the password and revoke sessions.",
      "call": "POST /users/{id}/revokeSignInSessions",
-     "permission": "User.RevokeSessions.All"
+     "permission": "User.RevokeSessions.All",
+     "psNote": "This step changes data, so the read-only script leaves it out."
     }
    ]
   },
@@ -97541,28 +97571,33 @@
      "do": "List users with their last successful sign-in and assigned licences.",
      "call": "GET /users?$select=displayName,accountEnabled,assignedLicenses,signInActivity",
      "permission": "User.Read.All + AuditLog.Read.All",
-     "note": "signInActivity can lag by up to 24 hours, and lastSuccessfulSignInDateTime has no data before December 2023."
+     "note": "signInActivity can lag by up to 24 hours, and lastSuccessfulSignInDateTime has no data before December 2023.",
+     "ps": "Get-MgUser -All -Property id,displayName,accountEnabled,assignedLicenses,signInActivity"
     },
     {
      "node": "signIn",
      "do": "Confirm inactivity for borderline accounts; non-interactive sign-ins (beta) show background use.",
-     "note": "Sign-in logs are kept for 30 days, so use signInActivity for anything older."
+     "note": "Sign-in logs are kept for 30 days, so use signInActivity for anything older.",
+     "ps": "Get-MgAuditLogSignIn -Filter \"userId eq '$userId'\" -Top 10"
     },
     {
      "node": "subscribedSku",
-     "do": "Map skuId to product names and see consumed against purchased units."
+     "do": "Map skuId to product names and see consumed against purchased units.",
+     "ps": "Get-MgSubscribedSku -All"
     },
     {
      "node": "group",
      "do": "Find group-based licence assignments; remove the user from the group rather than the licence.",
      "call": "GET /groups?$filter=assignedLicenses/$count ne 0&$count=true",
-     "note": "Needs ConsistencyLevel: eventual. Licence errors are written to the user asynchronously."
+     "note": "Needs ConsistencyLevel: eventual. Licence errors are written to the user asynchronously.",
+     "ps": "Get-MgGroup -Filter 'assignedLicenses/$count ne 0' -CountVariable groupCount -ConsistencyLevel eventual -All"
     },
     {
      "node": "reportRoot",
      "do": "Confirm per-workload inactivity (mail, OneDrive, Teams) from the activity reports.",
      "call": "GET /reports/getOffice365ActiveUserDetail(period='D90')",
-     "note": "Reports show concealed names unless the tenant setting is turned off."
+     "note": "Reports show concealed names unless the tenant setting is turned off.",
+     "ps": "Get-MgReportOffice365ActiveUserDetail -Period D90 -OutFile ./office365-active-users.csv"
     }
    ]
   },
@@ -97576,12 +97611,14 @@
     {
      "node": "user",
      "do": "List mailbox users in scope.",
-     "call": "GET /users?$filter=mail ne null&$select=id,mail"
+     "call": "GET /users?$filter=mail ne null&$select=id,mail",
+     "ps": "Get-MgUser -Filter 'mail ne null' -Property id,mail -CountVariable userCount -ConsistencyLevel eventual -All"
     },
     {
      "node": "messageRule",
      "do": "For each mailbox, find Inbox rules with forwardTo, redirectTo or forwardAsAttachmentTo outside your domains.",
-     "note": "Reading every mailbox's rules app-only needs MailboxSettings.Read for the whole tenant; scope it with RBAC for Applications if you can."
+     "note": "Reading every mailbox's rules app-only needs MailboxSettings.Read for the whole tenant; scope it with RBAC for Applications if you can.",
+     "ps": "Get-MgUserMailFolderMessageRule -UserId $userId -MailFolderId inbox"
     },
     {
      "node": "exGap",
@@ -97592,12 +97629,14 @@
     {
      "node": "alert",
      "do": "Look for forwarding alerts, such as suspicious email forwarding activity.",
-     "call": "GET /security/alerts_v2?$filter=title has 'forward'"
+     "call": "GET /security/alerts_v2?$filter=title has 'forward'",
+     "ps": "Get-MgSecurityAlertV2 -Filter \"title has 'forward'\" -All"
     },
     {
      "node": "hunting",
      "do": "Hunt for mail actually leaving to external recipients.",
-     "call": "POST /security/runHuntingQuery (EmailEvents, where EmailDirection == 'Outbound')"
+     "call": "POST /security/runHuntingQuery (EmailEvents, where EmailDirection == 'Outbound')",
+     "ps": "Start-MgSecurityHuntingQuery -BodyParameter @{ Query = \"EmailEvents | where EmailDirection == 'Outbound' | take 100\"; Timespan = 'P30D' }  # read-only, uses POST"
     }
    ]
   },
@@ -97612,28 +97651,33 @@
      "node": "site",
      "do": "List sites and spot broadly shared ones (Everyone except external users, large Members groups).",
      "call": "GET /sites/getAllSites",
-     "note": "getAllSites needs application permissions."
+     "note": "getAllSites needs application permissions.",
+     "ps": "Invoke-MgGraphRequest -Method GET -Uri \"https://graph.microsoft.com/v1.0/sites/getAllSites\""
     },
     {
      "node": "permission",
-     "do": "List site and file permissions and sharing links, especially organisation-wide and anyone links."
+     "do": "List site and file permissions and sharing links, especially organisation-wide and anyone links.",
+     "ps": "Get-MgDriveItemPermission -DriveId $driveId -DriveItemId $itemId -All"
     },
     {
      "node": "driveItem",
      "do": "Find sensitive files in those sites (search or by library) and their labels.",
-     "call": "POST /search/query (entityTypes: driveItem)"
+     "call": "POST /search/query (entityTypes: driveItem)",
+     "ps": "Invoke-MgQuerySearch -Body @{ requests = @(@{ entityTypes = @('driveItem'); query = @{ queryString = $searchText } }) }  # read-only, uses POST"
     },
     {
      "node": "sensitivityLabel",
      "do": "Check which labels exist and apply or raise labels on sensitive content.",
      "call": "POST /drives/{id}/items/{id}/assignSensitivityLabel",
-     "note": "assignSensitivityLabel is a metered API, and app-only calls can't replace the content of a labelled file."
+     "note": "assignSensitivityLabel is a metered API, and app-only calls can't replace the content of a labelled file.",
+     "psNote": "This step changes data, so the read-only script leaves it out."
     },
     {
      "node": "reportRoot",
      "do": "Track Copilot readiness and usage after rollout.",
-     "call": "GET /reports/getMicrosoft365CopilotUsageUserDetail(period='D30')",
-     "note": "Check Learn for the current Copilot usage report endpoints; some are beta."
+     "call": "GET /copilot/reports/getMicrosoft365CopilotUsageUserDetail(period='D28')",
+     "note": "Check Learn for the current Copilot usage report endpoints; some are beta.",
+     "ps": "Invoke-MgGraphRequest -Method GET -Uri \"https://graph.microsoft.com/v1.0/copilot/reports/getMicrosoft365CopilotUsageUserDetail(period='D28')\" -OutputFilePath ./copilot-usage.csv"
     }
    ]
   },
@@ -97646,23 +97690,27 @@
    "steps": [
     {
      "node": "user",
-     "do": "Identify the user the app acts for (delegated) or will act for (application)."
+     "do": "Identify the user the app acts for (delegated) or will act for (application).",
+     "ps": "Get-MgUser -UserId $userPrincipalName -Property id,displayName,userPrincipalName,accountEnabled"
     },
     {
      "node": "purviewAi",
      "do": "Compute protection scopes, then send each prompt and response to processContent and honour the verdict.",
      "call": "POST /users/{id}/dataSecurityAndGovernance/protectionScopes/compute, then processContent",
-     "note": "Cache the compute ETag and send it as If-None-Match; call compute again when protectionScopeState is modified."
+     "note": "Cache the compute ETag and send it as If-None-Match; call compute again when protectionScopeState is modified.",
+     "psNote": "This step changes data, so the read-only script leaves it out."
     },
     {
      "node": "sensitivityLabel",
      "do": "Read the labels that apply to the content the app retrieves, so it can respect encryption and usage rights.",
-     "call": "GET /users/{id}/dataSecurityAndGovernance/sensitivityLabels"
+     "call": "GET /users/{id}/dataSecurityAndGovernance/sensitivityLabels",
+     "ps": "Invoke-MgGraphRequest -Method GET -Uri \"https://graph.microsoft.com/v1.0/users/$userId/dataSecurityAndGovernance/sensitivityLabels\""
     },
     {
      "node": "alert",
      "do": "DLP matches from your app surface as alerts for the security team.",
-     "call": "GET /security/alerts_v2?$filter=serviceSource eq 'dataLossPrevention'"
+     "call": "GET /security/alerts_v2?$filter=serviceSource eq 'dataLossPrevention'",
+     "ps": "Get-MgSecurityAlertV2 -Filter \"serviceSource eq 'dataLossPrevention'\" -All"
     }
    ]
   },
@@ -97675,31 +97723,37 @@
    "steps": [
     {
      "node": "user",
-     "do": "Pick the users in scope; only Copilot-licensed users have history."
+     "do": "Pick the users in scope; only Copilot-licensed users have history.",
+     "ps": "Get-MgUser -UserId $userPrincipalName -Property id,displayName,userPrincipalName,accountEnabled"
     },
     {
      "node": "aiInteraction",
      "do": "Export prompts and responses for a date range, filtered by app if needed.",
-     "call": "GET /copilot/users/{id}/interactionHistory/getAllEnterpriseInteractions?$filter=createdDateTime gt {start} and createdDateTime lt {end}"
+     "call": "GET /copilot/users/{id}/interactionHistory/getAllEnterpriseInteractions?$filter=createdDateTime gt {start} and createdDateTime lt {end}",
+     "ps": "Invoke-MgGraphRequest -Method GET -Uri \"https://graph.microsoft.com/v1.0/copilot/users/$userId/interactionHistory/getAllEnterpriseInteractions?`$filter=createdDateTime gt $start and createdDateTime lt $end\""
     },
     {
      "node": "driveItem",
-     "do": "Follow contexts and attachments to the files Copilot used."
+     "do": "Follow contexts and attachments to the files Copilot used.",
+     "ps": "Get-MgDriveItem -DriveId $driveId -DriveItemId $itemId"
     },
     {
      "node": "message",
      "do": "Or to the mails and chats it used.",
-     "or": true
+     "or": true,
+     "ps": "Get-MgUserMessage -UserId $userId -MessageId $messageId"
     },
     {
      "node": "retentionLabel",
      "do": "Keep the interactions under a retention policy for Copilot interactions.",
-     "note": "Copilot retention is set by retention policy in Purview, not by labelling each interaction through Graph."
+     "note": "Copilot retention is set by retention policy in Purview, not by labelling each interaction through Graph.",
+     "ps": "Get-MgSecurityLabelRetentionLabel -All"
     },
     {
      "node": "ediscoveryCase",
      "do": "Or put the users on hold and collect Copilot interactions into a case.",
-     "or": true
+     "or": true,
+     "ps": "Get-MgSecurityCaseEdiscoveryCase -All"
     }
    ]
   },
@@ -97714,20 +97768,24 @@
      "node": "auditLogQuery",
      "do": "Search the unified audit log for CopilotInteraction records.",
      "call": "POST /security/auditLog/queries (recordTypeFilters: CopilotInteraction)",
-     "note": "Audit queries run asynchronously; poll the query status, then read its records."
+     "note": "Audit queries run asynchronously; poll the query status, then read its records.",
+     "ps": "Invoke-MgGraphRequest -Method POST -Uri 'https://graph.microsoft.com/v1.0/security/auditLog/queries' -Body @{ displayName = 'MGC Copilot interactions'; filterStartDateTime = $start; filterEndDateTime = $end; recordTypeFilters = @('CopilotInteraction') }  # read-only, uses POST"
     },
     {
      "node": "hunting",
      "do": "Hunt in CloudAppEvents for AI app activity across users.",
-     "call": "POST /security/runHuntingQuery (CloudAppEvents, where ActionType == 'CopilotInteraction')"
+     "call": "POST /security/runHuntingQuery (CloudAppEvents, where ActionType == 'CopilotInteraction')",
+     "ps": "Start-MgSecurityHuntingQuery -BodyParameter @{ Query = \"CloudAppEvents | where ActionType == 'CopilotInteraction' | take 100\"; Timespan = 'P30D' }  # read-only, uses POST"
     },
     {
      "node": "user",
-     "do": "Pivot to the users with unusual volume or access patterns."
+     "do": "Pivot to the users with unusual volume or access patterns.",
+     "ps": "Get-MgUser -UserId $userPrincipalName -Property id,displayName,userPrincipalName,accountEnabled"
     },
     {
      "node": "alert",
-     "do": "Check for related alerts, such as DLP or insider risk on AI activity."
+     "do": "Check for related alerts, such as DLP or insider risk on AI activity.",
+     "ps": "Get-MgSecurityAlertV2 -Top 100"
     }
    ]
   },
@@ -97740,28 +97798,33 @@
    "steps": [
     {
      "node": "agentBlueprint",
-     "do": "Inventory blueprints and their owners and sponsors."
+     "do": "Inventory blueprints and their owners and sponsors.",
+     "ps": "Invoke-MgGraphRequest -Method GET -Uri \"https://graph.microsoft.com/v1.0/applications/microsoft.graph.agentIdentityBlueprint\""
     },
     {
      "node": "agentIdentity",
      "do": "List agent identities and the blueprint each came from.",
-     "call": "GET /servicePrincipals/microsoft.graph.agentIdentity"
+     "call": "GET /servicePrincipals/microsoft.graph.agentIdentity",
+     "ps": "Invoke-MgGraphRequest -Method GET -Uri \"https://graph.microsoft.com/v1.0/servicePrincipals/microsoft.graph.agentIdentity\""
     },
     {
      "node": "caPolicy",
      "do": "Check that a Conditional Access policy targets agent identities or their blueprints.",
-     "note": "Policies for all users don't include agent users; agents need explicit targeting (preview)."
+     "note": "Policies for all users don't include agent users; agents need explicit targeting (preview).",
+     "ps": "Get-MgIdentityConditionalAccessPolicy -All"
     },
     {
      "node": "oauthGrant",
      "do": "Review delegated and application permissions granted to agents.",
-     "call": "GET /servicePrincipals/{id}/oauth2PermissionGrants"
+     "call": "GET /servicePrincipals/{id}/oauth2PermissionGrants",
+     "ps": "Get-MgServicePrincipalOauth2PermissionGrant -ServicePrincipalId $servicePrincipalId -All"
     },
     {
      "node": "signIn",
      "do": "Monitor agent sign-ins.",
      "call": "GET /beta/auditLogs/signIns?$filter=signInEventTypes/any(t: t eq 'servicePrincipal') and agent/agentType eq 'AgentIdentity'",
-     "note": "The agent property on sign-ins is beta only."
+     "note": "The agent property on sign-ins is beta only.",
+     "ps": "Invoke-MgGraphRequest -Method GET -Uri \"https://graph.microsoft.com/beta/auditLogs/signIns?`$filter=signInEventTypes/any(t: t eq 'servicePrincipal') and agent/agentType eq 'AgentIdentity'\""
     }
    ]
   },
@@ -97779,29 +97842,34 @@
      "node": "user",
      "do": "Get the leaver's employee ID; it is the asset ID that tags their content.",
      "call": "GET /users/{id}?$select=employeeId,employeeLeaveDateTime",
-     "note": "Content must carry the asset ID (the Compliance Asset Id column) before the event fires, or it won't be matched."
+     "note": "Content must carry the asset ID (the Compliance Asset Id column) before the event fires, or it won't be matched.",
+     "ps": "Get-MgUser -UserId $userId -Property id,employeeId,employeeLeaveDateTime"
     },
     {
      "node": "retentionLabel",
      "do": "Use a label whose retention starts on an event (retentionTrigger dateOfEvent), bound to an Employee leaving event type.",
-     "note": "Delegated only. The event type can't be changed once the label is saved."
+     "note": "Delegated only. The event type can't be changed once the label is saved.",
+     "ps": "Get-MgSecurityLabelRetentionLabel -All"
     },
     {
      "node": "retentionEvent",
      "do": "Create a retention event of that type with an asset ID query, for example AssetID:<employee ID>.",
      "call": "POST /security/triggers/retentionEvents",
      "permission": "RecordsManagement.ReadWrite.All",
-     "note": "eventQueries match SharePoint and OneDrive by asset ID and Exchange by keywords."
+     "note": "eventQueries match SharePoint and OneDrive by asset ID and Exchange by keywords.",
+     "psNote": "This step changes data, so the read-only script leaves it out."
     },
     {
      "node": "driveItem",
      "do": "Check the event-based label is applied to the leaver's files.",
-     "call": "GET /drives/{id}/items/{id}/retentionLabel"
+     "call": "GET /drives/{id}/items/{id}/retentionLabel",
+     "ps": "Get-MgDriveItemRetentionLabel -DriveId $driveId -DriveItemId $itemId"
     },
     {
      "node": "dispositionReview",
      "do": "At the end of the period, reviewers approve deletion in the Purview portal.",
-     "note": "Reviewers need the Disposition Management role; auditing must be on."
+     "note": "Reviewers need the Disposition Management role; auditing must be on.",
+     "psNote": "This step changes data, so the read-only script leaves it out."
     }
    ]
   },
@@ -97820,30 +97888,35 @@
      "do": "Open or create the case.",
      "call": "POST /security/cases/ediscoveryCases",
      "permission": "eDiscovery.ReadWrite.All",
-     "note": "Delegated callers also need the eDiscovery Manager or eDiscovery Administrator role."
+     "note": "Delegated callers also need the eDiscovery Manager or eDiscovery Administrator role.",
+     "psNote": "This step changes data, so the read-only script leaves it out."
     },
     {
      "node": "custodian",
      "do": "Add the leaver as a custodian with their mailbox and OneDrive, plus the sites and groups they used.",
      "call": "POST /security/cases/ediscoveryCases/{id}/custodians, then userSources, siteSources, unifiedGroupSources",
-     "permission": "eDiscovery.ReadWrite.All"
+     "permission": "eDiscovery.ReadWrite.All",
+     "psNote": "This step changes data, so the read-only script leaves it out."
     },
     {
      "node": "legalHold",
      "do": "Put the custodian on hold before sign-in is blocked, licences are removed or the OneDrive is deleted.",
      "call": "POST /security/cases/ediscoveryCases/{id}/custodians/{id}/applyHold",
-     "note": "applyHold is v1.0 and asynchronous; the legalHolds list is beta only in $metadata."
+     "note": "applyHold is v1.0 and asynchronous; the legalHolds list is beta only in $metadata.",
+     "psNote": "This step changes data, so the read-only script leaves it out."
     },
     {
      "node": "ediscoverySearch",
      "do": "Search the custodian's sources and estimate the volume.",
-     "call": "POST /security/cases/ediscoveryCases/{id}/searches/{id}/estimateStatistics"
+     "call": "POST /security/cases/ediscoveryCases/{id}/searches/{id}/estimateStatistics",
+     "psNote": "This step changes data, so the read-only script leaves it out."
     },
     {
      "node": "reviewSet",
      "do": "Collect the results into a review set and export them.",
      "call": "POST /security/cases/ediscoveryCases/{id}/reviewSets/{id}/addToReviewSet, then export",
-     "note": "On E3 there are no review sets, and export needs pay-as-you-go billing."
+     "note": "On E3 there are no review sets, and export needs pay-as-you-go billing.",
+     "psNote": "This step changes data, so the read-only script leaves it out."
     }
    ]
   },
@@ -97858,41 +97931,49 @@
      "node": "alert",
      "do": "List DLP alerts and pick one to triage.",
      "call": "GET /security/alerts_v2?$filter=serviceSource eq 'dataLossPrevention'",
-     "note": "Single-event DLP alerts work on any DLP subscription; aggregated alerts need E5-class licences."
+     "note": "Single-event DLP alerts work on any DLP subscription; aggregated alerts need E5-class licences.",
+     "ps": "Get-MgSecurityAlertV2 -Filter \"serviceSource eq 'dataLossPrevention'\" -All"
     },
     {
      "node": "auditLogQuery",
      "do": "Query the audit log for DLP rule matches around the alert time.",
-     "call": "POST /security/auditLog/queries (recordTypeFilters: ComplianceDLPSharePoint, ComplianceDLPExchange, DLPEndpoint)"
+     "call": "POST /security/auditLog/queries (recordTypeFilters: ComplianceDLPSharePoint, ComplianceDLPExchange, DLPEndpoint)",
+     "ps": "Invoke-MgGraphRequest -Method POST -Uri 'https://graph.microsoft.com/v1.0/security/auditLog/queries' -Body @{ displayName = 'MGC DLP matches'; filterStartDateTime = $start; filterEndDateTime = $end; recordTypeFilters = @('ComplianceDLPSharePoint', 'ComplianceDLPExchange', 'DLPEndpoint') }  # read-only, uses POST"
     },
     {
      "node": "auditRecord",
-     "do": "Read the records: who, which file or message, which rule and what action was taken."
+     "do": "Read the records: who, which file or message, which rule and what action was taken.",
+     "ps": "Invoke-MgGraphRequest -Method GET -Uri \"https://graph.microsoft.com/v1.0/security/auditLog/queries/$queryId/records\""
     },
     {
      "node": "driveItem",
-     "do": "For SharePoint and OneDrive matches, open the file and who it is shared with."
+     "do": "For SharePoint and OneDrive matches, open the file and who it is shared with.",
+     "ps": "Get-MgDriveItem -DriveId $driveId -DriveItemId $itemId"
     },
     {
      "node": "message",
      "do": "For Exchange matches, find the email.",
-     "or": true
+     "or": true,
+     "ps": "Get-MgUserMessage -UserId $userId -MessageId $messageId"
     },
     {
      "node": "messageTrace",
      "do": "And trace where the email went.",
      "or": true,
-     "call": "GET /admin/exchange/tracing/messageTraces?$filter=receivedDateTime ge {start} and receivedDateTime le {end} and senderAddress eq '{address}'"
+     "call": "GET /admin/exchange/tracing/messageTraces?$filter=receivedDateTime ge {start} and receivedDateTime le {end} and senderAddress eq '{address}'",
+     "ps": "Invoke-MgGraphRequest -Method GET -Uri \"https://graph.microsoft.com/v1.0/admin/exchange/tracing/messageTraces?`$filter=receivedDateTime ge $start and receivedDateTime le $end and senderAddress eq '$senderAddress'\""
     },
     {
      "node": "sensitivityLabel",
      "do": "Check the content's label and whether it was downgraded or removed.",
-     "call": "POST /drives/{id}/items/{id}/extractSensitivityLabels"
+     "call": "POST /drives/{id}/items/{id}/extractSensitivityLabels",
+     "ps": "Invoke-MgExtractDriveItemSensitivityLabel -DriveId $driveId -DriveItemId $itemId  # read-only, uses POST"
     },
     {
      "node": "sensitiveType",
      "do": "Identify which sensitive info types matched.",
-     "note": "The matched SITs are in the DLP audit record; the sensitiveTypes list itself is beta and undocumented."
+     "note": "The matched SITs are in the DLP audit record; the sensitiveTypes list itself is beta and undocumented.",
+     "ps": "Invoke-MgGraphRequest -Method GET -Uri \"https://graph.microsoft.com/beta/dataClassification/sensitiveTypes\""
     }
    ]
   },
@@ -97905,27 +97986,32 @@
    "steps": [
     {
      "node": "riskyServicePrincipal",
-     "do": "List the service principals that ID Protection flags and pick those still at risk (riskState atRisk)."
+     "do": "List the service principals that ID Protection flags and pick those still at risk (riskState atRisk).",
+     "ps": "Get-MgRiskyServicePrincipal -All"
     },
     {
      "node": "servicePrincipal",
      "do": "Open the service principal by appId and check its owners and credentials.",
-     "call": "GET /servicePrincipals(appId='{appId}')"
+     "call": "GET /servicePrincipals(appId='{appId}')",
+     "ps": "Get-MgServicePrincipal -Filter \"appId eq '$appId'\""
     },
     {
      "node": "appRoleAssignment",
      "do": "List the application permissions it holds on other APIs.",
-     "call": "GET /servicePrincipals/{id}/appRoleAssignments"
+     "call": "GET /servicePrincipals/{id}/appRoleAssignments",
+     "ps": "Get-MgServicePrincipalAppRoleAssignment -ServicePrincipalId $servicePrincipalId -All"
     },
     {
      "node": "signIn",
      "do": "Pull its recent service principal sign-ins.",
      "call": "GET https://graph.microsoft.com/beta/auditLogs/signIns?$filter=signInEventTypes/any(t: t eq 'servicePrincipal') and appId eq '{appId}'",
-     "note": "The signInEventTypes filter is beta only; without it the sign-ins list returns interactive user sign-ins only."
+     "note": "The signInEventTypes filter is beta only; without it the sign-ins list returns interactive user sign-ins only.",
+     "ps": "Invoke-MgGraphRequest -Method GET -Uri \"https://graph.microsoft.com/beta/auditLogs/signIns?`$filter=signInEventTypes/any(t: t eq 'servicePrincipal') and appId eq '$appId'\""
     },
     {
      "node": "directoryAudit",
-     "do": "Look for recent changes to the app: new credentials, owners and permission grants."
+     "do": "Look for recent changes to the app: new credentials, owners and permission grants.",
+     "ps": "Get-MgAuditLogDirectoryAudit -Filter \"activityDateTime ge $since\" -All"
     }
    ],
    "seeAlso": [
@@ -97942,25 +98028,30 @@
    "steps": [
     {
      "node": "riskDetection",
-     "do": "List the user's recent detections with type, IP address and location."
+     "do": "List the user's recent detections with type, IP address and location.",
+     "ps": "Get-MgRiskDetection -All"
     },
     {
      "node": "riskyUser",
-     "do": "Check the user's current risk level, state and history."
+     "do": "Check the user's current risk level, state and history.",
+     "ps": "Get-MgRiskyUser -All"
     },
     {
      "node": "signIn",
      "do": "Pull the sign-in behind each detection by its correlation ID.",
      "call": "GET /auditLogs/signIns?$filter=correlationId eq '{correlationId}'",
-     "note": "correlationId is null on detections that aren't tied to a sign-in."
+     "note": "correlationId is null on detections that aren't tied to a sign-in.",
+     "ps": "Get-MgAuditLogSignIn -Filter \"correlationId eq '$correlationId'\""
     },
     {
      "node": "authMethod",
-     "do": "Check whether a new sign-in method appeared around the time of the detection."
+     "do": "Check whether a new sign-in method appeared around the time of the detection.",
+     "ps": "Get-MgUserAuthenticationMethod -UserId $userId"
     },
     {
      "node": "directoryAudit",
-     "do": "Look for method, password and role changes for the user."
+     "do": "Look for method, password and role changes for the user.",
+     "ps": "Get-MgAuditLogDirectoryAudit -Filter \"activityDateTime ge $since\" -All"
     }
    ],
    "seeAlso": [
@@ -97976,21 +98067,25 @@
    "steps": [
     {
      "node": "compliancePolicy",
-     "do": "List the compliance policies and the platforms they cover."
+     "do": "List the compliance policies and the platforms they cover.",
+     "ps": "Get-MgDeviceManagementDeviceCompliancePolicy -All"
     },
     {
      "node": "managedDevice",
-     "do": "Find devices whose complianceState isn't compliant, with their last sync time and user."
+     "do": "Find devices whose complianceState isn't compliant, with their last sync time and user.",
+     "ps": "Get-MgDeviceManagementManagedDevice -All"
     },
     {
      "node": "device",
      "do": "Match each one to its Entra device, where Conditional Access reads isCompliant.",
      "call": "GET /devices?$filter=deviceId eq '{azureADDeviceId}'",
-     "note": "managedDevice.azureADDeviceId matches the Entra device's deviceId, not its object id."
+     "note": "managedDevice.azureADDeviceId matches the Entra device's deviceId, not its object id.",
+     "ps": "Get-MgDevice -Filter \"deviceId eq '$azureADDeviceId'\""
     },
     {
      "node": "caPolicy",
-     "do": "Check which Conditional Access policies require a compliant device (grantControls.builtInControls contains compliantDevice)."
+     "do": "Check which Conditional Access policies require a compliant device (grantControls.builtInControls contains compliantDevice).",
+     "ps": "Get-MgIdentityConditionalAccessPolicy -All"
     }
    ],
    "seeAlso": [
@@ -98006,27 +98101,32 @@
    "steps": [
     {
      "node": "attackSimulation",
-     "do": "List recent simulation campaigns and their status."
+     "do": "List recent simulation campaigns and their status.",
+     "ps": "Get-MgSecurityAttackSimulation -All"
     },
     {
      "node": "attackSimulation",
      "do": "List the repeat offenders: users who fell for more than one simulation.",
      "call": "GET /reports/security/getAttackSimulationRepeatOffenders",
      "permission": "AttackSimulation.Read.All (delegated and application)",
-     "note": "Global service only: not in the US Government or China (21Vianet) clouds."
+     "note": "Global service only: not in the US Government or China (21Vianet) clouds.",
+     "ps": "Get-MgReportSecurityAttackSimulationRepeatOffender"
     },
     {
      "node": "user",
-     "do": "Look up each repeat offender's account."
+     "do": "Look up each repeat offender's account.",
+     "ps": "Get-MgUser -UserId $userPrincipalName -Property id,displayName,userPrincipalName,accountEnabled"
     },
     {
      "node": "registrationDetails",
      "do": "Check whether each one is MFA capable.",
-     "call": "GET /reports/authenticationMethods/userRegistrationDetails?$filter=userPrincipalName eq '{upn}'"
+     "call": "GET /reports/authenticationMethods/userRegistrationDetails?$filter=userPrincipalName eq '{upn}'",
+     "ps": "Get-MgReportAuthenticationMethodUserRegistrationDetail -Filter \"userPrincipalName eq '$userPrincipalName'\""
     },
     {
      "node": "riskyUser",
-     "do": "Check whether any of them are also flagged at risk."
+     "do": "Check whether any of them are also flagged at risk.",
+     "ps": "Get-MgRiskyUser -All"
     }
    ],
    "seeAlso": [
@@ -98044,19 +98144,23 @@
      "node": "provisioningLog",
      "do": "List recent provisioning events and pick out the failures (provisioningStatusInfo.status failure).",
      "call": "GET /auditLogs/provisioning?$filter=activityDateTime gt {date}",
-     "note": "provisioningStatusInfo isn't documented as filterable in v1.0, so pick out failures in your own code. Filters are case sensitive."
+     "note": "provisioningStatusInfo isn't documented as filterable in v1.0, so pick out failures in your own code. Filters are case sensitive.",
+     "ps": "Get-MgAuditLogProvisioning -Filter \"activityDateTime gt $since\" -All"
     },
     {
      "node": "servicePrincipal",
-     "do": "Open the provisioning app's service principal (servicePrincipal.id on the event)."
+     "do": "Open the provisioning app's service principal (servicePrincipal.id on the event).",
+     "ps": "Get-MgServicePrincipal -ServicePrincipalId $servicePrincipalId"
     },
     {
      "node": "user",
-     "do": "Look up the user the event was for (sourceIdentity or targetIdentity) and check the attribute that failed."
+     "do": "Look up the user the event was for (sourceIdentity or targetIdentity) and check the attribute that failed.",
+     "ps": "Get-MgUser -UserId $userPrincipalName -Property id,displayName,userPrincipalName,accountEnabled"
     },
     {
      "node": "directoryAudit",
-     "do": "Check whether someone changed the user or the app's provisioning settings around the same time."
+     "do": "Check whether someone changed the user or the app's provisioning settings around the same time.",
+     "ps": "Get-MgAuditLogDirectoryAudit -Filter \"activityDateTime ge $since\" -All"
     }
    ],
    "seeAlso": [
@@ -98072,19 +98176,23 @@
    "steps": [
     {
      "node": "secureScore",
-     "do": "Read the latest score and each control's points."
+     "do": "Read the latest score and each control's points.",
+     "ps": "Get-MgSecuritySecureScore -Top 1"
     },
     {
      "node": "secureScoreControl",
-     "do": "Read the improvement actions and pick the open ones worth the most points."
+     "do": "Read the improvement actions and pick the open ones worth the most points.",
+     "ps": "Get-MgSecuritySecureScoreControlProfile -All"
     },
     {
      "node": "messageCenter",
-     "do": "List posts that need action, sorted by actionRequiredByDateTime."
+     "do": "List posts that need action, sorted by actionRequiredByDateTime.",
+     "ps": "Get-MgServiceAnnouncementMessage -All"
     },
     {
      "node": "serviceHealthIssue",
-     "do": "List incidents and advisories that aren't resolved yet (isResolved false)."
+     "do": "List incidents and advisories that aren't resolved yet (isResolved false).",
+     "ps": "Get-MgServiceAnnouncementIssue -All"
     }
    ]
   },
@@ -98099,24 +98207,28 @@
      "node": "servicePrincipal",
      "do": "Find Microsoft Graph's service principal in your tenant.",
      "call": "GET /servicePrincipals(appId='00000003-0000-0000-c000-000000000000')",
-     "note": "The appId is the same in every tenant; the object id is not."
+     "note": "The appId is the same in every tenant; the object id is not.",
+     "ps": "Get-MgServicePrincipal -Filter \"appId eq '00000003-0000-0000-c000-000000000000'\""
     },
     {
      "node": "appRoleAssignment",
      "do": "List every app and agent holding Graph application permissions.",
      "call": "GET /servicePrincipals(appId='00000003-0000-0000-c000-000000000000')/appRoleAssignedTo",
      "permission": "Application.Read.All (delegated and application)",
-     "note": "Recently granted or removed assignments can show late because of replication delay."
+     "note": "Recently granted or removed assignments can show late because of replication delay.",
+     "ps": "Get-MgServicePrincipalAppRoleAssignedTo -ServicePrincipalId $graphServicePrincipalId -All"
     },
     {
      "node": "oauthGrant",
      "do": "List delegated grants to Graph.",
      "call": "GET /oauth2PermissionGrants?$filter=resourceId eq '{graphServicePrincipalObjectId}'",
-     "note": "resourceId is the object id of Graph's service principal in your tenant, not its appId."
+     "note": "resourceId is the object id of Graph's service principal in your tenant, not its appId.",
+     "ps": "Get-MgOauth2PermissionGrant -Filter \"resourceId eq '$graphServicePrincipalId'\" -All"
     },
     {
      "node": "agentIdentity",
-     "do": "Pick out the agent identities among the holders and review them with their owners."
+     "do": "Pick out the agent identities among the holders and review them with their owners.",
+     "ps": "Invoke-MgGraphRequest -Method GET -Uri \"https://graph.microsoft.com/v1.0/servicePrincipals/microsoft.graph.agentIdentity\""
     },
     {
      "node": "reportRoot",
@@ -98124,7 +98236,8 @@
      "call": "GET https://graph.microsoft.com/beta/reports/servicePrincipalSignInActivities?$filter=appId eq '{appId}'",
      "permission": "AuditLog.Read.All (delegated and application)",
      "licence": "Entra ID P1 or P2",
-     "note": "Beta only. A timestamp alone doesn't prove the sign-in succeeded."
+     "note": "Beta only. A timestamp alone doesn't prove the sign-in succeeded.",
+     "ps": "Invoke-MgGraphRequest -Method GET -Uri \"https://graph.microsoft.com/beta/reports/servicePrincipalSignInActivities?`$filter=appId eq '$appId'\""
     }
    ],
    "seeAlso": [
@@ -98144,25 +98257,30 @@
      "node": "registrationDetails",
      "do": "Count who isn't passwordless capable yet.",
      "call": "GET /reports/authenticationMethods/userRegistrationDetails?$filter=isPasswordlessCapable eq false",
-     "note": "Learn names passKeyDeviceBound as an example methodsRegistered value but gives no full list. Disabled users aren't returned."
+     "note": "Learn names passKeyDeviceBound as an example methodsRegistered value but gives no full list. Disabled users aren't returned.",
+     "ps": "Get-MgReportAuthenticationMethodUserRegistrationDetail -Filter 'isPasswordlessCapable eq false' -All"
     },
     {
      "node": "authMethodsPolicy",
-     "do": "See which methods, including passkeys (FIDO2), are enabled, and for whom."
+     "do": "See which methods, including passkeys (FIDO2), are enabled, and for whom.",
+     "ps": "Get-MgPolicyAuthenticationMethodPolicy"
     },
     {
      "node": "authStrength",
-     "do": "Confirm the built-in Phishing-resistant MFA strength and any custom strengths."
+     "do": "Confirm the built-in Phishing-resistant MFA strength and any custom strengths.",
+     "ps": "Get-MgPolicyAuthenticationStrengthPolicy -All"
     },
     {
      "node": "caPolicy",
      "do": "Find the Conditional Access policies that require that strength, and who they exclude.",
-     "note": "The strength is the grantControls.authenticationStrength relationship, not a built-in control."
+     "note": "The strength is the grantControls.authenticationStrength relationship, not a built-in control.",
+     "ps": "Get-MgIdentityConditionalAccessPolicy -All"
     },
     {
      "node": "authMethod",
      "do": "Check the remaining users one by one.",
-     "note": "Learn advises against this API for whole-population audits. How a user actually signed in (authenticationDetails) is only in beta sign-in logs."
+     "note": "Learn advises against this API for whole-population audits. How a user actually signed in (authenticationDetails) is only in beta sign-in logs.",
+     "ps": "Get-MgUserAuthenticationMethod -UserId $userId"
     }
    ],
    "seeAlso": [
@@ -98178,31 +98296,36 @@
    "steps": [
     {
      "node": "spSettings",
-     "do": "Read the tenant's external sharing level (sharingCapability)."
+     "do": "Read the tenant's external sharing level (sharingCapability).",
+     "ps": "Get-MgAdminSharepointSetting"
     },
     {
      "node": "site",
      "do": "List every site.",
      "call": "GET /sites/getAllSites",
      "permission": "Sites.Read.All (application only)",
-     "note": "No delegated permission; results are paged."
+     "note": "No delegated permission; results are paged.",
+     "ps": "Invoke-MgGraphRequest -Method GET -Uri \"https://graph.microsoft.com/v1.0/sites/getAllSites\""
     },
     {
      "node": "driveItem",
      "do": "Walk each drive and flag items whose sharing changed.",
      "call": "GET /drives/{id}/root/delta  (Prefer: deltashowremovedasdeleted, deltatraversepermissiongaps, deltashowsharingchanges)",
      "permission": "Sites.FullControl.All (application)",
-     "note": "Learn says processing permissions this way needs Sites.FullControl.All, a high permission."
+     "note": "Learn says processing permissions this way needs Sites.FullControl.All, a high permission.",
+     "ps": "Invoke-MgGraphRequest -Method GET -Uri \"https://graph.microsoft.com/v1.0/drives/$driveId/root/delta\" -Headers @{ Prefer = 'deltashowremovedasdeleted, deltatraversepermissiongaps, deltashowsharingchanges' }"
     },
     {
      "node": "permission",
      "do": "List each flagged item's permissions and keep links whose link.scope is anonymous or organization.",
-     "note": "The driveItem shared.scope property is deprecated; use /permissions."
+     "note": "The driveItem shared.scope property is deprecated; use /permissions.",
+     "ps": "Get-MgDriveItemPermission -DriveId $driveId -DriveItemId $itemId -All"
     },
     {
      "node": "auditLogQuery",
      "do": "Find who created and used the links (AnonymousLinkCreated, AnonymousLinkUsed, CompanyLinkCreated).",
-     "note": "Learn doesn't explicitly tie these operations to the SharePointSharingOperation record type, so filter by operation name. Read-only, uses POST."
+     "note": "Learn doesn't explicitly tie these operations to the SharePointSharingOperation record type, so filter by operation name. Read-only, uses POST.",
+     "ps": "Invoke-MgGraphRequest -Method POST -Uri 'https://graph.microsoft.com/v1.0/security/auditLog/queries' -Body @{ displayName = 'MGC Sharing links'; filterStartDateTime = $start; filterEndDateTime = $end; operationFilters = @('AnonymousLinkCreated', 'AnonymousLinkUsed', 'CompanyLinkCreated') }  # read-only, uses POST"
     }
    ],
    "seeAlso": [
@@ -98221,34 +98344,40 @@
      "do": "List apps with their secrets and certificates and pick out those near expiry.",
      "call": "GET /applications?$select=id,appId,displayName,passwordCredentials,keyCredentials",
      "permission": "Application.Read.All (delegated and application)",
-     "note": "Filter on endDateTime in your own code (no documented $filter on expiry). $select of keyCredentials is throttled at 150 requests a minute per tenant."
+     "note": "Filter on endDateTime in your own code (no documented $filter on expiry). $select of keyCredentials is throttled at 150 requests a minute per tenant.",
+     "ps": "Get-MgApplication -All -Property id,appId,displayName,passwordCredentials,keyCredentials"
     },
     {
      "node": "servicePrincipal",
      "do": "Do the same for service principals, which can hold credentials too.",
-     "call": "GET /servicePrincipals?$select=id,appId,displayName,passwordCredentials,keyCredentials"
+     "call": "GET /servicePrincipals?$select=id,appId,displayName,passwordCredentials,keyCredentials",
+     "ps": "Get-MgServicePrincipal -All -Property id,appId,displayName,passwordCredentials,keyCredentials"
     },
     {
      "node": "application",
      "do": "Find apps with fewer than two owners.",
      "call": "GET /applications?$filter=owners/$count eq 0 or owners/$count eq 1&$count=true  (ConsistencyLevel: eventual)",
-     "permission": "Application.Read.All (delegated and application)"
+     "permission": "Application.Read.All (delegated and application)",
+     "ps": "Get-MgApplication -Filter 'owners/$count eq 0 or owners/$count eq 1' -CountVariable appCount -ConsistencyLevel eventual -All"
     },
     {
      "node": "reportRoot",
      "do": "Check when each credential was last used.",
      "call": "GET https://graph.microsoft.com/beta/reports/appCredentialSignInActivities",
      "permission": "AuditLog.Read.All (delegated and application)",
-     "note": "Beta only; the API page states no licence."
+     "note": "Beta only; the API page states no licence.",
+     "ps": "Invoke-MgGraphRequest -Method GET -Uri \"https://graph.microsoft.com/beta/reports/appCredentialSignInActivities\""
     },
     {
      "node": "appRoleAssignment",
      "do": "List the application permissions each app holds.",
-     "call": "GET /servicePrincipals/{id}/appRoleAssignments"
+     "call": "GET /servicePrincipals/{id}/appRoleAssignments",
+     "ps": "Get-MgServicePrincipalAppRoleAssignment -ServicePrincipalId $servicePrincipalId -All"
     },
     {
      "node": "riskyServicePrincipal",
-     "do": "Check whether any of them are flagged at risk."
+     "do": "Check whether any of them are flagged at risk.",
+     "ps": "Get-MgRiskyServicePrincipal -All"
     }
    ],
    "seeAlso": [
@@ -98265,27 +98394,31 @@
    "steps": [
     {
      "node": "sensitivityLabel",
-     "do": "List the labels in use."
+     "do": "List the labels in use.",
+     "ps": "Get-MgSecurityDataSecurityAndGovernanceSensitivityLabel -All"
     },
     {
      "node": "group",
      "do": "Check the container labels on Microsoft 365 groups and their team sites.",
      "call": "GET /groups/{id}?$select=assignedLabels",
      "permission": "Group.Read.All (delegated and application)",
-     "note": "assignedLabels needs $select and Entra ID P1. The site resource has no label property."
+     "note": "assignedLabels needs $select and Entra ID P1. The site resource has no label property.",
+     "ps": "Get-MgGroup -GroupId $groupId -Property id,displayName,assignedLabels"
     },
     {
      "node": "site",
      "do": "List every site.",
      "call": "GET /sites/getAllSites",
-     "permission": "Sites.Read.All (application only)"
+     "permission": "Sites.Read.All (application only)",
+     "ps": "Invoke-MgGraphRequest -Method GET -Uri \"https://graph.microsoft.com/v1.0/sites/getAllSites\""
     },
     {
      "node": "driveItem",
      "do": "Read each file's sensitivity label.",
      "call": "POST /drives/{id}/items/{id}/extractSensitivityLabels",
      "permission": "Files.Read.All (delegated and application)",
-     "note": "driveItem has no label property. The call can refresh the stored label metadata; it isn't supported for SharePoint Embedded and returns 423 Locked for double key encrypted files. Read-only, uses POST."
+     "note": "driveItem has no label property. The call can refresh the stored label metadata; it isn't supported for SharePoint Embedded and returns 423 Locked for double key encrypted files. Read-only, uses POST.",
+     "ps": "Invoke-MgExtractDriveItemSensitivityLabel -DriveId $driveId -DriveItemId $itemId  # read-only, uses POST"
     },
     {
      "node": "purviewGap",
@@ -98308,30 +98441,35 @@
     {
      "node": "caPolicy",
      "do": "List policies with their state and include and exclude lists.",
-     "note": "enabledForReportingButNotEnforced means report-only: it logs, it doesn't enforce."
+     "note": "enabledForReportingButNotEnforced means report-only: it logs, it doesn't enforce.",
+     "ps": "Get-MgIdentityConditionalAccessPolicy -All"
     },
     {
      "node": "group",
      "do": "Resolve the excluded groups, including break-glass accounts.",
-     "call": "GET /groups/{id}/members"
+     "call": "GET /groups/{id}/members",
+     "ps": "Get-MgGroupMember -GroupId $groupId -All"
     },
     {
      "node": "signIn",
      "do": "Find sign-ins that no policy applied to.",
      "call": "GET /auditLogs/signIns?$filter=conditionalAccessStatus eq 'notApplied' and createdDateTime ge {date}",
      "permission": "AuditLog.Read.All plus Policy.Read.ConditionalAccess",
-     "note": "Without a policy permission, appliedConditionalAccessPolicies is silently left out of the results."
+     "note": "Without a policy permission, appliedConditionalAccessPolicies is silently left out of the results.",
+     "ps": "Get-MgAuditLogSignIn -Filter \"conditionalAccessStatus eq 'notApplied' and createdDateTime ge $since\" -All"
     },
     {
      "node": "caPolicy",
      "do": "Test a user and app against your policies with What If.",
      "call": "POST /identity/conditionalAccess/evaluate",
      "permission": "Policy.Read.ConditionalAccess (delegated and application)",
-     "note": "Pass an app ID, not an app group such as Office 365; conditions you leave unset don't match. Read-only, uses POST."
+     "note": "Pass an app ID, not an app group such as Office 365; conditions you leave unset don't match. Read-only, uses POST.",
+     "ps": "Test-MgIdentityConditionalAccess -BodyParameter $whatIf  # read-only, uses POST"
     },
     {
      "node": "crossTenantAccess",
-     "do": "Check inbound trust (MFA and device claims) for guests from partner tenants."
+     "do": "Check inbound trust (MFA and device claims) for guests from partner tenants.",
+     "ps": "Get-MgPolicyCrossTenantAccessPolicyPartner -All"
     }
    ],
    "seeAlso": [
@@ -98354,24 +98492,28 @@
     {
      "node": "servicePrincipal",
      "do": "Find the Office 365 Exchange Online service principal.",
-     "call": "GET /servicePrincipals(appId='00000002-0000-0ff1-ce00-000000000000')"
+     "call": "GET /servicePrincipals(appId='00000002-0000-0ff1-ce00-000000000000')",
+     "ps": "Get-MgServicePrincipal -Filter \"appId eq '00000002-0000-0ff1-ce00-000000000000'\""
     },
     {
      "node": "appRoleAssignment",
      "do": "List apps holding full_access_as_app (EWS with access to every mailbox).",
      "call": "GET /servicePrincipals(appId='00000002-0000-0ff1-ce00-000000000000')/appRoleAssignedTo",
-     "permission": "Application.Read.All (delegated and application)"
+     "permission": "Application.Read.All (delegated and application)",
+     "ps": "Get-MgServicePrincipalAppRoleAssignedTo -ServicePrincipalId $exchangeServicePrincipalId -All"
     },
     {
      "node": "oauthGrant",
      "do": "List delegated grants that include EWS.AccessAsUser.All.",
-     "call": "GET /oauth2PermissionGrants?$filter=resourceId eq '{exchangeServicePrincipalObjectId}'"
+     "call": "GET /oauth2PermissionGrants?$filter=resourceId eq '{exchangeServicePrincipalObjectId}'",
+     "ps": "Get-MgOauth2PermissionGrant -Filter \"resourceId eq '$exchangeServicePrincipalId'\" -All"
     },
     {
      "node": "application",
      "do": "Find each app's owners so someone can plan its move to Graph.",
      "call": "GET /applications(appId='{appId}')/owners",
-     "note": "Learn's guide: Migrate Exchange Web Services (EWS) apps to Microsoft Graph."
+     "note": "Learn's guide: Migrate Exchange Web Services (EWS) apps to Microsoft Graph.",
+     "ps": "Get-MgApplicationOwner -ApplicationId $applicationObjectId -All"
     }
    ],
    "seeAlso": [
@@ -98390,34 +98532,40 @@
      "do": "Pull SharePoint site usage with last activity date and storage used.",
      "call": "GET /reports/getSharePointSiteUsageDetail(period='D180')",
      "permission": "Reports.Read.All (delegated and application)",
-     "note": "If displayConcealedNames is on (GET /admin/reportSettings, ReportSettings.Read.All), site and owner names come back hashed."
+     "note": "If displayConcealedNames is on (GET /admin/reportSettings, ReportSettings.Read.All), site and owner names come back hashed.",
+     "ps": "Get-MgReportSharePointSiteUsageDetail -Period D180 -OutFile ./sharepoint-site-usage.csv"
     },
     {
      "node": "site",
-     "do": "Open the stale sites."
+     "do": "Open the stale sites.",
+     "ps": "Get-MgSite -SiteId $siteId"
     },
     {
      "node": "drive",
-     "do": "Check each drive's quota and owner."
+     "do": "Check each drive's quota and owner.",
+     "ps": "Get-MgDrive -DriveId $driveId"
     },
     {
      "node": "driveItem",
      "do": "List files with delta and pick out the old ones by lastModifiedDateTime.",
      "call": "GET /drives/{id}/root/delta",
-     "note": "Delta has no $filter, so filter in your own code. Learn describes no duplicate-detection method in Graph."
+     "note": "Delta has no $filter, so filter in your own code. Learn describes no duplicate-detection method in Graph.",
+     "ps": "Get-MgDriveRootDelta -DriveId $driveId -All"
     },
     {
      "node": "driveItem",
      "do": "Count versions on large files.",
      "call": "GET /drives/{id}/items/{id}/versions",
-     "note": "Versions come newest first and $orderby isn't supported."
+     "note": "Versions come newest first and $orderby isn't supported.",
+     "ps": "Get-MgDriveItemVersion -DriveId $driveId -DriveItemId $itemId -All"
     },
     {
      "node": "retentionLabel",
      "do": "Read each file's retention label before anything is marked for deletion.",
      "call": "GET /drives/{id}/items/{id}/retentionLabel",
      "permission": "Files.Read.All (delegated and application)",
-     "note": "Don't delete when isDeleteAllowed is false or the record is locked."
+     "note": "Don't delete when isDeleteAllowed is false or the record is locked.",
+     "ps": "Get-MgDriveItemRetentionLabel -DriveId $driveId -DriveItemId $itemId"
     }
    ],
    "seeAlso": [
@@ -98433,7 +98581,8 @@
    "steps": [
     {
      "node": "subscribedSku",
-     "do": "Compare licences bought (prepaidUnits.enabled) with licences used (consumedUnits)."
+     "do": "Compare licences bought (prepaidUnits.enabled) with licences used (consumedUnits).",
+     "ps": "Get-MgSubscribedSku -All"
     },
     {
      "node": "user",
@@ -98441,25 +98590,29 @@
      "call": "GET /users?$select=id,userPrincipalName,accountEnabled,assignedLicenses,signInActivity",
      "permission": "User.Read.All plus AuditLog.Read.All",
      "licence": "Entra ID P1 or P2",
-     "note": "Page size is up to 500 with signInActivity; a signInActivity filter can't be combined with other filters; there's no data before April 2020."
+     "note": "Page size is up to 500 with signInActivity; a signInActivity filter can't be combined with other filters; there's no data before April 2020.",
+     "ps": "Get-MgUser -All -PageSize 500 -Property id,userPrincipalName,accountEnabled,assignedLicenses,signInActivity"
     },
     {
      "node": "user",
      "do": "Find disabled accounts that still hold licences.",
      "call": "GET /users?$filter=accountEnabled eq false and assignedLicenses/$count ne 0&$count=true  (ConsistencyLevel: eventual)",
-     "note": "This combination follows Learn's documented rules, but Learn shows no exact example."
+     "note": "This combination follows Learn's documented rules, but Learn shows no exact example.",
+     "ps": "Get-MgUser -Filter 'accountEnabled eq false and assignedLicenses/$count ne 0' -CountVariable disabledCount -ConsistencyLevel eventual -All"
     },
     {
      "node": "group",
      "do": "Check group-based licensing: licenseAssignmentStates.assignedByGroup on users names the group, and group.assignedLicenses needs $select.",
-     "note": "Remove an inherited licence from the group, not the user."
+     "note": "Remove an inherited licence from the group, not the user.",
+     "ps": "Get-MgGroup -GroupId $groupId -Property id,displayName,assignedLicenses"
     },
     {
      "node": "reportRoot",
      "do": "Check Copilot usage per user before reassigning seats.",
      "call": "GET /copilot/reports/getMicrosoft365CopilotUsageUserDetail(period='D28')",
      "permission": "Reports.Read.All (delegated and application)",
-     "note": "v1.0 returns CSV and covers Copilot-licensed users only; delegated callers need a role such as AI Administrator or Reports Reader."
+     "note": "v1.0 returns CSV and covers Copilot-licensed users only; delegated callers need a role such as AI Administrator or Reports Reader.",
+     "ps": "Invoke-MgGraphRequest -Method GET -Uri \"https://graph.microsoft.com/v1.0/copilot/reports/getMicrosoft365CopilotUsageUserDetail(period='D28')\" -OutputFilePath ./copilot-usage.csv"
     }
    ],
    "seeAlso": [
