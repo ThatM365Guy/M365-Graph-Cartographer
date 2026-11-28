@@ -133,7 +133,13 @@ Then open `http://localhost:8765/#scenario-copilot-oversharing`.
 
 ## Trust and the GitHub Pages address
 
-The live site is `https://thatm365guy.github.io/M365-Graph-Cartographer/`. Browsers treat the whole of `https://thatm365guy.github.io` as one origin, shared by every GitHub Pages site under that account. Any page published there could read the tenant and client ID MGC remembers, open MGC and watch it, or use the registered `auth.html` to get tokens for the app. So publish nothing else on that account's Pages that you don't fully trust. A custom domain (or a separate account) just for MGC would remove this. That needs a GitHub and DNS change, so it is the owner's decision.
+**Nothing from your tenant is shared between browsers or between people.** MGC has no server. Results stay in the tab's memory. The only thing your browser keeps is your tenant and the app (client) ID, on your own device. They aren't secrets: both appear in every Microsoft sign-in address.
+
+What follows is about the address the site is published at. The live site is `https://thatm365guy.github.io/M365-Graph-Cartographer/`. A browser treats everything under `https://thatm365guy.github.io` as one site (one *origin*), and GitHub publishes every Pages site on that account there, each in its own folder. Inside one person's browser, pages on the same origin can read each other's stored values and open each other's windows.
+
+So the risk would need two things together: a **second** Pages site on the same account, and that site running **hostile or compromised** code (for example a bad dependency). If both held, that page could read the saved tenant and client ID of someone who uses MGC. If they were signed in to Microsoft, it could also use MGC's registered `auth.html` to get a token for the app and read what the app's read-only, delegated permissions allow. That is only what that person can already see, and only in their own tenant.
+
+**Today none of that applies.** On 28 Nov 2026 MGC was the only repository on the account with GitHub Pages turned on, and there is no `thatm365guy.github.io` user site. Before turning on Pages for another repository on this account, consider either option below. A custom domain just for MGC (or a separate account) gives MGC an origin of its own. It needs a DNS record, a GitHub Pages setting, and new redirect URIs in each app registration. Not remembering the tenant and client ID would also remove the stored values, but not the `auth.html` point.
 
 ## The Content Security Policy
 
