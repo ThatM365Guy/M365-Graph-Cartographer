@@ -424,15 +424,17 @@ class SubserviceTests(unittest.TestCase):
         self.assertEqual(cov["curated"], cov["onMap"])         # nothing generated yet
         self.assertTrue(all(r["curated"] == r["onMap"] for r in cov["areas"]))
         # a generated entry counts as mapped, not curated
-        fq = next(t for t, v in prev["types"].items() if v["status"] == "v1.0" and v["area"] == "deviceManagement")
+        INTUNE_CURATED = {n["entityType"] for n in c["nodes"] if n.get("entityType")}
+        fq = next(t for t, v in prev["types"].items() if v["status"] == "v1.0" and v["area"] == "deviceManagement"
+                  and t not in INTUNE_CURATED)
         c["nodes"].append({"id": "genTest", "label": "Generated test", "workload": "devices", "subservice": "managed-devices",
                            "entityType": fq, "tier": "generated"})
         gm2, _ = scan.build_map(c, None, scan=False, now=D1, prev_coverage=prev)
         cov2 = gm2["coverage"]
-        self.assertEqual(cov2["onMap"], cov["onMap"] + 1)
         self.assertEqual(cov2["curated"], cov["curated"])
-        dev = next(r for r in cov2["services"] if r["workload"] == "devices")
-        self.assertEqual((dev["onMap"], dev["curated"]), (1, 0))
+        dev1 = next(r for r in cov["services"] if r["workload"] == "devices")
+        dev2 = next(r for r in cov2["services"] if r["workload"] == "devices")
+        self.assertEqual((dev2["onMap"], dev2["curated"]), (dev1["onMap"] + (fq not in INTUNE_CURATED), dev1["curated"]))
 
     def test_same_subservice_id_in_two_workloads_is_fine(self):
         gm, _ = real_map()
@@ -610,7 +612,7 @@ class GeneratedTierTests(unittest.TestCase):
         gen = {"meta": {}, "entries": self.entries}
         gm, _ = scan.build_map(curated(), None, scan=False, now=D1, prev_coverage=prev, prev_generated=gen, placement=RULES)
         dev = next(r for r in gm["coverage"]["services"] if r["workload"] == "devices")
-        self.assertEqual((dev["onMap"], dev["curated"]), (10, 0))   # every fixture type in deviceManagement
+        self.assertEqual((dev["onMap"], dev["curated"]), (10, 2))   # every fixture type; managedDevice and the compliance policy are curated
 
     def test_real_placement_file_places_every_type(self):
         with open(os.path.join(ROOT, "data", "placement.json"), encoding="utf-8") as f:

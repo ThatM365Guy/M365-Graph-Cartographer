@@ -1,13 +1,13 @@
 {
  "meta": {
   "title": "M365 Graph Cartographer (MGC)",
-  "curatedVersion": "0.7.0",
+  "curatedVersion": "0.8.0",
   "curatedOn": "2026-11-28",
   "phase": "Purview covered in depth from 0.3.0: information protection, records, eDiscovery, audit, privacy and the data security API, with what Graph does not cover.",
   "note": "Hand-written content lives here. The scanner never edits this file; it writes graph-map.json alongside it.",
-  "generatedAt": "2026-11-28T13:04:25+00:00",
+  "generatedAt": "2026-11-28T13:12:10+00:00",
   "scan": {
-   "at": "2026-11-28T13:04:25+00:00",
+   "at": "2026-11-28T13:12:10+00:00",
    "v1EntityTypes": 1264,
    "betaEntityTypes": 2625,
    "permissionsCatalogue": {
@@ -17,8 +17,9 @@
     "path": "permissions/new/permissions.json"
    },
    "learnDocs": {
-    "commit": "951930b591f9248117793f036e0b13cb779769d1",
-    "branch": "main",
+    "commit": "f4c8ebb6140e234b6a5f74c1c13d9aa385fef5f1",
+    "date": "2026-11-24T00:42:28Z",
+    "message": "Merging changes synced from https://github.com/microsoftgraph/microsoft-graph-docs (branch live)",
     "repo": "microsoftgraph/microsoft-graph-docs-contrib",
     "path": "api-reference/v1.0/resources"
    },
@@ -5614,6 +5615,784 @@
    }
   },
   {
+   "id": "authMethod",
+   "label": "Authentication method",
+   "workload": "policies",
+   "subservice": "authentication",
+   "entityType": "microsoft.graph.authenticationMethod",
+   "path": "GET /users/{id}/authentication/methods",
+   "summary": "The sign-in methods a user has registered: FIDO2 keys and passkeys, Microsoft Authenticator, phone, Windows Hello for Business, Temporary Access Pass and others, one object per method.",
+   "permissions": {
+    "delegated": "UserAuthenticationMethod.Read.All (UserAuthenticationMethod.Read for your own methods)",
+    "application": "UserAuthenticationMethod.Read.All"
+   },
+   "limits": [
+    "Microsoft advises against this API for audits across the whole user population; use the registration details report instead (checked on Microsoft Learn, 28 Nov 2026).",
+    "Delegated calls on other users need Global Reader, Authentication Administrator or Privileged Authentication Administrator. An Authentication Administrator only sees masked phone numbers.",
+    "No OData query parameters are supported on the list.",
+    "lastUsedDateTime is best effort: null or missing doesn't mean the method was never used.",
+    "/me needs a delegated permission; application permissions aren't supported there."
+   ],
+   "mapping": [
+    "Each method is typed by @odata.type, for example #microsoft.graph.fido2AuthenticationMethod; typed collections such as /authentication/fido2Methods exist too."
+   ],
+   "docs": "https://learn.microsoft.com/graph/api/resources/authenticationmethod",
+   "variants": [
+    "microsoft.graph.qrCodePinAuthenticationMethod"
+   ],
+   "scan": {
+    "status": "v1.0",
+    "props": [
+     "createdDateTime",
+     "id",
+     "lastUsedDateTime"
+    ],
+    "navs": {},
+    "betaOnlyProps": [
+     "provenance"
+    ],
+    "betaOnlyNavs": [],
+    "baseTypes": [
+     "microsoft.graph.entity"
+    ]
+   },
+   "permCheck": {
+    "checked": [
+     "UserAuthenticationMethod.Read",
+     "UserAuthenticationMethod.Read.All"
+    ],
+    "unknown": []
+   }
+  },
+  {
+   "id": "registrationDetails",
+   "label": "User registration details",
+   "workload": "policies",
+   "subservice": "authentication",
+   "entityType": "microsoft.graph.userRegistrationDetails",
+   "path": "GET /reports/authenticationMethods/userRegistrationDetails",
+   "summary": "One row per user with MFA and self-service password reset registration and capability, passwordless capability, the methods registered and the system-preferred method. The way to measure MFA and passkey roll-out across a tenant.",
+   "permissions": {
+    "delegated": "AuditLog.Read.All",
+    "application": "AuditLog.Read.All"
+   },
+   "licence": "Microsoft Entra ID P1 or P2 (authentication methods usage and insights) (checked on Microsoft Learn, 28 Nov 2026).",
+   "limits": [
+    "Doesn't return disabled users.",
+    "$filter works on isMfaCapable, isMfaRegistered, isSsprEnabled, isSsprRegistered, methodsRegistered, userDisplayName and userPrincipalName.",
+    "Delegated callers need Reports Reader, Security Reader, Security Administrator or Global Reader."
+   ],
+   "mapping": [
+    "The id is the user's object ID, so rows join to /users/{id}."
+   ],
+   "docs": "https://learn.microsoft.com/graph/api/resources/userregistrationdetails",
+   "scan": {
+    "status": "v1.0",
+    "props": [
+     "id",
+     "isAdmin",
+     "isMfaCapable",
+     "isMfaRegistered",
+     "isPasswordlessCapable",
+     "isSsprCapable",
+     "isSsprEnabled",
+     "isSsprRegistered",
+     "isSystemPreferredAuthenticationMethodEnabled",
+     "lastUpdatedDateTime",
+     "methodsRegistered",
+     "systemPreferredAuthenticationMethods",
+     "userDisplayName",
+     "userPreferredMethodForSecondaryAuthentication",
+     "userPrincipalName",
+     "userType"
+    ],
+    "navs": {},
+    "betaOnlyProps": [
+     "defaultMfaMethod"
+    ],
+    "betaOnlyNavs": [],
+    "baseTypes": [
+     "microsoft.graph.entity"
+    ]
+   },
+   "permCheck": {
+    "checked": [
+     "AuditLog.Read.All"
+    ],
+    "unknown": []
+   }
+  },
+  {
+   "id": "riskDetection",
+   "label": "Risk detection",
+   "workload": "identity",
+   "subservice": "access-risk",
+   "entityType": "microsoft.graph.riskDetection",
+   "path": "GET /identityProtection/riskDetections",
+   "summary": "Each user risk event that Entra ID Protection detected, with its type (for example unfamiliar sign-in properties), level, state, IP address, location and the sign-in it came from.",
+   "permissions": {
+    "delegated": "IdentityRiskEvent.Read.All",
+    "application": "IdentityRiskEvent.Read.All"
+   },
+   "licence": "Microsoft Entra ID P1 or P2, as stated on the List riskDetections page (checked on Microsoft Learn, 28 Nov 2026).",
+   "limits": [
+    "Default page size 20; $top up to 500.",
+    "Delegated callers need Global Reader, Security Operator, Security Reader or Security Administrator.",
+    "Not available in the China (21Vianet) cloud."
+   ],
+   "mapping": [
+    "userId joins to /users/{id} and to the risky user; riskEventType says what was detected."
+   ],
+   "docs": "https://learn.microsoft.com/graph/api/resources/riskdetection",
+   "scan": {
+    "status": "v1.0",
+    "props": [
+     "activity",
+     "activityDateTime",
+     "additionalInfo",
+     "correlationId",
+     "detectedDateTime",
+     "detectionTimingType",
+     "id",
+     "ipAddress",
+     "lastUpdatedDateTime",
+     "location",
+     "requestId",
+     "riskDetail",
+     "riskEventType",
+     "riskLevel",
+     "riskState",
+     "source",
+     "tokenIssuerType",
+     "userDisplayName",
+     "userId",
+     "userPrincipalName"
+    ],
+    "navs": {},
+    "betaOnlyProps": [
+     "mitreTechniqueId",
+     "riskType"
+    ],
+    "betaOnlyNavs": [],
+    "baseTypes": [
+     "microsoft.graph.entity"
+    ]
+   },
+   "permCheck": {
+    "checked": [
+     "IdentityRiskEvent.Read.All"
+    ],
+    "unknown": []
+   }
+  },
+  {
+   "id": "riskyServicePrincipal",
+   "label": "Risky service principal",
+   "workload": "identity",
+   "subservice": "access-risk",
+   "entityType": "microsoft.graph.riskyServicePrincipal",
+   "path": "GET /identityProtection/riskyServicePrincipals",
+   "summary": "Apps and workload identities that Entra ID Protection flags as at risk, with risk level, state and history. The workload-identity counterpart of risky users.",
+   "permissions": {
+    "delegated": "IdentityRiskyServicePrincipal.Read.All",
+    "application": "IdentityRiskyServicePrincipal.Read.All"
+   },
+   "licence": "Microsoft Entra Workload ID Premium (checked on Microsoft Learn, 28 Nov 2026).",
+   "limits": [
+    "Delegated callers need Global Reader, Security Operator, Security Reader or Security Administrator.",
+    "confirmCompromised and dismiss are bound actions; reading needs only the Read permission."
+   ],
+   "mapping": [
+    "appId joins to the service principal's appId."
+   ],
+   "docs": "https://learn.microsoft.com/graph/api/resources/riskyserviceprincipal",
+   "scan": {
+    "status": "v1.0",
+    "props": [
+     "appId",
+     "displayName",
+     "id",
+     "isEnabled",
+     "isProcessing",
+     "riskDetail",
+     "riskLastUpdatedDateTime",
+     "riskLevel",
+     "riskState",
+     "servicePrincipalType"
+    ],
+    "navs": {
+     "history": "microsoft.graph.riskyServicePrincipalHistoryItem"
+    },
+    "betaOnlyProps": [
+     "accountEnabled"
+    ],
+    "betaOnlyNavs": [],
+    "baseTypes": [
+     "microsoft.graph.entity"
+    ]
+   },
+   "permCheck": {
+    "checked": [
+     "IdentityRiskyServicePrincipal.Read.All"
+    ],
+    "unknown": []
+   }
+  },
+  {
+   "id": "crossTenantAccess",
+   "label": "Cross-tenant access policy",
+   "workload": "policies",
+   "subservice": "cross-tenant",
+   "entityType": "microsoft.graph.crossTenantAccessPolicy",
+   "path": "GET /policies/crossTenantAccessPolicy/partners",
+   "covers": [
+    "microsoft.graph.crossTenantAccessPolicyConfigurationPartner",
+    "microsoft.graph.crossTenantAccessPolicyConfigurationDefault"
+   ],
+   "summary": "Which external tenants your users can collaborate with, and how: B2B collaboration and B2B direct connect in each direction, tenant restrictions, inbound trust (MFA and device claims) and automatic consent, as defaults and per partner.",
+   "permissions": {
+    "delegated": "Policy.Read.All",
+    "application": "Policy.Read.All"
+   },
+   "limits": [
+    "Delegated roles: Security Reader and Global Reader read basic properties; Global Secure Access Administrator and Teams Administrator read them without identity synchronisation settings; Security Administrator reads all.",
+    "Use $expand=identitySynchronization to list each partner's cross-tenant user sync policy."
+   ],
+   "mapping": [
+    "Defaults live at /policies/crossTenantAccessPolicy/default; each partner is keyed by its tenantId."
+   ],
+   "docs": "https://learn.microsoft.com/graph/api/resources/crosstenantaccesspolicy-overview",
+   "scan": {
+    "status": "v1.0",
+    "props": [
+     "allowedCloudEndpoints",
+     "deletedDateTime",
+     "description",
+     "displayName",
+     "id"
+    ],
+    "navs": {
+     "default": "microsoft.graph.crossTenantAccessPolicyConfigurationDefault",
+     "partners": "microsoft.graph.crossTenantAccessPolicyConfigurationPartner",
+     "templates": "microsoft.graph.policyTemplate"
+    },
+    "betaOnlyProps": [
+     "definition"
+    ],
+    "betaOnlyNavs": [],
+    "baseTypes": [
+     "microsoft.graph.policyBase",
+     "microsoft.graph.directoryObject",
+     "microsoft.graph.entity"
+    ]
+   },
+   "permCheck": {
+    "checked": [
+     "Policy.Read.All"
+    ],
+    "unknown": []
+   }
+  },
+  {
+   "id": "managedDevice",
+   "label": "Managed device (Intune)",
+   "workload": "devices",
+   "subservice": "managed-devices",
+   "entityType": "microsoft.graph.managedDevice",
+   "path": "GET /deviceManagement/managedDevices",
+   "summary": "Devices enrolled in Intune: owner, OS, compliance state, encryption, last sync and management agent, plus remote actions such as retire and wipe.",
+   "permissions": {
+    "delegated": "DeviceManagementManagedDevices.Read.All",
+    "application": "DeviceManagementManagedDevices.Read.All"
+   },
+   "licence": "An active Intune licence for the tenant (checked on Microsoft Learn, 28 Nov 2026).",
+   "limits": [
+    "This is the Intune record, not the Entra device object: the two have different IDs.",
+    "Remote actions (retire, wipe and others) are bound POST actions on the device."
+   ],
+   "mapping": [
+    "azureADDeviceId matches the Entra device's deviceId (not its object id)."
+   ],
+   "docs": "https://learn.microsoft.com/graph/api/resources/intune-devices-manageddevice",
+   "variants": [
+    "microsoft.graph.windowsManagedDevice"
+   ],
+   "scan": {
+    "status": "v1.0",
+    "props": [
+     "activationLockBypassCode",
+     "androidSecurityPatchLevel",
+     "azureADDeviceId",
+     "azureADRegistered",
+     "complianceGracePeriodExpirationDateTime",
+     "complianceState",
+     "configurationManagerClientEnabledFeatures",
+     "deviceActionResults",
+     "deviceCategoryDisplayName",
+     "deviceEnrollmentType",
+     "deviceHealthAttestationState",
+     "deviceName",
+     "deviceRegistrationState",
+     "easActivated",
+     "easActivationDateTime",
+     "easDeviceId",
+     "emailAddress",
+     "enrolledDateTime",
+     "enrollmentProfileName",
+     "ethernetMacAddress",
+     "exchangeAccessState",
+     "exchangeAccessStateReason",
+     "exchangeLastSuccessfulSyncDateTime",
+     "freeStorageSpaceInBytes",
+     "iccid",
+     "id",
+     "imei",
+     "isEncrypted",
+     "isSupervised",
+     "jailBroken",
+     "lastSyncDateTime",
+     "managedDeviceName",
+     "managedDeviceOwnerType",
+     "managementAgent",
+     "managementCertificateExpirationDate",
+     "managementState",
+     "manufacturer",
+     "meid",
+     "model",
+     "notes",
+     "operatingSystem",
+     "osVersion",
+     "partnerReportedThreatState",
+     "phoneNumber",
+     "physicalMemoryInBytes",
+     "remoteAssistanceSessionErrorDetails",
+     "remoteAssistanceSessionUrl",
+     "requireUserEnrollmentApproval",
+     "serialNumber",
+     "subscriberCarrier",
+     "totalStorageSpaceInBytes",
+     "udid",
+     "userDisplayName",
+     "userId",
+     "userPrincipalName",
+     "wiFiMacAddress"
+    ],
+    "navs": {
+     "deviceCategory": "microsoft.graph.deviceCategory",
+     "deviceCompliancePolicyStates": "microsoft.graph.deviceCompliancePolicyState",
+     "deviceConfigurationStates": "microsoft.graph.deviceConfigurationState",
+     "logCollectionRequests": "microsoft.graph.deviceLogCollectionResponse",
+     "users": "microsoft.graph.user",
+     "windowsProtectionState": "microsoft.graph.windowsProtectionState"
+    },
+    "betaOnlyProps": [
+     "aadRegistered",
+     "autopilotEnrolled",
+     "azureActiveDirectoryDeviceId",
+     "bootstrapTokenEscrowed",
+     "chassisType",
+     "chromeOSDeviceInfo",
+     "cloudPcRemoteActionResults",
+     "configurationManagerClientHealthState",
+     "configurationManagerClientInformation",
+     "deviceFirmwareConfigurationInterfaceManaged",
+     "deviceType",
+     "enrolledByUserPrincipalName",
+     "hardwareInformation",
+     "joinType",
+     "lostModeState",
+     "managementFeatures",
+     "ownerType",
+     "preferMdmOverGroupPolicyAppliedDateTime",
+     "processorArchitecture",
+     "retireAfterDateTime",
+     "roleScopeTagIds",
+     "securityPatchLevel",
+     "skuFamily",
+     "skuNumber",
+     "specificationVersion",
+     "usersLoggedOn",
+     "windowsActiveMalwareCount",
+     "windowsRemediatedMalwareCount"
+    ],
+    "betaOnlyNavs": [
+     "assignmentFilterEvaluationStatusDetails",
+     "detectedApps",
+     "deviceHealthScriptStates",
+     "managedDeviceMobileAppConfigurationStates",
+     "securityBaselineStates"
+    ],
+    "baseTypes": [
+     "microsoft.graph.entity"
+    ]
+   },
+   "permCheck": {
+    "checked": [
+     "DeviceManagementManagedDevices.Read.All"
+    ],
+    "unknown": []
+   }
+  },
+  {
+   "id": "compliancePolicy",
+   "label": "Device compliance policy",
+   "workload": "devices",
+   "subservice": "compliance-configuration",
+   "entityType": "microsoft.graph.deviceCompliancePolicy",
+   "path": "GET /deviceManagement/deviceCompliancePolicies",
+   "summary": "Intune compliance policies for every platform in one collection, with their assignments and per-device and per-user status. Device compliance feeds Conditional Access.",
+   "permissions": {
+    "delegated": "DeviceManagementConfiguration.Read.All",
+    "application": "DeviceManagementConfiguration.Read.All"
+   },
+   "licence": "An active Intune licence for the tenant (checked on Microsoft Learn, 28 Nov 2026).",
+   "limits": [
+    "The collection mixes platforms; tell them apart by @odata.type, for example #microsoft.graph.windows10CompliancePolicy.",
+    "Per-device results are under /deviceManagement/deviceCompliancePolicies/{id}/deviceStatuses."
+   ],
+   "mapping": [
+    "A managed device's own view is /deviceManagement/managedDevices/{id}/deviceCompliancePolicyStates."
+   ],
+   "docs": "https://learn.microsoft.com/graph/api/resources/intune-deviceconfig-devicecompliancepolicy",
+   "variants": [
+    "microsoft.graph.androidCompliancePolicy",
+    "microsoft.graph.androidDeviceOwnerCompliancePolicy",
+    "microsoft.graph.androidForWorkCompliancePolicy",
+    "microsoft.graph.androidWorkProfileCompliancePolicy",
+    "microsoft.graph.aospDeviceOwnerCompliancePolicy",
+    "microsoft.graph.defaultDeviceCompliancePolicy",
+    "microsoft.graph.iosCompliancePolicy",
+    "microsoft.graph.macOSCompliancePolicy",
+    "microsoft.graph.windows10CompliancePolicy",
+    "microsoft.graph.windows10MobileCompliancePolicy",
+    "microsoft.graph.windows81CompliancePolicy",
+    "microsoft.graph.windowsPhone81CompliancePolicy",
+    "microsoft.graph.windowsSoftwareCompliancePolicy"
+   ],
+   "scan": {
+    "status": "v1.0",
+    "props": [
+     "createdDateTime",
+     "description",
+     "displayName",
+     "id",
+     "lastModifiedDateTime",
+     "version"
+    ],
+    "navs": {
+     "assignments": "microsoft.graph.deviceCompliancePolicyAssignment",
+     "deviceSettingStateSummaries": "microsoft.graph.settingStateDeviceSummary",
+     "deviceStatusOverview": "microsoft.graph.deviceComplianceDeviceOverview",
+     "deviceStatuses": "microsoft.graph.deviceComplianceDeviceStatus",
+     "scheduledActionsForRule": "microsoft.graph.deviceComplianceScheduledActionForRule",
+     "userStatusOverview": "microsoft.graph.deviceComplianceUserOverview",
+     "userStatuses": "microsoft.graph.deviceComplianceUserStatus"
+    },
+    "betaOnlyProps": [
+     "roleScopeTagIds"
+    ],
+    "betaOnlyNavs": [],
+    "baseTypes": [
+     "microsoft.graph.entity"
+    ]
+   },
+   "permCheck": {
+    "checked": [
+     "DeviceManagementConfiguration.Read.All"
+    ],
+    "unknown": []
+   }
+  },
+  {
+   "id": "attackSimulation",
+   "label": "Attack simulation",
+   "workload": "security",
+   "subservice": "attack-simulation",
+   "entityType": "microsoft.graph.simulation",
+   "path": "GET /security/attackSimulation/simulations",
+   "summary": "Phishing simulation campaigns from Attack simulation and training in Defender for Office 365: technique, status, launch and completion dates, payload and landing page.",
+   "permissions": {
+    "delegated": "AttackSimulation.Read.All",
+    "application": "AttackSimulation.Read.All"
+   },
+   "licence": "Microsoft 365 E5 or Microsoft Defender for Office 365 Plan 2 (checked on Microsoft Learn, 28 Nov 2026).",
+   "limits": [
+    "Global service only: not in the US Government or China (21Vianet) clouds.",
+    "$filter and $orderby work on attackTechnique, attackType, completionDateTime, displayName, isAutomated, launchDateTime and status."
+   ],
+   "mapping": [
+    "User-level results: /reports/security/getAttackSimulationRepeatOffenders, getAttackSimulationSimulationUserCoverage and getAttackSimulationTrainingUserCoverage."
+   ],
+   "docs": "https://learn.microsoft.com/graph/api/resources/simulation",
+   "scan": {
+    "status": "v1.0",
+    "props": [
+     "attackTechnique",
+     "attackType",
+     "automationId",
+     "completionDateTime",
+     "createdBy",
+     "createdDateTime",
+     "description",
+     "displayName",
+     "durationInDays",
+     "endUserNotificationSetting",
+     "excludedAccountTarget",
+     "id",
+     "includedAccountTarget",
+     "isAutomated",
+     "lastModifiedBy",
+     "lastModifiedDateTime",
+     "launchDateTime",
+     "oAuthConsentAppDetail",
+     "payloadDeliveryPlatform",
+     "report",
+     "status",
+     "trainingSetting"
+    ],
+    "navs": {
+     "landingPage": "microsoft.graph.landingPage",
+     "loginPage": "microsoft.graph.loginPage",
+     "payload": "microsoft.graph.payload"
+    },
+    "betaOnlyProps": [],
+    "betaOnlyNavs": [],
+    "baseTypes": [
+     "microsoft.graph.entity"
+    ]
+   },
+   "permCheck": {
+    "checked": [
+     "AttackSimulation.Read.All"
+    ],
+    "unknown": []
+   }
+  },
+  {
+   "id": "secureScoreControl",
+   "label": "Secure Score control profile",
+   "workload": "security",
+   "subservice": "hunting-posture",
+   "entityType": "microsoft.graph.secureScoreControlProfile",
+   "path": "GET /security/secureScoreControlProfiles",
+   "summary": "The catalogue of Secure Score improvement actions: title, category, maximum score, rank, implementation cost, user impact, threats, remediation and the tenant's control state updates.",
+   "permissions": {
+    "delegated": "SecurityEvents.Read.All",
+    "application": "SecurityEvents.Read.All"
+   },
+   "limits": [
+    "Profiles describe the controls; the scores themselves come from /security/secureScores."
+   ],
+   "docs": "https://learn.microsoft.com/graph/api/resources/securescorecontrolprofile",
+   "scan": {
+    "status": "v1.0",
+    "props": [
+     "actionType",
+     "actionUrl",
+     "azureTenantId",
+     "complianceInformation",
+     "controlCategory",
+     "controlStateUpdates",
+     "deprecated",
+     "id",
+     "implementationCost",
+     "lastModifiedDateTime",
+     "maxScore",
+     "rank",
+     "remediation",
+     "remediationImpact",
+     "service",
+     "threats",
+     "tier",
+     "title",
+     "userImpact",
+     "vendorInformation"
+    ],
+    "navs": {},
+    "betaOnlyProps": [],
+    "betaOnlyNavs": [],
+    "baseTypes": [
+     "microsoft.graph.entity"
+    ]
+   },
+   "permCheck": {
+    "checked": [
+     "SecurityEvents.Read.All"
+    ],
+    "unknown": []
+   }
+  },
+  {
+   "id": "serviceHealthIssue",
+   "label": "Service health issue",
+   "workload": "admin",
+   "subservice": "service-health",
+   "entityType": "microsoft.graph.serviceHealthIssue",
+   "path": "GET /admin/serviceAnnouncement/issues",
+   "covers": [
+    "microsoft.graph.serviceHealth"
+   ],
+   "summary": "Current and recent incidents and advisories for the Microsoft 365 services your tenant subscribes to, with status, impact and updates; healthOverviews gives each service's current state.",
+   "permissions": {
+    "delegated": "ServiceHealth.Read.All",
+    "application": "ServiceHealth.Read.All"
+   },
+   "limits": [
+    "Delegated callers must hold at least one admin role (checked on Microsoft Learn, 28 Nov 2026)."
+   ],
+   "mapping": [
+    "The incidentReport function on an issue returns the post-incident review."
+   ],
+   "docs": "https://learn.microsoft.com/graph/api/resources/servicehealthissue",
+   "scan": {
+    "status": "v1.0",
+    "props": [
+     "classification",
+     "details",
+     "endDateTime",
+     "feature",
+     "featureGroup",
+     "id",
+     "impactDescription",
+     "isResolved",
+     "lastModifiedDateTime",
+     "origin",
+     "posts",
+     "service",
+     "startDateTime",
+     "status",
+     "title"
+    ],
+    "navs": {},
+    "betaOnlyProps": [],
+    "betaOnlyNavs": [],
+    "baseTypes": [
+     "microsoft.graph.serviceAnnouncementBase",
+     "microsoft.graph.entity"
+    ]
+   },
+   "permCheck": {
+    "checked": [
+     "ServiceHealth.Read.All"
+    ],
+    "unknown": []
+   }
+  },
+  {
+   "id": "messageCenter",
+   "label": "Message centre post",
+   "workload": "admin",
+   "subservice": "service-health",
+   "entityType": "microsoft.graph.serviceUpdateMessage",
+   "path": "GET /admin/serviceAnnouncement/messages",
+   "summary": "Message centre posts: upcoming changes, new features, retirements and planned maintenance for your tenant's services, with services, tags, action-required dates and attachments.",
+   "permissions": {
+    "delegated": "ServiceMessage.Read.All",
+    "application": "ServiceMessage.Read.All"
+   },
+   "limits": [
+    "Marking posts read, archived or favourite is per signed-in user and needs ServiceMessageViewpoint.Write (delegated only) (checked on Microsoft Learn, 28 Nov 2026).",
+    "Delegated callers must hold at least one admin role."
+   ],
+   "docs": "https://learn.microsoft.com/graph/api/resources/serviceupdatemessage",
+   "scan": {
+    "status": "v1.0",
+    "props": [
+     "actionRequiredByDateTime",
+     "attachmentsArchive",
+     "body",
+     "category",
+     "details",
+     "endDateTime",
+     "hasAttachments",
+     "id",
+     "isMajorChange",
+     "lastModifiedDateTime",
+     "services",
+     "severity",
+     "startDateTime",
+     "tags",
+     "title",
+     "viewPoint"
+    ],
+    "navs": {
+     "attachments": "microsoft.graph.serviceAnnouncementAttachment"
+    },
+    "betaOnlyProps": [],
+    "betaOnlyNavs": [],
+    "baseTypes": [
+     "microsoft.graph.serviceAnnouncementBase",
+     "microsoft.graph.entity"
+    ]
+   },
+   "permCheck": {
+    "checked": [
+     "ServiceMessage.Read.All"
+    ],
+    "unknown": []
+   }
+  },
+  {
+   "id": "provisioningLog",
+   "label": "Provisioning log",
+   "workload": "reports",
+   "subservice": "sign-in-audit-logs",
+   "entityType": "microsoft.graph.provisioningObjectSummary",
+   "path": "GET /auditLogs/provisioning",
+   "summary": "Each create, update or delete that Entra provisioning made, from HR-driven inbound provisioning to outbound SaaS apps: source and target system and identity, steps, modified properties and status.",
+   "permissions": {
+    "delegated": "AuditLog.Read.All and Directory.Read.All",
+    "application": "AuditLog.Read.All and Directory.Read.All"
+   },
+   "licence": "Microsoft Entra ID P1 or P2 (provisioning logs) (checked on Microsoft Learn, 28 Nov 2026).",
+   "limits": [
+    "Supports $filter (eq, contains, gt, lt), $orderby, $top and $skiptoken; filters are case sensitive.",
+    "Delegated callers need a role such as Reports Reader, Security Reader, Global Reader or Application Administrator."
+   ],
+   "mapping": [
+    "servicePrincipal.id joins to the provisioning app's service principal."
+   ],
+   "docs": "https://learn.microsoft.com/graph/api/resources/provisioningobjectsummary",
+   "scan": {
+    "status": "v1.0",
+    "props": [
+     "activityDateTime",
+     "changeId",
+     "cycleId",
+     "durationInMilliseconds",
+     "id",
+     "initiatedBy",
+     "jobId",
+     "modifiedProperties",
+     "provisioningAction",
+     "provisioningStatusInfo",
+     "provisioningSteps",
+     "servicePrincipal",
+     "sourceIdentity",
+     "sourceSystem",
+     "targetIdentity",
+     "targetSystem",
+     "tenantId"
+    ],
+    "navs": {},
+    "betaOnlyProps": [
+     "action",
+     "statusInfo"
+    ],
+    "betaOnlyNavs": [],
+    "baseTypes": [
+     "microsoft.graph.entity"
+    ]
+   },
+   "permCheck": {
+    "checked": [
+     "AuditLog.Read.All",
+     "Directory.Read.All"
+    ],
+    "unknown": []
+   }
+  },
+  {
    "id": "gen-accessPackageResourceEnvironment",
    "label": "Access package resource environment",
    "entityType": "microsoft.graph.accessPackageResourceEnvironment",
@@ -8027,60 +8806,6 @@
     "checked": [
      "Policy.Read.All",
      "Policy.ReadWrite.AuthenticationFlows"
-    ],
-    "unknown": []
-   }
-  },
-  {
-   "id": "gen-authenticationMethod",
-   "label": "Authentication method",
-   "entityType": "microsoft.graph.authenticationMethod",
-   "tier": "generated",
-   "path": "/users/{id}/authentication/methods",
-   "itemPath": "/users/{id}/authentication/methods/{id}",
-   "altPaths": [
-    "/me/authentication/methods",
-    "/directoryObjects/{id}/microsoft.graph.user/authentication/methods",
-    "/directory/deletedItems/{id}/microsoft.graph.user/authentication/methods"
-   ],
-   "variants": [
-    "microsoft.graph.qrCodePinAuthenticationMethod"
-   ],
-   "ops": {
-    "actions": [
-     "resetPassword"
-    ],
-    "functions": []
-   },
-   "scan": {
-    "status": "v1.0",
-    "props": [
-     "createdDateTime",
-     "id",
-     "lastUsedDateTime"
-    ],
-    "navs": {},
-    "betaOnlyProps": [
-     "provenance"
-    ],
-    "betaOnlyNavs": [],
-    "baseTypes": [
-     "microsoft.graph.entity"
-    ]
-   },
-   "links": 1,
-   "permissions": {
-    "delegated": "UserAuthenticationMethod.Read.All",
-    "application": "UserAuthenticationMethod.Read.All"
-   },
-   "permissionsPath": "/users/{id}/authentication/methods/{id}",
-   "docs": "https://learn.microsoft.com/graph/api/resources/authenticationmethod?view=graph-rest-1.0",
-   "workload": "policies",
-   "subservice": "authentication",
-   "area": "users",
-   "permCheck": {
-    "checked": [
-     "UserAuthenticationMethod.Read.All"
     ],
     "unknown": []
    }
@@ -13660,180 +14385,6 @@
    "area": "copilot"
   },
   {
-   "id": "gen-crossTenantAccessPolicy",
-   "label": "Cross tenant access policy",
-   "entityType": "microsoft.graph.crossTenantAccessPolicy",
-   "tier": "generated",
-   "path": "/policies/crossTenantAccessPolicy",
-   "itemPath": "/policies/crossTenantAccessPolicy",
-   "altPaths": [],
-   "variants": [],
-   "ops": {
-    "actions": [
-     "checkMemberGroups",
-     "checkMemberObjects",
-     "getAvailableExtensionProperties",
-     "getByIds",
-     "getMemberGroups",
-     "getMemberObjects",
-     "restore",
-     "validateProperties"
-    ],
-    "functions": [
-     "delta"
-    ]
-   },
-   "scan": {
-    "status": "v1.0",
-    "props": [
-     "allowedCloudEndpoints",
-     "deletedDateTime",
-     "description",
-     "displayName",
-     "id"
-    ],
-    "navs": {
-     "default": "microsoft.graph.crossTenantAccessPolicyConfigurationDefault",
-     "partners": "microsoft.graph.crossTenantAccessPolicyConfigurationPartner",
-     "templates": "microsoft.graph.policyTemplate"
-    },
-    "betaOnlyProps": [
-     "definition"
-    ],
-    "betaOnlyNavs": [],
-    "baseTypes": [
-     "microsoft.graph.policyBase",
-     "microsoft.graph.directoryObject",
-     "microsoft.graph.entity"
-    ]
-   },
-   "links": 4,
-   "permissions": {
-    "delegated": "",
-    "application": ""
-   },
-   "permissionsPath": "/policies/crosstenantaccesspolicy",
-   "docs": "https://learn.microsoft.com/graph/api/resources/crosstenantaccesspolicy?view=graph-rest-1.0",
-   "workload": "policies",
-   "subservice": "cross-tenant",
-   "area": "policies"
-  },
-  {
-   "id": "gen-crossTenantAccessPolicyConfigurationDefault",
-   "label": "Cross tenant access policy configuration default",
-   "entityType": "microsoft.graph.crossTenantAccessPolicyConfigurationDefault",
-   "tier": "generated",
-   "path": "/policies/crossTenantAccessPolicy/default",
-   "itemPath": "/policies/crossTenantAccessPolicy/default",
-   "altPaths": [
-    "/directoryObjects/{id}/microsoft.graph.crossTenantAccessPolicy/default",
-    "/directory/deletedItems/{id}/microsoft.graph.crossTenantAccessPolicy/default",
-    "/groups/{id}/acceptedSenders/{id}/microsoft.graph.crossTenantAccessPolicy/default"
-   ],
-   "variants": [],
-   "ops": {
-    "actions": [
-     "resetToSystemDefault"
-    ],
-    "functions": []
-   },
-   "scan": {
-    "status": "v1.0",
-    "props": [
-     "appServiceConnectInbound",
-     "automaticUserConsentSettings",
-     "b2bCollaborationInbound",
-     "b2bCollaborationOutbound",
-     "b2bDirectConnectInbound",
-     "b2bDirectConnectOutbound",
-     "id",
-     "inboundTrust",
-     "invitationRedemptionIdentityProviderConfiguration",
-     "isServiceDefault",
-     "m365CollaborationInbound",
-     "m365CollaborationOutbound",
-     "tenantRestrictions"
-    ],
-    "navs": {
-     "m365Capabilities": "microsoft.graph.m365CapabilityBase"
-    },
-    "betaOnlyProps": [
-     "blockServiceProviderOutboundAccess"
-    ],
-    "betaOnlyNavs": [],
-    "baseTypes": [
-     "microsoft.graph.entity"
-    ]
-   },
-   "links": 2,
-   "permissions": {
-    "delegated": "",
-    "application": ""
-   },
-   "permissionsPath": "/policies/crosstenantaccesspolicy/default",
-   "docs": "https://learn.microsoft.com/graph/api/resources/crosstenantaccesspolicyconfigurationdefault?view=graph-rest-1.0",
-   "workload": "policies",
-   "subservice": "cross-tenant",
-   "area": "policies"
-  },
-  {
-   "id": "gen-crossTenantAccessPolicyConfigurationPartner",
-   "label": "Cross tenant access policy configuration partner",
-   "entityType": "microsoft.graph.crossTenantAccessPolicyConfigurationPartner",
-   "tier": "generated",
-   "path": "/policies/crossTenantAccessPolicy/partners",
-   "itemPath": "/policies/crossTenantAccessPolicy/partners/{id}",
-   "altPaths": [
-    "/directoryObjects/{id}/microsoft.graph.crossTenantAccessPolicy/partners",
-    "/directory/deletedItems/{id}/microsoft.graph.crossTenantAccessPolicy/partners",
-    "/groups/{id}/acceptedSenders/{id}/microsoft.graph.crossTenantAccessPolicy/partners"
-   ],
-   "variants": [],
-   "ops": {
-    "actions": [],
-    "functions": []
-   },
-   "scan": {
-    "status": "v1.0",
-    "props": [
-     "appServiceConnectInbound",
-     "automaticUserConsentSettings",
-     "b2bCollaborationInbound",
-     "b2bCollaborationOutbound",
-     "b2bDirectConnectInbound",
-     "b2bDirectConnectOutbound",
-     "inboundTrust",
-     "isInMultiTenantOrganization",
-     "isServiceProvider",
-     "m365CollaborationInbound",
-     "m365CollaborationOutbound",
-     "tenantId",
-     "tenantRestrictions"
-    ],
-    "navs": {
-     "identitySynchronization": "microsoft.graph.crossTenantIdentitySyncPolicyPartner",
-     "m365Capabilities": "microsoft.graph.m365CapabilityBase",
-     "serviceProviderConstraints": "microsoft.graph.serviceProviderConstraints"
-    },
-    "betaOnlyProps": [
-     "blockServiceProviderOutboundAccess",
-     "deletedDateTime"
-    ],
-    "betaOnlyNavs": [],
-    "baseTypes": []
-   },
-   "links": 4,
-   "permissions": {
-    "delegated": "",
-    "application": ""
-   },
-   "permissionsPath": "/policies/crosstenantaccesspolicy/partners/{id}",
-   "docs": "https://learn.microsoft.com/graph/api/resources/crosstenantaccesspolicyconfigurationpartner?view=graph-rest-1.0",
-   "workload": "policies",
-   "subservice": "cross-tenant",
-   "area": "policies"
-  },
-  {
    "id": "gen-crossTenantIdentitySyncPolicyPartner",
    "label": "Cross tenant identity sync policy partner",
    "entityType": "microsoft.graph.crossTenantIdentitySyncPolicyPartner",
@@ -15430,83 +15981,6 @@
    },
    "permissionsPath": "/devicemanagement/devicecompliancepolicies/{id}/devicestatuses/{id}",
    "docs": "https://learn.microsoft.com/graph/api/resources/intune-deviceconfig-devicecompliancedevicestatus?view=graph-rest-1.0",
-   "workload": "devices",
-   "subservice": "compliance-configuration",
-   "area": "deviceManagement",
-   "permCheck": {
-    "checked": [
-     "DeviceManagementConfiguration.Read.All",
-     "DeviceManagementConfiguration.ReadWrite.All"
-    ],
-    "unknown": []
-   }
-  },
-  {
-   "id": "gen-deviceCompliancePolicy",
-   "label": "Device compliance policy",
-   "entityType": "microsoft.graph.deviceCompliancePolicy",
-   "tier": "generated",
-   "path": "/deviceManagement/deviceCompliancePolicies",
-   "itemPath": "/deviceManagement/deviceCompliancePolicies/{id}",
-   "altPaths": [],
-   "variants": [
-    "microsoft.graph.androidCompliancePolicy",
-    "microsoft.graph.androidWorkProfileCompliancePolicy",
-    "microsoft.graph.iosCompliancePolicy",
-    "microsoft.graph.macOSCompliancePolicy",
-    "microsoft.graph.windows10CompliancePolicy",
-    "microsoft.graph.windows10MobileCompliancePolicy",
-    "microsoft.graph.windows81CompliancePolicy",
-    "microsoft.graph.windowsPhone81CompliancePolicy"
-   ],
-   "ops": {
-    "actions": [
-     "assign",
-     "scheduleActionsForRules"
-    ],
-    "functions": []
-   },
-   "scan": {
-    "status": "v1.0",
-    "props": [
-     "createdDateTime",
-     "description",
-     "displayName",
-     "id",
-     "lastModifiedDateTime",
-     "version"
-    ],
-    "navs": {
-     "assignments": "microsoft.graph.deviceCompliancePolicyAssignment",
-     "deviceSettingStateSummaries": "microsoft.graph.settingStateDeviceSummary",
-     "deviceStatusOverview": "microsoft.graph.deviceComplianceDeviceOverview",
-     "deviceStatuses": "microsoft.graph.deviceComplianceDeviceStatus",
-     "scheduledActionsForRule": "microsoft.graph.deviceComplianceScheduledActionForRule",
-     "userStatusOverview": "microsoft.graph.deviceComplianceUserOverview",
-     "userStatuses": "microsoft.graph.deviceComplianceUserStatus"
-    },
-    "betaOnlyProps": [
-     "roleScopeTagIds"
-    ],
-    "betaOnlyNavs": [],
-    "baseTypes": [
-     "microsoft.graph.entity"
-    ]
-   },
-   "links": 8,
-   "betaVariants": [
-    "microsoft.graph.androidDeviceOwnerCompliancePolicy",
-    "microsoft.graph.androidForWorkCompliancePolicy",
-    "microsoft.graph.aospDeviceOwnerCompliancePolicy",
-    "microsoft.graph.defaultDeviceCompliancePolicy",
-    "microsoft.graph.windowsSoftwareCompliancePolicy"
-   ],
-   "permissions": {
-    "delegated": "DeviceManagementConfiguration.Read.All, DeviceManagementConfiguration.ReadWrite.All",
-    "application": "DeviceManagementConfiguration.Read.All, DeviceManagementConfiguration.ReadWrite.All"
-   },
-   "permissionsPath": "/devicemanagement/devicecompliancepolicies/{id}",
-   "docs": "https://learn.microsoft.com/graph/api/resources/intune-deviceconfig-devicecompliancepolicy?view=graph-rest-1.0",
    "workload": "devices",
    "subservice": "compliance-configuration",
    "area": "deviceManagement",
@@ -25849,172 +26323,6 @@
    }
   },
   {
-   "id": "gen-managedDevice",
-   "label": "Managed device",
-   "entityType": "microsoft.graph.managedDevice",
-   "tier": "generated",
-   "path": "/deviceManagement/managedDevices",
-   "itemPath": "/deviceManagement/managedDevices/{id}",
-   "altPaths": [
-    "/me/managedDevices",
-    "/users/{id}/managedDevices",
-    "/directoryObjects/{id}/microsoft.graph.user/managedDevices"
-   ],
-   "variants": [],
-   "ops": {
-    "actions": [
-     "bypassActivationLock",
-     "cleanWindowsDevice",
-     "deleteUserFromSharedAppleDevice",
-     "disableLostMode",
-     "locateDevice",
-     "logoutSharedAppleDeviceActiveUser",
-     "rebootNow",
-     "recoverPasscode",
-     "remoteLock",
-     "requestRemoteAssistance",
-     "resetPasscode",
-     "retire",
-     "shutDown",
-     "syncDevice",
-     "updateWindowsDeviceAccount",
-     "windowsDefenderScan",
-     "windowsDefenderUpdateSignatures",
-     "wipe"
-    ],
-    "functions": []
-   },
-   "scan": {
-    "status": "v1.0",
-    "props": [
-     "activationLockBypassCode",
-     "androidSecurityPatchLevel",
-     "azureADDeviceId",
-     "azureADRegistered",
-     "complianceGracePeriodExpirationDateTime",
-     "complianceState",
-     "configurationManagerClientEnabledFeatures",
-     "deviceActionResults",
-     "deviceCategoryDisplayName",
-     "deviceEnrollmentType",
-     "deviceHealthAttestationState",
-     "deviceName",
-     "deviceRegistrationState",
-     "easActivated",
-     "easActivationDateTime",
-     "easDeviceId",
-     "emailAddress",
-     "enrolledDateTime",
-     "enrollmentProfileName",
-     "ethernetMacAddress",
-     "exchangeAccessState",
-     "exchangeAccessStateReason",
-     "exchangeLastSuccessfulSyncDateTime",
-     "freeStorageSpaceInBytes",
-     "iccid",
-     "id",
-     "imei",
-     "isEncrypted",
-     "isSupervised",
-     "jailBroken",
-     "lastSyncDateTime",
-     "managedDeviceName",
-     "managedDeviceOwnerType",
-     "managementAgent",
-     "managementCertificateExpirationDate",
-     "managementState",
-     "manufacturer",
-     "meid",
-     "model",
-     "notes",
-     "operatingSystem",
-     "osVersion",
-     "partnerReportedThreatState",
-     "phoneNumber",
-     "physicalMemoryInBytes",
-     "remoteAssistanceSessionErrorDetails",
-     "remoteAssistanceSessionUrl",
-     "requireUserEnrollmentApproval",
-     "serialNumber",
-     "subscriberCarrier",
-     "totalStorageSpaceInBytes",
-     "udid",
-     "userDisplayName",
-     "userId",
-     "userPrincipalName",
-     "wiFiMacAddress"
-    ],
-    "navs": {
-     "deviceCategory": "microsoft.graph.deviceCategory",
-     "deviceCompliancePolicyStates": "microsoft.graph.deviceCompliancePolicyState",
-     "deviceConfigurationStates": "microsoft.graph.deviceConfigurationState",
-     "logCollectionRequests": "microsoft.graph.deviceLogCollectionResponse",
-     "users": "microsoft.graph.user",
-     "windowsProtectionState": "microsoft.graph.windowsProtectionState"
-    },
-    "betaOnlyProps": [
-     "aadRegistered",
-     "autopilotEnrolled",
-     "azureActiveDirectoryDeviceId",
-     "bootstrapTokenEscrowed",
-     "chassisType",
-     "chromeOSDeviceInfo",
-     "cloudPcRemoteActionResults",
-     "configurationManagerClientHealthState",
-     "configurationManagerClientInformation",
-     "deviceFirmwareConfigurationInterfaceManaged",
-     "deviceType",
-     "enrolledByUserPrincipalName",
-     "hardwareInformation",
-     "joinType",
-     "lostModeState",
-     "managementFeatures",
-     "ownerType",
-     "preferMdmOverGroupPolicyAppliedDateTime",
-     "processorArchitecture",
-     "retireAfterDateTime",
-     "roleScopeTagIds",
-     "securityPatchLevel",
-     "skuFamily",
-     "skuNumber",
-     "specificationVersion",
-     "usersLoggedOn",
-     "windowsActiveMalwareCount",
-     "windowsRemediatedMalwareCount"
-    ],
-    "betaOnlyNavs": [
-     "assignmentFilterEvaluationStatusDetails",
-     "detectedApps",
-     "deviceHealthScriptStates",
-     "managedDeviceMobileAppConfigurationStates",
-     "securityBaselineStates"
-    ],
-    "baseTypes": [
-     "microsoft.graph.entity"
-    ]
-   },
-   "links": 8,
-   "betaVariants": [
-    "microsoft.graph.windowsManagedDevice"
-   ],
-   "permissions": {
-    "delegated": "DeviceManagementManagedDevices.Read.All, DeviceManagementManagedDevices.ReadWrite.All",
-    "application": "DeviceManagementManagedDevices.Read.All, DeviceManagementManagedDevices.ReadWrite.All"
-   },
-   "permissionsPath": "/devicemanagement/manageddevices/{id}",
-   "docs": "https://learn.microsoft.com/graph/api/resources/intune-devices-manageddevice?view=graph-rest-1.0",
-   "workload": "devices",
-   "subservice": "managed-devices",
-   "area": "deviceManagement",
-   "permCheck": {
-    "checked": [
-     "DeviceManagementManagedDevices.Read.All",
-     "DeviceManagementManagedDevices.ReadWrite.All"
-    ],
-    "unknown": []
-   }
-  },
-  {
    "id": "gen-managedDeviceMobileAppConfiguration",
    "label": "Managed device mobile app configuration",
    "entityType": "microsoft.graph.managedDeviceMobileAppConfiguration",
@@ -33184,67 +33492,6 @@
    "area": "solutions"
   },
   {
-   "id": "gen-provisioningObjectSummary",
-   "label": "Provisioning object summary",
-   "entityType": "microsoft.graph.provisioningObjectSummary",
-   "tier": "generated",
-   "path": "/auditLogs/provisioning",
-   "itemPath": "/auditLogs/provisioning/{id}",
-   "altPaths": [],
-   "variants": [],
-   "ops": {
-    "actions": [],
-    "functions": []
-   },
-   "scan": {
-    "status": "v1.0",
-    "props": [
-     "activityDateTime",
-     "changeId",
-     "cycleId",
-     "durationInMilliseconds",
-     "id",
-     "initiatedBy",
-     "jobId",
-     "modifiedProperties",
-     "provisioningAction",
-     "provisioningStatusInfo",
-     "provisioningSteps",
-     "servicePrincipal",
-     "sourceIdentity",
-     "sourceSystem",
-     "targetIdentity",
-     "targetSystem",
-     "tenantId"
-    ],
-    "navs": {},
-    "betaOnlyProps": [
-     "action",
-     "statusInfo"
-    ],
-    "betaOnlyNavs": [],
-    "baseTypes": [
-     "microsoft.graph.entity"
-    ]
-   },
-   "links": 1,
-   "permissions": {
-    "delegated": "ProvisioningLog.Read.All",
-    "application": ""
-   },
-   "permissionsPath": "/auditlogs/provisioning",
-   "docs": "https://learn.microsoft.com/graph/api/resources/provisioningobjectsummary?view=graph-rest-1.0",
-   "workload": "reports",
-   "subservice": "sign-in-audit-logs",
-   "area": "auditLogs",
-   "permCheck": {
-    "checked": [
-     "ProvisioningLog.Read.All"
-    ],
-    "unknown": []
-   }
-  },
-  {
    "id": "gen-publicKeyInfrastructureRoot",
    "label": "Public key infrastructure root",
    "entityType": "microsoft.graph.publicKeyInfrastructureRoot",
@@ -34566,70 +34813,6 @@
    }
   },
   {
-   "id": "gen-riskDetection",
-   "label": "Risk detection",
-   "entityType": "microsoft.graph.riskDetection",
-   "tier": "generated",
-   "path": "/identityProtection/riskDetections",
-   "itemPath": "/identityProtection/riskDetections/{id}",
-   "altPaths": [],
-   "variants": [],
-   "ops": {
-    "actions": [],
-    "functions": []
-   },
-   "scan": {
-    "status": "v1.0",
-    "props": [
-     "activity",
-     "activityDateTime",
-     "additionalInfo",
-     "correlationId",
-     "detectedDateTime",
-     "detectionTimingType",
-     "id",
-     "ipAddress",
-     "lastUpdatedDateTime",
-     "location",
-     "requestId",
-     "riskDetail",
-     "riskEventType",
-     "riskLevel",
-     "riskState",
-     "source",
-     "tokenIssuerType",
-     "userDisplayName",
-     "userId",
-     "userPrincipalName"
-    ],
-    "navs": {},
-    "betaOnlyProps": [
-     "mitreTechniqueId",
-     "riskType"
-    ],
-    "betaOnlyNavs": [],
-    "baseTypes": [
-     "microsoft.graph.entity"
-    ]
-   },
-   "links": 1,
-   "permissions": {
-    "delegated": "IdentityRiskEvent.Read.All",
-    "application": "IdentityRiskEvent.Read.All"
-   },
-   "permissionsPath": "/identityprotection/riskdetections/{id}",
-   "docs": "https://learn.microsoft.com/graph/api/resources/riskdetection?view=graph-rest-1.0",
-   "workload": "identity",
-   "subservice": "access-risk",
-   "area": "identityProtection",
-   "permCheck": {
-    "checked": [
-     "IdentityRiskEvent.Read.All"
-    ],
-    "unknown": []
-   }
-  },
-  {
    "id": "gen-riskPreventionContainer",
    "label": "Risk prevention container",
    "entityType": "microsoft.graph.riskPreventionContainer",
@@ -34661,64 +34844,6 @@
    "workload": "identity",
    "subservice": "external-id",
    "area": "identity"
-  },
-  {
-   "id": "gen-riskyServicePrincipal",
-   "label": "Risky service principal",
-   "entityType": "microsoft.graph.riskyServicePrincipal",
-   "tier": "generated",
-   "path": "/identityProtection/riskyServicePrincipals",
-   "itemPath": "/identityProtection/riskyServicePrincipals/{id}",
-   "altPaths": [],
-   "variants": [],
-   "ops": {
-    "actions": [
-     "confirmCompromised",
-     "dismiss"
-    ],
-    "functions": []
-   },
-   "scan": {
-    "status": "v1.0",
-    "props": [
-     "appId",
-     "displayName",
-     "id",
-     "isEnabled",
-     "isProcessing",
-     "riskDetail",
-     "riskLastUpdatedDateTime",
-     "riskLevel",
-     "riskState",
-     "servicePrincipalType"
-    ],
-    "navs": {
-     "history": "microsoft.graph.riskyServicePrincipalHistoryItem"
-    },
-    "betaOnlyProps": [
-     "accountEnabled"
-    ],
-    "betaOnlyNavs": [],
-    "baseTypes": [
-     "microsoft.graph.entity"
-    ]
-   },
-   "links": 2,
-   "permissions": {
-    "delegated": "IdentityRiskyServicePrincipal.Read.All",
-    "application": "IdentityRiskyServicePrincipal.Read.All"
-   },
-   "permissionsPath": "/identityprotection/riskyserviceprincipals/{id}",
-   "docs": "https://learn.microsoft.com/graph/api/resources/riskyserviceprincipal?view=graph-rest-1.0",
-   "workload": "identity",
-   "subservice": "access-risk",
-   "area": "identityProtection",
-   "permCheck": {
-    "checked": [
-     "IdentityRiskyServicePrincipal.Read.All"
-    ],
-    "unknown": []
-   }
   },
   {
    "id": "gen-riskyServicePrincipalHistoryItem",
@@ -35752,68 +35877,6 @@
    "permCheck": {
     "checked": [
      "Place.Read.All"
-    ],
-    "unknown": []
-   }
-  },
-  {
-   "id": "gen-secureScoreControlProfile",
-   "label": "Secure score control profile",
-   "entityType": "microsoft.graph.secureScoreControlProfile",
-   "tier": "generated",
-   "path": "/security/secureScoreControlProfiles",
-   "itemPath": "/security/secureScoreControlProfiles/{id}",
-   "altPaths": [],
-   "variants": [],
-   "ops": {
-    "actions": [],
-    "functions": []
-   },
-   "scan": {
-    "status": "v1.0",
-    "props": [
-     "actionType",
-     "actionUrl",
-     "azureTenantId",
-     "complianceInformation",
-     "controlCategory",
-     "controlStateUpdates",
-     "deprecated",
-     "id",
-     "implementationCost",
-     "lastModifiedDateTime",
-     "maxScore",
-     "rank",
-     "remediation",
-     "remediationImpact",
-     "service",
-     "threats",
-     "tier",
-     "title",
-     "userImpact",
-     "vendorInformation"
-    ],
-    "navs": {},
-    "betaOnlyProps": [],
-    "betaOnlyNavs": [],
-    "baseTypes": [
-     "microsoft.graph.entity"
-    ]
-   },
-   "links": 1,
-   "permissions": {
-    "delegated": "SecurityEvents.Read.All, SecurityEvents.ReadWrite.All",
-    "application": "SecurityEvents.Read.All, SecurityEvents.ReadWrite.All"
-   },
-   "permissionsPath": "/security/securescorecontrolprofiles/{id}",
-   "docs": "https://learn.microsoft.com/graph/api/resources/securescorecontrolprofile?view=graph-rest-1.0",
-   "workload": "security",
-   "subservice": "hunting-posture",
-   "area": "security",
-   "permCheck": {
-    "checked": [
-     "SecurityEvents.Read.All",
-     "SecurityEvents.ReadWrite.All"
     ],
     "unknown": []
    }
@@ -38609,111 +38672,6 @@
    "area": "solutions"
   },
   {
-   "id": "gen-serviceHealth",
-   "label": "Service health",
-   "entityType": "microsoft.graph.serviceHealth",
-   "tier": "generated",
-   "path": "/admin/serviceAnnouncement/healthOverviews",
-   "itemPath": "/admin/serviceAnnouncement/healthOverviews/{id}",
-   "altPaths": [],
-   "variants": [],
-   "ops": {
-    "actions": [],
-    "functions": []
-   },
-   "scan": {
-    "status": "v1.0",
-    "props": [
-     "id",
-     "service",
-     "status"
-    ],
-    "navs": {
-     "issues": "microsoft.graph.serviceHealthIssue"
-    },
-    "betaOnlyProps": [],
-    "betaOnlyNavs": [],
-    "baseTypes": [
-     "microsoft.graph.entity"
-    ]
-   },
-   "links": 2,
-   "permissions": {
-    "delegated": "ServiceHealth.Read.All",
-    "application": "ServiceHealth.Read.All"
-   },
-   "permissionsPath": "/admin/serviceannouncement/healthoverviews/{id}",
-   "docs": "https://learn.microsoft.com/graph/api/resources/servicehealth?view=graph-rest-1.0",
-   "workload": "admin",
-   "subservice": "service-health",
-   "area": "admin",
-   "permCheck": {
-    "checked": [
-     "ServiceHealth.Read.All"
-    ],
-    "unknown": []
-   }
-  },
-  {
-   "id": "gen-serviceHealthIssue",
-   "label": "Service health issue",
-   "entityType": "microsoft.graph.serviceHealthIssue",
-   "tier": "generated",
-   "path": "/admin/serviceAnnouncement/issues",
-   "itemPath": "/admin/serviceAnnouncement/issues/{id}",
-   "altPaths": [],
-   "variants": [],
-   "ops": {
-    "actions": [],
-    "functions": [
-     "incidentReport"
-    ]
-   },
-   "scan": {
-    "status": "v1.0",
-    "props": [
-     "classification",
-     "details",
-     "endDateTime",
-     "feature",
-     "featureGroup",
-     "id",
-     "impactDescription",
-     "isResolved",
-     "lastModifiedDateTime",
-     "origin",
-     "posts",
-     "service",
-     "startDateTime",
-     "status",
-     "title"
-    ],
-    "navs": {},
-    "betaOnlyProps": [],
-    "betaOnlyNavs": [],
-    "baseTypes": [
-     "microsoft.graph.serviceAnnouncementBase",
-     "microsoft.graph.entity"
-    ]
-   },
-   "links": 2,
-   "permissions": {
-    "delegated": "ServiceHealth.Read.All",
-    "application": "ServiceHealth.Read.All"
-   },
-   "permissionsPath": "/admin/serviceannouncement/issues/{id}",
-   "docs": "https://learn.microsoft.com/graph/api/resources/servicehealthissue?view=graph-rest-1.0",
-   "workload": "admin",
-   "subservice": "service-health",
-   "area": "admin",
-   "permCheck": {
-    "checked": [
-     "ServiceHealth.Read.All"
-    ],
-    "unknown": []
-   }
-  },
-  {
    "id": "gen-servicePrincipalRiskDetection",
    "label": "Service principal risk detection",
    "entityType": "microsoft.graph.servicePrincipalRiskDetection",
@@ -38861,73 +38819,6 @@
    "workload": "files",
    "subservice": "embedded",
    "area": "storage"
-  },
-  {
-   "id": "gen-serviceUpdateMessage",
-   "label": "Service update message",
-   "entityType": "microsoft.graph.serviceUpdateMessage",
-   "tier": "generated",
-   "path": "/admin/serviceAnnouncement/messages",
-   "itemPath": "/admin/serviceAnnouncement/messages/{id}",
-   "altPaths": [],
-   "variants": [],
-   "ops": {
-    "actions": [
-     "archive",
-     "favorite",
-     "markRead",
-     "markUnread",
-     "unarchive",
-     "unfavorite"
-    ],
-    "functions": []
-   },
-   "scan": {
-    "status": "v1.0",
-    "props": [
-     "actionRequiredByDateTime",
-     "attachmentsArchive",
-     "body",
-     "category",
-     "details",
-     "endDateTime",
-     "hasAttachments",
-     "id",
-     "isMajorChange",
-     "lastModifiedDateTime",
-     "services",
-     "severity",
-     "startDateTime",
-     "tags",
-     "title",
-     "viewPoint"
-    ],
-    "navs": {
-     "attachments": "microsoft.graph.serviceAnnouncementAttachment"
-    },
-    "betaOnlyProps": [],
-    "betaOnlyNavs": [],
-    "baseTypes": [
-     "microsoft.graph.serviceAnnouncementBase",
-     "microsoft.graph.entity"
-    ]
-   },
-   "links": 2,
-   "permissions": {
-    "delegated": "ServiceMessage.Read.All",
-    "application": "ServiceMessage.Read.All"
-   },
-   "permissionsPath": "/admin/serviceannouncement/messages/{id}",
-   "docs": "https://learn.microsoft.com/graph/api/resources/serviceupdatemessage?view=graph-rest-1.0",
-   "workload": "admin",
-   "subservice": "service-health",
-   "area": "admin",
-   "permCheck": {
-    "checked": [
-     "ServiceMessage.Read.All"
-    ],
-    "unknown": []
-   }
   },
   {
    "id": "gen-settingStateDeviceSummary",
@@ -39715,73 +39606,6 @@
      "User.ReadWrite.All",
      "UserShiftPreferences.Read.All",
      "UserShiftPreferences.ReadWrite.All"
-    ],
-    "unknown": []
-   }
-  },
-  {
-   "id": "gen-simulation",
-   "label": "Simulation",
-   "entityType": "microsoft.graph.simulation",
-   "tier": "generated",
-   "path": "/security/attackSimulation/simulations",
-   "itemPath": "/security/attackSimulation/simulations/{id}",
-   "altPaths": [],
-   "variants": [],
-   "ops": {
-    "actions": [],
-    "functions": []
-   },
-   "scan": {
-    "status": "v1.0",
-    "props": [
-     "attackTechnique",
-     "attackType",
-     "automationId",
-     "completionDateTime",
-     "createdBy",
-     "createdDateTime",
-     "description",
-     "displayName",
-     "durationInDays",
-     "endUserNotificationSetting",
-     "excludedAccountTarget",
-     "id",
-     "includedAccountTarget",
-     "isAutomated",
-     "lastModifiedBy",
-     "lastModifiedDateTime",
-     "launchDateTime",
-     "oAuthConsentAppDetail",
-     "payloadDeliveryPlatform",
-     "report",
-     "status",
-     "trainingSetting"
-    ],
-    "navs": {
-     "landingPage": "microsoft.graph.landingPage",
-     "loginPage": "microsoft.graph.loginPage",
-     "payload": "microsoft.graph.payload"
-    },
-    "betaOnlyProps": [],
-    "betaOnlyNavs": [],
-    "baseTypes": [
-     "microsoft.graph.entity"
-    ]
-   },
-   "links": 4,
-   "permissions": {
-    "delegated": "AttackSimulation.Read.All",
-    "application": "AttackSimulation.Read.All"
-   },
-   "permissionsPath": "/security/attacksimulation/simulations/{id}",
-   "docs": "https://learn.microsoft.com/graph/api/resources/simulation?view=graph-rest-1.0",
-   "workload": "security",
-   "subservice": "attack-simulation",
-   "area": "security",
-   "permCheck": {
-    "checked": [
-     "AttackSimulation.Read.All"
     ],
     "unknown": []
    }
@@ -46154,65 +45978,6 @@
     "checked": [
      "DeviceManagementApps.Read.All",
      "DeviceManagementApps.ReadWrite.All"
-    ],
-    "unknown": []
-   }
-  },
-  {
-   "id": "gen-userRegistrationDetails",
-   "label": "User registration details",
-   "entityType": "microsoft.graph.userRegistrationDetails",
-   "tier": "generated",
-   "path": "/reports/authenticationMethods/userRegistrationDetails",
-   "itemPath": "/reports/authenticationMethods/userRegistrationDetails/{id}",
-   "altPaths": [],
-   "variants": [],
-   "ops": {
-    "actions": [],
-    "functions": []
-   },
-   "scan": {
-    "status": "v1.0",
-    "props": [
-     "id",
-     "isAdmin",
-     "isMfaCapable",
-     "isMfaRegistered",
-     "isPasswordlessCapable",
-     "isSsprCapable",
-     "isSsprEnabled",
-     "isSsprRegistered",
-     "isSystemPreferredAuthenticationMethodEnabled",
-     "lastUpdatedDateTime",
-     "methodsRegistered",
-     "systemPreferredAuthenticationMethods",
-     "userDisplayName",
-     "userPreferredMethodForSecondaryAuthentication",
-     "userPrincipalName",
-     "userType"
-    ],
-    "navs": {},
-    "betaOnlyProps": [
-     "defaultMfaMethod"
-    ],
-    "betaOnlyNavs": [],
-    "baseTypes": [
-     "microsoft.graph.entity"
-    ]
-   },
-   "links": 1,
-   "permissions": {
-    "delegated": "AuditLog.Read.All",
-    "application": "AuditLog.Read.All"
-   },
-   "permissionsPath": "/reports/authenticationmethods/userregistrationdetails/{id}",
-   "docs": "https://learn.microsoft.com/graph/api/resources/userregistrationdetails?view=graph-rest-1.0",
-   "workload": "policies",
-   "subservice": "authentication",
-   "area": "reports",
-   "permCheck": {
-    "checked": [
-     "AuditLog.Read.All"
     ],
     "unknown": []
    }
@@ -97472,6 +97237,96 @@
    "kind": "nav",
    "nav": "appConsentRequestsForApproval",
    "scan": "beta only"
+  },
+  {
+   "s": "user",
+   "t": "authMethod",
+   "kind": "nav",
+   "nav": "authentication",
+   "via": "authentication/methods",
+   "scan": "v1.0"
+  },
+  {
+   "s": "registrationDetails",
+   "t": "user",
+   "kind": "ref",
+   "label": "id",
+   "desc": "same object ID as the user",
+   "scan": "n/a"
+  },
+  {
+   "s": "registrationDetails",
+   "t": "authMethod",
+   "kind": "ref",
+   "label": "methodsRegistered",
+   "desc": "summarises the methods each user has",
+   "scan": "n/a"
+  },
+  {
+   "s": "riskDetection",
+   "t": "user",
+   "kind": "ref",
+   "label": "userId",
+   "scan": "n/a"
+  },
+  {
+   "s": "riskDetection",
+   "t": "riskyUser",
+   "kind": "ref",
+   "label": "userId",
+   "desc": "detections roll up into the user's risk",
+   "scan": "n/a"
+  },
+  {
+   "s": "riskyServicePrincipal",
+   "t": "servicePrincipal",
+   "kind": "ref",
+   "label": "appId",
+   "scan": "n/a"
+  },
+  {
+   "s": "managedDevice",
+   "t": "user",
+   "kind": "nav",
+   "nav": "users",
+   "scan": "v1.0"
+  },
+  {
+   "s": "managedDevice",
+   "t": "device",
+   "kind": "ref",
+   "label": "azureADDeviceId",
+   "desc": "matches the Entra device's deviceId, not its object id",
+   "scan": "n/a"
+  },
+  {
+   "s": "managedDevice",
+   "t": "compliancePolicy",
+   "kind": "nav",
+   "nav": "deviceCompliancePolicyStates",
+   "scan": "v1.0"
+  },
+  {
+   "s": "secureScoreControl",
+   "t": "secureScore",
+   "kind": "ref",
+   "label": "control name",
+   "desc": "the scores list each control's contribution",
+   "scan": "n/a"
+  },
+  {
+   "s": "provisioningLog",
+   "t": "servicePrincipal",
+   "kind": "ref",
+   "label": "servicePrincipal.id",
+   "scan": "n/a"
+  },
+  {
+   "s": "user",
+   "t": "managedDevice",
+   "kind": "nav",
+   "nav": "managedDevices",
+   "scan": "v1.0"
   }
  ],
  "scenarios": [
@@ -98047,6 +97902,78 @@
   }
  ],
  "recentChanges": [
+  {
+   "date": "2026-11-28",
+   "node": "authMethod",
+   "kind": "new-node",
+   "text": "Authentication method: scanned for the first time (v1.0)."
+  },
+  {
+   "date": "2026-11-28",
+   "node": "registrationDetails",
+   "kind": "new-node",
+   "text": "User registration details: scanned for the first time (v1.0)."
+  },
+  {
+   "date": "2026-11-28",
+   "node": "riskDetection",
+   "kind": "new-node",
+   "text": "Risk detection: scanned for the first time (v1.0)."
+  },
+  {
+   "date": "2026-11-28",
+   "node": "riskyServicePrincipal",
+   "kind": "new-node",
+   "text": "Risky service principal: scanned for the first time (v1.0)."
+  },
+  {
+   "date": "2026-11-28",
+   "node": "crossTenantAccess",
+   "kind": "new-node",
+   "text": "Cross-tenant access policy: scanned for the first time (v1.0)."
+  },
+  {
+   "date": "2026-11-28",
+   "node": "managedDevice",
+   "kind": "new-node",
+   "text": "Managed device (Intune): scanned for the first time (v1.0)."
+  },
+  {
+   "date": "2026-11-28",
+   "node": "compliancePolicy",
+   "kind": "new-node",
+   "text": "Device compliance policy: scanned for the first time (v1.0)."
+  },
+  {
+   "date": "2026-11-28",
+   "node": "attackSimulation",
+   "kind": "new-node",
+   "text": "Attack simulation: scanned for the first time (v1.0)."
+  },
+  {
+   "date": "2026-11-28",
+   "node": "secureScoreControl",
+   "kind": "new-node",
+   "text": "Secure Score control profile: scanned for the first time (v1.0)."
+  },
+  {
+   "date": "2026-11-28",
+   "node": "serviceHealthIssue",
+   "kind": "new-node",
+   "text": "Service health issue: scanned for the first time (v1.0)."
+  },
+  {
+   "date": "2026-11-28",
+   "node": "messageCenter",
+   "kind": "new-node",
+   "text": "Message centre post: scanned for the first time (v1.0)."
+  },
+  {
+   "date": "2026-11-28",
+   "node": "provisioningLog",
+   "kind": "new-node",
+   "text": "Provisioning log: scanned for the first time (v1.0)."
+  },
   {
    "date": "2026-11-23",
    "node": "agentIdentity",
@@ -99350,11 +99277,11 @@
   }
  },
  "coverage": {
-  "at": "2026-11-28T13:04:25+00:00",
+  "at": "2026-11-28T13:12:10+00:00",
   "v1Types": 1264,
   "betaOnlyTypes": 1369,
   "onMap": 1264,
-  "curated": 138,
+  "curated": 153,
   "betaOnMap": 1369,
   "areas": [
    {
@@ -99362,7 +99289,7 @@
     "v1": 136,
     "betaOnly": 381,
     "onMap": 136,
-    "curated": 0,
+    "curated": 2,
     "betaOnMap": 381
    },
    {
@@ -99370,7 +99297,7 @@
     "v1": 112,
     "betaOnly": 84,
     "onMap": 112,
-    "curated": 38,
+    "curated": 40,
     "betaOnMap": 84
    },
    {
@@ -99394,7 +99321,7 @@
     "v1": 88,
     "betaOnly": 56,
     "onMap": 88,
-    "curated": 13,
+    "curated": 14,
     "betaOnMap": 56
    },
    {
@@ -99426,7 +99353,7 @@
     "v1": 57,
     "betaOnly": 12,
     "onMap": 57,
-    "curated": 1,
+    "curated": 4,
     "betaOnMap": 12
    },
    {
@@ -99442,7 +99369,7 @@
     "v1": 41,
     "betaOnly": 70,
     "onMap": 41,
-    "curated": 2,
+    "curated": 5,
     "betaOnMap": 70
    },
    {
@@ -99474,7 +99401,7 @@
     "v1": 23,
     "betaOnly": 55,
     "onMap": 23,
-    "curated": 1,
+    "curated": 2,
     "betaOnMap": 55
    },
    {
@@ -99602,7 +99529,7 @@
     "v1": 7,
     "betaOnly": 6,
     "onMap": 7,
-    "curated": 1,
+    "curated": 3,
     "betaOnMap": 6
    },
    {
@@ -99650,7 +99577,7 @@
     "v1": 4,
     "betaOnly": 8,
     "onMap": 4,
-    "curated": 2,
+    "curated": 3,
     "betaOnMap": 8
    },
    {
@@ -100346,7 +100273,7 @@
    {
     "workload": "identity",
     "onMap": 208,
-    "curated": 12,
+    "curated": 14,
     "betaOnly": 190
    },
    {
@@ -100358,7 +100285,7 @@
    {
     "workload": "policies",
     "onMap": 97,
-    "curated": 0,
+    "curated": 5,
     "betaOnly": 31
    },
    {
@@ -100406,25 +100333,25 @@
    {
     "workload": "admin",
     "onMap": 41,
-    "curated": 0,
+    "curated": 3,
     "betaOnly": 28
    },
    {
     "workload": "reports",
     "onMap": 24,
-    "curated": 3,
+    "curated": 4,
     "betaOnly": 61
    },
    {
     "workload": "security",
     "onMap": 66,
-    "curated": 3,
+    "curated": 5,
     "betaOnly": 149
    },
    {
     "workload": "devices",
     "onMap": 220,
-    "curated": 0,
+    "curated": 2,
     "betaOnly": 505
    },
    {

@@ -1,7 +1,7 @@
 {
  "meta": {
   "title": "M365 Graph Cartographer (MGC)",
-  "curatedVersion": "0.7.0",
+  "curatedVersion": "0.8.0",
   "curatedOn": "2026-11-28",
   "phase": "Purview covered in depth from 0.3.0: information protection, records, eDiscovery, audit, privacy and the data security API, with what Graph does not cover.",
   "note": "Hand-written content lives here. The scanner never edits this file; it writes graph-map.json alongside it."
@@ -2374,6 +2374,269 @@
     "A reviewer's own queue: /users/{id}/appConsentRequestsForApproval (beta only)."
    ],
    "docs": "https://learn.microsoft.com/graph/api/appconsentapprovalroute-list-appconsentrequests"
+  },
+  {
+   "id": "authMethod",
+   "label": "Authentication method",
+   "workload": "policies",
+   "subservice": "authentication",
+   "entityType": "microsoft.graph.authenticationMethod",
+   "path": "GET /users/{id}/authentication/methods",
+   "summary": "The sign-in methods a user has registered: FIDO2 keys and passkeys, Microsoft Authenticator, phone, Windows Hello for Business, Temporary Access Pass and others, one object per method.",
+   "permissions": {
+    "delegated": "UserAuthenticationMethod.Read.All (UserAuthenticationMethod.Read for your own methods)",
+    "application": "UserAuthenticationMethod.Read.All"
+   },
+   "limits": [
+    "Microsoft advises against this API for audits across the whole user population; use the registration details report instead (checked on Microsoft Learn, 28 Nov 2026).",
+    "Delegated calls on other users need Global Reader, Authentication Administrator or Privileged Authentication Administrator. An Authentication Administrator only sees masked phone numbers.",
+    "No OData query parameters are supported on the list.",
+    "lastUsedDateTime is best effort: null or missing doesn't mean the method was never used.",
+    "/me needs a delegated permission; application permissions aren't supported there."
+   ],
+   "mapping": [
+    "Each method is typed by @odata.type, for example #microsoft.graph.fido2AuthenticationMethod; typed collections such as /authentication/fido2Methods exist too."
+   ],
+   "docs": "https://learn.microsoft.com/graph/api/resources/authenticationmethod"
+  },
+  {
+   "id": "registrationDetails",
+   "label": "User registration details",
+   "workload": "policies",
+   "subservice": "authentication",
+   "entityType": "microsoft.graph.userRegistrationDetails",
+   "path": "GET /reports/authenticationMethods/userRegistrationDetails",
+   "summary": "One row per user with MFA and self-service password reset registration and capability, passwordless capability, the methods registered and the system-preferred method. The way to measure MFA and passkey roll-out across a tenant.",
+   "permissions": {
+    "delegated": "AuditLog.Read.All",
+    "application": "AuditLog.Read.All"
+   },
+   "licence": "Microsoft Entra ID P1 or P2 (authentication methods usage and insights) (checked on Microsoft Learn, 28 Nov 2026).",
+   "limits": [
+    "Doesn't return disabled users.",
+    "$filter works on isMfaCapable, isMfaRegistered, isSsprEnabled, isSsprRegistered, methodsRegistered, userDisplayName and userPrincipalName.",
+    "Delegated callers need Reports Reader, Security Reader, Security Administrator or Global Reader."
+   ],
+   "mapping": [
+    "The id is the user's object ID, so rows join to /users/{id}."
+   ],
+   "docs": "https://learn.microsoft.com/graph/api/resources/userregistrationdetails"
+  },
+  {
+   "id": "riskDetection",
+   "label": "Risk detection",
+   "workload": "identity",
+   "subservice": "access-risk",
+   "entityType": "microsoft.graph.riskDetection",
+   "path": "GET /identityProtection/riskDetections",
+   "summary": "Each user risk event that Entra ID Protection detected, with its type (for example unfamiliar sign-in properties), level, state, IP address, location and the sign-in it came from.",
+   "permissions": {
+    "delegated": "IdentityRiskEvent.Read.All",
+    "application": "IdentityRiskEvent.Read.All"
+   },
+   "licence": "Microsoft Entra ID P1 or P2, as stated on the List riskDetections page (checked on Microsoft Learn, 28 Nov 2026).",
+   "limits": [
+    "Default page size 20; $top up to 500.",
+    "Delegated callers need Global Reader, Security Operator, Security Reader or Security Administrator.",
+    "Not available in the China (21Vianet) cloud."
+   ],
+   "mapping": [
+    "userId joins to /users/{id} and to the risky user; riskEventType says what was detected."
+   ],
+   "docs": "https://learn.microsoft.com/graph/api/resources/riskdetection"
+  },
+  {
+   "id": "riskyServicePrincipal",
+   "label": "Risky service principal",
+   "workload": "identity",
+   "subservice": "access-risk",
+   "entityType": "microsoft.graph.riskyServicePrincipal",
+   "path": "GET /identityProtection/riskyServicePrincipals",
+   "summary": "Apps and workload identities that Entra ID Protection flags as at risk, with risk level, state and history. The workload-identity counterpart of risky users.",
+   "permissions": {
+    "delegated": "IdentityRiskyServicePrincipal.Read.All",
+    "application": "IdentityRiskyServicePrincipal.Read.All"
+   },
+   "licence": "Microsoft Entra Workload ID Premium (checked on Microsoft Learn, 28 Nov 2026).",
+   "limits": [
+    "Delegated callers need Global Reader, Security Operator, Security Reader or Security Administrator.",
+    "confirmCompromised and dismiss are bound actions; reading needs only the Read permission."
+   ],
+   "mapping": [
+    "appId joins to the service principal's appId."
+   ],
+   "docs": "https://learn.microsoft.com/graph/api/resources/riskyserviceprincipal"
+  },
+  {
+   "id": "crossTenantAccess",
+   "label": "Cross-tenant access policy",
+   "workload": "policies",
+   "subservice": "cross-tenant",
+   "entityType": "microsoft.graph.crossTenantAccessPolicy",
+   "path": "GET /policies/crossTenantAccessPolicy/partners",
+   "covers": [
+    "microsoft.graph.crossTenantAccessPolicyConfigurationPartner",
+    "microsoft.graph.crossTenantAccessPolicyConfigurationDefault"
+   ],
+   "summary": "Which external tenants your users can collaborate with, and how: B2B collaboration and B2B direct connect in each direction, tenant restrictions, inbound trust (MFA and device claims) and automatic consent, as defaults and per partner.",
+   "permissions": {
+    "delegated": "Policy.Read.All",
+    "application": "Policy.Read.All"
+   },
+   "limits": [
+    "Delegated roles: Security Reader and Global Reader read basic properties; Global Secure Access Administrator and Teams Administrator read them without identity synchronisation settings; Security Administrator reads all.",
+    "Use $expand=identitySynchronization to list each partner's cross-tenant user sync policy."
+   ],
+   "mapping": [
+    "Defaults live at /policies/crossTenantAccessPolicy/default; each partner is keyed by its tenantId."
+   ],
+   "docs": "https://learn.microsoft.com/graph/api/resources/crosstenantaccesspolicy-overview"
+  },
+  {
+   "id": "managedDevice",
+   "label": "Managed device (Intune)",
+   "workload": "devices",
+   "subservice": "managed-devices",
+   "entityType": "microsoft.graph.managedDevice",
+   "path": "GET /deviceManagement/managedDevices",
+   "summary": "Devices enrolled in Intune: owner, OS, compliance state, encryption, last sync and management agent, plus remote actions such as retire and wipe.",
+   "permissions": {
+    "delegated": "DeviceManagementManagedDevices.Read.All",
+    "application": "DeviceManagementManagedDevices.Read.All"
+   },
+   "licence": "An active Intune licence for the tenant (checked on Microsoft Learn, 28 Nov 2026).",
+   "limits": [
+    "This is the Intune record, not the Entra device object: the two have different IDs.",
+    "Remote actions (retire, wipe and others) are bound POST actions on the device."
+   ],
+   "mapping": [
+    "azureADDeviceId matches the Entra device's deviceId (not its object id)."
+   ],
+   "docs": "https://learn.microsoft.com/graph/api/resources/intune-devices-manageddevice"
+  },
+  {
+   "id": "compliancePolicy",
+   "label": "Device compliance policy",
+   "workload": "devices",
+   "subservice": "compliance-configuration",
+   "entityType": "microsoft.graph.deviceCompliancePolicy",
+   "path": "GET /deviceManagement/deviceCompliancePolicies",
+   "summary": "Intune compliance policies for every platform in one collection, with their assignments and per-device and per-user status. Device compliance feeds Conditional Access.",
+   "permissions": {
+    "delegated": "DeviceManagementConfiguration.Read.All",
+    "application": "DeviceManagementConfiguration.Read.All"
+   },
+   "licence": "An active Intune licence for the tenant (checked on Microsoft Learn, 28 Nov 2026).",
+   "limits": [
+    "The collection mixes platforms; tell them apart by @odata.type, for example #microsoft.graph.windows10CompliancePolicy.",
+    "Per-device results are under /deviceManagement/deviceCompliancePolicies/{id}/deviceStatuses."
+   ],
+   "mapping": [
+    "A managed device's own view is /deviceManagement/managedDevices/{id}/deviceCompliancePolicyStates."
+   ],
+   "docs": "https://learn.microsoft.com/graph/api/resources/intune-deviceconfig-devicecompliancepolicy"
+  },
+  {
+   "id": "attackSimulation",
+   "label": "Attack simulation",
+   "workload": "security",
+   "subservice": "attack-simulation",
+   "entityType": "microsoft.graph.simulation",
+   "path": "GET /security/attackSimulation/simulations",
+   "summary": "Phishing simulation campaigns from Attack simulation and training in Defender for Office 365: technique, status, launch and completion dates, payload and landing page.",
+   "permissions": {
+    "delegated": "AttackSimulation.Read.All",
+    "application": "AttackSimulation.Read.All"
+   },
+   "licence": "Microsoft 365 E5 or Microsoft Defender for Office 365 Plan 2 (checked on Microsoft Learn, 28 Nov 2026).",
+   "limits": [
+    "Global service only: not in the US Government or China (21Vianet) clouds.",
+    "$filter and $orderby work on attackTechnique, attackType, completionDateTime, displayName, isAutomated, launchDateTime and status."
+   ],
+   "mapping": [
+    "User-level results: /reports/security/getAttackSimulationRepeatOffenders, getAttackSimulationSimulationUserCoverage and getAttackSimulationTrainingUserCoverage."
+   ],
+   "docs": "https://learn.microsoft.com/graph/api/resources/simulation"
+  },
+  {
+   "id": "secureScoreControl",
+   "label": "Secure Score control profile",
+   "workload": "security",
+   "subservice": "hunting-posture",
+   "entityType": "microsoft.graph.secureScoreControlProfile",
+   "path": "GET /security/secureScoreControlProfiles",
+   "summary": "The catalogue of Secure Score improvement actions: title, category, maximum score, rank, implementation cost, user impact, threats, remediation and the tenant's control state updates.",
+   "permissions": {
+    "delegated": "SecurityEvents.Read.All",
+    "application": "SecurityEvents.Read.All"
+   },
+   "limits": [
+    "Profiles describe the controls; the scores themselves come from /security/secureScores."
+   ],
+   "docs": "https://learn.microsoft.com/graph/api/resources/securescorecontrolprofile"
+  },
+  {
+   "id": "serviceHealthIssue",
+   "label": "Service health issue",
+   "workload": "admin",
+   "subservice": "service-health",
+   "entityType": "microsoft.graph.serviceHealthIssue",
+   "path": "GET /admin/serviceAnnouncement/issues",
+   "covers": [
+    "microsoft.graph.serviceHealth"
+   ],
+   "summary": "Current and recent incidents and advisories for the Microsoft 365 services your tenant subscribes to, with status, impact and updates; healthOverviews gives each service's current state.",
+   "permissions": {
+    "delegated": "ServiceHealth.Read.All",
+    "application": "ServiceHealth.Read.All"
+   },
+   "limits": [
+    "Delegated callers must hold at least one admin role (checked on Microsoft Learn, 28 Nov 2026)."
+   ],
+   "mapping": [
+    "The incidentReport function on an issue returns the post-incident review."
+   ],
+   "docs": "https://learn.microsoft.com/graph/api/resources/servicehealthissue"
+  },
+  {
+   "id": "messageCenter",
+   "label": "Message centre post",
+   "workload": "admin",
+   "subservice": "service-health",
+   "entityType": "microsoft.graph.serviceUpdateMessage",
+   "path": "GET /admin/serviceAnnouncement/messages",
+   "summary": "Message centre posts: upcoming changes, new features, retirements and planned maintenance for your tenant's services, with services, tags, action-required dates and attachments.",
+   "permissions": {
+    "delegated": "ServiceMessage.Read.All",
+    "application": "ServiceMessage.Read.All"
+   },
+   "limits": [
+    "Marking posts read, archived or favourite is per signed-in user and needs ServiceMessageViewpoint.Write (delegated only) (checked on Microsoft Learn, 28 Nov 2026).",
+    "Delegated callers must hold at least one admin role."
+   ],
+   "docs": "https://learn.microsoft.com/graph/api/resources/serviceupdatemessage"
+  },
+  {
+   "id": "provisioningLog",
+   "label": "Provisioning log",
+   "workload": "reports",
+   "subservice": "sign-in-audit-logs",
+   "entityType": "microsoft.graph.provisioningObjectSummary",
+   "path": "GET /auditLogs/provisioning",
+   "summary": "Each create, update or delete that Entra provisioning made, from HR-driven inbound provisioning to outbound SaaS apps: source and target system and identity, steps, modified properties and status.",
+   "permissions": {
+    "delegated": "AuditLog.Read.All and Directory.Read.All",
+    "application": "AuditLog.Read.All and Directory.Read.All"
+   },
+   "licence": "Microsoft Entra ID P1 or P2 (provisioning logs) (checked on Microsoft Learn, 28 Nov 2026).",
+   "limits": [
+    "Supports $filter (eq, contains, gt, lt), $orderby, $top and $skiptoken; filters are case sensitive.",
+    "Delegated callers need a role such as Reports Reader, Security Reader, Global Reader or Application Administrator."
+   ],
+   "mapping": [
+    "servicePrincipal.id joins to the provisioning app's service principal."
+   ],
+   "docs": "https://learn.microsoft.com/graph/api/resources/provisioningobjectsummary"
   }
  ],
  "edges": [
@@ -3166,6 +3429,84 @@
    "t": "consentRequest",
    "kind": "nav",
    "nav": "appConsentRequestsForApproval"
+  },
+  {
+   "s": "user",
+   "t": "authMethod",
+   "kind": "nav",
+   "nav": "authentication",
+   "via": "authentication/methods"
+  },
+  {
+   "s": "registrationDetails",
+   "t": "user",
+   "kind": "ref",
+   "label": "id",
+   "desc": "same object ID as the user"
+  },
+  {
+   "s": "registrationDetails",
+   "t": "authMethod",
+   "kind": "ref",
+   "label": "methodsRegistered",
+   "desc": "summarises the methods each user has"
+  },
+  {
+   "s": "riskDetection",
+   "t": "user",
+   "kind": "ref",
+   "label": "userId"
+  },
+  {
+   "s": "riskDetection",
+   "t": "riskyUser",
+   "kind": "ref",
+   "label": "userId",
+   "desc": "detections roll up into the user's risk"
+  },
+  {
+   "s": "riskyServicePrincipal",
+   "t": "servicePrincipal",
+   "kind": "ref",
+   "label": "appId"
+  },
+  {
+   "s": "managedDevice",
+   "t": "user",
+   "kind": "nav",
+   "nav": "users"
+  },
+  {
+   "s": "managedDevice",
+   "t": "device",
+   "kind": "ref",
+   "label": "azureADDeviceId",
+   "desc": "matches the Entra device's deviceId, not its object id"
+  },
+  {
+   "s": "managedDevice",
+   "t": "compliancePolicy",
+   "kind": "nav",
+   "nav": "deviceCompliancePolicyStates"
+  },
+  {
+   "s": "secureScoreControl",
+   "t": "secureScore",
+   "kind": "ref",
+   "label": "control name",
+   "desc": "the scores list each control's contribution"
+  },
+  {
+   "s": "provisioningLog",
+   "t": "servicePrincipal",
+   "kind": "ref",
+   "label": "servicePrincipal.id"
+  },
+  {
+   "s": "user",
+   "t": "managedDevice",
+   "kind": "nav",
+   "nav": "managedDevices"
   }
  ],
  "scenarios": [

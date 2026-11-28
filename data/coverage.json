@@ -1,9 +1,9 @@
 {
- "at": "2026-11-28T13:04:25+00:00",
+ "at": "2026-11-28T13:12:10+00:00",
  "v1Types": 1264,
  "betaOnlyTypes": 1369,
  "onMap": 1264,
- "curated": 138,
+ "curated": 153,
  "betaOnMap": 1369,
  "areas": [
   {
@@ -11,7 +11,7 @@
    "v1": 136,
    "betaOnly": 381,
    "onMap": 136,
-   "curated": 0,
+   "curated": 2,
    "betaOnMap": 381,
    "onMapTypes": [
     "androidCompliancePolicy",
@@ -158,7 +158,7 @@
    "v1": 112,
    "betaOnly": 84,
    "onMap": 112,
-   "curated": 38,
+   "curated": 40,
    "betaOnMap": 84,
    "onMapTypes": [
     "alert",
@@ -487,7 +487,7 @@
    "v1": 88,
    "betaOnly": 56,
    "onMap": 88,
-   "curated": 13,
+   "curated": 14,
    "betaOnMap": 56,
    "onMapTypes": [
     "activitiesContainer",
@@ -821,7 +821,7 @@
    "v1": 57,
    "betaOnly": 12,
    "onMap": 57,
-   "curated": 1,
+   "curated": 4,
    "betaOnMap": 12,
    "onMapTypes": [
     "activityBasedTimeoutPolicy",
@@ -950,7 +950,7 @@
    "v1": 41,
    "betaOnly": 70,
    "onMap": 41,
-   "curated": 2,
+   "curated": 5,
    "betaOnMap": 70,
    "onMapTypes": [
     "admin",
@@ -1132,7 +1132,7 @@
    "v1": 23,
    "betaOnly": 55,
    "onMap": 23,
-   "curated": 1,
+   "curated": 2,
    "betaOnMap": 55,
    "onMapTypes": [
     "authenticationMethodsRoot",
@@ -1525,7 +1525,7 @@
    "v1": 7,
    "betaOnly": 6,
    "onMap": 7,
-   "curated": 1,
+   "curated": 3,
    "betaOnMap": 6,
    "onMapTypes": [
     "identityProtectionRoot",
@@ -1624,7 +1624,7 @@
    "v1": 4,
    "betaOnly": 8,
    "onMap": 4,
-   "curated": 2,
+   "curated": 3,
    "betaOnMap": 8,
    "onMapTypes": [
     "auditLogRoot",
@@ -2576,7 +2576,7 @@
   {
    "workload": "identity",
    "onMap": 208,
-   "curated": 12,
+   "curated": 14,
    "betaOnly": 190
   },
   {
@@ -2588,7 +2588,7 @@
   {
    "workload": "policies",
    "onMap": 97,
-   "curated": 0,
+   "curated": 5,
    "betaOnly": 31
   },
   {
@@ -2636,25 +2636,25 @@
   {
    "workload": "admin",
    "onMap": 41,
-   "curated": 0,
+   "curated": 3,
    "betaOnly": 28
   },
   {
    "workload": "reports",
    "onMap": 24,
-   "curated": 3,
+   "curated": 4,
    "betaOnly": 61
   },
   {
    "workload": "security",
    "onMap": 66,
-   "curated": 3,
+   "curated": 5,
    "betaOnly": 149
   },
   {
    "workload": "devices",
    "onMap": 220,
-   "curated": 0,
+   "curated": 2,
    "betaOnly": 505
   },
   {
