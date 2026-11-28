@@ -1428,7 +1428,7 @@ function init(){
   }
   function showResults(){
     const t = q.value.trim().toLowerCase();
-    if (!t) { closeResults(); dimForSearch(); return; }
+    if (!t) { hits = []; closeResults(); dimForSearch(); updateReset(); return; }
     hits = searchHits(t); hi = 0;
     qres.innerHTML = hits.length ? hits.slice(0, 12).map((h, i) => `<li role="option" id="qr${i}" data-go="${h.n.id}" aria-selected="${i === hi}" style="--c:${WL[h.n.workload].colour}"><i></i>${esc(h.n.label)}<small>${esc(where(h.n))} · matched ${esc(h.why)}</small></li>`).join('') + (hits.length > 12 ? `<li class="none">${hits.length - 12} more: keep typing to narrow it down</li>` : '')
       : '<li class="none">No APIs match</li>';
@@ -1449,7 +1449,7 @@ function init(){
       q.setAttribute('aria-activedescendant', 'qr' + hi);
       qres.querySelector(`#qr${hi}`)?.scrollIntoView({block: 'nearest'});
     }
-    if (e.key === 'Enter' && hits[hi]) { e.preventDefault(); pick(hits[hi].n.id); }
+    if (e.key === 'Enter' && !qres.hidden && hits[hi]) { e.preventDefault(); pick(hits[hi].n.id); }   // only from the list on screen
     if (e.key === 'Escape') { e.stopPropagation(); if (!qres.hidden) closeResults(); else { q.value = ''; dimForSearch(); updateReset(); } }
   });
   qres.addEventListener('pointerdown', e => { const li = e.target.closest('[data-go]'); if (li) { e.preventDefault(); pick(li.dataset.go); } });

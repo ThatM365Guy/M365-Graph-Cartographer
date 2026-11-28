@@ -815,6 +815,12 @@ class ExtrasTests(unittest.TestCase):
         for m in re.finditer(r"decodeURIComponent\(", tpl):
             self.assertIn("try {", tpl[max(0, m.start() - 20):m.start()], "decodeURIComponent outside a try")
 
+    def test_search_enter_only_picks_from_the_open_list(self):
+        with open(os.path.join(ROOT, "web", "template.html"), encoding="utf-8") as f:
+            tpl = f.read()
+        self.assertIn("if (e.key === 'Enter' && !qres.hidden && hits[hi])", tpl)
+        self.assertIn("if (!t) { hits = []; closeResults(); dimForSearch(); updateReset(); return; }", tpl)
+
     def test_template_links_to_explorer_and_permissions_site(self):
         with open(os.path.join(ROOT, "web", "template.html"), encoding="utf-8") as f:
             tpl = f.read()
