@@ -218,6 +218,8 @@ details.sm summary{cursor:pointer;min-height:30px;font-size:13.5px}
 .legacy-list small{display:block;color:var(--mute)}
 .lfind{display:flex;gap:8px;align-items:center;margin:12px 0 4px}
 .lfind input{flex:1;height:34px;border:1px solid var(--rule);background:var(--panel);border-radius:8px;padding:0 10px;font-size:14px}
+.scsel{display:flex;flex-direction:column;gap:4px;margin:12px 0 6px;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--mute);font-weight:700}
+.scsel select{width:100%;height:38px;border:1px solid var(--rule);background:var(--panel);color:var(--ink);border-radius:8px;padding:0 8px;font:inherit;font-size:14.5px;letter-spacing:0;text-transform:none;font-weight:400}
 .lfind select{height:34px;border:1px solid var(--rule);background:var(--panel);color:var(--ink);border-radius:8px;padding:0 6px;font:inherit;font-size:13.5px}
 .lcount{color:var(--mute);font-size:12.5px;margin:4px 0}
 
@@ -1218,8 +1220,16 @@ function init(){
       return xs.length ? `<h5>${grp}</h5><ul class="sclist">${xs.map(x => `<li><button data-scen="${esc(x.id)}">${esc(x.label)}<small>${esc(x.summary)}</small></button></li>`).join('')}</ul>` : '';
     }).join('');
   }
+  // A dropdown of every scenario, grouped; choosing one starts it, the same as clicking it in the list.
+  function scenarioSelect(current){
+    const groups = SCEN_GROUPS.map(grp => {
+      const xs = SCEN.filter(x => x.group === grp);
+      return xs.length ? `<optgroup label="${esc(grp)}">${xs.map(x => `<option value="${esc(x.id)}"${x.id === current ? ' selected' : ''}>${esc(x.label)}</option>`).join('')}</optgroup>` : '';
+    }).join('');
+    return `<label class="scsel"><span>Scenario</span><select id="scsel" aria-label="Choose a scenario"><option value=""${current ? '' : ' selected'}>Choose a scenario…</option>${groups}</select></label>`;
+  }
   function renderScenarioList(){
-    panel.innerHTML = `<h2>Scenarios</h2><p class="lead">Step-by-step routes across Graph for common reviews and investigations. Pick one to see its route on the ring and walk through it.</p>${scenarioList()}`;
+    panel.innerHTML = `<h2>Scenarios</h2><p class="lead">Step-by-step routes across Graph for common reviews and investigations. Pick one from the menu or the list to see its route on the ring and walk through it.</p>${scenarioSelect(null)}${scenarioList()}`;
   }
   const permText = (st, n) => st.permission || (n.permissions ? `Delegated: ${n.permissions.delegated} · Application: ${n.permissions.application}` : '');
   function stepDetail(st){
@@ -1231,6 +1241,7 @@ function init(){
   function renderScenario(s){
     const g = scenGroups(s), i = S.step, cur = g[i];
     panel.innerHTML = `<button class="back" data-crumb-panel="list">← All scenarios</button>
+      ${scenarioSelect(s.id)}
       <div class="badges"><span class="b">${esc(s.group)}</span><span class="b">${pl(g.length, 'step')}</span></div>
       <h2>${esc(s.label)}</h2><p class="lead">${esc(s.summary)}</p>
       ${s.licence ? `<p><b>Licensing:</b> ${esc(s.licence)}</p>` : ''}
@@ -1301,7 +1312,10 @@ function init(){
     }
   });
   panel.addEventListener('input', e => { if (e.target.id === 'lq') { LIST.q = e.target.value; listRows(); } });
-  panel.addEventListener('change', e => { if (e.target.id === 'lsort') { LIST.sort = e.target.value; listRows(); } });
+  panel.addEventListener('change', e => {
+    if (e.target.id === 'lsort') { LIST.sort = e.target.value; listRows(); }
+    if (e.target.id === 'scsel') { const v = e.target.value; if (v) startScenario(v); else exitScenario(true); requestAnimationFrame(() => { const s2 = $('#scsel'); if (s2) s2.focus({preventScroll: true}); }); }
+  });
   panel.addEventListener('keydown', e => { if (e.target.id === 'lq' && e.key === 'Escape' && e.target.value) { e.stopPropagation(); e.target.value = LIST.q = ''; listRows(); } });
   // The scenario list changes the ring only on click (data-scen above); hovering or focusing a row does nothing.
 
