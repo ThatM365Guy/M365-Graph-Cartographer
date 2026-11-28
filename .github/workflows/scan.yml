@@ -7,7 +7,9 @@ on:
   workflow_dispatch:
   push:
     branches: [main]   # work branches don't deploy; the github-pages environment only allows main
-    paths: ["data/curated.json", "web/template.html"]
+    # everything the page is built from; the bot's own data commits don't match, so they don't trigger a run
+    paths: ["data/curated.json", "data/placement.json", "web/template.html", "scanner/**", "scripts/scenarios/**",
+            ".github/workflows/scan.yml"]
 # One scan at a time: a run queues behind the one in progress instead of racing it to push to main.
 concurrency:
   group: mgc-scan
