@@ -708,13 +708,13 @@ def build_generated(v1, beta, types, prev_generated=None, fetch=True, now=None, 
             meta["warnings"].append(f"permissions.json has an unexpected shape ({e}); kept the previous permissions")
         except Exception as e:  # network or GitHub API
             meta["warnings"].append(f"could not read permissions.json ({e}); kept the previous permissions")
-        if docs_index:
-            docs, meta["docs"] = docs_index
-        else:
-            try:
-                docs, meta["docs"] = generate.fetch_docs_index()
-            except Exception as e:
-                meta["warnings"].append(f"could not list the Learn resource pages ({e}); kept the previous links")
+    if docs_index:   # a saved index needs no network, so it applies with --offline too
+        docs, meta["docs"] = docs_index
+    elif fetch:
+        try:
+            docs, meta["docs"] = generate.fetch_docs_index()
+        except Exception as e:
+            meta["warnings"].append(f"could not list the Learn resource pages ({e}); kept the previous links")
     generate.enrich(entries, catalogue, docs)
     prev = {e["id"]: e for e in (prev_generated or {}).get("entries", [])}
     for e in entries:   # carry forward what this run could not fetch

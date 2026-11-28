@@ -673,6 +673,16 @@ class GeneratedTierTests(unittest.TestCase):
         self.assertEqual(gm["coverage"]["onMap"], gm["coverage"]["v1Types"])
         self.assertEqual(gm["coverage"]["betaOnMap"], gm["coverage"]["betaOnlyTypes"])
 
+    def test_saved_docs_index_applies_offline(self):
+        types = scan.coverage_types(self.v1, self.v1)
+        pin = {"commit": "abc", "repo": generate.DOCS_REPO, "path": generate.DOCS_DIR}
+        gen = scan.build_generated(self.v1, None, types, fetch=False, now=D1,
+                                   docs_index=(["intune-devices-manageddevice"], pin))
+        md = next(e for e in gen["entries"] if e["entityType"] == "microsoft.graph.managedDevice")
+        self.assertTrue(md["docs"].endswith("/intune-devices-manageddevice?view=graph-rest-1.0"))
+        self.assertEqual(gen["meta"]["docs"], pin)
+        self.assertEqual(gen["meta"]["warnings"], [])
+
     def test_name_rule_places_types_without_a_path(self):
         rules = [{"name": "lonely*", "to": "devices/intune-admin"}]
         self.assertEqual(generate.place(self.by_type["lonelyType"], rules), ("devices", "intune-admin"))
