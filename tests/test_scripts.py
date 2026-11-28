@@ -144,6 +144,17 @@ class ScriptFiles(unittest.TestCase):
                     self.assertIn(sc, names, f"{s['id']}: {sc} is not a Microsoft Graph permission name")
             self.assertIn("Connect-MgGraph -Scopes $Scopes", read(s["id"]), s["id"])
 
+    def test_names_and_addresses_in_filters_are_quote_escaped(self):
+        """A UPN or address can hold an apostrophe (o'brien@contoso.com), which ends an OData string early."""
+        raw = re.compile(r"(userPrincipalName|senderAddress|recipientAddress|mail)\s+(eq|ne)\s+'\$(?!\(ConvertTo-ODataLiteral )", re.I)
+        bad = []
+        for s in CURATED["scenarios"]:
+            for i, line in enumerate(code_only(read(s["id"])).splitlines(), 1):
+                if raw.search(line):
+                    bad.append(f"{s['id']}:{i}: use ConvertTo-ODataLiteral for the value")
+        self.assertEqual(bad, [])
+        self.assertTrue(raw.search("-Filter \"userPrincipalName eq '$($u.UserPrincipalName)'\""))
+
     def test_csv_output_only_to_output_folder(self):
         for s in CURATED["scenarios"]:
             text = code_only(read(s["id"]))

@@ -144,6 +144,12 @@ function Write-Skip {
     Write-Information "Skipped: $Text" -InformationAction Continue
 }
 
+function ConvertTo-ODataLiteral {
+    # Doubles single quotes, so a value such as o'brien@contoso.com can sit inside '...' in an OData $filter.
+    param([string]$Value)
+    $Value.Replace("'", "''")
+}
+
 function Get-UtcStamp {
     param([int]$DaysAgo = 0)
     (Get-Date).ToUniversalTime().AddDays(-$DaysAgo).ToString('yyyy-MM-ddTHH:mm:ssZ')
@@ -195,7 +201,7 @@ if ($UserPrincipalName -and $MessageId) {
 # Step 6: GET /admin/exchange/tracing/messageTraces (both receivedDateTime bounds, at most 10 days)
 if ($SenderAddress) {
     $null = Invoke-ReadStep '6-message-trace' {
-        $filter = "receivedDateTime ge $(Get-UtcStamp -DaysAgo ([math]::Min($Days, 10))) and receivedDateTime le $(Get-UtcStamp) and senderAddress eq '$SenderAddress'"
+        $filter = "receivedDateTime ge $(Get-UtcStamp -DaysAgo ([math]::Min($Days, 10))) and receivedDateTime le $(Get-UtcStamp) and senderAddress eq '$(ConvertTo-ODataLiteral $SenderAddress)'"
         Get-GraphCollection -Uri "$graph/v1.0/admin/exchange/tracing/messageTraces?`$filter=$([uri]::EscapeDataString($filter))" |
             Select-Object @{n = 'receivedDateTime'; e = { Get-Field $_ 'receivedDateTime' } }, @{n = 'senderAddress'; e = { Get-Field $_ 'senderAddress' } },
                 @{n = 'recipientAddress'; e = { Get-Field $_ 'recipientAddress' } }, @{n = 'subject'; e = { Get-Field $_ 'subject' } }, @{n = 'status'; e = { Get-Field $_ 'status' } }

@@ -117,6 +117,12 @@ function Write-Skip {
     Write-Information "Skipped: $Text" -InformationAction Continue
 }
 
+function ConvertTo-ODataLiteral {
+    # Doubles single quotes, so a value such as o'brien@contoso.com can sit inside '...' in an OData $filter.
+    param([string]$Value)
+    $Value.Replace("'", "''")
+}
+
 function Get-UtcStamp {
     param([int]$DaysAgo = 0)
     (Get-Date).ToUniversalTime().AddDays(-$DaysAgo).ToString('yyyy-MM-ddTHH:mm:ssZ')
@@ -150,7 +156,7 @@ $null = Invoke-ReadStep '2-alerts' {
 
 # Step 3: confirming the user compromised changes data. This reads the user's risk state instead (GET /identityProtection/riskyUsers).
 $null = Invoke-ReadStep '3-risk-state' {
-    Get-MgRiskyUser -Filter "userPrincipalName eq '$($user.UserPrincipalName)'" | Select-Object Id, UserPrincipalName, RiskLevel, RiskState, RiskDetail, RiskLastUpdatedDateTime
+    Get-MgRiskyUser -Filter "userPrincipalName eq '$(ConvertTo-ODataLiteral $user.UserPrincipalName)'" | Select-Object Id, UserPrincipalName, RiskLevel, RiskState, RiskDetail, RiskLastUpdatedDateTime
 }
 
 # Step 4: GET /auditLogs/signIns
