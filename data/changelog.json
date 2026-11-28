@@ -1,6 +1,18 @@
 [
  {
   "date": "2026-11-28",
+  "node": null,
+  "kind": "permission-added",
+  "text": "New Graph permission 'Policy.Read.AuthFeatureToggle'."
+ },
+ {
+  "date": "2026-11-28",
+  "node": null,
+  "kind": "permission-added",
+  "text": "New Graph permission 'Policy.ReadWrite.AuthFeatureToggle'."
+ },
+ {
+  "date": "2026-11-28",
   "node": "authMethodsPolicy",
   "kind": "new-node",
   "text": "Authentication methods policy: scanned for the first time (v1.0)."
