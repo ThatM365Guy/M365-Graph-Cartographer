@@ -155,6 +155,13 @@ class ScriptFiles(unittest.TestCase):
         self.assertEqual(bad, [])
         self.assertTrue(raw.search("-Filter \"userPrincipalName eq '$($u.UserPrincipalName)'\""))
 
+    def test_recipient_lists_are_read_one_by_one(self):
+        """$list.EmailAddress.Address returns System.Array's Address method once a list has two recipients."""
+        rx = re.compile(r"(ForwardTo|RedirectTo|ForwardAsAttachmentTo|Recipients)\.EmailAddress\.Address", re.I)
+        bad = [f"{s['id']}:{i}" for s in CURATED["scenarios"]
+               for i, line in enumerate(code_only(read(s["id"])).splitlines(), 1) if rx.search(line)]
+        self.assertEqual(bad, [], "use Get-RecipientAddress")
+
     def test_csv_output_only_to_output_folder(self):
         for s in CURATED["scenarios"]:
             text = code_only(read(s["id"]))

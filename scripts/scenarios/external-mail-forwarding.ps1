@@ -122,6 +122,13 @@ function Write-Skip {
     Write-Information "Skipped: $Text" -InformationAction Continue
 }
 
+function Get-RecipientAddress {
+    # The addresses in a list of recipients. $list.EmailAddress.Address would return System.Array's own Address
+    # method once the list holds two or more recipients, so each recipient is read in turn.
+    param($Recipients)
+    @($Recipients | ForEach-Object { $_.EmailAddress.Address } | Where-Object { $_ })
+}
+
 function Get-UtcStamp {
     param([int]$DaysAgo = 0)
     (Get-Date).ToUniversalTime().AddDays(-$DaysAgo).ToString('yyyy-MM-ddTHH:mm:ssZ')
@@ -164,7 +171,7 @@ if (-not $InternalDomain) { Write-Skip 'Step 2 needs your internal domains. Pass
         foreach ($u in $users | Select-Object -First $MaxMailboxes) {
             try { $rules = @(Get-MgUserMailFolderMessageRule -UserId $u.Id -MailFolderId 'inbox' -All) } catch { Write-Verbose "$($u.Mail): $($_.Exception.Message)"; continue }
             foreach ($r in $rules) {
-                $targets = @($r.Actions.ForwardTo.EmailAddress.Address) + @($r.Actions.ForwardAsAttachmentTo.EmailAddress.Address) + @($r.Actions.RedirectTo.EmailAddress.Address) | Where-Object { $_ }
+                $targets = @(Get-RecipientAddress $r.Actions.ForwardTo) + @(Get-RecipientAddress $r.Actions.ForwardAsAttachmentTo) + @(Get-RecipientAddress $r.Actions.RedirectTo)
                 $external = @($targets | Where-Object { -not (Test-InternalAddress $_) })
                 if ($external.Count) {
                     [pscustomobject]@{ Mailbox = $u.Mail; Rule = $r.DisplayName; Enabled = $r.IsEnabled; ExternalTargets = $external -join ';' }

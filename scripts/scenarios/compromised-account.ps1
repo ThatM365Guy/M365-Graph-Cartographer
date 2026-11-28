@@ -123,6 +123,13 @@ function ConvertTo-ODataLiteral {
     $Value.Replace("'", "''")
 }
 
+function Get-RecipientAddress {
+    # The addresses in a list of recipients. $list.EmailAddress.Address would return System.Array's own Address
+    # method once the list holds two or more recipients, so each recipient is read in turn.
+    param($Recipients)
+    @($Recipients | ForEach-Object { $_.EmailAddress.Address } | Where-Object { $_ })
+}
+
 function Get-UtcStamp {
     param([int]$DaysAgo = 0)
     (Get-Date).ToUniversalTime().AddDays(-$DaysAgo).ToString('yyyy-MM-ddTHH:mm:ssZ')
@@ -176,8 +183,8 @@ $null = Invoke-ReadStep '5-changes-by-user' {
 $null = Invoke-ReadStep '6-inbox-rules' {
     Get-MgUserMailFolderMessageRule -UserId $userId -MailFolderId 'inbox' -All |
         Select-Object DisplayName, IsEnabled, Sequence,
-            @{n = 'ForwardTo'; e = { ($_.Actions.ForwardTo.EmailAddress.Address) -join ';' } },
-            @{n = 'RedirectTo'; e = { ($_.Actions.RedirectTo.EmailAddress.Address) -join ';' } },
+            @{n = 'ForwardTo'; e = { (Get-RecipientAddress $_.Actions.ForwardTo) -join ';' } },
+            @{n = 'RedirectTo'; e = { (Get-RecipientAddress $_.Actions.RedirectTo) -join ';' } },
             @{n = 'DeletesMessage'; e = { $_.Actions.Delete } }, @{n = 'MovesToFolder'; e = { $_.Actions.MoveToFolder } }
 }
 
