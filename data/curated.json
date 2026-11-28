@@ -3507,6 +3507,13 @@
    "t": "managedDevice",
    "kind": "nav",
    "nav": "managedDevices"
+  },
+  {
+   "s": "riskDetection",
+   "t": "signIn",
+   "kind": "ref",
+   "label": "correlationId",
+   "desc": "the sign-in's correlation ID; null when the detection isn't tied to a sign-in"
   }
  ],
  "scenarios": [
@@ -4077,6 +4084,198 @@
      "node": "sensitiveType",
      "do": "Identify which sensitive info types matched.",
      "note": "The matched SITs are in the DLP audit record; the sensitiveTypes list itself is beta and undocumented."
+    }
+   ]
+  },
+  {
+   "id": "workload-identity-triage",
+   "label": "Compromised workload identity triage",
+   "group": "Classic",
+   "summary": "An app or agent flagged as risky can act without a user, so its permissions, credentials and recent activity need checking together.",
+   "licence": "Microsoft Entra Workload ID Premium for risky service principals; Entra ID P1 or P2 for sign-in logs.",
+   "steps": [
+    {
+     "node": "riskyServicePrincipal",
+     "do": "List the service principals that ID Protection flags and pick those still at risk (riskState atRisk)."
+    },
+    {
+     "node": "servicePrincipal",
+     "do": "Open the service principal by appId and check its owners and credentials.",
+     "call": "GET /servicePrincipals(appId='{appId}')"
+    },
+    {
+     "node": "appRoleAssignment",
+     "do": "List the application permissions it holds on other APIs.",
+     "call": "GET /servicePrincipals/{id}/appRoleAssignments"
+    },
+    {
+     "node": "signIn",
+     "do": "Pull its recent service principal sign-ins.",
+     "call": "GET https://graph.microsoft.com/beta/auditLogs/signIns?$filter=signInEventTypes/any(t: t eq 'servicePrincipal') and appId eq '{appId}'",
+     "note": "The signInEventTypes filter is beta only; without it the sign-ins list returns interactive user sign-ins only."
+    },
+    {
+     "node": "directoryAudit",
+     "do": "Look for recent changes to the app: new credentials, owners and permission grants."
+    }
+   ],
+   "seeAlso": [
+    "risky-app-consent",
+    "agent-identity-governance"
+   ]
+  },
+  {
+   "id": "risky-signin-investigation",
+   "label": "Risky sign-in investigation",
+   "group": "Classic",
+   "summary": "A risk detection is a lead, not a verdict: tie it to the sign-in behind it and to any change the attacker may have made since.",
+   "licence": "Entra ID P1 or P2 for risk detections; P2 for full risky user data.",
+   "steps": [
+    {
+     "node": "riskDetection",
+     "do": "List the user's recent detections with type, IP address and location."
+    },
+    {
+     "node": "riskyUser",
+     "do": "Check the user's current risk level, state and history."
+    },
+    {
+     "node": "signIn",
+     "do": "Pull the sign-in behind each detection by its correlation ID.",
+     "call": "GET /auditLogs/signIns?$filter=correlationId eq '{correlationId}'",
+     "note": "correlationId is null on detections that aren't tied to a sign-in."
+    },
+    {
+     "node": "authMethod",
+     "do": "Check whether a new sign-in method appeared around the time of the detection."
+    },
+    {
+     "node": "directoryAudit",
+     "do": "Look for method, password and role changes for the user."
+    }
+   ],
+   "seeAlso": [
+    "compromised-account"
+   ]
+  },
+  {
+   "id": "device-compliance-gap",
+   "label": "Device compliance gap behind Conditional Access",
+   "group": "Classic",
+   "summary": "Conditional Access can only require a compliant device if Intune marks the device compliant, so non-compliant devices are either blocked or slipping through.",
+   "licence": "Intune for compliance; Entra ID P1 for Conditional Access.",
+   "steps": [
+    {
+     "node": "compliancePolicy",
+     "do": "List the compliance policies and the platforms they cover."
+    },
+    {
+     "node": "managedDevice",
+     "do": "Find devices whose complianceState isn't compliant, with their last sync time and user."
+    },
+    {
+     "node": "device",
+     "do": "Match each one to its Entra device, where Conditional Access reads isCompliant.",
+     "call": "GET /devices?$filter=deviceId eq '{azureADDeviceId}'",
+     "note": "managedDevice.azureADDeviceId matches the Entra device's deviceId, not its object id."
+    },
+    {
+     "node": "caPolicy",
+     "do": "Check which Conditional Access policies require a compliant device (grantControls.builtInControls contains compliantDevice)."
+    }
+   ],
+   "seeAlso": [
+    "secure-offboarding"
+   ]
+  },
+  {
+   "id": "phishing-simulation-followup",
+   "label": "Phishing simulation follow-up",
+   "group": "Classic",
+   "summary": "People who fall for simulated phishing again and again are the likeliest real victims, so check their sign-in protection and risk.",
+   "licence": "Microsoft 365 E5 or Microsoft Defender for Office 365 Plan 2.",
+   "steps": [
+    {
+     "node": "attackSimulation",
+     "do": "List recent simulation campaigns and their status."
+    },
+    {
+     "node": "attackSimulation",
+     "do": "List the repeat offenders: users who fell for more than one simulation.",
+     "call": "GET /reports/security/getAttackSimulationRepeatOffenders",
+     "permission": "AttackSimulation.Read.All (delegated and application)",
+     "note": "Global service only: not in the US Government or China (21Vianet) clouds."
+    },
+    {
+     "node": "user",
+     "do": "Look up each repeat offender's account."
+    },
+    {
+     "node": "registrationDetails",
+     "do": "Check whether each one is MFA capable.",
+     "call": "GET /reports/authenticationMethods/userRegistrationDetails?$filter=userPrincipalName eq '{upn}'"
+    },
+    {
+     "node": "riskyUser",
+     "do": "Check whether any of them are also flagged at risk."
+    }
+   ],
+   "seeAlso": [
+    "compromised-account"
+   ]
+  },
+  {
+   "id": "provisioning-failure-review",
+   "label": "Provisioning failure review",
+   "group": "Classic",
+   "summary": "A failed provisioning run can leave a joiner without access or a leaver still active in a SaaS app, and nobody notices until someone complains.",
+   "licence": "Entra ID P1 or P2 for provisioning logs.",
+   "steps": [
+    {
+     "node": "provisioningLog",
+     "do": "List recent provisioning events and pick out the failures (provisioningStatusInfo.status failure).",
+     "call": "GET /auditLogs/provisioning?$filter=activityDateTime gt {date}",
+     "note": "provisioningStatusInfo isn't documented as filterable in v1.0, so pick out failures in your own code. Filters are case sensitive."
+    },
+    {
+     "node": "servicePrincipal",
+     "do": "Open the provisioning app's service principal (servicePrincipal.id on the event)."
+    },
+    {
+     "node": "user",
+     "do": "Look up the user the event was for (sourceIdentity or targetIdentity) and check the attribute that failed."
+    },
+    {
+     "node": "directoryAudit",
+     "do": "Check whether someone changed the user or the app's provisioning settings around the same time."
+    }
+   ],
+   "seeAlso": [
+    "secure-offboarding"
+   ]
+  },
+  {
+   "id": "posture-change-review",
+   "label": "Weekly posture and change review",
+   "group": "Classic",
+   "summary": "A short weekly check: where Secure Score can still improve, which Microsoft changes need action, and which incidents are open.",
+   "licence": "No licence is stated on these API pages. Delegated calls to service health and the Message centre need an admin role.",
+   "steps": [
+    {
+     "node": "secureScore",
+     "do": "Read the latest score and each control's points."
+    },
+    {
+     "node": "secureScoreControl",
+     "do": "Read the improvement actions and pick the open ones worth the most points."
+    },
+    {
+     "node": "messageCenter",
+     "do": "List posts that need action, sorted by actionRequiredByDateTime."
+    },
+    {
+     "node": "serviceHealthIssue",
+     "do": "List incidents and advisories that aren't resolved yet (isResolved false)."
     }
    ]
   }

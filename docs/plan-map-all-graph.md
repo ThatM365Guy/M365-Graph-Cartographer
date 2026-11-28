@@ -8,7 +8,7 @@ Exported from the owner's Claude Doc "MGC: Claude Code brief to map all of Micro
 - [x] Phase 1: make the ring cope with volume (branch `claude/phase1-ring-volume`, committed locally 28 Nov 2026; waiting for the owner's review and push)
 - [x] Phase 2: generated tier, proved on Intune (branch `claude/phase2-generated-intune`, stacked on Phase 1, committed locally 28 Nov 2026; waiting for the owner's review and push)
 - [x] Phase 3: every v1.0 area, then beta (branch `claude/phase3-all-areas`, stacked on Phase 2, committed locally 28 Nov 2026; waiting for the owner's review and push)
-- [x] Phase 4: curated depth for security (branch `claude/phase4-security-depth`, cut from `main` after Phases 1-3 merged, committed locally 28 Nov 2026; scenario proposals waiting for the owner)
+- [x] Phase 4: curated depth for security (branch `claude/phase4-security-depth`, cut from `main` after Phases 1-3 merged, committed locally 28 Nov 2026; the owner approved all six scenarios, now written)
 - [ ] Phase 5: extras
 
 ## Decisions and findings
@@ -52,7 +52,7 @@ Exported from the owner's Claude Doc "MGC: Claude Code brief to map all of Micro
   - Curated now covers 153 of 1,264 v1.0 types (12%).
   - Known cosmetic issue, not fixed: a "↳ API" link tag can sit over service labels on the left of the ring (seen with the compliance policy selected). MGC.check doesn't cover link tags.
 
-#### Phase 4 scenario proposals (not written into curated.json; waiting for the owner)
+#### Phase 4 scenarios (owner approved all six on 28 Nov 2026; written into curated.json)
 
 Each step names the node and what to do; the call, permission and catch default to the node's own notes. Filters marked "to confirm" must be checked on Learn before the scenario is written.
 
@@ -62,6 +62,8 @@ Each step names the node and what to do; the call, permission and catch default 
 4. **Phishing simulation follow-up** (Classic): attack simulation (campaigns and results) → repeat offenders report (/reports/security/getAttackSimulationRepeatOffenders) → user → user registration details (are repeat offenders MFA capable?) → risky user.
 5. **Provisioning failure review** (Classic): provisioning log (failures, filter on provisioningStatusInfo/status to confirm) → service principal (the provisioning app) → user (the target identity) → directory audit.
 6. **Weekly posture and change review** (Classic): Secure Score → Secure Score control profile (open improvement actions) → Message centre post (action-required changes) → service health issue (open incidents).
+
+Checks made before writing them (Microsoft Learn, 28 Nov 2026): the service principal sign-in filter `signInEventTypes/any(t: t eq 'servicePrincipal')` is only documented in beta, so step 4 of scenario 1 uses the beta endpoint and says so. `provisioningStatusInfo` isn't documented as filterable in v1.0, so scenario 5 filters on `activityDateTime` and picks out failures in code. A risk detection's `correlationId` is the sign-in's correlation ID and `signIn` supports `$filter` on it, so scenario 2 joins on that (and a curated link records it). The repeat offenders report needs `AttackSimulation.Read.All`. Every property the steps name (complianceState, azureADDeviceId, deviceId, isCompliant, actionRequiredByDateTime, isResolved) was checked against $metadata. Scenario ids: workload-identity-triage, risky-signin-investigation, device-compliance-gap, phishing-simulation-followup, provisioning-failure-review, posture-change-review.
 
 Overlap with Phase 6: Phase 6 scenario 2 (phishing-resistant MFA migration) and scenario 6 (Conditional Access coverage) will also use user registration details, authentication method and cross-tenant access policy, so they are not proposed again here.
 
