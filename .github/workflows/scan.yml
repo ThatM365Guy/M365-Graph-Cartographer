@@ -32,7 +32,9 @@ jobs:
       - run: python scanner/scan.py --curated data/curated.json --out data/graph-map.json --changelog data/changelog.json --coverage data/coverage.json
         env:
           GITHUB_TOKEN: ${{ github.token }}   # the Learn index uses the REST API; anonymous calls share the runner's limit of 60 an hour
-      - run: python scanner/build_page.py --data data/graph-map.json --template web/template.html --out dist/index.html
+      # Built outside the checkout: dist/index.html is tracked but the bot doesn't commit it, and a changed tracked
+      # file makes 'git pull --rebase' below refuse to run. The build still checks the data before it is committed.
+      - run: python scanner/build_page.py --data data/graph-map.json --template web/template.html --out "${{ runner.temp }}/site/index.html"
       - name: Commit refreshed data
         run: |
           git config user.name "mgc-bot"
@@ -44,6 +46,6 @@ jobs:
             git push origin HEAD:main
           fi
       - uses: actions/upload-pages-artifact@v5
-        with: { path: dist }
+        with: { path: "${{ runner.temp }}/site" }
       - id: deployment
         uses: actions/deploy-pages@v5
