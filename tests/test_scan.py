@@ -144,6 +144,19 @@ class ScanTests(unittest.TestCase):
         promoted = [c["kind"] for c in changes if c["node"] == "sensitivityLabel"]
         self.assertEqual(promoted, ["status"])          # not one entry per property as well
 
+    def test_a_curated_link_changing_status_is_logged(self):
+        first, _ = self.run_scan("v1.xml", "beta.xml")
+        prev = copy.deepcopy(first)
+        for e in prev["edges"]:
+            if (e["s"], e["t"], e.get("nav")) == ("user", "drive", "drive"):
+                e["scan"] = "beta only"                       # as if the relationship had only been in beta
+        _, changes = self.run_scan("v1.xml", "beta.xml", prev=prev, now=D2)
+        links = [c for c in changes if c["kind"] == "link-status"]
+        self.assertEqual(len(links), 1)
+        self.assertIn("via 'drive': moved from beta only to v1.0", links[0]["text"])
+        _, same = self.run_scan("v1.xml", "beta.xml", prev=first, now=D2)
+        self.assertFalse([c for c in same if c["kind"] == "link-status"])
+
     def test_changed_this_week_is_not_cut_by_the_recent_list(self):
         first, _ = self.run_scan("v1.xml", "beta.xml")
         self.assertEqual(first["changedNodes"], {})                      # a baseline is not a change

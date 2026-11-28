@@ -634,7 +634,7 @@ def cap_new_in_graph(changes: list) -> list:
 # --------------------------------------------------------------------------- diff
 
 
-def diff(curated, prev_map, nodes_scan, discovered, perms, today):
+def diff(curated, prev_map, nodes_scan, discovered, perms, today, edges=()):
     changes = []
     prev_nodes = {n["id"]: n.get("scan") for n in (prev_map or {}).get("nodes", []) if n.get("scan")}
     # results a --no-scan run set aside because the curated type had changed (see build_map)
@@ -649,6 +649,7 @@ def diff(curated, prev_map, nodes_scan, discovered, perms, today):
     if not prev_nodes:
         add(None, "baseline", "First schema scan. Results recorded as the baseline.")
     else:
+        retargeted = set()
         for nid, cur in nodes_scan.items():
             old = prev_nodes.get(nid)
             lab = labels.get(nid, nid)
@@ -657,6 +658,7 @@ def diff(curated, prev_map, nodes_scan, discovered, perms, today):
                 continue
             was = old.get("of") or prev_target.get(nid)
             if was != targets.get(nid):
+                retargeted.add(nid)
                 # a curation edit, not a schema change: record it once and don't diff the old type's members
                 add(nid, "retargeted", f"{lab}: curated type changed from {was} to "
                                        f"{targets.get(nid)} ({cur['status']}). Scan results restarted.")
@@ -679,6 +681,18 @@ def diff(curated, prev_map, nodes_scan, discovered, perms, today):
             if (e["s"], e["t"], e["nav"]) not in old_disc:
                 add(e["s"], "link-discovered",
                     f"New link {labels[e['s']]} → {labels[e['t']]} via '{e['nav']}' ({e['scan']}).")
+        # A curated link's own check (its relationship or action on the source type) moving between v1.0, beta
+        # only and not found. Links from a retargeted node changed because of the curation edit, so they are skipped.
+        def edge_key(e):
+            return e["s"], e["t"], e.get("nav") or e.get("action") or e.get("label")
+        old_edge = {edge_key(e): e.get("scan") for e in (prev_map or {}).get("edges", []) if e["kind"] != "discovered"}
+        for e in edges:
+            was, now_ = old_edge.get(edge_key(e)), e.get("scan")
+            if e["s"] in retargeted or not was or was in ("n/a", "not scanned") or now_ in (None, "n/a") or was == now_:
+                continue
+            via = e.get("nav") or e.get("action") or e.get("label") or e["kind"]
+            add(e["s"], "link-status", f"Link {labels.get(e['s'], e['s'])} → {labels.get(e['t'], e['t'])} "
+                                       f"via '{via}': moved from {was} to {now_}.")
 
     if perms:
         old_names = set(((prev_map or {}).get("state") or {}).get("permissionNames") or [])
@@ -787,7 +801,7 @@ def build_map(curated, prev_map=None, v1_src=None, beta_src=None, token=None, sc
         nodes_scan = scan_nodes(curated, v1, beta)
         edges = scan_edges(curated, v1, beta)
         discovered = discover_edges(curated, v1, beta)
-        changes = diff(curated, prev_map, nodes_scan, discovered, perms, today)
+        changes = diff(curated, prev_map, nodes_scan, discovered, perms, today, edges)
         roots = {"v1.0": sorted(v1.roots), "beta": sorted(beta.roots)}
         cov = summarise_coverage(merged, types, roots, meta["scan"]["at"])
         changes += coverage_changes(prev_coverage, cov, today)
