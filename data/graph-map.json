@@ -5,9 +5,9 @@
   "curatedOn": "2026-11-28",
   "phase": "Purview covered in depth from 0.3.0: information protection, records, eDiscovery, audit, privacy and the data security API, with what Graph does not cover.",
   "note": "Hand-written content lives here. The scanner never edits this file; it writes graph-map.json alongside it.",
-  "generatedAt": "2026-11-28T12:59:15+00:00",
+  "generatedAt": "2026-11-28T13:04:25+00:00",
   "scan": {
-   "at": "2026-11-28T12:54:37+00:00",
+   "at": "2026-11-28T13:04:25+00:00",
    "v1EntityTypes": 1264,
    "betaEntityTypes": 2625,
    "permissionsCatalogue": {
@@ -17,9 +17,8 @@
     "path": "permissions/new/permissions.json"
    },
    "learnDocs": {
-    "commit": "f4c8ebb6140e234b6a5f74c1c13d9aa385fef5f1",
-    "date": "2026-11-24T00:42:28Z",
-    "message": "Merging changes synced from https://github.com/microsoftgraph/microsoft-graph-docs (branch live)",
+    "commit": "951930b591f9248117793f036e0b13cb779769d1",
+    "branch": "main",
     "repo": "microsoftgraph/microsoft-graph-docs-contrib",
     "path": "api-reference/v1.0/resources"
    },
@@ -99351,7 +99350,7 @@
   }
  },
  "coverage": {
-  "at": "2026-11-28T12:54:37+00:00",
+  "at": "2026-11-28T13:04:25+00:00",
   "v1Types": 1264,
   "betaOnlyTypes": 1369,
   "onMap": 1264,
