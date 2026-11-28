@@ -825,6 +825,18 @@ class ExtrasTests(unittest.TestCase):
             tpl = f.read()
         self.assertLess(tpl.index("req = req.replace(/^https:"), tpl.index("if (!req.startsWith('/')) return null;"))
 
+    def test_page_fetches_nothing_at_runtime(self):
+        """CLAUDE.md rule 4: one self-contained page, so it works offline and as an artifact. Links people click are fine."""
+        with open(os.path.join(ROOT, "web", "template.html"), encoding="utf-8") as f:
+            tpl = f.read()
+        self.assertFalse(re.findall(r"<link[^>]+href=[\"']https?:", tpl), "stylesheet, preconnect or font link")
+        self.assertFalse(re.findall(r"<(script|img|iframe)[^>]+src=[\"']https?:", tpl))
+        self.assertFalse(re.findall(r"@import|url\(\s*[\"']?https?:", tpl))
+        self.assertFalse(re.findall(r"\bfetch\(|XMLHttpRequest|new EventSource|new WebSocket", tpl))
+        body = re.search(r"body\{[^}]*font:15px/1\.5 ([^;]+);", tpl).group(1)
+        canvas = re.search(r"const FONT = '([^']+)'", tpl).group(1)
+        self.assertEqual(body.replace(" ", ""), canvas.replace(" ", ""))   # labels are measured in the font they are drawn in
+
     def test_hash_decoding_cannot_throw(self):
         with open(os.path.join(ROOT, "web", "template.html"), encoding="utf-8") as f:
             tpl = f.read()

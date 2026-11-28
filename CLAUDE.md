@@ -76,7 +76,7 @@ Coverage (`data/coverage.json`, never embedded): `parse_csdl` also reads EntityC
 - **Keyboard:** every bubble and tag is focusable with a visible focus ring; Enter opens or selects; Escape steps back one level; arrow keys move between siblings.
 - Nodes with no valid sub-service show under a temporary "Unsorted" sub-service (`_unsorted`).
 - Pointer input: only the primary mouse button (or touch/pen) starts a pan or select. `endGesture()` clears the gesture on lostpointercapture, contextmenu, the pointer leaving the window, window blur and the tab being hidden, and a mouse move with no buttons held ends a drag.
-- Design: the "Planning office" palette (stone #e7e4df, ink, brick #c8371e, white panels; night #171513), Schibsted Grotesk. Light and dark both work, including via `data-theme` on the root.
+- Design: the "Planning office" palette (stone #e7e4df, ink, brick #c8371e, white panels; night #171513), system fonts (`system-ui` first; Schibsted Grotesk from Google Fonts was dropped on 28 Nov 2026 because it was a runtime fetch, against rule 4; the canvas that measures labels uses the same stack as `body`). Light and dark both work, including via `data-theme` on the root.
 
 ## Commands
 
