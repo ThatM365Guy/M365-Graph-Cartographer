@@ -33,6 +33,9 @@ import tempfile
 import urllib.request
 from xml.etree.ElementTree import iterparse
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import generate  # noqa: E402  (same folder; standard library only)
+
 V1_URL = "https://graph.microsoft.com/v1.0/$metadata"
 BETA_URL = "https://graph.microsoft.com/beta/$metadata"
 GRAPH_APP_ID = "00000003-0000-0000-c000-000000000000"
@@ -98,9 +101,11 @@ class Schema:
     """Entity types, navigation properties and bound operations from one $metadata document."""
 
     def __init__(self, entities: dict, ops: dict, roots: dict | None = None):
-        self.entities = entities  # fq -> {"base": fq|None, "props": [..], "navs": {name: fq}, "contained": {name}}
+        self.entities = entities  # fq -> {"base": fq|None, "props": [..], "navs": {name: fq}, "contained": {name},
+        #                                 "many": {name of a collection-valued nav}}
         self.ops = ops            # binding fq -> {name: "Action"|"Function"}
         self.roots = roots or {}  # EntityContainer EntitySet/Singleton name -> fq
+        self.entity_sets: set = set()   # names in roots that are EntitySets (collections); the rest are Singletons
         self._cache: dict = {}
 
     def effective(self, fq: str):
@@ -109,7 +114,7 @@ class Schema:
             return self._cache[fq]
         if fq not in self.entities:
             return None
-        props, navs, contained, chain, seen = set(), {}, set(), [], set()
+        props, navs, contained, many, chain, seen = set(), {}, set(), set(), [], set()
         cur = fq
         while cur and cur in self.entities and cur not in seen:
             seen.add(cur)
@@ -119,8 +124,9 @@ class Schema:
             for k, v in e["navs"].items():
                 navs.setdefault(k, v)
             contained.update(e.get("contained", ()))
+            many.update(e.get("many", ()))
             cur = e["base"]
-        out = {"props": props, "navs": navs, "contained": contained, "chain": chain}
+        out = {"props": props, "navs": navs, "contained": contained, "many": many, "chain": chain}
         self._cache[fq] = out
         return out
 
@@ -147,6 +153,7 @@ def parse_csdl(source) -> Schema:
     raw_entities: dict[str, dict] = {}
     raw_ops: list[dict] = []
     raw_roots: list[tuple] = []
+    entity_sets: set = set()   # (name, raw type) of EntitySets, which are collections; Singletons are single objects
     ns = alias = None
     cur = None
     op = None
@@ -167,6 +174,7 @@ def parse_csdl(source) -> Schema:
                 raw_entities[cur]["navs"].append((el.get("Name"), el.get("Type"), el.get("ContainsTarget") == "true"))
             elif tag == "EntitySet":
                 raw_roots.append((el.get("Name"), el.get("EntityType"), (ns, alias)))
+                entity_sets.add((el.get("Name"), el.get("EntityType")))
             elif tag == "Singleton":
                 raw_roots.append((el.get("Name"), el.get("Type"), (ns, alias)))
             elif tag in ("Action", "Function"):
@@ -204,13 +212,16 @@ def parse_csdl(source) -> Schema:
             "props": e["props"],
             "navs": {n: resolve(t, e["ctx"]) for n, t, _ in e["navs"]},
             "contained": {n for n, _, c in e["navs"] if c},
+            "many": {n for n, t, _ in e["navs"] if (t or "").startswith("Collection(")},
         }
     ops: dict[str, dict] = {}
     for o in raw_ops:
         key = resolve(o["binding"], o["ctx"]) if o["bound"] else "(unbound)"
         ops.setdefault(key, {})[o["name"]] = o["kind"]
     roots = {name: resolve(t, ctx) for name, t, ctx in raw_roots}
-    return Schema(entities, ops, roots)
+    schema = Schema(entities, ops, roots)
+    schema.entity_sets = {name for name, t, ctx in raw_roots if (name, t) in entity_sets}
+    return schema
 
 
 # --------------------------------------------------------------------------- fetching
@@ -404,13 +415,16 @@ def summarise_coverage(curated: dict, types: dict, roots: dict, at: str | None) 
     """Full coverage report (for coverage.json) from a type index and the curated map."""
     # "onMap" counts every type the map places (curated or generated entries); "curated" counts only the types
     # with hand-written entries. They are the same until the generated tier exists.
-    def placed(nodes):
+    def placed(nodes, variants=True):
         out = {n["entityType"] for n in nodes if n.get("entityType")}
-        for n in nodes:                 # types a node documents alongside its own (covers[])
+        for n in nodes:                 # types a node documents alongside its own (covers[]) or folds in (variants[])
             out.update(n.get("covers") or [])
+            if variants:
+                out.update(n.get("variants") or [])
         return out
     on_map = placed(curated["nodes"])
-    hand = placed([n for n in curated["nodes"] if n.get("tier") != "generated"])
+    # curated: hand-written types only; variants a curated node inherits from the generated tier are mapped, not curated
+    hand = placed([n for n in curated["nodes"] if n.get("tier") != "generated"], variants=False)
     areas: dict[str, dict] = {}
     purview = {name: {"solution": name, "v1": 0, "betaOnly": 0, "onMap": 0, "curated": 0, "onMapTypes": [], "missing": [],
                       "betaOnlyTypes": []} for name, _ in PURVIEW_SOLUTIONS}
@@ -590,10 +604,48 @@ def diff(curated, prev_map, nodes_scan, discovered, perms, today):
 # --------------------------------------------------------------------------- build
 
 
+def build_generated(v1, beta, types, prev_generated=None, fetch=True, now=None, docs_index=None) -> dict:
+    """The generated tier (data/generated.json): one entry per addressable v1.0 type, with permissions from the
+    pinned catalogue and Learn links. If GitHub can't be reached, or the catalogue has changed shape, the previous
+    run's permissions, links and pins are kept and a warning is recorded."""
+    now = now or dt.datetime.now(dt.timezone.utc)
+    entries = generate.build_entries(v1, beta, types)
+    prev_meta = (prev_generated or {}).get("meta") or {}
+    meta = {"at": now.isoformat(timespec="seconds"), "catalogue": prev_meta.get("catalogue"),
+            "docs": prev_meta.get("docs"), "warnings": []}
+    catalogue = docs = None
+    if fetch:
+        try:
+            catalogue, meta["catalogue"] = generate.fetch_catalogue()
+        except generate.CatalogueShapeError as e:
+            meta["warnings"].append(f"permissions.json has an unexpected shape ({e}); kept the previous permissions")
+        except Exception as e:  # network or GitHub API
+            meta["warnings"].append(f"could not read permissions.json ({e}); kept the previous permissions")
+        if docs_index:
+            docs, meta["docs"] = docs_index
+        else:
+            try:
+                docs, meta["docs"] = generate.fetch_docs_index()
+            except Exception as e:
+                meta["warnings"].append(f"could not list the Learn resource pages ({e}); kept the previous links")
+    generate.enrich(entries, catalogue, docs)
+    prev = {e["id"]: e for e in (prev_generated or {}).get("entries", [])}
+    for e in entries:   # carry forward what this run could not fetch
+        old = prev.get(e["id"], {})
+        if catalogue is None:
+            e["permissions"], e["permissionsPath"] = old.get("permissions"), old.get("permissionsPath")
+        if docs is None:
+            e["docs"] = old.get("docs")
+    return {"meta": meta, "entries": entries}
+
+
 def build_map(curated, prev_map=None, v1_src=None, beta_src=None, token=None, scan=True, now=None,
-              prev_coverage=None, coverage_out=None):
+              prev_coverage=None, coverage_out=None, prev_generated=None, placement=None, generated_out=None,
+              fetch_github=False, docs_index=None):
     """Returns (graph_map, changes). Pass a dict as coverage_out to receive the full coverage report
-    (for coverage.json); prev_coverage is the previous one, used for 'New in Graph' entries and by --no-scan."""
+    (for coverage.json); prev_coverage is the previous one, used for 'New in Graph' entries and by --no-scan.
+    Pass a dict as generated_out to receive the generated tier (for generated.json); prev_generated is the
+    previous one, reused by --no-scan. placement is data/placement.json: only its areas reach the map."""
     now = now or dt.datetime.now(dt.timezone.utc)
     today = now.date().isoformat()
     v1 = beta = None
@@ -616,12 +668,28 @@ def build_map(curated, prev_map=None, v1_src=None, beta_src=None, token=None, sc
         meta["scan"] = (prev_map or {}).get("meta", {}).get("scan")
 
     if scan:
+        types = coverage_types(v1, beta)
+        generated = build_generated(v1, beta, types, prev_generated, fetch_github, now, docs_index)
+    else:
+        generated = prev_generated
+    gen_nodes, placement_report = [], None
+    if placement:
+        gen_nodes, placement_report = generate.merge(curated["nodes"], (generated or {}).get("entries") or [],
+                                                     placement, curated["workloads"])
+        if placement.get("areas") and not (generated or {}).get("entries"):
+            placement_report["missing"] = "no generated entries yet: run a scan (scan.py without --no-scan)"
+    inherited = (placement_report or {}).get("inheritedVariants") or {}
+    curated_nodes = [dict(n, variants=sorted(set(n.get("variants") or []) | set(inherited[n["id"]])))
+                     if n["id"] in inherited else n for n in curated["nodes"]]
+    merged = dict(curated, nodes=curated_nodes + gen_nodes)   # what the map shows and coverage counts
+
+    if scan:
         nodes_scan = scan_nodes(curated, v1, beta)
         edges = scan_edges(curated, v1, beta)
         discovered = discover_edges(curated, v1, beta)
         changes = diff(curated, prev_map, nodes_scan, discovered, perms, today)
         roots = {"v1.0": sorted(v1.roots), "beta": sorted(beta.roots)}
-        cov = summarise_coverage(curated, coverage_types(v1, beta), roots, meta["scan"]["at"])
+        cov = summarise_coverage(merged, types, roots, meta["scan"]["at"])
         changes += coverage_changes(prev_coverage, cov, today)
     else:
         # keep the previous scan results, re-attached to the current curated content
@@ -636,7 +704,7 @@ def build_map(curated, prev_map=None, v1_src=None, beta_src=None, token=None, sc
             edges.append(e)
         discovered = [e for e in (prev_map or {}).get("edges", []) if e["kind"] == "discovered"]
         changes = []
-        cov = (summarise_coverage(curated, prev_coverage["types"], prev_coverage.get("roots") or {},
+        cov = (summarise_coverage(merged, prev_coverage["types"], prev_coverage.get("roots") or {},
                                   prev_coverage.get("at")) if prev_coverage and prev_coverage.get("types") else None)
     # Permission names: fresh from Graph when there is a token, otherwise the list stored by the last
     # token run, so scans without a token (the weekly Actions run) keep checking names instead of dropping them.
@@ -648,9 +716,12 @@ def build_map(curated, prev_map=None, v1_src=None, beta_src=None, token=None, sc
         perm_names = prev_state.get("permissionNames")
         perm_at = (prev_state.get("permissionNamesAt") or prev_scan.get("permissionsCheckedAt")
                    or (prev_scan.get("at") or "")[:10] or None)
-    perm_check = check_permissions(curated, {"application": perm_names, "delegated": []}) if perm_names else {}
+    perm_check = check_permissions(merged, {"application": perm_names, "delegated": []}) if perm_names else {}
     if meta.get("scan"):
         meta["scan"] = dict(meta["scan"])
+        gmeta = (generated or {}).get("meta") or {}
+        meta["scan"]["permissionsCatalogue"] = gmeta.get("catalogue")   # pinned commit of permissions.json
+        meta["scan"]["learnDocs"] = gmeta.get("docs")
         meta["scan"]["permissionsChecked"] = bool(perm_names)
         meta["scan"]["permissionCount"] = len(perm_names) if perm_names else None
         meta["scan"]["permissionsCheckedAt"] = perm_at if perm_names else None
@@ -658,11 +729,14 @@ def build_map(curated, prev_map=None, v1_src=None, beta_src=None, token=None, sc
     if coverage_out is not None and cov:
         coverage_out.clear()
         coverage_out.update(cov)
+    if generated_out is not None and generated:
+        generated_out.clear()
+        generated_out.update(generated)
 
     nodes = []
-    for n in curated["nodes"]:
+    for n in merged["nodes"]:
         n = dict(n)
-        if n["id"] in nodes_scan:
+        if n["id"] in nodes_scan and n.get("tier") != "generated":
             n["scan"] = nodes_scan[n["id"]]
         if n["id"] in perm_check:
             n["permCheck"] = perm_check[n["id"]]
@@ -672,6 +746,9 @@ def build_map(curated, prev_map=None, v1_src=None, beta_src=None, token=None, sc
     state = dict(prev_state)
     if perm_names:
         state["permissionNames"], state["permissionNamesAt"] = perm_names, perm_at
+    state.pop("placement", None)
+    if placement_report is not None:   # read by build_page.py's completeness rule, never embedded in the page
+        state["placement"] = {k: v for k, v in placement_report.items() if k != "inheritedVariants"}
 
     graph_map = {
         "meta": meta,
@@ -711,6 +788,17 @@ def _save(path, data):
     os.replace(tmp, path)
 
 
+def save_generated(path, data):
+    """One entry per line, so a weekly diff shows which entries changed."""
+    os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
+    tmp = path + ".tmp"
+    with open(tmp, "w", encoding="utf-8", newline="\n") as f:
+        f.write('{"meta": ' + json.dumps(data["meta"], ensure_ascii=False) + ',\n "entries": [\n')
+        f.write(",\n".join(json.dumps(e, ensure_ascii=False, separators=(",", ":")) for e in data["entries"]))
+        f.write("\n]}\n")
+    os.replace(tmp, path)
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--curated", default="data/curated.json")
@@ -718,6 +806,11 @@ def main(argv=None):
     ap.add_argument("--out", default="data/graph-map.json")
     ap.add_argument("--changelog", default="data/changelog.json")
     ap.add_argument("--coverage", default="data/coverage.json")
+    ap.add_argument("--generated", default="data/generated.json", help="generated tier (written by a scan)")
+    ap.add_argument("--placement", default="data/placement.json", help="placement rules for generated entries")
+    ap.add_argument("--offline", action="store_true", help="don't read the permission catalogue or Learn index from GitHub")
+    ap.add_argument("--docs-index", help="a saved Learn index, JSON [names, pin] as fetch_docs_index() returns, "
+                                         "instead of listing it through the GitHub API")
     ap.add_argument("--v1", default=V1_URL, help="URL or file for v1.0 $metadata")
     ap.add_argument("--beta", default=BETA_URL, help="URL or file for beta $metadata")
     ap.add_argument("--no-scan", action="store_true", help="merge curated content only; keep previous scan results")
@@ -731,11 +824,17 @@ def main(argv=None):
         print("warning: --permissions given but GRAPH_TOKEN is not set; skipping permission check", file=sys.stderr)
 
     cov: dict = {}
+    gen: dict = {}
     graph_map, changes = build_map(curated, prev, a.v1, a.beta, token, scan=not a.no_scan,
-                                   prev_coverage=_load(a.coverage), coverage_out=cov)
+                                   prev_coverage=_load(a.coverage), coverage_out=cov,
+                                   prev_generated=_load(a.generated), placement=_load(a.placement),
+                                   generated_out=gen, fetch_github=not a.offline,
+                                   docs_index=_load(a.docs_index) if a.docs_index else None)
     _save(a.out, graph_map)
     if cov:
         _save(a.coverage, cov)
+    if gen and not a.no_scan:
+        save_generated(a.generated, gen)
     log = changes + (_load(a.changelog, []) or [])
     _save(a.changelog, log[:CHANGELOG_KEEP])
 
@@ -743,6 +842,15 @@ def main(argv=None):
     print(f"nodes={len(graph_map['nodes'])} edges={len(graph_map['edges'])} "
           f"scanned={'yes' if not a.no_scan else 'no'} v1Types={s.get('v1EntityTypes')} "
           f"betaTypes={s.get('betaEntityTypes')} changes={len(changes)}")
+    gm_meta = gen.get("meta") or {}
+    for w in gm_meta.get("warnings") or []:
+        print(f"warning: {w}", file=sys.stderr)
+    rep = (graph_map.get("state") or {}).get("placement")
+    if rep:
+        n_gen = sum(1 for n in graph_map["nodes"] if n.get("tier") == "generated")
+        print(f"generated: {n_gen} entries on the map from {', '.join(rep['areas'])}"
+              + (f"; NOT PLACED: {', '.join(rep['unplaced'])}" if rep.get("unplaced") else "")
+              + (f"; {rep['missing']}" if rep.get("missing") else ""))
     unsorted = unsorted_nodes(curated)
     if unsorted:
         print(f"unsorted: {len(unsorted)} node(s) have no sub-service yet, so the page shows them under "

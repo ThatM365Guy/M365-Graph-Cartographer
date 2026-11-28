@@ -1,0 +1,33 @@
+{
+ "about": "Hand-written rules that put each generated entry in a service and sub-service. 'areas' lists the Graph areas (from data/coverage.json) whose v1.0 types go on the map; the build fails if any of them is not placed. A rule matches by 'type' (exact), then the longest 'path' (segment prefix of the entry's main path, {id} ignored, * allowed in a segment), then 'namespace', then 'area'. 'to' is <workload>/<subservice>. Edit this file, then run scan.py --no-scan and build_page.py.",
+ "areas": ["deviceManagement", "deviceAppManagement"],
+ "rules": [
+  {"path": "/deviceManagement/managedDevices", "to": "devices/managed-devices"},
+  {"path": "/deviceManagement/detectedApps", "to": "devices/managed-devices"},
+  {"path": "/deviceManagement/deviceCategories", "to": "devices/managed-devices"},
+  {"path": "/deviceManagement/managedDeviceOverview", "to": "devices/managed-devices"},
+  {"path": "/deviceManagement/windowsAutopilotDeviceIdentities", "to": "devices/managed-devices"},
+  {"path": "/deviceManagement/importedWindowsAutopilotDeviceIdentities", "to": "devices/managed-devices"},
+  {"path": "/deviceManagement/windowsMalwareInformation", "to": "devices/managed-devices"},
+  {"path": "/deviceManagement/troubleshootingEvents", "to": "devices/managed-devices"},
+
+  {"path": "/deviceManagement/deviceCompliancePolic*", "to": "devices/compliance-configuration"},
+  {"path": "/deviceManagement/deviceConfiguration*", "to": "devices/compliance-configuration"},
+  {"path": "/deviceManagement/deviceEnrollmentConfigurations", "to": "devices/compliance-configuration"},
+  {"path": "/deviceManagement/iosUpdateStatuses", "to": "devices/compliance-configuration"},
+  {"path": "/deviceManagement/softwareUpdateStatusSummary", "to": "devices/compliance-configuration"},
+  {"path": "/deviceManagement/conditionalAccessSettings", "to": "devices/compliance-configuration"},
+  {"path": "/deviceManagement/notificationMessageTemplates", "to": "devices/compliance-configuration"},
+  {"path": "/deviceManagement/termsAndConditions", "to": "devices/compliance-configuration"},
+
+  {"path": "/deviceManagement/mobileAppTroubleshootingEvents", "to": "devices/apps-protection"},
+  {"path": "/deviceManagement/windowsInformationProtection*", "to": "devices/apps-protection"},
+
+  {"path": "/deviceManagement/virtualEndpoint", "to": "devices/cloud-pc"},
+
+  {"path": "/deviceManagement/userExperienceAnalytics*", "to": "devices/endpoint-analytics"},
+
+  {"area": "deviceAppManagement", "to": "devices/apps-protection"},
+  {"area": "deviceManagement", "to": "devices/intune-admin"}
+ ]
+}

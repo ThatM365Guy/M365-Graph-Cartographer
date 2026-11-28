@@ -1,18 +1,17 @@
 {
- "at": "2026-11-23T16:17:05+00:00",
+ "at": "2026-11-28T12:42:13+00:00",
  "v1Types": 1264,
- "betaOnlyTypes": 1368,
- "onMap": 137,
+ "betaOnlyTypes": 1369,
+ "onMap": 346,
  "curated": 137,
  "areas": [
   {
    "area": "deviceManagement",
    "v1": 134,
    "betaOnly": 376,
-   "onMap": 0,
+   "onMap": 134,
    "curated": 0,
-   "onMapTypes": [],
-   "missing": [
+   "onMapTypes": [
     "androidCompliancePolicy",
     "androidCustomConfiguration",
     "androidGeneralDeviceConfiguration",
@@ -147,7 +146,8 @@
     "windowsPhone81GeneralConfiguration",
     "windowsProtectionState",
     "windowsUpdateForBusinessConfiguration"
-   ]
+   ],
+   "missing": []
   },
   {
    "area": "security",
@@ -644,10 +644,9 @@
    "area": "deviceAppManagement",
    "v1": 75,
    "betaOnly": 59,
-   "onMap": 0,
+   "onMap": 75,
    "curated": 0,
-   "onMapTypes": [],
-   "missing": [
+   "onMapTypes": [
     "androidLobApp",
     "androidManagedAppProtection",
     "androidManagedAppRegistration",
@@ -723,7 +722,8 @@
     "windowsUniversalAppX",
     "windowsUniversalAppXContainedApp",
     "windowsWebApp"
-   ]
+   ],
+   "missing": []
   },
   {
    "area": "solutions",
@@ -865,7 +865,7 @@
   {
    "area": "policies",
    "v1": 57,
-   "betaOnly": 11,
+   "betaOnly": 12,
    "onMap": 1,
    "curated": 1,
    "onMapTypes": [
@@ -2637,7 +2637,7 @@
   },
   {
    "workload": "devices",
-   "onMap": 0,
+   "onMap": 209,
    "curated": 0,
    "betaOnly": 0
   },
@@ -3977,6 +3977,10 @@
   },
   "microsoft.graph.authenticationFailure": {
    "area": "unrooted",
+   "status": "beta only"
+  },
+  "microsoft.graph.authenticationFeatureTogglePolicy": {
+   "area": "policies",
    "status": "beta only"
   },
   "microsoft.graph.authenticationFlowsPolicy": {

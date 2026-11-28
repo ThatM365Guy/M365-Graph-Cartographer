@@ -163,6 +163,8 @@ svg.dim .it.api:not(.hot) .bub,svg.dim .it.api:not(.hot) .lab,svg.dim .it.sub:no
 .b.v1{border-color:var(--ink)}
 .b.beta{border-color:var(--brick);color:var(--brick)}
 .b.miss{background:var(--brick);border-color:var(--brick);color:#fff}
+.b.gen{border-style:dashed;color:var(--mute)}
+.b.cur{border-color:var(--ink)}
 .b.legacy{border-color:var(--mute);color:var(--mute);text-decoration:line-through;text-decoration-thickness:1px}
 .panel h2{font-size:25px;line-height:1.12;margin:6px 0 6px;text-wrap:balance}
 .panel h4{font-size:13px;font-weight:700;margin:20px 0 6px;padding-top:12px;border-top:1px solid var(--rule)}
@@ -175,7 +177,7 @@ svg.dim .it.api:not(.hot) .bub,svg.dim .it.api:not(.hot) .lab,svg.dim .it.sub:no
 .copy{border:1px solid var(--rule);background:var(--panel);border-radius:6px;font-size:12.5px;padding:3px 10px;min-height:30px;cursor:pointer;flex:none}
 .perm{width:100%;border-collapse:collapse;font-size:14px}
 .perm th{text-align:left;font-weight:500;color:var(--mute);width:92px;vertical-align:top;padding:6px 8px 6px 0}
-.perm td{padding:6px 0;border-bottom:1px solid var(--rule)}
+.perm td{padding:6px 0;border-bottom:1px solid var(--rule);overflow-wrap:anywhere}
 details.d{border-top:1px solid var(--rule)}
 details.d>summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;min-height:42px;font-size:14px;font-weight:700}
 details.d>summary::-webkit-details-marker{display:none}
@@ -360,7 +362,10 @@ function init(){
   const ORDER = {}; nodes.forEach((n, i) => ORDER[n.id] = i);
   const DEG = {}; edges.filter(e => e.kind !== 'discovered').forEach(e => { DEG[e.s] = (DEG[e.s] || 0) + 1; DEG[e.t] = (DEG[e.t] || 0) + 1; });
   const isGen = n => n.tier === 'generated' ? 1 : 0;
-  const rank = list => [...list].sort((p, q) => isGen(p) - isGen(q) || (isGen(p) ? (DEG[q.id] || 0) - (DEG[p.id] || 0) || p.label.localeCompare(q.label) : ORDER[p.id] - ORDER[q.id]));
+  const linksOf = n => (DEG[n.id] || 0) + (n.links || 0);   // curated links plus, for generated entries, schema links
+  const rank = list => [...list].sort((p, q) => isGen(p) - isGen(q) || (isGen(p) ? linksOf(q) - linksOf(p) || p.label.localeCompare(q.label) : ORDER[p.id] - ORDER[q.id]));
+  const RING_LABEL = 34;   // longer API names are shortened on the ring only
+  const ringLabel = txt => txt.length > RING_LABEL ? txt.slice(0, RING_LABEL - 1).replace(/\s+\S*$/, '') + '…' : txt;
   function ringApis(w, s){
     const all = rank(apisOf(w, s));
     if (all.length <= CAP) return {all, shown: all, hidden: []};
@@ -445,7 +450,7 @@ function init(){
         rot = -mid;
         const {shown, hidden} = ringApis(S.svc, s.id), q = shown.length + (hidden.length ? 1 : 0), step = Math.min((shares[i] - 6)/Math.max(q, 1), 19);
         const sk = `sub:${S.svc}/${s.id}`, mk2 = `mor:${S.svc}/${s.id}`;
-        shown.forEach((n, j) => m.set('api:' + n.id, {k: 'api:' + n.id, id: n.id, w: S.svc, s: s.id, a: mid + (j - (q - 1)/2)*step, r: R3, size: API_R, vis: true, lab: n.label, mode: 'full', parent: sk}));
+        shown.forEach((n, j) => m.set('api:' + n.id, {k: 'api:' + n.id, id: n.id, w: S.svc, s: s.id, a: mid + (j - (q - 1)/2)*step, r: R3, size: API_R, vis: true, lab: ringLabel(n.label), mode: 'full', parent: sk}));
         if (hidden.length) m.set(mk2, {k: mk2, w: S.svc, s: s.id, a: mid + (q - 1)/2*step, r: R3, size: API_R + 2, vis: true, lab: `${hidden.length} more`, mode: 'full', cnt: hidden.length, parent: sk});
       }
       a += shares[i];
@@ -1049,7 +1054,8 @@ function init(){
     const s = n.scan.status;
     return `<span class="b ${s === 'v1.0' ? 'v1' : s === 'beta only' ? 'beta' : 'miss'}">${s === 'not found' ? 'Not found in $metadata' : s}</span>`;
   };
-  const badges = n => `<div class="badges">${statusBadge(n)}${n.kind === 'operation' ? '<span class="b">Action</span>' : ''}${n.legacy && n.legacy.length ? '<span class="b legacy" title="This resource has a legacy API you should not build on">Legacy API</span>' : ''}${changed.has(n.id) ? '<span class="b beta">Changed this week</span>' : ''}</div>`;
+  const tierBadge = n => n.kind === 'gap' ? '' : isGen(n) ? '<span class="b gen" title="Built from the schema. Not reviewed by a person.">Generated</span>' : '<span class="b cur" title="Hand-written notes, checked against Microsoft Learn">Curated</span>';
+  const badges = n => `<div class="badges">${tierBadge(n)}${statusBadge(n)}${n.kind === 'operation' ? '<span class="b">Action</span>' : ''}${n.legacy && n.legacy.length ? '<span class="b legacy" title="This resource has a legacy API you should not build on">Legacy API</span>' : ''}${changed.has(n.id) ? '<span class="b beta">Changed this week</span>' : ''}</div>`;
   const where = n => `${WL[n.workload].label} › ${(subOf(n.id) || {}).label || 'Unsorted'}`;
 
   function renderPanel(){
@@ -1067,7 +1073,7 @@ function init(){
       <ul class="links svlist">${svcList().map(w => `<li><button class="lk" data-svc="${w.id}" style="--c:${w.colour}"><i></i><span><b>${esc(w.label)}</b><span class="sv">${subsOf(w.id).map(s => esc(s.label)).join(' · ')}</span></span><small>${apisOf(w.id).length ? pl(apisOf(w.id).length, 'API') : 'not mapped yet'}</small></button></li>`).join('')}</ul>
       <div class="cards"><button class="card" data-act="search"><b>Search for a resource</b><span>By name, path, permission or limitation.</span></button><button class="card" data-act="scen"><b>Walk through a scenario</b><span>${SCEN.length} step-by-step routes for reviews and investigations.</span></button></div>
       <details class="sm"><summary>Recent changes</summary>${changesFor(null)}</details>
-      <p class="foot">${nodes.length} APIs · ${D.workloads.length} services · ${relCount} links${cov ? ` · ${nf(cov.onMap)} of ${nf(cov.v1Types)} v1.0 types mapped` : ''}. Curated notes v${esc(D.meta.curatedVersion)}, ${fmtDate(D.meta.curatedOn)}. ${scanInfo ? `Schema scanned ${fmtDate(scanInfo.at)}: ${nf(scanInfo.v1EntityTypes)} entity types in v1.0, ${nf(scanInfo.betaEntityTypes)} in beta${scanInfo.permissionsChecked ? `. Permission names checked against Graph's ${nf(scanInfo.permissionCount)} permissions${scanInfo.permissionsCheckedAt ? ` (list fetched ${fmtDate(scanInfo.permissionsCheckedAt)})` : ''}` : ''}.` : 'The schema scan has not run yet.'}</p>`;
+      <p class="foot">${nodes.length} APIs (${nodes.filter(isGen).length} generated) · ${D.workloads.length} services · ${relCount} links${cov ? ` · ${nf(cov.onMap)} of ${nf(cov.v1Types)} v1.0 types mapped` : ''}. Curated notes v${esc(D.meta.curatedVersion)}, ${fmtDate(D.meta.curatedOn)}. ${scanInfo ? `Schema scanned ${fmtDate(scanInfo.at)}: ${nf(scanInfo.v1EntityTypes)} entity types in v1.0, ${nf(scanInfo.betaEntityTypes)} in beta${scanInfo.permissionsChecked ? `. Permission names checked against Graph's ${nf(scanInfo.permissionCount)} permissions${scanInfo.permissionsCheckedAt ? ` (list fetched ${fmtDate(scanInfo.permissionsCheckedAt)})` : ''}` : ''}.` : 'The schema scan has not run yet.'}${scanInfo && scanInfo.permissionsCatalogue ? ` Generated permissions from ${catPin()}.` : ''}</p>`;
   }
   function renderSvc(w){
     const none = !apisOf(w.id).length;
@@ -1078,7 +1084,7 @@ function init(){
       <h4>Service-wide limits</h4>${ul(w.limits)}${docsLink(w.docs)}`;
   }
   const statusOf = n => n.kind === 'gap' ? 'outside Graph' : n.scan ? n.scan.status : '';
-  const apiRow = (n, w, off) => `<li><button class="lk" data-go="${esc(n.id)}" style="--c:${w.colour}"><i></i><span><b>${esc(n.label)}</b><span class="sv"><code>${esc(n.path || '')}</code></span></span><small>${esc(statusOf(n))}${DEG[n.id] ? `<br>${pl(DEG[n.id], 'link')}` : ''}${off ? '<br>in the list only' : ''}</small></button></li>`;
+  const apiRow = (n, w, off) => `<li><button class="lk" data-go="${esc(n.id)}" style="--c:${w.colour}"><i></i><span><b>${esc(n.label)}</b><span class="sv"><code>${esc(n.path || '')}</code></span></span><small>${esc(statusOf(n))}${linksOf(n) ? `<br>${pl(linksOf(n), 'link')}` : ''}${off ? '<br>in the list only' : ''}</small></button></li>`;
   const LIST = {key: '', q: '', sort: 'rank'};
   const STATUS_ORDER = {'v1.0': 0, 'beta only': 1, 'not found': 2, 'outside Graph': 3, '': 4};
   function listRows(){
@@ -1086,7 +1092,7 @@ function init(){
     const t = LIST.q.trim().toLowerCase();
     let rows = all.filter(n => !t || [n.label, n.path, n.entityType].some(v => v && v.toLowerCase().includes(t)));
     if (LIST.sort === 'name') rows.sort((p, q) => p.label.localeCompare(q.label));
-    if (LIST.sort === 'links') rows.sort((p, q) => (DEG[q.id] || 0) - (DEG[p.id] || 0) || p.label.localeCompare(q.label));
+    if (LIST.sort === 'links') rows.sort((p, q) => linksOf(q) - linksOf(p) || p.label.localeCompare(q.label));
     if (LIST.sort === 'status') rows.sort((p, q) => STATUS_ORDER[statusOf(p)] - STATUS_ORDER[statusOf(q)] || p.label.localeCompare(q.label));
     $('#lrows').innerHTML = rows.map(n => apiRow(n, w, off.has(n.id))).join('') || '<li class="lcount">No APIs match.</li>';
     $('#lcount').textContent = t ? `${rows.length} of ${all.length} APIs match` : `${pl(all.length, 'API')}, ${CAP - 1} on the ring`;
@@ -1140,7 +1146,29 @@ function init(){
     if (!list.length) return id ? '' : '<p>No changes recorded yet.</p>';
     return `<ul class="changes">${list.map(c => `<li><time>${fmtDate(c.date)}</time>${esc(c.text)}</li>`).join('')}</ul>`;
   }
+  const shortType = fq => String(fq).replace(/^microsoft\.graph\./, '');
+  const variantsBlock = n => n.variants && n.variants.length ? `<p class="props">${n.variants.map(v => esc(shortType(v))).join('<br>')}</p>` : '';
+  const catPin = () => { const c = scanInfo && scanInfo.permissionsCatalogue; return c ? `<a href="https://github.com/${esc(c.repo)}/blob/${esc(c.commit)}/${esc(c.path)}" target="_blank" rel="noopener">permissions.json at ${esc(c.commit.slice(0, 7))}</a>` : 'the permissions catalogue'; };
+  const permLines = v => v ? v.split(', ').map(x => esc(x).replace(/\./g, '.<wbr>')).join('<br>') : 'None marked least privileged';
+  function renderGenerated(n){
+    const p = n.permissions, pc = n.permCheck, o = n.ops || {acts: []}, nV = (n.variants || []).length;
+    const perms = p ? `<table class="perm"><tr><th>Delegated</th><td>${permLines(p.delegated)}</td></tr><tr><th>Application</th><td>${permLines(p.application)}</td></tr></table>
+      <p class="warn">Generated, not checked. From ${catPin()}${n.permissionsPath ? ` for <code>GET ${esc(n.permissionsPath)}</code>` : ''}. Where it marks more than one permission as least privileged, all are listed; Microsoft's own reviews of this file have found least-privilege errors.</p>${pc && pc.unknown && pc.unknown.length ? `<p class="warn">Not found in the current permission list: ${pc.unknown.map(esc).join(', ')}.</p>` : ''}`
+      : `<p>The permission catalogue has no read entry for this path. Check the Microsoft Learn page.</p>`;
+    const opsList = [...(o.actions || []).map(a => a + ' (action)'), ...(o.functions || []).map(f => f + ' (function)')];
+    panel.innerHTML = `${wlName(WL[n.workload], (subOf(n.id) || {}).label || 'Unsorted')}<h2>${esc(n.label)}${nV ? ` <small style="font-size:15px;color:var(--mute);font-weight:500">(${pl(nV, 'variant')})</small>` : ''}</h2>${badges(n)}
+      <p class="lead">Generated from the v1.0 schema. Nobody has written or checked notes for this entry yet, so there is no summary, licensing or limits here.</p>
+      ${n.path ? `<div class="ep"><code>${esc(n.path)}</code><button class="copy" data-copy="${esc(n.path)}">Copy</button></div>` : '<p>No path from a top-level root reaches this type.</p>'}
+      ${det('Permissions', perms, true, 'generated, not checked')}
+      ${det('Variants', variantsBlock(n), nV > 0 && nV <= 12, nV ? `${nV} folded into this entry` : '')}
+      ${det('Other paths', (n.altPaths || []).length ? `<p class="props" style="columns:1">${n.altPaths.map(x => `<code>${esc(x)}</code>`).join('<br>')}</p>` : '', false)}
+      ${det('Actions and functions', opsList.length ? `<p class="props">${opsList.map(esc).join('<br>')}</p>` : '', false, opsList.length ? String(opsList.length) : '')}
+      ${det('Schema', schemaBlock(n), false)}
+      ${n.docs ? docsLink(n.docs) : '<p class="foot">No Microsoft Learn resource page was found for this type.</p>'}
+      <p class="foot"><button class="copy" data-copy="#${esc(n.id)}" data-link>Copy link to this API</button></p>`;
+  }
   function renderApi(n){
+    if (isGen(n)) return renderGenerated(n);
     const p = n.permissions, pc = n.permCheck, conn = connections(n.id), used = scenariosFor(n.id);
     const nConn = edges.filter(e => (e.s === n.id || e.t === n.id) && (e.kind !== 'discovered' || F.disc)).length;
     const perms = p ? `<table class="perm"><tr><th>Delegated</th><td>${esc(p.delegated)}</td></tr><tr><th>Application</th><td>${esc(p.application)}</td></tr></table>${pc && pc.unknown && pc.unknown.length ? `<p class="warn">Not found in the current permission list: ${pc.unknown.map(esc).join(', ')}. Check whether it has been renamed.</p>` : ''}` : '';
@@ -1154,6 +1182,7 @@ function init(){
       ${det('Licensing', n.licence ? `<p>${esc(n.licence)}</p>` : '', false)}
       ${det(n.kind === 'gap' ? 'Not covered by Graph' : 'Limitations', (n.limits && n.limits.length ? ul(n.limits) : '') + legacy, false)}
       ${det('How to map it', n.mapping && n.mapping.length ? ul(n.mapping) : '', false)}
+      ${det('Variants', variantsBlock(n), false, n.variants && n.variants.length ? `${n.variants.length} from the schema, folded into this entry` : '')}
       ${det('Schema', n.entityType || n.action ? schemaBlock(n) + (changesFor(n.id) ? `<h5>Recent changes</h5>${changesFor(n.id)}` : '') : '', false)}
       ${docsLink(n.docs)}
       <p class="foot"><button class="copy" data-copy="#${esc(n.id)}" data-link>Copy link to this API</button></p>`;
@@ -1301,9 +1330,9 @@ function init(){
     const out = [];
     nodes.forEach(n => {
       const p = n.permissions || {};
-      const fields = [['name', n.label], ['path', n.path], ['type', n.entityType], ['permission', [p.delegated, p.application].filter(Boolean).join(' · ')], ['limitation', (n.limits || []).join(' ')], ['legacy', (n.legacy || []).map(l => l.path).join(' ')]];
+      const fields = [['name', n.label], ['path', n.path], ['type', n.entityType], ['permission', [p.delegated, p.application].filter(Boolean).join(' · ')], ['limitation', (n.limits || []).join(' ')], ['legacy', (n.legacy || []).map(l => l.path).join(' ')], ['variant', (n.variants || []).join(' ')]];
       const f = fields.find(([, v]) => v && v.toLowerCase().includes(t));
-      if (f) out.push({n, why: f[0], score: ['name', 'path', 'type', 'permission', 'limitation', 'legacy'].indexOf(f[0]) + (n.label.toLowerCase().startsWith(t) ? -1 : 0)});
+      if (f) out.push({n, why: f[0], score: ['name', 'path', 'type', 'permission', 'limitation', 'legacy', 'variant'].indexOf(f[0]) + (n.label.toLowerCase().startsWith(t) ? -1 : 0)});
     });
     return out.sort((a, b) => a.score - b.score || a.n.label.localeCompare(b.n.label));
   }
@@ -1369,7 +1398,8 @@ function init(){
     if (it.type === 'mor') { const h = ringApis(t.w, t.s).hidden; return `${wlName(WL[t.w], (SUBS[t.w].find(x => x.id === t.s) || {}).label)}<h3>${pl(h.length, 'more API')}</h3><p>${h.slice(0, 8).map(n => esc(n.label)).join(' · ')}${h.length > 8 ? ' …' : ''}</p><p class="more">Click to list them all</p>`; }
     const n = N[t.id], p = n.permissions || {};
     return `${wlName(WL[n.workload], (subOf(n.id) || {}).label)}<h3>${esc(n.label)}</h3>${badges(n)}${n.path ? `<p><code>${esc(n.path)}</code></p>` : ''}` +
-      (p.delegated ? `<p><b>Delegated:</b> ${esc(p.delegated)}<br><b>Application:</b> ${esc(p.application)}</p>` : `<p>${esc(n.summary)}</p>`) +
+      (isGen(n) ? (n.permissions ? `<p><b>Delegated:</b> ${esc(p.delegated) || '–'}<br><b>Application:</b> ${esc(p.application) || '–'}<br><small>Generated, not checked</small></p>` : '<p>Generated from the schema. No notes yet.</p>') + ((n.variants || []).length ? `<p>${pl(n.variants.length, 'variant')} folded in</p>` : '') :
+      p.delegated ? `<p><b>Delegated:</b> ${esc(p.delegated)}<br><b>Application:</b> ${esc(p.application)}</p>` : `<p>${esc(n.summary)}</p>`) +
       (n.limits && n.limits[0] ? `<p><b>Watch for:</b> ${esc(n.limits[0])}</p>` : '') +
       (t.nums ? `<p class="more">Step ${t.nums.join(' and ')} · click to go to the step</p>` : '<p class="more">Click for full notes</p>');
   }

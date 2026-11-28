@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- A tiny Intune-shaped schema for the generated-tier tests: a singleton root, a collection nav, an abstract base
+     with platform variants, a nav reached only through a cast, a type nothing reaches, and a second root
+     (users) that also reaches managedDevice. -->
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+ <edmx:DataServices>
+  <Schema Namespace="microsoft.graph" Alias="graph" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+   <EntityType Name="entity" Abstract="true"><Key><PropertyRef Name="id"/></Key><Property Name="id" Type="Edm.String" Nullable="false"/></EntityType>
+   <EntityType Name="user" BaseType="graph.entity">
+    <Property Name="displayName" Type="Edm.String"/>
+    <NavigationProperty Name="managedDevices" Type="Collection(graph.managedDevice)" ContainsTarget="true"/>
+   </EntityType>
+   <EntityType Name="deviceManagement" BaseType="graph.entity">
+    <NavigationProperty Name="managedDevices" Type="Collection(graph.managedDevice)" ContainsTarget="true"/>
+    <NavigationProperty Name="deviceCompliancePolicies" Type="Collection(graph.deviceCompliancePolicy)" ContainsTarget="true"/>
+    <NavigationProperty Name="mobileApps" Type="Collection(graph.mobileApp)" ContainsTarget="true"/>
+   </EntityType>
+   <EntityType Name="managedDevice" BaseType="graph.entity">
+    <Property Name="deviceName" Type="Edm.String"/>
+    <NavigationProperty Name="users" Type="Collection(graph.user)"/>
+   </EntityType>
+   <EntityType Name="deviceCompliancePolicy" BaseType="graph.entity" Abstract="true"><Property Name="displayName" Type="Edm.String"/></EntityType>
+   <EntityType Name="androidCompliancePolicy" BaseType="graph.deviceCompliancePolicy"><Property Name="passwordRequired" Type="Edm.Boolean"/></EntityType>
+   <EntityType Name="iosCompliancePolicy" BaseType="graph.deviceCompliancePolicy"><Property Name="passcodeRequired" Type="Edm.Boolean"/></EntityType>
+   <EntityType Name="mobileApp" BaseType="graph.entity" Abstract="true"><Property Name="displayName" Type="Edm.String"/></EntityType>
+   <EntityType Name="mobileLobApp" BaseType="graph.mobileApp" Abstract="true">
+    <NavigationProperty Name="contentVersions" Type="Collection(graph.mobileAppContent)" ContainsTarget="true"/>
+   </EntityType>
+   <EntityType Name="win32LobApp" BaseType="graph.mobileLobApp"/>
+   <EntityType Name="mobileAppContent" BaseType="graph.entity"/>
+   <EntityType Name="lonelyType" BaseType="graph.entity"/>
+   <Action Name="retire" IsBound="true"><Parameter Name="bindingParameter" Type="graph.managedDevice"/></Action>
+   <Function Name="getStatus" IsBound="true"><Parameter Name="bindingParameter" Type="graph.managedDevice"/><ReturnType Type="Edm.String"/></Function>
+   <EntityContainer Name="GraphService">
+    <EntitySet Name="users" EntityType="graph.user"/>
+    <Singleton Name="deviceManagement" Type="graph.deviceManagement"/>
+   </EntityContainer>
+  </Schema>
+ </edmx:DataServices>
+</edmx:Edmx>
