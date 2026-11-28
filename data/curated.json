@@ -1,7 +1,7 @@
 {
  "meta": {
   "title": "M365 Graph Cartographer (MGC)",
-  "curatedVersion": "0.6.0",
+  "curatedVersion": "0.7.0",
   "curatedOn": "2026-11-28",
   "phase": "Purview covered in depth from 0.3.0: information protection, records, eDiscovery, audit, privacy and the data security API, with what Graph does not cover.",
   "note": "Hand-written content lives here. The scanner never edits this file; it writes graph-map.json alongside it."
@@ -36,6 +36,14 @@
     {
      "id": "access-risk",
      "label": "Access & risk"
+    },
+    {
+     "id": "external-id",
+     "label": "External ID & guests"
+    },
+    {
+     "id": "tenant-org",
+     "label": "Tenant & organisation"
     }
    ]
   },
@@ -76,7 +84,6 @@
    "short": "Policies",
    "colour": "#368fa1",
    "family": "identity",
-   "planned": true,
    "summary": "Tenant-wide Entra policies under /policies and /identity/conditionalAccess: Conditional Access, authentication methods and strengths, cross-tenant access, app and consent policies, and token and sign-in policies.",
    "limits": [],
    "docs": "https://learn.microsoft.com/graph/api/resources/policyroot?view=graph-rest-1.0",
@@ -87,7 +94,8 @@
     },
     {
      "id": "authentication",
-     "label": "Authentication methods & strengths"
+     "label": "Authentication methods & strengths",
+     "short": "Authentication"
     },
     {
      "id": "cross-tenant",
@@ -128,6 +136,10 @@
     {
      "id": "exchange-admin",
      "label": "Exchange admin"
+    },
+    {
+     "id": "places",
+     "label": "Places (rooms & desks)"
     }
    ]
   },
@@ -156,6 +168,14 @@
     {
      "id": "sharepoint-admin",
      "label": "SharePoint admin"
+    },
+    {
+     "id": "onenote",
+     "label": "OneNote"
+    },
+    {
+     "id": "embedded",
+     "label": "SharePoint Embedded & storage"
     }
    ]
   },
@@ -184,6 +204,14 @@
     {
      "id": "meetings",
      "label": "Meetings"
+    },
+    {
+     "id": "shifts",
+     "label": "Shifts & schedules"
+    },
+    {
+     "id": "teams-apps",
+     "label": "Teams apps & admin"
     }
    ]
   },
@@ -193,7 +221,6 @@
    "short": "Comms",
    "colour": "#5a642b",
    "family": "collaboration",
-   "planned": true,
    "summary": "Cloud communications under /communications: calls and call records, online meetings with their recordings, transcripts and attendance, and presence.",
    "limits": [
     "You may not use the cloud communications APIs to record or otherwise persist media content from calls or meetings that your application accesses (checked on Microsoft Learn, 28 Nov 2026)."
@@ -247,7 +274,6 @@
    "short": "Solutions",
    "colour": "#2e6b69",
    "family": "collaboration",
-   "planned": true,
    "summary": "Business solutions under /solutions: Microsoft Bookings, Microsoft 365 Backup, virtual events (webinars and town halls) and cross-tenant migration.",
    "limits": [],
    "docs": "https://learn.microsoft.com/graph/api/resources/solutionsroot?view=graph-rest-1.0",
@@ -267,6 +293,19 @@
     {
      "id": "migrations",
      "label": "Cross-tenant migration"
+    },
+    {
+     "id": "viva",
+     "label": "Viva learning & engagement"
+    },
+    {
+     "id": "print",
+     "label": "Universal Print"
+    },
+    {
+     "id": "financials",
+     "label": "Business Central financials",
+     "short": "Business Central"
     }
    ]
   },
@@ -276,7 +315,6 @@
    "short": "Education",
    "colour": "#089b4d",
    "family": "collaboration",
-   "planned": true,
    "summary": "Education data under /education: schools, classes and education users from School Data Sync, assignments and submissions, and Reflect and Reading Coach reports.",
    "limits": [],
    "docs": "https://learn.microsoft.com/graph/api/resources/education-overview?view=graph-rest-1.0",
@@ -309,7 +347,6 @@
    "short": "Admin",
    "colour": "#b37a0f",
    "family": "security",
-   "planned": true,
    "summary": "Microsoft 365 admin settings under /admin: service health and Message centre, configuration monitoring (baselines and drift), Exchange, SharePoint and Teams admin settings, Microsoft 365 Apps and Edge, and people settings.",
    "limits": [
     "Delegated callers of the service communications API need an admin role (checked on Microsoft Learn, 28 Nov 2026)."
@@ -318,7 +355,8 @@
    "subservices": [
     {
      "id": "service-health",
-     "label": "Service health & Message centre"
+     "label": "Service health & Message centre",
+     "short": "Service health"
     },
     {
      "id": "configuration-monitoring",
@@ -326,7 +364,8 @@
     },
     {
      "id": "product-admin",
-     "label": "Exchange, SharePoint & Teams admin"
+     "label": "Exchange, SharePoint & Teams admin",
+     "short": "Product admin"
     },
     {
      "id": "apps-browser",
@@ -335,6 +374,11 @@
     {
      "id": "people-settings",
      "label": "People & report settings"
+    },
+    {
+     "id": "graph-platform",
+     "label": "Change notifications & extensions",
+     "short": "Graph platform"
     }
    ]
   },
@@ -381,6 +425,23 @@
     {
      "id": "hunting-posture",
      "label": "Hunting & posture"
+    },
+    {
+     "id": "threat-intel",
+     "label": "Threat intelligence"
+    },
+    {
+     "id": "attack-simulation",
+     "label": "Attack simulation & training",
+     "short": "Attack simulation"
+    },
+    {
+     "id": "identities",
+     "label": "Defender for Identity"
+    },
+    {
+     "id": "global-secure-access",
+     "label": "Global Secure Access"
     }
    ]
   },
@@ -390,7 +451,6 @@
    "short": "Devices",
    "colour": "#d42a5c",
    "family": "security",
-   "planned": true,
    "summary": "Intune device and app management under /deviceManagement and /deviceAppManagement: managed devices, compliance and configuration policies, apps and app protection, Windows 365 Cloud PCs and endpoint analytics.",
    "limits": [
     "The Microsoft Graph API for Intune needs an active Intune licence for the tenant (checked on Microsoft Learn, 28 Nov 2026)."
@@ -483,6 +543,11 @@
     {
      "id": "agents",
      "label": "Agents"
+    },
+    {
+     "id": "connectors-search",
+     "label": "Copilot connectors & search",
+     "short": "Connectors & search"
     }
    ]
   }
@@ -507,7 +572,10 @@
    "Read $metadata to see every entity type and relationship: https://graph.microsoft.com/v1.0/$metadata",
    "Prefer delta queries and change notifications over polling."
   ],
-  "docs": "https://learn.microsoft.com/graph/overview"
+  "docs": "https://learn.microsoft.com/graph/overview",
+  "covers": [
+   "microsoft.graph.entity"
+  ]
  },
  "nodes": [
   {

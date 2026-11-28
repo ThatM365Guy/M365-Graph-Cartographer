@@ -343,12 +343,14 @@ function init(){
   const FAMILIES = {identity: 'Identity', collaboration: 'Collaboration', security: 'Security & compliance', ai: 'AI'};
 
   /* ================= state ================= */
-  const DEFAULT_FILTERS = () => ({hidden: new Set(), allLinks: false, status: true, disc: false, changed: false, gaps: true});
+  const DEFAULT_FILTERS = () => ({hidden: new Set(), allLinks: false, status: true, disc: false, changed: false, gaps: true, betaGen: false});
   let F = DEFAULT_FILTERS();
   const S = {view: 'explore', svc: null, sub: null, sel: null, hover: null, scen: null, step: 0, preview: null};
   let touched = false;   // the user panned or zoomed
 
-  const visNode = n => !F.hidden.has(n.workload) && (F.gaps || n.kind !== 'gap');
+  // Generated entries for beta-only types stay hidden until Filter › Beta-only APIs is on; curated beta-only APIs always show.
+  const betaGen = n => n.tier === 'generated' && n.scan && n.scan.status === 'beta only';
+  const visNode = n => !F.hidden.has(n.workload) && (F.gaps || n.kind !== 'gap') && (F.betaGen || !betaGen(n));
   const svcList = () => D.workloads.filter(w => !F.hidden.has(w.id));
   const apisOf = (w, s) => nodes.filter(n => n.workload === w && (s == null || n.subservice === s) && visNode(n));
   // A planned service (added before its APIs are mapped) shows all its sub-services, even empty ones.
@@ -393,7 +395,7 @@ function init(){
   const norm = d => ((d % 360) + 540) % 360 - 180;            // -180..180
   const SVC_CAP = 14;   // 16 services on R1 leave about 68 px between centres, so the largest bubble stops at radius 32
   const svcR = n => 7.5*Math.sqrt(Math.min(Math.max(n, 1), SVC_CAP)) + 4;   // bubble area grows with the number of APIs, up to SVC_CAP
-  const subR = n => 5.5 + 4.3*Math.sqrt(Math.max(n, 1));
+  const subR = n => 5.5 + 4.3*Math.sqrt(Math.min(Math.max(n, 1), SVC_CAP));   // capped like services: neighbours sit at least 16° (about 81 px) apart
   const API_R = 6.5, SMALL_R = 12, OPEN_R = 34;
   // Label placement, anchored outward by angle. Returns the text origin, anchor and the box it covers.
   function labelAt(a, r, off, w, h){
@@ -445,7 +447,7 @@ function init(){
     let a = -span/2;
     subs.forEach((s, i) => {
       const cnt = apisOf(S.svc, s.id).length, mid = a + shares[i]/2;
-      m.set(`sub:${S.svc}/${s.id}`, {k: `sub:${S.svc}/${s.id}`, w: S.svc, s: s.id, a: mid, r: R2, size: subR(cnt) + (s === open ? 2 : 0), vis: true, lab: s.label, mode: s === open ? 'open' : 'full', cnt, empty: !cnt, parent: 'svc:' + S.svc});
+      m.set(`sub:${S.svc}/${s.id}`, {k: `sub:${S.svc}/${s.id}`, w: S.svc, s: s.id, a: mid, r: R2, size: subR(cnt) + (s === open ? 2 : 0), vis: true, lab: s.short || s.label, mode: s === open ? 'open' : 'full', cnt, empty: !cnt, parent: 'svc:' + S.svc});
       if (s === open) {
         rot = -mid;
         const {shown, hidden} = ringApis(S.svc, s.id), q = shown.length + (hidden.length ? 1 : 0), step = Math.min((shares[i] - 6)/Math.max(q, 1), 19);
@@ -470,7 +472,7 @@ function init(){
       if (!mine.length) return {w, open: false, arc: CLOSED};
       const subs = (SUBS[w.id] || []).filter(x => nodes.some(n => n.workload === w.id && n.subservice === x.id)).map(x => {
         const apis = mine.filter(id => N[id].subservice === x.id).sort((p, q) => firstStep(p) - firstStep(q));
-        const pw = tw(x.label, 11.5, 700) + 16;
+        const pw = tw(x.short || x.label, 11.5, 700) + 16;
         return {x, apis, arc: apis.length ? Math.max(apis.length*API_STEP, 16, pw/R2*180/Math.PI + 4) : DOT};
       });
       return {w, open: true, subs, arc: subs.reduce((t, x) => t + x.arc, 0) + PAD*2};
@@ -488,11 +490,11 @@ function init(){
         p.subs.forEach(x => {
           const sa = x.arc*f, smid = b + sa/2, key = `sub:${p.w.id}/${x.x.id}`;
           if (x.apis.length) {
-            const pw = tw(x.x.label, 11.5, 700) + 16;
-            m.set(key, {k: key, w: p.w.id, s: x.x.id, a: smid, r: R2, size: 10, pw, vis: true, lab: x.x.label, mode: 'pill', parent: 'svc:' + p.w.id});
+            const pw = tw(x.x.short || x.x.label, 11.5, 700) + 16;
+            m.set(key, {k: key, w: p.w.id, s: x.x.id, a: smid, r: R2, size: 10, pw, vis: true, lab: x.x.short || x.x.label, mode: 'pill', parent: 'svc:' + p.w.id});
             const q = x.apis.length, step = Math.min(sa/q, 24);
             x.apis.forEach((id, j) => m.set('api:' + id, {k: 'api:' + id, id, w: p.w.id, s: x.x.id, a: smid + (j - (q - 1)/2)*step, r: R3, size: API_R, vis: true, lab: N[id].label, mode: 'full', parent: key, nums: nums[id]}));
-          } else m.set(key, {k: key, w: p.w.id, s: x.x.id, a: smid, r: R2, size: 4, vis: true, lab: x.x.label, mode: 'dot', parent: 'svc:' + p.w.id});
+          } else m.set(key, {k: key, w: p.w.id, s: x.x.id, a: smid, r: R2, size: 4, vis: true, lab: x.x.short || x.x.label, mode: 'dot', parent: 'svc:' + p.w.id});
           b += sa;
         });
       }
@@ -974,6 +976,7 @@ function init(){
     if (S.view !== 'explore') { S.view = 'explore'; S.scen = S.preview = null; setSeg(); }
     if (F.hidden.has(n.workload)) { F.hidden.delete(n.workload); renderFilters(); }
     if (n.kind === 'gap' && !F.gaps) { F.gaps = true; renderFilters(); }
+    if (betaGen(n) && !F.betaGen) { F.betaGen = true; renderFilters(); }
     const same = S.svc === n.workload && S.sub === n.subservice;
     S.svc = n.workload; S.sub = n.subservice; S.sel = id;
     if (same && L && L.m.get('api:' + id)) { items.forEach(it => it.t && it.type === 'api' && it.g.classList.toggle('sel', it.t.id === id)); drawLinks(); crumbs(); renderPanel(); writeHash(); updateReset(); updateKey(); }
@@ -1157,10 +1160,11 @@ function init(){
       : `<p>The permission catalogue has no read entry for this path. Check the Microsoft Learn page.</p>`;
     const opsList = [...(o.actions || []).map(a => a + ' (action)'), ...(o.functions || []).map(f => f + ' (function)')];
     panel.innerHTML = `${wlName(WL[n.workload], (subOf(n.id) || {}).label || 'Unsorted')}<h2>${esc(n.label)}${nV ? ` <small style="font-size:15px;color:var(--mute);font-weight:500">(${pl(nV, 'variant')})</small>` : ''}</h2>${badges(n)}
-      <p class="lead">Generated from the v1.0 schema. Nobody has written or checked notes for this entry yet, so there is no summary, licensing or limits here.</p>
+      <p class="lead">Generated from the ${n.scan && n.scan.status === 'beta only' ? 'beta' : 'v1.0'} schema. Nobody has written or checked notes for this entry yet, so there is no summary, licensing or limits here.${n.scan && n.scan.status === 'beta only' ? ' Beta APIs can change without notice and are not supported in production.' : ''}</p>
       ${n.path ? `<div class="ep"><code>${esc(n.path)}</code><button class="copy" data-copy="${esc(n.path)}">Copy</button></div>` : '<p>No path from a top-level root reaches this type.</p>'}
       ${det('Permissions', perms, true, 'generated, not checked')}
       ${det('Variants', variantsBlock(n), nV > 0 && nV <= 12, nV ? `${nV} folded into this entry` : '')}
+      ${det('Beta variants', n.betaVariants && n.betaVariants.length ? `<p class="props">${n.betaVariants.map(v => esc(shortType(v))).join('<br>')}</p>` : '', false, n.betaVariants && n.betaVariants.length ? `${n.betaVariants.length} beta-only types folded in` : '')}
       ${det('Other paths', (n.altPaths || []).length ? `<p class="props" style="columns:1">${n.altPaths.map(x => `<code>${esc(x)}</code>`).join('<br>')}</p>` : '', false)}
       ${det('Actions and functions', opsList.length ? `<p class="props">${opsList.map(esc).join('<br>')}</p>` : '', false, opsList.length ? String(opsList.length) : '')}
       ${det('Schema', schemaBlock(n), false)}
@@ -1246,7 +1250,7 @@ function init(){
     panel.innerHTML = `<h2>Coverage</h2>
       <p class="lead">Mapped means a type is on the map; curated means it also has hand-written notes checked against Microsoft Learn.</p>
       <div class="cards"><div class="card"><b>${nf(cov.onMap)} of ${nf(cov.v1Types)}</b><span>v1.0 types mapped (${pct(cov.onMap)})</span></div><div class="card"><b>${nf(curOf(cov))} of ${nf(cov.v1Types)}</b><span>v1.0 types curated (${pct(curOf(cov))})</span></div></div>
-      <p>A further ${nf(cov.betaOnlyTypes)} types are beta only.</p>
+      <p>A further ${nf(cov.betaOnlyTypes)} types are beta only${cov.betaOnMap != null ? `, and ${nf(cov.betaOnMap)} of them are mapped too. Turn on Filter › Beta-only APIs to see them on the ring` : ''}.</p>
       <h4>By service</h4><p>Types each service puts on the map. The solid part is curated, the pale part generated and the outlined part beta only. Figures read mapped (curated) +beta.</p>
       <ul class="bars">${svcRows.filter(r => WL[r.workload]).map(r => bar(WL[r.workload].label, r.onMap, curOf(r), r.betaOnly, max, WL[r.workload].colour, `data-svc="${r.workload}"`)).join('')}</ul>
       ${pv}
@@ -1297,9 +1301,10 @@ function init(){
       ${cb('status', F.status, 'API status', 'beta only, legacy')}
       ${cb('gaps', F.gaps, 'Outside Graph', 'diamonds')}
       ${cb('changed', F.changed, 'Changed this week', changed.size ? String(changed.size) : 'none')}
+      ${cb('betaGen', F.betaGen, 'Beta-only APIs (generated)', String(nodes.filter(betaGen).length))}
       <h5>Reviewers</h5>
       ${cb('disc', F.disc, 'Links found by the scanner', String(edges.filter(e => e.kind === 'discovered').length))}`;
-    const n = F.hidden.size + (F.allLinks ? 1 : 0) + (F.status ? 0 : 1) + (F.disc ? 1 : 0) + (F.changed ? 1 : 0) + (F.gaps ? 0 : 1);
+    const n = F.hidden.size + (F.allLinks ? 1 : 0) + (F.status ? 0 : 1) + (F.disc ? 1 : 0) + (F.changed ? 1 : 0) + (F.gaps ? 0 : 1) + (F.betaGen ? 1 : 0);
     $('#fn').hidden = !n; $('#fn').textContent = n;
   }
   fpanel.addEventListener('change', e => {
@@ -1379,7 +1384,7 @@ function init(){
   function isStart(){
     const d = DEFAULT_FILTERS();
     return S.view === 'explore' && !S.svc && !S.sub && !S.sel && !S.scen && !q.value && !touched &&
-      !F.hidden.size && F.allLinks === d.allLinks && F.status === d.status && F.disc === d.disc && F.changed === d.changed && F.gaps === d.gaps;
+      !F.hidden.size && F.allLinks === d.allLinks && F.status === d.status && F.disc === d.disc && F.changed === d.changed && F.gaps === d.gaps && F.betaGen === d.betaGen;
   }
   function updateReset(){ $('#rdot').hidden = isStart(); }
   $('#reset').addEventListener('click', () => {
@@ -1394,7 +1399,7 @@ function init(){
     const it = items.get(key), t = it.t;
     if (it.type === 'hub') return `<h3>${esc(hub.label)}</h3><p>${esc(hub.summary)}</p><p class="more">Click to go back to the start</p>`;
     if (it.type === 'svc') { const w = WL[t.w], c = apisOf(w.id).length; return `${wlName({...w, label: FAMILIES[w.family] || ''})}<h3>${esc(w.label)}</h3><p>${esc(w.summary)}</p><p>${subsOf(w.id).map(s => esc(s.label)).join(' · ')}</p><p class="more">${c ? pl(c, 'API') : 'Not mapped yet'} · click to open</p>`; }
-    if (it.type === 'sub') { const a = apisOf(t.w, t.s); return `${wlName(WL[t.w])}<h3>${esc(t.lab)}</h3><p>${a.length ? a.slice(0, 12).map(n => esc(n.label)).join(' · ') + (a.length > 12 ? ` and ${a.length - 12} more` : '') : 'Nothing is mapped here yet.'}</p><p class="more">Click to open</p>`; }
+    if (it.type === 'sub') { const a = apisOf(t.w, t.s); return `${wlName(WL[t.w])}<h3>${esc((SUBS[t.w].find(x => x.id === t.s) || {}).label || t.lab)}</h3><p>${a.length ? a.slice(0, 12).map(n => esc(n.label)).join(' · ') + (a.length > 12 ? ` and ${a.length - 12} more` : '') : 'Nothing is mapped here yet.'}</p><p class="more">Click to open</p>`; }
     if (it.type === 'mor') { const h = ringApis(t.w, t.s).hidden; return `${wlName(WL[t.w], (SUBS[t.w].find(x => x.id === t.s) || {}).label)}<h3>${pl(h.length, 'more API')}</h3><p>${h.slice(0, 8).map(n => esc(n.label)).join(' · ')}${h.length > 8 ? ' …' : ''}</p><p class="more">Click to list them all</p>`; }
     const n = N[t.id], p = n.permissions || {};
     return `${wlName(WL[n.workload], (subOf(n.id) || {}).label)}<h3>${esc(n.label)}</h3>${badges(n)}${n.path ? `<p><code>${esc(n.path)}</code></p>` : ''}` +

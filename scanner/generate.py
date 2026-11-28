@@ -144,7 +144,54 @@ def find_paths(schema) -> dict:
                 if target not in seen:
                     seen.add(target)
                     queue.append((target, out[target][root][1]))
+    _fallback_paths(schema, out, desc)
     return out
+
+
+def _fallback_paths(schema, out: dict, desc: dict) -> None:
+    """For types no containment path reaches: first a bound function or action that returns them
+    (/copilot/.../getAllEnterpriseInteractions), then a relationship that isn't containment (/sites/{id}/analytics).
+    One step at a time from the shortest known path, so the nearest wins. The result of an operation is not
+    addressable item by item, so its path is also its item path. Navs typed as entity are ignored."""
+    broad = NOT_A_BASE
+
+    def best(fq):
+        return min(out[fq].items(), key=lambda kv: (_segments(kv[1][0]), kv[1][0].lower()))
+
+    def add(target, root, path, item):
+        for t in [target] + desc.get(target, []):
+            if t not in out and t in schema.entities:
+                out[t] = {root: (path, item)}
+                added.append(t)
+
+    while True:
+        added = []
+        by_binding = {}
+        for o in getattr(schema, "op_info", []):
+            if o["binding"] and o["returns"] in schema.entities and o["returns"] not in broad:
+                by_binding.setdefault(o["binding"], []).append(o)
+        for fq in sorted(out, key=lambda f: _segments(best(f)[1][0])):
+            root, (path, item) = best(fq)
+            chain = schema.effective(fq)["chain"] if fq in schema.entities else [fq]
+            for b in chain:
+                for o in sorted(by_binding.get(b, []), key=lambda o: o["name"]):
+                    if o["returns"] not in out:
+                        p = (path if o["bindingMany"] else item) + "/" + o["name"]
+                        add(o["returns"], root, p, p)
+        if not added:
+            for fq in sorted(out, key=lambda f: _segments(best(f)[1][0])):
+                if fq not in schema.entities:
+                    continue
+                root, (path, item) = best(fq)
+                eff = schema.effective(fq)
+                for nav in sorted(eff["navs"]):
+                    t = eff["navs"][nav]
+                    if t in broad or t in out:
+                        continue
+                    p = item + "/" + nav
+                    add(t, root, p, p + "/{id}" if nav in eff["many"] else p)
+        if not added:
+            return
 
 
 def _segments(path: str) -> int:
@@ -237,6 +284,76 @@ def build_entries(v1, beta, types: dict) -> list:
     for e in entries:
         e["links"] = len(linked[e["id"]])
     return entries
+
+
+def build_beta_entries(beta, v1_entries: list, types: dict) -> tuple[list, dict]:
+    """Entries for beta-only types (in beta $metadata, not in v1.0), from the beta schema.
+
+    A beta-only type that no beta root reaches folds into its nearest reachable ancestor: into a beta-only entry
+    as a variant, or into a v1.0 entry as a beta variant. Returns (entries, {v1 entry id: [beta variant fq]}).
+    No Learn link: the docs index covers v1.0 pages only."""
+    if beta is None:
+        return [], {}
+    paths = find_paths(beta)
+    v1_owner = {}
+    for e in v1_entries:
+        v1_owner[e["entityType"]] = e["id"]
+        for v in e["variants"]:
+            v1_owner[v] = e["id"]
+    beta_only = [fq for fq in beta.entities if (types.get(fq) or {}).get("status") == "beta only"]
+    owner, beta_variants = {}, {}
+    for fq in beta_only:
+        if fq in paths:
+            owner[fq] = fq
+            continue
+        cur = beta.entities[fq]["base"]
+        while cur and cur not in NOT_A_BASE and cur not in paths:
+            cur = beta.entities.get(cur, {}).get("base")
+        if cur and cur not in NOT_A_BASE and cur in v1_owner:
+            beta_variants.setdefault(v1_owner[cur], []).append(fq)
+        else:
+            owner[fq] = cur if cur and cur not in NOT_A_BASE and cur in set(beta_only) else fq
+    variants: dict[str, list] = {}
+    for fq, o in owner.items():
+        if o != fq:
+            variants.setdefault(o, []).append(fq)
+    entries = []
+    for fq in sorted(fq for fq, o in owner.items() if o == fq):
+        area = (types.get(fq) or {}).get("area", "unrooted")
+        chosen = choose_paths(paths.get(fq, {}), area)
+        eb = beta.effective(fq)
+        entries.append({
+            "id": entry_id(fq),
+            "label": label_for(fq),
+            "entityType": fq,
+            "tier": "generated",
+            "area": area,
+            "path": chosen[0][0] if chosen else None,
+            "itemPath": chosen[0][1] if chosen else None,
+            "altPaths": [p for p, _ in chosen[1:]],
+            "variants": sorted(variants.get(fq, [])),
+            "ops": _ops(beta, fq),
+            "scan": {"status": "beta only", "props": [], "navs": {}, "betaOnlyProps": sorted(eb["props"]),
+                     "betaOnlyNavs": sorted(eb["navs"]), "baseTypes": eb["chain"][1:]},
+        })
+    by_type = {}
+    for e in entries:
+        by_type[e["entityType"]] = e["id"]
+        for v in e["variants"]:
+            by_type[v] = e["id"]
+    for e in v1_entries:
+        by_type.setdefault(e["entityType"], e["id"])
+    linked = {e["id"]: set() for e in entries}
+    for e in entries:
+        for t in beta.effective(e["entityType"])["navs"].values():
+            other = by_type.get(t)
+            if other and other != e["id"]:
+                linked[e["id"]].add(other)
+                if other in linked:
+                    linked[other].add(e["id"])
+    for e in entries:
+        e["links"] = len(linked[e["id"]])
+    return entries, {k: sorted(v) for k, v in beta_variants.items()}
 
 
 # --------------------------------------------------------------------------- fetching (GitHub, read only)
@@ -368,7 +485,8 @@ def enrich(entries: list, catalogue: dict | None, docs_names: list | None) -> No
             e["permissions"] = {"delegated": perms["delegated"], "application": perms["application"]} if perms else None
             e["permissionsPath"] = perms["matchedPath"] if perms else None
         if docs_names is not None:
-            e["docs"] = docs_for(e["entityType"], e["area"], names)
+            beta_only = (e.get("scan") or {}).get("status") == "beta only"
+            e["docs"] = None if beta_only else docs_for(e["entityType"], e["area"], names)
 
 
 # --------------------------------------------------------------------------- placement
@@ -385,7 +503,8 @@ def _match_path(pattern: str, path: str) -> bool:
 
 def place(entry: dict, rules: list) -> tuple[str, str] | None:
     """(workload, subservice) for an entry: a 'type' rule first, then the longest matching 'path' rule, then a
-    'namespace' rule, then an 'area' rule."""
+    'namespace' rule, then a 'name' rule (a glob on the short type name, for types with no path), then an 'area'
+    rule."""
     fq, path = entry["entityType"], entry.get("path") or ""
     for r in rules:
         if r.get("type") == fq:
@@ -401,6 +520,10 @@ def place(entry: dict, rules: list) -> tuple[str, str] | None:
     ns = fq.rpartition(".")[0]
     for r in rules:
         if r.get("namespace") == ns:
+            return tuple(r["to"].split("/", 1))
+    short = fq[len("microsoft.graph."):] if fq.startswith("microsoft.graph.") else fq
+    for r in rules:
+        if "name" in r and fnmatch.fnmatchcase(short, r["name"]):
             return tuple(r["to"].split("/", 1))
     for r in rules:
         if r.get("area") == entry.get("area"):
@@ -426,31 +549,39 @@ def merge(curated_nodes: list, entries: list, placement: dict, workloads: list) 
     dropped and its variants move to the curated node. Returns (nodes_to_add, report) where report has
     'areas', 'unplaced' (entry types no rule places) and 'rules' (rules that point nowhere)."""
     areas = set(placement.get("areas", []))
+    every = "*" in areas   # every area: a new Graph area that no rule places fails the build
     rules = placement.get("rules", [])
     curated_types = set()
     for n in curated_nodes:
         if n.get("entityType"):
             curated_types.add(n["entityType"])
         curated_types.update(n.get("covers") or [])
-    by_curated = {n["entityType"]: n for n in curated_nodes if n.get("entityType")}
-    out, unplaced, inherited = [], [], {}
+    by_curated = {}
+    for n in curated_nodes:   # the curated node that documents a type, through its entityType or covers[]
+        for t in ([n["entityType"]] if n.get("entityType") else []) + list(n.get("covers") or []):
+            by_curated.setdefault(t, n)
+    out, unplaced, unplaced_beta, inherited = [], [], [], {}
     for e in entries:
-        if e["area"] not in areas:
+        if not every and e["area"] not in areas:
             continue
         variants = [v for v in e.get("variants", []) if v not in curated_types]
         if e["entityType"] in curated_types:
-            if e["entityType"] in by_curated and variants:
-                inherited.setdefault(by_curated[e["entityType"]]["id"], []).extend(variants)
+            moved = variants + [v for v in e.get("betaVariants", []) if v not in curated_types]
+            if e["entityType"] in by_curated and moved:
+                inherited.setdefault(by_curated[e["entityType"]]["id"], []).extend(moved)
             continue
         where = place(e, rules)
         if not where:
-            unplaced.append(e["entityType"])
+            beta_only = (e.get("scan") or {}).get("status") == "beta only"
+            (unplaced_beta if beta_only else unplaced).append(e["entityType"])
             continue
         n = {k: v for k, v in e.items() if k not in ("area",)}
         n["variants"] = variants
+        if e.get("betaVariants"):
+            n["betaVariants"] = [v for v in e["betaVariants"] if v not in curated_types]
         n["workload"], n["subservice"] = where
         n["area"] = e["area"]
         out.append(n)
-    report = {"areas": sorted(areas), "unplaced": sorted(unplaced), "rules": rule_problems(placement, workloads),
-              "inheritedVariants": inherited}
+    report = {"areas": sorted(areas), "unplaced": sorted(unplaced), "unplacedBeta": sorted(unplaced_beta),
+              "rules": rule_problems(placement, workloads), "inheritedVariants": inherited}
     return out, report

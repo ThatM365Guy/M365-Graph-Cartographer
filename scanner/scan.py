@@ -54,6 +54,9 @@ AREA_PRIORITY = [
     "employeeExperience", "external", "connections", "storage", "planner",
 ]
 AREA_LAST = ["users", "groups", "me"]
+# A relationship or return value typed as one of these says nothing about where a type lives (every type derives
+# from entity), so the relationship and operation passes of assign_areas ignore them.
+BROAD_TYPES = {"microsoft.graph.entity"}
 # Purview lens: tags types by Purview solution from their short name (first match wins). Defender's
 # security.caseManagement.* is not Purview and is left out. Keep the patterns narrow; review them when coverage
 # reports a "New in Graph" type that looks like Purview.
@@ -106,6 +109,7 @@ class Schema:
         self.ops = ops            # binding fq -> {name: "Action"|"Function"}
         self.roots = roots or {}  # EntityContainer EntitySet/Singleton name -> fq
         self.entity_sets: set = set()   # names in roots that are EntitySets (collections); the rest are Singletons
+        self.op_info: list = []         # every Action/Function: name, kind, binding fq, bindingMany, returns fq, returnsMany
         self._cache: dict = {}
 
     def effective(self, fq: str):
@@ -182,6 +186,8 @@ def parse_csdl(source) -> Schema:
                       "binding": None, "ctx": (ns, alias)}
             elif tag == "Parameter" and op and op["bound"] and op["binding"] is None:
                 op["binding"] = el.get("Type")
+            elif tag == "ReturnType" and op:
+                op["returns"] = el.get("Type")
         else:
             if tag == "EntityType":
                 cur = None
@@ -215,11 +221,18 @@ def parse_csdl(source) -> Schema:
             "many": {n for n, t, _ in e["navs"] if (t or "").startswith("Collection(")},
         }
     ops: dict[str, dict] = {}
+    op_info = []
     for o in raw_ops:
         key = resolve(o["binding"], o["ctx"]) if o["bound"] else "(unbound)"
         ops.setdefault(key, {})[o["name"]] = o["kind"]
+        ret = o.get("returns")
+        op_info.append({"name": o["name"], "kind": o["kind"], "binding": key if o["bound"] else None,
+                        "bindingMany": bool(o["binding"] and o["binding"].startswith("Collection(")),
+                        "returns": resolve(ret, o["ctx"]) if ret else None,
+                        "returnsMany": bool(ret and ret.startswith("Collection("))})
     roots = {name: resolve(t, ctx) for name, t, ctx in raw_roots}
     schema = Schema(entities, ops, roots)
+    schema.op_info = op_info
     schema.entity_sets = {name for name, t, ctx in raw_roots if (name, t) in entity_sets}
     return schema
 
@@ -394,6 +407,58 @@ def assign_areas(schema: Schema) -> dict:
     ordered = sorted(schema.roots, key=_root_order)
     spread([r for r in ordered if r not in AREA_FALLBACK])
     spread([r for r in ordered if r in AREA_FALLBACK])   # only claims what no other root reaches
+    # Then, for what containment doesn't reach: a type that only a bound function or action returns (for example
+    # getAllEnterpriseInteractions -> aiInteraction), then a type only reached through a relationship that isn't
+    # containment (for example sites/{id}/analytics), takes the area of the type it is reached from; containment
+    # spreads from it as usual. Operations first, then relationships, one step at a time, so the nearest wins.
+    def step_ops():
+        out = []
+        for o in schema.op_info:
+            b, r = o["binding"], o["returns"]
+            if b in area and r in schema.entities and r not in BROAD_TYPES:
+                for t in with_derived(r):
+                    if t not in area:
+                        area[t] = area[b]
+                        out.append(t)
+        return out
+
+    def step_navs():
+        out = []
+        for t in sorted(area, key=lambda x: (_root_order(area[x]), x)):
+            eff = schema.effective(t)
+            if not eff:
+                continue
+            for nav in sorted(eff["navs"]):
+                if eff["navs"][nav] in BROAD_TYPES:
+                    continue
+                for c in with_derived(eff["navs"][nav]):
+                    if c not in area:
+                        area[c] = area[t]
+                        out.append(c)
+        return out
+
+    while True:
+        claimed = step_ops() or step_navs()
+        if not claimed:
+            break
+        queue = claimed
+        i = 0
+        while i < len(queue):
+            t = queue[i]
+            i += 1
+            eff = schema.effective(t)
+            for nav in sorted(eff["contained"]):
+                for c in with_derived(eff["navs"].get(nav)):
+                    if c not in area:
+                        area[c] = area[t]
+                        queue.append(c)
+    # An abstract base that nothing reaches but whose derived types are placed takes their most common area.
+    for fq in sorted(schema.entities):
+        if fq in area or fq in BROAD_TYPES:
+            continue
+        below = [area[t] for t in with_derived(fq)[1:] if t in area]
+        if below:
+            area[fq] = sorted(set(below), key=lambda a: (-below.count(a), _root_order(a)))[0]
     for fq in schema.entities:
         if fq not in area:
             ns = fq.rpartition(".")[0]
@@ -421,10 +486,13 @@ def summarise_coverage(curated: dict, types: dict, roots: dict, at: str | None) 
             out.update(n.get("covers") or [])
             if variants:
                 out.update(n.get("variants") or [])
+                out.update(n.get("betaVariants") or [])
         return out
     on_map = placed(curated["nodes"])
+    on_map.update((curated.get("hub") or {}).get("covers") or [])   # the Graph hub stands for entity, the base of every type
     # curated: hand-written types only; variants a curated node inherits from the generated tier are mapped, not curated
     hand = placed([n for n in curated["nodes"] if n.get("tier") != "generated"], variants=False)
+    hand.update((curated.get("hub") or {}).get("covers") or [])
     areas: dict[str, dict] = {}
     purview = {name: {"solution": name, "v1": 0, "betaOnly": 0, "onMap": 0, "curated": 0, "onMapTypes": [], "missing": [],
                       "betaOnlyTypes": []} for name, _ in PURVIEW_SOLUTIONS}
@@ -446,9 +514,10 @@ def summarise_coverage(curated: dict, types: dict, roots: dict, at: str | None) 
             r["v1"] += 1
     for fq, t in types.items():
         a = areas.setdefault(t["area"], {"area": t["area"], "v1": 0, "betaOnly": 0, "onMap": 0, "curated": 0,
-                                         "onMapTypes": [], "missing": []})
+                                         "betaOnMap": 0, "onMapTypes": [], "missing": []})
         if t["status"] != "v1.0":
             a["betaOnly"] += 1
+            a["betaOnMap"] += fq in on_map
             continue
         a["v1"] += 1
         if fq in on_map:
@@ -473,6 +542,7 @@ def summarise_coverage(curated: dict, types: dict, roots: dict, at: str | None) 
         "betaOnlyTypes": sum(r["betaOnly"] for r in rows),
         "onMap": sum(r["onMap"] for r in rows),
         "curated": sum(r["curated"] for r in rows),
+        "betaOnMap": sum(r["betaOnMap"] for r in rows),
         "areas": rows,
         "services": services,
         "purview": {
@@ -491,8 +561,9 @@ def coverage_summary(cov: dict | None) -> dict | None:
     """Counts only, for embedding in the page. Names stay in coverage.json."""
     if not cov:
         return None
-    return {k: cov[k] for k in ("at", "v1Types", "betaOnlyTypes", "onMap", "curated") if k in cov} | {
-        "areas": [{k: r[k] for k in ("area", "v1", "betaOnly", "onMap", "curated") if k in r} for r in cov["areas"]]} | ({
+    return {k: cov[k] for k in ("at", "v1Types", "betaOnlyTypes", "onMap", "curated", "betaOnMap") if k in cov} | {
+        "areas": [{k: r[k] for k in ("area", "v1", "betaOnly", "onMap", "curated", "betaOnMap") if k in r}
+                  for r in cov["areas"]]} | ({
         "services": cov["services"]} if cov.get("services") else {}) | ({
         "purview": {k: cov["purview"][k] for k in ("v1", "betaOnly", "onMap", "curated") if k in cov["purview"]} | {
             "solutions": [{k: r[k] for k in ("solution", "v1", "betaOnly", "onMap", "curated") if k in r}
@@ -610,6 +681,11 @@ def build_generated(v1, beta, types, prev_generated=None, fetch=True, now=None, 
     run's permissions, links and pins are kept and a warning is recorded."""
     now = now or dt.datetime.now(dt.timezone.utc)
     entries = generate.build_entries(v1, beta, types)
+    beta_entries, beta_variants = generate.build_beta_entries(beta, entries, types)
+    for e in entries:
+        if e["id"] in beta_variants:
+            e["betaVariants"] = beta_variants[e["id"]]
+    entries += beta_entries
     prev_meta = (prev_generated or {}).get("meta") or {}
     meta = {"at": now.isoformat(timespec="seconds"), "catalogue": prev_meta.get("catalogue"),
             "docs": prev_meta.get("docs"), "warnings": []}
@@ -850,6 +926,7 @@ def main(argv=None):
         n_gen = sum(1 for n in graph_map["nodes"] if n.get("tier") == "generated")
         print(f"generated: {n_gen} entries on the map from {', '.join(rep['areas'])}"
               + (f"; NOT PLACED: {', '.join(rep['unplaced'])}" if rep.get("unplaced") else "")
+              + (f"; beta-only types not placed (not fatal): {', '.join(rep['unplacedBeta'])}" if rep.get("unplacedBeta") else "")
               + (f"; {rep['missing']}" if rep.get("missing") else ""))
     unsorted = unsorted_nodes(curated)
     if unsorted:
