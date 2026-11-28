@@ -56,6 +56,10 @@ class Workflow(unittest.TestCase):
         self.assertLess(commit.index("git pull --rebase"), commit.index("git push"))
         self.assertNotIn("|| git commit", commit)    # 'a || b && c' pushed even when nothing was committed
 
+    def test_scan_step_has_a_github_token(self):
+        step = self.yml[self.yml.index("python scanner/scan.py"):self.yml.index("python scanner/build_page.py")]
+        self.assertRegex(step, r"GITHUB_TOKEN: \$\{\{ github\.token \}\}")
+
     def test_push_trigger_covers_every_build_input_but_not_bot_output(self):
         m = re.search(r"paths: \[([^\]]+)\]", self.yml)
         paths = re.findall(r'"([^"]+)"', m.group(1))
