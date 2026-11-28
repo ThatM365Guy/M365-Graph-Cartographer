@@ -615,6 +615,14 @@ class GeneratedTierTests(unittest.TestCase):
         paths = [e["path"] for e in self.entries if e["path"]]
         self.assertEqual(len(paths), len(set(paths)), "two entries share a path")
 
+    def test_paths_through_a_bound_action_are_marked_post(self):
+        wipe, detail = self.by_type["wipeResult"], self.by_type["wipeDetail"]
+        self.assertEqual((wipe["path"], wipe["pathMethod"]), ("/deviceManagement/wipeReport", "POST"))
+        self.assertEqual((detail["path"], detail["pathMethod"]), ("/deviceManagement/wipeReport/details", "POST"))
+        self.assertNotIn("pathMethod", self.by_type["reportResult"])      # a function result is read with GET
+        self.assertNotIn("pathMethod", self.by_type["deviceNote"])
+        self.assertIsNone(explorer_request(dict(wipe)))                    # no GET link for a POST path
+
     def test_unreachable_type_keeps_an_entry_without_a_path(self):
         self.assertIsNone(self.by_type["lonelyType"]["path"])
 
@@ -765,7 +773,7 @@ class GeneratedTierTests(unittest.TestCase):
 
 def explorer_request(n):
     """Python twin of explorerUrl() in web/template.html: (request, version) or None."""
-    if n.get("kind") == "gap" or not n.get("path"):
+    if n.get("kind") == "gap" or not n.get("path") or n.get("pathMethod") == "POST":
         return None
     req, version = n["path"].split("·")[0].strip(), ("beta" if (n.get("scan") or {}).get("status") == "beta only" else "v1.0")
     if n.get("tier") != "generated":
@@ -798,6 +806,8 @@ class ExtrasTests(unittest.TestCase):
         self.assertEqual(by_id["sensitiveType"], ("/dataClassification/sensitiveTypes", "beta"))
         self.assertIsNone(by_id["hunting"])                  # POST only: no read-only link
         self.assertIsNone(by_id["exGap"])                    # outside Graph
+        nodes = {n["id"]: n for n in gm["nodes"]}
+        self.assertFalse([i for i, _ in linked if nodes[i].get("pathMethod") == "POST"])   # an action path isn't a read
 
     def test_template_links_to_explorer_and_permissions_site(self):
         with open(os.path.join(ROOT, "web", "template.html"), encoding="utf-8") as f:

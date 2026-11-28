@@ -115,7 +115,8 @@ def find_paths(schema, info: dict | None = None) -> dict:
 
     info, when given, receives 'inherited': the types whose path is only their base's fallback path (an operation
     or relationship returns the base, so its derived types are reached too). build_entries() folds them into the
-    base as variants rather than giving each an entry with the same path.
+    base as variants rather than giving each an entry with the same path, and 'post': the types whose path runs
+    through a bound action (/communications/calls/{id}/mute), which is called with POST and can't be read with GET.
 
     path is what a caller lists or gets (a collection, or a single object); item_path is one object in it.
     Contained navigation properties declared on a derived type are followed with a cast segment, for example
@@ -159,17 +160,20 @@ def _fallback_paths(schema, out: dict, desc: dict, info: dict) -> None:
     addressable item by item, so its path is also its item path. Navs typed as entity are ignored."""
     broad = NOT_A_BASE
     inherited = info.setdefault("inherited", set())
+    post = info.setdefault("post", set())
 
     def best(fq):
         return min(out[fq].items(), key=lambda kv: (_segments(kv[1][0]), kv[1][0].lower()))
 
-    def add(target, root, path, item):
+    def add(target, root, path, item, via_post):
         for t in [target] + desc.get(target, []):
             if t not in out and t in schema.entities:
                 out[t] = {root: (path, item)}
                 added.append(t)
                 if t != target:
                     inherited.add(t)
+                if via_post:
+                    post.add(t)
 
     while True:
         added = []
@@ -184,7 +188,7 @@ def _fallback_paths(schema, out: dict, desc: dict, info: dict) -> None:
                 for o in sorted(by_binding.get(b, []), key=lambda o: o["name"]):
                     if o["returns"] not in out:
                         p = (path if o["bindingMany"] else item) + "/" + o["name"]
-                        add(o["returns"], root, p, p)
+                        add(o["returns"], root, p, p, fq in post or o["kind"] == "Action")
         if not added:
             for fq in sorted(out, key=lambda f: _segments(best(f)[1][0])):
                 if fq not in schema.entities:
@@ -196,7 +200,7 @@ def _fallback_paths(schema, out: dict, desc: dict, info: dict) -> None:
                     if t in broad or t in out:
                         continue
                     p = item + "/" + nav
-                    add(t, root, p, p + "/{id}" if nav in eff["many"] else p)
+                    add(t, root, p, p + "/{id}" if nav in eff["many"] else p, fq in post)
         if not added:
             return
 
@@ -246,6 +250,7 @@ def build_entries(v1, beta, types: dict) -> list:
     info: dict = {}
     paths = find_paths(v1, info)
     own = {fq for fq in paths if fq not in info["inherited"]}   # types with a path of their own
+    post = info["post"]
     v1_types = [fq for fq in v1.entities if fq != "microsoft.graph.entity"]
     owner = {}   # fq -> the fq of the entry it belongs to
     for fq in v1_types:
@@ -272,6 +277,7 @@ def build_entries(v1, beta, types: dict) -> list:
             "area": area,
             "path": chosen[0][0] if chosen else None,
             "itemPath": chosen[0][1] if chosen else None,
+            **({"pathMethod": "POST"} if fq in post else {}),   # the path runs through a bound action
             "altPaths": [p for p, _ in chosen[1:]],
             "variants": sorted(variants.get(fq, [])),
             "ops": _ops(v1, fq),
@@ -306,6 +312,7 @@ def build_beta_entries(beta, v1_entries: list, types: dict) -> tuple[list, dict]
     info: dict = {}
     paths = find_paths(beta, info)
     own = {fq for fq in paths if fq not in info["inherited"]}
+    post = info["post"]
     v1_owner = {}
     for e in v1_entries:
         v1_owner[e["entityType"]] = e["id"]
@@ -341,6 +348,7 @@ def build_beta_entries(beta, v1_entries: list, types: dict) -> tuple[list, dict]
             "area": area,
             "path": chosen[0][0] if chosen else None,
             "itemPath": chosen[0][1] if chosen else None,
+            **({"pathMethod": "POST"} if fq in post else {}),   # the path runs through a bound action
             "altPaths": [p for p, _ in chosen[1:]],
             "variants": sorted(variants.get(fq, [])),
             "ops": _ops(beta, fq),

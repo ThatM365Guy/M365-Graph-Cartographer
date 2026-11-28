@@ -1100,7 +1100,9 @@ function init(){
       <h4>Service-wide limits</h4>${ul(w.limits)}${docsLink(w.docs)}`;
   }
   const statusOf = n => n.kind === 'gap' ? 'outside Graph' : n.scan ? n.scan.status : '';
-  const apiRow = (n, w, off) => `<li><button class="lk" data-go="${esc(n.id)}" style="--c:${w.colour}"><i></i><span><b>${esc(n.label)}</b><span class="sv"><code>${esc(n.path || '')}</code></span></span><small>${esc(statusOf(n))}${linksOf(n) ? `<br>${pl(linksOf(n), 'link')}` : ''}${off ? '<br>in the list only' : ''}</small></button></li>`;
+  // A generated path that runs through a bound action is shown with its method; curated paths already say theirs.
+  const pathText = n => (n.pathMethod === 'POST' ? 'POST ' : '') + (n.path || '');
+  const apiRow = (n, w, off) => `<li><button class="lk" data-go="${esc(n.id)}" style="--c:${w.colour}"><i></i><span><b>${esc(n.label)}</b><span class="sv"><code>${esc(pathText(n))}</code></span></span><small>${esc(statusOf(n))}${linksOf(n) ? `<br>${pl(linksOf(n), 'link')}` : ''}${off ? '<br>in the list only' : ''}</small></button></li>`;
   const LIST = {key: '', q: '', sort: 'rank'};
   const STATUS_ORDER = {'v1.0': 0, 'beta only': 1, 'not found': 2, 'outside Graph': 3, '': 4};
   function listRows(){
@@ -1176,7 +1178,7 @@ function init(){
     const opsList = [...(o.actions || []).map(a => a + ' (action)'), ...(o.functions || []).map(f => f + ' (function)')];
     panel.innerHTML = `${wlName(WL[n.workload], (subOf(n.id) || {}).label || 'Unsorted')}<h2>${esc(n.label)}${nV ? ` <small style="font-size:15px;color:var(--mute);font-weight:500">(${pl(nV, 'variant')})</small>` : ''}</h2>${badges(n)}
       <p class="lead">Generated from the ${n.scan && n.scan.status === 'beta only' ? 'beta' : 'v1.0'} schema. Nobody has written or checked notes for this entry yet, so there is no summary, licensing or limits here.${n.scan && n.scan.status === 'beta only' ? ' Beta APIs can change without notice and are not supported in production.' : ''}</p>
-      ${n.path ? `<div class="ep"><code>${esc(n.path)}</code><button class="copy" data-copy="${esc(n.path)}">Copy</button></div>${geLink(n)}` : '<p>No path from a top-level root reaches this type.</p>'}
+      ${n.path ? `<div class="ep"><code>${esc(pathText(n))}</code><button class="copy" data-copy="${esc(n.path)}">Copy</button></div>${n.pathMethod === 'POST' ? '<p class="foot">This path runs through a bound action, so it is called with POST and changes or starts something. It is not a read.</p>' : ''}${geLink(n)}` : '<p>No path from a top-level root reaches this type.</p>'}
       ${det('Permissions', perms, true, 'generated, not checked')}
       ${det('Variants', variantsBlock(n), nV > 0 && nV <= 12, nV ? `${nV} folded into this entry` : '')}
       ${det('Beta variants', n.betaVariants && n.betaVariants.length ? `<p class="props">${n.betaVariants.map(v => esc(shortType(v))).join('<br>')}</p>` : '', false, n.betaVariants && n.betaVariants.length ? `${n.betaVariants.length} beta-only types folded in` : '')}
@@ -1190,7 +1192,7 @@ function init(){
   // Placeholders such as {id | userPrincipalName} become {id}; the version comes from a /beta prefix or the scan status.
   const GE = 'https://developer.microsoft.com/graph/graph-explorer';
   function explorerUrl(n){
-    if (n.kind === 'gap' || !n.path) return null;
+    if (n.kind === 'gap' || !n.path || n.pathMethod === 'POST') return null;   // a path through a bound action can't be read with GET
     let req = String(n.path).split('\u00b7')[0].trim(), version = n.scan && n.scan.status === 'beta only' ? 'beta' : 'v1.0';
     if (!isGen(n)) { const m = req.match(/^GET\s+(\S.*)$/); if (!m) return null; req = m[1].trim(); }
     if (!req.startsWith('/')) return null;
@@ -1485,7 +1487,7 @@ function init(){
     if (it.type === 'sub') { const a = apisOf(t.w, t.s); return `${wlName(WL[t.w])}<h3>${esc((SUBS[t.w].find(x => x.id === t.s) || {}).label || t.lab)}</h3><p>${a.length ? a.slice(0, 12).map(n => esc(n.label)).join(' · ') + (a.length > 12 ? ` and ${a.length - 12} more` : '') : 'Nothing is mapped here yet.'}</p><p class="more">Click to open</p>`; }
     if (it.type === 'mor') { const h = ringApis(t.w, t.s).hidden; return `${wlName(WL[t.w], (SUBS[t.w].find(x => x.id === t.s) || {}).label)}<h3>${pl(h.length, 'more API')}</h3><p>${h.slice(0, 8).map(n => esc(n.label)).join(' · ')}${h.length > 8 ? ' …' : ''}</p><p class="more">Click to list them all</p>`; }
     const n = N[t.id], p = n.permissions || {};
-    return `${wlName(WL[n.workload], (subOf(n.id) || {}).label)}<h3>${esc(n.label)}</h3>${badges(n)}${n.path ? `<p><code>${esc(n.path)}</code></p>` : ''}` +
+    return `${wlName(WL[n.workload], (subOf(n.id) || {}).label)}<h3>${esc(n.label)}</h3>${badges(n)}${n.path ? `<p><code>${esc(pathText(n))}</code></p>` : ''}` +
       (isGen(n) ? (n.permissions ? `<p><b>Delegated:</b> ${esc(p.delegated) || '–'}<br><b>Application:</b> ${esc(p.application) || '–'}<br><small>Generated, not checked</small></p>` : '<p>Generated from the schema. No notes yet.</p>') + ((n.variants || []).length ? `<p>${pl(n.variants.length, 'variant')} folded in</p>` : '') :
       p.delegated ? `<p><b>Delegated:</b> ${esc(p.delegated)}<br><b>Application:</b> ${esc(p.application)}</p>` : `<p>${esc(n.summary)}</p>`) +
       (n.limits && n.limits[0] ? `<p><b>Watch for:</b> ${esc(n.limits[0])}</p>` : '') +
