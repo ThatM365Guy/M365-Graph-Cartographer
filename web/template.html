@@ -1040,14 +1040,6 @@ function init(){
     if (toList) { S.view = 'scen'; S.scen = S.preview = null; S.step = 0; setSeg(); sync({refit: true}); }
     else goStart();
   }
-  let pvTimer = null;
-  function preview(id){
-    clearTimeout(pvTimer);
-    pvTimer = setTimeout(() => {
-      if (S.view !== 'scen' || S.scen || S.preview === id) return;
-      S.preview = id; relayout({refit: true}); updateKey();
-    }, id ? 110 : 160);
-  }
 
   /* ================= panel ================= */
   const ul = items_ => items_ && items_.length ? `<ul>${items_.map(x => `<li>${esc(x)}</li>`).join('')}</ul>` : '<p>None recorded yet.</p>';
@@ -1223,11 +1215,11 @@ function init(){
   function scenarioList(){
     return SCEN_GROUPS.map(grp => {
       const xs = SCEN.filter(x => x.group === grp);
-      return xs.length ? `<h5>${grp}</h5><ul class="sclist">${xs.map(x => `<li><button data-scen="${esc(x.id)}" data-pv="${esc(x.id)}">${esc(x.label)}<small>${esc(x.summary)}</small></button></li>`).join('')}</ul>` : '';
+      return xs.length ? `<h5>${grp}</h5><ul class="sclist">${xs.map(x => `<li><button data-scen="${esc(x.id)}">${esc(x.label)}<small>${esc(x.summary)}</small></button></li>`).join('')}</ul>` : '';
     }).join('');
   }
   function renderScenarioList(){
-    panel.innerHTML = `<h2>Scenarios</h2><p class="lead">Step-by-step routes across Graph for common reviews and investigations. Hover over one to preview its route on the ring; pick one to walk through it.</p>${scenarioList()}`;
+    panel.innerHTML = `<h2>Scenarios</h2><p class="lead">Step-by-step routes across Graph for common reviews and investigations. Pick one to see its route on the ring and walk through it.</p>${scenarioList()}`;
   }
   const permText = (st, n) => st.permission || (n.permissions ? `Delegated: ${n.permissions.delegated} · Application: ${n.permissions.application}` : '');
   function stepDetail(st){
@@ -1311,14 +1303,7 @@ function init(){
   panel.addEventListener('input', e => { if (e.target.id === 'lq') { LIST.q = e.target.value; listRows(); } });
   panel.addEventListener('change', e => { if (e.target.id === 'lsort') { LIST.sort = e.target.value; listRows(); } });
   panel.addEventListener('keydown', e => { if (e.target.id === 'lq' && e.key === 'Escape' && e.target.value) { e.stopPropagation(); e.target.value = LIST.q = ''; listRows(); } });
-  // hovering a scenario in the list previews it
-  panel.addEventListener('pointerover', e => { const b = e.target.closest('[data-pv]'); if (b && S.view === 'scen' && !S.scen) preview(b.dataset.pv); });
-  panel.addEventListener('pointerout', e => { const b = e.target.closest('[data-pv]'); if (b && !b.contains(e.relatedTarget) && !(e.relatedTarget && e.relatedTarget.closest && e.relatedTarget.closest('[data-pv]'))) clearPreview(); });
-  panel.addEventListener('focusin', e => { const b = e.target.closest('[data-pv]'); if (b && S.view === 'scen' && !S.scen) preview(b.dataset.pv); });
-  function clearPreview(){
-    clearTimeout(pvTimer);
-    pvTimer = setTimeout(() => { if (S.view === 'scen' && !S.scen && S.preview) { S.preview = null; relayout({refit: true}); updateKey(); } }, 160);
-  }
+  // The scenario list changes the ring only on click (data-scen above); hovering or focusing a row does nothing.
 
   /* ================= filters ================= */
   const fpanel = $('#fpanel'), fbtn = $('#fbtn');
