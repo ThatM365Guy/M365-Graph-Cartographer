@@ -809,6 +809,12 @@ class ExtrasTests(unittest.TestCase):
         nodes = {n["id"]: n for n in gm["nodes"]}
         self.assertFalse([i for i, _ in linked if nodes[i].get("pathMethod") == "POST"])   # an action path isn't a read
 
+    def test_hash_decoding_cannot_throw(self):
+        with open(os.path.join(ROOT, "web", "template.html"), encoding="utf-8") as f:
+            tpl = f.read()
+        for m in re.finditer(r"decodeURIComponent\(", tpl):
+            self.assertIn("try {", tpl[max(0, m.start() - 20):m.start()], "decodeURIComponent outside a try")
+
     def test_template_links_to_explorer_and_permissions_site(self):
         with open(os.path.join(ROOT, "web", "template.html"), encoding="utf-8") as f:
             tpl = f.read()

@@ -1639,7 +1639,9 @@ function init(){
     try { history.replaceState(null, '', h || location.pathname + location.search); } catch (e) {}
   }
   function route(raw){
-    const h = decodeURIComponent((raw || '').replace(/^#/, ''));
+    let h;
+    try { h = decodeURIComponent((raw || '').replace(/^#/, '')); }
+    catch (e) { goStart(); return; }   // a malformed escape such as #100% must not stop the page starting
     if (!h) { goStart(); return; }
     if (h.startsWith('scenario-') && SC[h.slice(9)]) { startScenario(h.slice(9)); return; }
     if (h.startsWith('svc/')) {
