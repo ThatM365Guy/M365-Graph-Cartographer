@@ -439,5 +439,164 @@ class BuildPageTests(unittest.TestCase):
         self.assertNotIn('"state"', html)
 
 
+import generate  # noqa: E402
+
+CATALOGUE = {"permissions": {
+    "DeviceManagementManagedDevices.Read.All": {"authorizationType": "oAuth2", "schemes": {}, "pathSets": [
+        {"schemeKeys": ["DelegatedWork", "Application"], "methods": ["GET"],
+         "paths": {"/devicemanagement/manageddevices/{id}": "least=DelegatedWork,Application"}}]},
+    "DeviceManagementManagedDevices.ReadWrite.All": {"authorizationType": "oAuth2", "schemes": {}, "pathSets": [
+        {"schemeKeys": ["DelegatedWork", "Application"], "methods": ["GET", "PATCH"],
+         "paths": {"/devicemanagement/manageddevices/{id}": "least=DelegatedWork,Application"}}]},
+    "DeviceManagementConfiguration.Read.All": {"authorizationType": "oAuth2", "schemes": {}, "pathSets": [
+        {"schemeKeys": ["Application"], "methods": ["GET"],
+         "paths": {"/devicemanagement/devicecompliancepolicies": "least=Application"}}]},
+}}
+INTUNE_TYPES = {f"microsoft.graph.{t}": {"area": "deviceManagement", "status": "v1.0"} for t in (
+    "deviceManagement", "managedDevice", "deviceCompliancePolicy", "androidCompliancePolicy", "iosCompliancePolicy",
+    "mobileApp", "mobileLobApp", "win32LobApp", "mobileAppContent", "lonelyType")}
+INTUNE_TYPES["microsoft.graph.user"] = {"area": "users", "status": "v1.0"}
+WORKLOADS = [{"id": "devices", "subservices": [{"id": "managed-devices"}, {"id": "compliance-configuration"},
+                                              {"id": "apps-protection"}, {"id": "intune-admin"}]}]
+RULES = {"areas": ["deviceManagement"], "rules": [
+    {"path": "/deviceManagement/managedDevices", "to": "devices/managed-devices"},
+    {"path": "/deviceManagement/deviceCompliance*", "to": "devices/compliance-configuration"},
+    {"path": "/deviceManagement/mobileApps", "to": "devices/apps-protection"},
+    {"area": "deviceManagement", "to": "devices/intune-admin"}]}
+
+
+class GeneratedTierTests(unittest.TestCase):
+    def setUp(self):
+        self.v1 = scan.parse_csdl(os.path.join(FX, "intune.xml"))
+        self.entries = generate.build_entries(self.v1, None, INTUNE_TYPES)
+        self.by_type = {e["entityType"].rsplit(".", 1)[1]: e for e in self.entries}
+
+    def test_paths_prefer_own_root_and_add_ids(self):
+        md = self.by_type["managedDevice"]
+        self.assertEqual(md["path"], "/deviceManagement/managedDevices")      # not /users/{id}/managedDevices
+        self.assertEqual(md["itemPath"], "/deviceManagement/managedDevices/{id}")
+        self.assertEqual(md["altPaths"], ["/users/{id}/managedDevices"])
+        self.assertEqual(self.by_type["deviceManagement"]["path"], "/deviceManagement")   # a singleton has no {id}
+
+    def test_nav_on_a_derived_type_is_reached_through_a_cast(self):
+        self.assertEqual(self.by_type["mobileAppContent"]["path"],
+                         "/deviceManagement/mobileApps/{id}/microsoft.graph.mobileLobApp/contentVersions")
+
+    def test_variants_fold_into_the_nearest_reachable_base(self):
+        dcp = self.by_type["deviceCompliancePolicy"]
+        self.assertEqual(dcp["variants"], ["microsoft.graph.androidCompliancePolicy", "microsoft.graph.iosCompliancePolicy"])
+        self.assertEqual(self.by_type["mobileApp"]["variants"], ["microsoft.graph.mobileLobApp", "microsoft.graph.win32LobApp"])
+        for t in ("androidCompliancePolicy", "win32LobApp", "mobileLobApp"):
+            self.assertNotIn(t, self.by_type)
+        # every type is an entry or a variant, exactly once
+        seen = [e["entityType"] for e in self.entries] + [v for e in self.entries for v in e["variants"]]
+        self.assertEqual(sorted(seen), sorted(t for t in self.v1.entities if t != "microsoft.graph.entity"))
+
+    def test_unreachable_type_keeps_an_entry_without_a_path(self):
+        self.assertIsNone(self.by_type["lonelyType"]["path"])
+
+    def test_entry_has_ops_links_and_scan(self):
+        md = self.by_type["managedDevice"]
+        self.assertEqual(md["ops"], {"actions": ["retire"], "functions": ["getStatus"]})
+        self.assertEqual(md["links"], 2)                     # -> user, and <- deviceManagement
+        self.assertEqual(md["scan"]["status"], "v1.0")
+        self.assertIn("deviceName", md["scan"]["props"])
+        self.assertEqual(md["id"], "gen-managedDevice")
+        self.assertEqual(md["tier"], "generated")
+
+    def test_labels(self):
+        self.assertEqual(generate.label_for("microsoft.graph.iosManagedAppProtection"), "iOS managed app protection")
+        self.assertEqual(generate.label_for("microsoft.graph.windowsPhone81CompliancePolicy"), "Windows Phone 8.1 compliance policy")
+        self.assertEqual(generate.label_for("microsoft.graph.eBookInstallSummary"), "eBook install summary")
+        self.assertEqual(generate.label_for("microsoft.graph.callRecords.callRecord"), "Call record")
+
+    def test_catalogue_least_privilege_keeps_every_name_marked_least(self):
+        idx = generate.index_catalogue(CATALOGUE)
+        p = generate.permissions_for(self.by_type["managedDevice"], idx)
+        self.assertEqual(p["delegated"], "DeviceManagementManagedDevices.Read.All, DeviceManagementManagedDevices.ReadWrite.All")
+        self.assertEqual(p["matchedPath"], "/devicemanagement/manageddevices/{id}")
+        p = generate.permissions_for(self.by_type["deviceCompliancePolicy"], idx)   # falls back to the collection path
+        self.assertEqual((p["delegated"], p["application"]), ("", "DeviceManagementConfiguration.Read.All"))
+        self.assertIsNone(generate.permissions_for(self.by_type["lonelyType"], idx))
+
+    def test_catalogue_shape_is_checked(self):
+        generate.check_catalogue_shape(CATALOGUE)
+        for bad in ({}, {"permissions": {"X": {"paths": {}}}}, {"permissions": {"X": {"pathSets": [{"methods": []}]}}}):
+            with self.assertRaises(generate.CatalogueShapeError):
+                generate.check_catalogue_shape(bad)
+
+    def test_docs_link_only_when_one_page_fits(self):
+        names = {"intune-devices-manageddevice", "user", "intune-a-twin", "intune-b-twin"}
+        self.assertTrue(generate.docs_for("microsoft.graph.managedDevice", "deviceManagement", names).endswith("/intune-devices-manageddevice?view=graph-rest-1.0"))
+        self.assertTrue(generate.docs_for("microsoft.graph.user", "users", names).endswith("/user?view=graph-rest-1.0"))
+        self.assertIsNone(generate.docs_for("microsoft.graph.twin", "deviceManagement", names))     # ambiguous
+        self.assertIsNone(generate.docs_for("microsoft.graph.nothing", "deviceManagement", names))
+
+    def test_placement_rules(self):
+        def place(t):
+            return generate.place(self.by_type[t], RULES["rules"])
+        self.assertEqual(place("managedDevice"), ("devices", "managed-devices"))
+        self.assertEqual(place("deviceCompliancePolicy"), ("devices", "compliance-configuration"))   # * in a segment
+        self.assertEqual(place("mobileAppContent"), ("devices", "apps-protection"))   # prefix: deeper paths match too
+        self.assertEqual(place("lonelyType"), ("devices", "intune-admin"))            # area fallback
+        typed = [{"type": "microsoft.graph.managedDevice", "to": "devices/intune-admin"}] + RULES["rules"]
+        self.assertEqual(generate.place(self.by_type["managedDevice"], typed), ("devices", "intune-admin"))
+        self.assertIsNone(generate.place(self.by_type["user"], RULES["rules"]))
+
+    def test_merge_places_only_listed_areas_and_reports_the_rest(self):
+        nodes, rep = generate.merge([], self.entries, RULES, WORKLOADS)
+        self.assertNotIn("microsoft.graph.user", [n["entityType"] for n in nodes])   # area 'users' isn't listed
+        self.assertEqual(rep["unplaced"], [])
+        no_fallback = {"areas": ["deviceManagement"], "rules": RULES["rules"][:1]}
+        _, rep = generate.merge([], self.entries, no_fallback, WORKLOADS)
+        self.assertIn("microsoft.graph.lonelyType", rep["unplaced"])
+        _, rep = generate.merge([], self.entries, {"areas": [], "rules": [{"area": "x", "to": "devices/nope"}]}, WORKLOADS)
+        self.assertTrue(rep["rules"])
+
+    def test_curated_entry_overrides_generated_and_inherits_variants(self):
+        cur = [{"id": "compliance", "label": "Compliance policy", "entityType": "microsoft.graph.deviceCompliancePolicy",
+                "workload": "devices", "subservice": "compliance-configuration"},
+               {"id": "ios", "label": "iOS policy", "entityType": "microsoft.graph.iosCompliancePolicy"}]
+        nodes, rep = generate.merge(cur, self.entries, RULES, WORKLOADS)
+        types = [n["entityType"] for n in nodes]
+        self.assertNotIn("microsoft.graph.deviceCompliancePolicy", types)
+        self.assertEqual(rep["inheritedVariants"], {"compliance": ["microsoft.graph.androidCompliancePolicy"]})  # ios is curated
+
+    def test_build_map_merges_generated_and_build_rule_fails_on_unplaced(self):
+        gen = {"meta": {}, "entries": self.entries}
+        gm, _ = scan.build_map(curated(), None, scan=False, now=D1, prev_generated=gen, placement=RULES)
+        g = [n for n in gm["nodes"] if n.get("tier") == "generated"]
+        self.assertTrue(g and all(n["workload"] == "devices" for n in g))
+        build_page.render(SubserviceTests.TPL, gm)
+        gm["state"]["placement"]["unplaced"] = ["microsoft.graph.lonelyType"]
+        with self.assertRaises(build_page.BuildError) as cm:
+            build_page.render(SubserviceTests.TPL, gm)
+        self.assertIn("lonelyType", str(cm.exception))
+
+    def test_build_fails_when_generated_data_is_missing(self):
+        gm, _ = scan.build_map(curated(), None, scan=False, now=D1, prev_generated=None, placement=RULES)
+        with self.assertRaises(build_page.BuildError) as cm:
+            build_page.render(SubserviceTests.TPL, gm)
+        self.assertIn("run a scan", str(cm.exception))
+
+    def test_coverage_counts_variants_as_mapped_not_curated(self):
+        with open(os.path.join(ROOT, "data", "coverage.json"), encoding="utf-8") as f:
+            prev = copy.deepcopy(json.load(f))
+        prev["types"].update(INTUNE_TYPES)
+        gen = {"meta": {}, "entries": self.entries}
+        gm, _ = scan.build_map(curated(), None, scan=False, now=D1, prev_coverage=prev, prev_generated=gen, placement=RULES)
+        dev = next(r for r in gm["coverage"]["services"] if r["workload"] == "devices")
+        self.assertEqual((dev["onMap"], dev["curated"]), (10, 0))   # every fixture type in deviceManagement
+
+    def test_real_placement_file_places_every_intune_type(self):
+        with open(os.path.join(ROOT, "data", "placement.json"), encoding="utf-8") as f:
+            placement = json.load(f)
+        with open(os.path.join(ROOT, "data", "generated.json"), encoding="utf-8") as f:
+            gen = json.load(f)
+        nodes, rep = generate.merge(curated()["nodes"], gen["entries"], placement, curated()["workloads"])
+        self.assertEqual((rep["unplaced"], rep["rules"]), ([], []))
+        self.assertTrue(nodes)
+
+
 if __name__ == "__main__":
     unittest.main()

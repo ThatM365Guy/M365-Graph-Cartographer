@@ -6,7 +6,7 @@ Exported from the owner's Claude Doc "MGC: Claude Code brief to map all of Micro
 
 - [x] Phase 0: git pull and tidy-up (28 Nov 2026)
 - [x] Phase 1: make the ring cope with volume (branch `claude/phase1-ring-volume`, committed locally 28 Nov 2026; waiting for the owner's review and push)
-- [ ] Phase 2: generated tier, proved on Intune
+- [x] Phase 2: generated tier, proved on Intune (branch `claude/phase2-generated-intune`, stacked on Phase 1, committed locally 28 Nov 2026; waiting for the owner's review and push)
 - [ ] Phase 3: every v1.0 area, then beta
 - [ ] Phase 4: curated depth for security
 - [ ] Phase 5: extras
@@ -24,6 +24,15 @@ Exported from the owner's Claude Doc "MGC: Claude Code brief to map all of Micro
   - Existing nodes that may move into the new services (not moved; owner to decide): Conditional Access policy (Identity › Access & risk → Policies › Conditional Access), online meeting (Teams › Meetings → Communications › Online meetings), message trace (Outlook › Exchange admin → Admin › Exchange, SharePoint & Teams admin), subscribed SKUs (Identity › Directory → Admin).
   - Ring cap: 8 bubbles per open sub-service (7 APIs plus "+n more" when there are more than 8). Service bubbles stop growing at 14 APIs so 16 services fit on the first ring.
   - Coverage: "mapped" = on the map (either tier), "curated" = hand-written entries. Both are 137 of 1,264 until the generated tier lands.
+- 28 Nov 2026: owner said go for Phase 2. Phase 1 was pushed but not merged, so Phase 2 is cut from `claude/phase1-ring-volume`, not from `main`.
+- 28 Nov 2026, Phase 2 (Claude's choices, open to the owner's review):
+  - `permissions/new/permissions.json` exists and has the expected shape: `{"$schema", "permissions": {name: {"authorizationType", "schemes", "pathSets": [{"schemeKeys", "methods", "paths": {lowercase path: "least=<schemes>" | "" | "AlsoRequires=..."}}], "ownerInfo"}}}`, 975 permissions. The scanner checks this shape on every read and refuses a file that differs.
+  - The catalogue often marks both a Read and a ReadWrite permission as least privileged for the same GET (106 of 129 Intune entries). The page lists every name marked least, in name order, under "generated, not checked", and does not choose between them.
+  - The pin is the catalogue repository's HEAD commit, read from git's public refs endpoint, because the REST API's anonymous limit (60 calls an hour) ran out during this phase. The Learn index still needs two REST calls; `GITHUB_TOKEN` (if the workflow passes it) or `--docs-index` avoids the limit. Passing `GITHUB_TOKEN` in `.github/workflows/scan.yml` is a workflow change, so it is left for the owner.
+  - Generated entries are built for every v1.0 type and saved in `data/generated.json`; only the areas in `data/placement.json` reach the map. Phase 3 can then extend placement with `--no-scan`.
+  - Variants: a type that no root reaches folds into its nearest ancestor that one does (80 Intune variants, for example 26 device configuration platforms and 26 mobile app types). Labels say "(n variants)" rather than "platforms", because mobile app variants are app kinds, not platforms.
+  - Learn links only when exactly one resource page fits the type name; 6 of 129 Intune entries have none (deviceManagement, deviceAppManagement, deviceCategory, deviceCompliancePolicyState, deviceConfigurationState, mobileAppContentScript).
+  - 15 of 129 Intune entries have no GET entry in the catalogue (mostly nested paths, Cloud PC assignments, `/deviceManagement/virtualEndpoint`). Left blank.
 
 ---
 
@@ -163,3 +172,70 @@ Propose new scenarios that use them.
 - microsoft-graph-devx-content: Weekly Permissions sync 2026-10-20 (PR #1665)
 - microsoft-graph-devx-content: commit b9a67f1, `permissions/new/permissions.json`
 - MGC repository: CLAUDE.md, `data/coverage.json` and `data/changelog.json` at `f0f3a58` (Scan 2026-11-23).
+
+---
+
+## Added by the owner on 28 Nov 2026: Phases 6 and 7
+
+Start these only when the owner says go. The same ground rules apply: stop and ask before anything that touches GitHub or Azure, and never invent permission names, API paths or cmdlet names.
+
+- [ ] Phase 6: nine new scenarios
+- [ ] Phase 7: script examples for every scenario
+
+#### Phase 6: nine new scenarios
+
+Add these scenarios, chosen from the owner's ranked list of 50 Graph use cases. Before writing anything into `curated.json`, propose the steps for each one and wait for the owner's approval. Use the same shape as the existing 15: node, what to do, the call, the permission, the catch. They need the curated nodes from Phase 4.
+
+1. Least-privilege review of agents' and apps' Graph permissions
+2. Phishing-resistant MFA migration tracking (passkeys)
+3. "Anyone" and organisation-wide sharing link audit
+4. Workload identity hygiene: expiring secrets, unused and over-permissioned apps
+5. Sensitivity label coverage as a Copilot readiness gate
+6. Conditional Access coverage and gap analysis
+7. EWS to Graph migration of mail-integrated apps
+8. ROT clean-up: stale, duplicate and orphaned content. Suggested route:
+   1. The SharePoint site usage report (last activity, storage used).
+   2. Then site and drive.
+   3. Then old files and version counts.
+   4. Then each file's retention label, before anything is marked for deletion.
+9. Licence clean-up, including Copilot seats. Suggested route:
+   1. Subscribed SKUs (bought against used).
+   2. Then licensed users with their sign-in activity.
+   3. Then disabled accounts that still hold licences.
+   4. Then group-based licence assignments.
+   5. Then Copilot usage.
+
+Add a fourth scenario group, "Cost and hygiene", for 8 and 9.
+
+#### Phase 7: script examples for every scenario
+
+Every scenario gets a script that people can run themselves: the 15 that exist and the 9 from Phase 6. Read-only scripts come first. Scripts that change things are out of scope for this phase.
+
+1. Format.
+   - Each step keeps its HTTP call and gains its Microsoft Graph PowerShell equivalent (Microsoft.Graph SDK v2, PowerShell 7).
+   - Each scenario also gets one full script in `scripts/scenarios/<scenario-id>.ps1`. It runs the scenario's read-only steps from start to finish and writes the results to a local CSV file.
+2. Read-only rules.
+   - `Connect-MgGraph` asks only for the least-privileged delegated `.Read` scopes the steps need.
+   - Only `Get-Mg*` cmdlets and `Invoke-MgGraphRequest -Method GET` are allowed.
+   - A few read-only calls use POST, such as `runHuntingQuery` and creating an `auditLogQuery`. Put each one on an allow list and label it "read-only, uses POST".
+   - Nothing is sent anywhere except Microsoft Graph, and no tenant data goes into the repository.
+3. Script header. Each script starts with:
+   - its purpose
+   - the scopes it needs
+   - the Entra roles it needs
+   - the licence it needs
+   - its parameters, with safe defaults (for example `-DaysInactive 90`)
+   - what it doesn't do
+   - a link to its scenario on the live site
+4. Checks in the tests.
+   - Every cmdlet must exist in the Microsoft.Graph modules and match its step's call. Use `Find-MgGraphCommand` for this.
+   - PSScriptAnalyzer must report no errors.
+   - A guard fails the build on any `New-`, `Set-`, `Update-`, `Remove-` or `Add-` cmdlet, or on any non-GET request that isn't on the allow list.
+5. Page.
+   - The scenario walk gets an HTTP / PowerShell switch on each step, with a Copy button.
+   - Each scenario gets a "Download script" link.
+   - A short note says the scripts are examples to read before running, and are provided as-is.
+6. Testing.
+   - A script is marked "Tested" only after the owner has run it in their own dev tenant. Record the date.
+   - Don't run scripts against any tenant yourself. Give the owner the exact commands to run.
+7. Later, not now. A separate remediation tier of write scripts, with `-WhatIf` on by default and a clear warning.

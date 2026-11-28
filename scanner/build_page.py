@@ -62,14 +62,30 @@ def subservice_problems(graph_map: dict) -> tuple[list, list]:
     return errors, unsorted
 
 
+def placement_problems(graph_map: dict) -> list:
+    """The completeness rule: every v1.0 type in an area listed in data/placement.json must be on the map
+    (as an entry, a folded variant or a curated node). scan.py records what no rule placed in state.placement."""
+    rep = (graph_map.get("state") or {}).get("placement")
+    if not rep:
+        return []
+    errors = list(rep.get("rules") or [])
+    if rep.get("missing"):
+        errors.append(rep["missing"])
+    if rep.get("unplaced"):
+        errors.append(f"{len(rep['unplaced'])} v1.0 type(s) in {', '.join(rep['areas'])} not placed: "
+                      f"{', '.join(t.rsplit('.', 1)[-1] for t in rep['unplaced'])} (add a rule to data/placement.json)")
+    return errors
+
+
 def validate(graph_map: dict, allow_unsorted: bool = False) -> list:
-    """Raises BuildError if the sub-service structure is broken. Returns the unsorted node ids."""
+    """Raises BuildError if the sub-service structure or the placement rule is broken. Returns the unsorted node ids."""
     errors, unsorted = subservice_problems(graph_map)
+    errors += placement_problems(graph_map)
     if unsorted and not allow_unsorted:
         errors.append(f"no sub-service: {', '.join(unsorted)} (set node.subservice in curated.json, "
                       f"or build with --allow-unsorted to show them under 'Unsorted')")
     if errors:
-        raise BuildError("sub-service check failed:\n  " + "\n  ".join(errors))
+        raise BuildError("sub-service or placement check failed:\n  " + "\n  ".join(errors))
     return unsorted
 
 
