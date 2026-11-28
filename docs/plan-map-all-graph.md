@@ -8,7 +8,7 @@ Exported from the owner's Claude Doc "MGC: Claude Code brief to map all of Micro
 - [x] Phase 1: make the ring cope with volume (branch `claude/phase1-ring-volume`, committed locally 28 Nov 2026; waiting for the owner's review and push)
 - [x] Phase 2: generated tier, proved on Intune (branch `claude/phase2-generated-intune`, stacked on Phase 1, committed locally 28 Nov 2026; waiting for the owner's review and push)
 - [x] Phase 3: every v1.0 area, then beta (branch `claude/phase3-all-areas`, stacked on Phase 2, committed locally 28 Nov 2026; waiting for the owner's review and push)
-- [ ] Phase 4: curated depth for security
+- [x] Phase 4: curated depth for security (branch `claude/phase4-security-depth`, cut from `main` after Phases 1-3 merged, committed locally 28 Nov 2026; the owner approved all six scenarios, now written)
 - [ ] Phase 5: extras
 
 ## Decisions and findings
@@ -44,6 +44,28 @@ Exported from the owner's Claude Doc "MGC: Claude Code brief to map all of Micro
   - Beta-only generated entries are hidden until Filter › Beta-only APIs (generated) is on. No Learn link for them (the index lists v1.0 pages only).
   - The page is now 2.1 MB (generated entries about 1.6 MB). GitHub Pages serves it compressed. If it needs to shrink, the property lists of generated entries are the first candidate.
   - Nine catalogue permission names are not in the stored permission list (fetched 16 Nov), for example `Zone.Read.All`; the page flags them. A `--permissions` run would refresh the list.
+- 28 Nov 2026: owner merged PRs #5, #6 and #7 into `main` (live, deploy run green). Owner pulled locally; Phase 4 is cut from `main`.
+- 28 Nov 2026, Phase 4 (curated depth for security):
+  - 12 curated nodes, every permission, licence and limit checked on Microsoft Learn on 28 Nov 2026, every path, relationship and Learn page checked against $metadata and the docs index: authentication method, user registration details (Policies › Authentication); risk detection, risky service principal (Identity › Access & risk); cross-tenant access policy (Policies › Cross-tenant access); managed device, device compliance policy (Devices); attack simulation, Secure Score control profile (Security); service health issue, Message centre post (Admin › Service health); provisioning log (Reports › Sign-in & audit logs). 12 curated links (one, user → managed device, was found by the scanner and curated).
+  - Left blank because Learn doesn't state it on the API pages: licence for authentication methods, cross-tenant access policy, Secure Score control profiles, service health and Message centre.
+  - Facts recorded as Learn states them, though they look odd: List riskDetections says Entra ID P1 or P2 (the existing risky user node says P2 for full data).
+  - Curated now covers 153 of 1,264 v1.0 types (12%).
+  - Known cosmetic issue, not fixed: a "↳ API" link tag can sit over service labels on the left of the ring (seen with the compliance policy selected). MGC.check doesn't cover link tags.
+
+#### Phase 4 scenarios (owner approved all six on 28 Nov 2026; written into curated.json)
+
+Each step names the node and what to do; the call, permission and catch default to the node's own notes. Filters marked "to confirm" must be checked on Learn before the scenario is written.
+
+1. **Compromised workload identity triage** (Classic): risky service principal (list atRisk, Workload ID Premium) → service principal (owners, credentials) → app role assignment (what it can do) → sign-in (service principal sign-ins, filter to confirm) → directory audit (recent changes to the app).
+2. **Risky sign-in investigation** (Classic): risk detection (riskEventType, IP, location) → risky user (state, history) → sign-in (the request behind the detection, join to confirm) → authentication method (was a new method registered?) → directory audit (method and role changes).
+3. **Device compliance gap behind Conditional Access** (Classic): device compliance policy (which policies and platforms) → managed device (complianceState, last sync) → device (join by azureADDeviceId = deviceId) → Conditional Access policy (which policies require a compliant device).
+4. **Phishing simulation follow-up** (Classic): attack simulation (campaigns and results) → repeat offenders report (/reports/security/getAttackSimulationRepeatOffenders) → user → user registration details (are repeat offenders MFA capable?) → risky user.
+5. **Provisioning failure review** (Classic): provisioning log (failures, filter on provisioningStatusInfo/status to confirm) → service principal (the provisioning app) → user (the target identity) → directory audit.
+6. **Weekly posture and change review** (Classic): Secure Score → Secure Score control profile (open improvement actions) → Message centre post (action-required changes) → service health issue (open incidents).
+
+Checks made before writing them (Microsoft Learn, 28 Nov 2026): the service principal sign-in filter `signInEventTypes/any(t: t eq 'servicePrincipal')` is only documented in beta, so step 4 of scenario 1 uses the beta endpoint and says so. `provisioningStatusInfo` isn't documented as filterable in v1.0, so scenario 5 filters on `activityDateTime` and picks out failures in code. A risk detection's `correlationId` is the sign-in's correlation ID and `signIn` supports `$filter` on it, so scenario 2 joins on that (and a curated link records it). The repeat offenders report needs `AttackSimulation.Read.All`. Every property the steps name (complianceState, azureADDeviceId, deviceId, isCompliant, actionRequiredByDateTime, isResolved) was checked against $metadata. Scenario ids: workload-identity-triage, risky-signin-investigation, device-compliance-gap, phishing-simulation-followup, provisioning-failure-review, posture-change-review.
+
+Overlap with Phase 6: Phase 6 scenario 2 (phishing-resistant MFA migration) and scenario 6 (Conditional Access coverage) will also use user registration details, authentication method and cross-tenant access policy, so they are not proposed again here.
 
 ---
 

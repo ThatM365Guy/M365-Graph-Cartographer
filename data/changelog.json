@@ -1,5 +1,77 @@
 [
  {
+  "date": "2026-11-28",
+  "node": "authMethod",
+  "kind": "new-node",
+  "text": "Authentication method: scanned for the first time (v1.0)."
+ },
+ {
+  "date": "2026-11-28",
+  "node": "registrationDetails",
+  "kind": "new-node",
+  "text": "User registration details: scanned for the first time (v1.0)."
+ },
+ {
+  "date": "2026-11-28",
+  "node": "riskDetection",
+  "kind": "new-node",
+  "text": "Risk detection: scanned for the first time (v1.0)."
+ },
+ {
+  "date": "2026-11-28",
+  "node": "riskyServicePrincipal",
+  "kind": "new-node",
+  "text": "Risky service principal: scanned for the first time (v1.0)."
+ },
+ {
+  "date": "2026-11-28",
+  "node": "crossTenantAccess",
+  "kind": "new-node",
+  "text": "Cross-tenant access policy: scanned for the first time (v1.0)."
+ },
+ {
+  "date": "2026-11-28",
+  "node": "managedDevice",
+  "kind": "new-node",
+  "text": "Managed device (Intune): scanned for the first time (v1.0)."
+ },
+ {
+  "date": "2026-11-28",
+  "node": "compliancePolicy",
+  "kind": "new-node",
+  "text": "Device compliance policy: scanned for the first time (v1.0)."
+ },
+ {
+  "date": "2026-11-28",
+  "node": "attackSimulation",
+  "kind": "new-node",
+  "text": "Attack simulation: scanned for the first time (v1.0)."
+ },
+ {
+  "date": "2026-11-28",
+  "node": "secureScoreControl",
+  "kind": "new-node",
+  "text": "Secure Score control profile: scanned for the first time (v1.0)."
+ },
+ {
+  "date": "2026-11-28",
+  "node": "serviceHealthIssue",
+  "kind": "new-node",
+  "text": "Service health issue: scanned for the first time (v1.0)."
+ },
+ {
+  "date": "2026-11-28",
+  "node": "messageCenter",
+  "kind": "new-node",
+  "text": "Message centre post: scanned for the first time (v1.0)."
+ },
+ {
+  "date": "2026-11-28",
+  "node": "provisioningLog",
+  "kind": "new-node",
+  "text": "Provisioning log: scanned for the first time (v1.0)."
+ },
+ {
   "date": "2026-11-23",
   "node": "agentIdentity",
   "kind": "props-added",
