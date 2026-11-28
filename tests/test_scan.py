@@ -494,6 +494,17 @@ class SubserviceTests(unittest.TestCase):
             build_page.render(self.TPL, gm)
         self.assertIn("education: sub-service", str(cm.exception))
 
+    def test_build_fails_on_more_sub_services_than_the_ring_fits(self):
+        gm, _ = real_map()
+        w = max(gm["workloads"], key=lambda x: len(x["subservices"]))
+        self.assertLessEqual(len(w["subservices"]), build_page.MAX_SUBSERVICES)   # today's data fits
+        w["planned"] = True                                                        # so the new ones may be empty
+        while len(w["subservices"]) <= build_page.MAX_SUBSERVICES:
+            w["subservices"].append({"id": f"extra-{len(w['subservices'])}", "label": "Extra"})
+        with self.assertRaises(build_page.BuildError) as cm:
+            build_page.render(self.TPL, gm)
+        self.assertIn(f"the ring fits at most {build_page.MAX_SUBSERVICES}", str(cm.exception))
+
     def test_build_fails_on_duplicate_subservice_id(self):
         msg = self._broken(lambda gm: gm["workloads"][0]["subservices"].append({"id": "directory", "label": "Again"}))
         self.assertIn("identity: sub-service id 'directory' is used twice", msg)

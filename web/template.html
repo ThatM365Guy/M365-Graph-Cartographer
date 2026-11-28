@@ -461,6 +461,7 @@ function init(){
     const open = subs.find(s => s.id === S.sub);
     const shares = subs.map(s => {
       if (!open) return span/k;
+      // span - (k - 1)*16 is 48 at 8 sub-services, the most build_page.py allows (MAX_SUBSERVICES): more leaves too little room
       if (s === open) return Math.min(Math.max(Math.min(apisOf(S.svc, s.id).length, CAP)*17 + 12, 52), span - (k - 1)*16, 110);
       return 0;
     });

@@ -20,6 +20,9 @@ import os
 import re
 
 MARKER = "/*__GRAPH_DATA__*/null"
+# The open service fans its sub-services over 160 degrees and an open sub-service needs room for 8 API bubbles. With
+# more than 8 sub-services the open one's share runs out (MGC.check() finds overlaps at 9), so the build stops first.
+MAX_SUBSERVICES = 8
 
 
 class BuildError(ValueError):
@@ -44,6 +47,9 @@ def subservice_problems(graph_map: dict) -> tuple[list, list]:
             seen.add(sid)
         if not seen:
             errors.append(f"{w['id']}: workload has no sub-services")
+        if len(seen) > MAX_SUBSERVICES:
+            errors.append(f"{w['id']}: {len(seen)} sub-services, but the ring fits at most {MAX_SUBSERVICES} "
+                          f"(merge some, or change layoutExplore() in web/template.html and rerun MGC.check())")
         subs[w["id"]] = seen
     used = set()
     for n in graph_map.get("nodes", []):
