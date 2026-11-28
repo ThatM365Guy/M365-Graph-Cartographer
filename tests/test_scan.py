@@ -682,6 +682,11 @@ class GeneratedTierTests(unittest.TestCase):
         self.assertIn("microsoft.graph.lonelyType", rep["unplaced"])
         _, rep = generate.merge([], self.entries, {"areas": [], "rules": [{"area": "x", "to": "devices/nope"}]}, WORKLOADS)
         self.assertTrue(rep["rules"])
+        no_slash = {"areas": ["deviceManagement"], "rules": [{"area": "deviceManagement", "to": "devices"}]}
+        nodes, rep = generate.merge([], self.entries, no_slash, WORKLOADS)   # reported, not a ValueError
+        self.assertIn("points to 'devices'", rep["rules"][0])
+        self.assertEqual(nodes, [])
+        self.assertIn("microsoft.graph.managedDevice", rep["unplaced"])
 
     def test_curated_entry_overrides_generated_and_inherits_variants(self):
         cur = [{"id": "compliance", "label": "Compliance policy", "entityType": "microsoft.graph.deviceCompliancePolicy",

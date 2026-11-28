@@ -535,15 +535,20 @@ def place(entry: dict, rules: list) -> tuple[str, str] | None:
     return None
 
 
-def rule_problems(placement: dict, workloads: list) -> list:
+def _bad_rules(placement: dict, workloads: list) -> list:
+    """Rules whose 'to' is not an existing workload/sub-service."""
     subs = {w["id"]: {s["id"] for s in w.get("subservices") or []} for w in workloads}
     out = []
     for r in placement.get("rules", []):
-        to = r.get("to", "")
-        w, _, s = to.partition("/")
+        w, _, s = str(r.get("to", "")).partition("/")
         if w not in subs or s not in subs[w]:
-            out.append(f"placement rule {json.dumps(r)} points to '{to}', which is not a workload/sub-service")
+            out.append(r)
     return out
+
+
+def rule_problems(placement: dict, workloads: list) -> list:
+    return [f"placement rule {json.dumps(r)} points to '{r.get('to', '')}', which is not a workload/sub-service"
+            for r in _bad_rules(placement, workloads)]
 
 
 def merge(curated_nodes: list, entries: list, placement: dict, workloads: list) -> tuple[list, dict]:
@@ -554,7 +559,8 @@ def merge(curated_nodes: list, entries: list, placement: dict, workloads: list) 
     'areas', 'unplaced' (entry types no rule places) and 'rules' (rules that point nowhere)."""
     areas = set(placement.get("areas", []))
     every = "*" in areas   # every area: a new Graph area that no rule places fails the build
-    rules = placement.get("rules", [])
+    bad = _bad_rules(placement, workloads)   # reported below (the build fails on them), never applied
+    rules = [r for r in placement.get("rules", []) if r not in bad]
     curated_types = set()
     for n in curated_nodes:
         if n.get("entityType"):
