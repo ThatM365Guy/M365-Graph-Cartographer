@@ -50,7 +50,7 @@ python scanner/build_page.py                       # writes dist/index.html
 
 ## Deploy option A: Azure Function and a static website
 
-The Function runs weekly (Mondays 05:30 UTC by default) and can also be started on demand with `POST /api/scan`. It writes `index.html`, `graph-map.json` and `changelog.json` to the storage account's `$web` container.
+The Function runs weekly (Mondays 05:30 UTC by default) and can also be started on demand with `POST /api/scan`. It scans, rebuilds the generated tier with `data/placement.json`, checks the build and only then writes `index.html`, `graph-map.json`, `changelog.json`, `coverage.json` and `generated.json` to the storage account's `$web` container. A failed build check leaves the site as it was.
 
 ```bash
 RG=rg-mgc; LOC=uksouth; SA=stmgc$RANDOM; FA=func-mgc-$RANDOM
