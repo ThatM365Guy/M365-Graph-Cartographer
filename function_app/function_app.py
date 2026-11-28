@@ -4,12 +4,15 @@ Azure Function (Python v2 programming model) that keeps M365 Graph Cartographer 
 Timer trigger (default: Mondays 05:30 UTC, set SCAN_SCHEDULE to change it) and an
 HTTP trigger for on-demand runs both:
 
-  1. read curated.json (bundled with the deployment, so edits go through Git)
-  2. read the previous graph-map.json from blob storage
-  3. scan Microsoft Graph v1.0 and beta $metadata (anonymous, no Graph permissions needed)
+  1. read curated.json and placement.json (bundled with the deployment, so edits go through Git)
+  2. read the previous graph-map.json, coverage.json and generated.json from blob storage
+     (generated.json falls back to the copy bundled by package.sh on the first run)
+  3. scan Microsoft Graph v1.0 and beta $metadata (anonymous, no Graph permissions needed) and rebuild the
+     generated tier, placed by placement.json, as the GitHub Actions run does
   4. optionally check permission names (CHECK_PERMISSIONS=true; the managed identity
      then needs the Graph application permission Application.Read.All)
-  5. write graph-map.json, changelog.json and index.html to the static website container
+  5. build the page first, so a failed build check leaves the site as it was, then write graph-map.json,
+     changelog.json, coverage.json, generated.json and index.html to the static website container
 
 App settings:
   STORAGE_ACCOUNT_URL   https://<account>.blob.core.windows.net
@@ -57,19 +60,30 @@ def _write(container, name, text, content_type):
         content_settings=ContentSettings(content_type=content_type, cache_control="no-cache"))
 
 
+def _bundled(name):
+    path = HERE / "data" / name
+    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else None
+
+
 def run_scan(force_permissions: bool = False) -> dict:
     container, cred = _container()
-    curated = json.loads((HERE / "data" / "curated.json").read_text(encoding="utf-8"))
+    curated = _bundled("curated.json")
+    placement = _bundled("placement.json")
     template = (HERE / "web" / "template.html").read_text(encoding="utf-8")
     previous = _read_json(container, "graph-map.json")
+    prev_generated = _read_json(container, "generated.json") or _bundled("generated.json")
 
     token = None
     if force_permissions or os.environ.get("CHECK_PERMISSIONS", "false").lower() == "true":
         token = cred.get_token("https://graph.microsoft.com/.default").token
 
     coverage: dict = {}
+    generated: dict = {}
     graph_map, changes = scan.build_map(curated, previous, token=token, scan=True,
-                                        prev_coverage=_read_json(container, "coverage.json"), coverage_out=coverage)
+                                        prev_coverage=_read_json(container, "coverage.json"), coverage_out=coverage,
+                                        prev_generated=prev_generated, placement=placement, generated_out=generated,
+                                        fetch_github=True)
+    html = build_page.render(template, graph_map)   # raises BuildError before anything is written
     changelog = changes + (_read_json(container, "changelog.json", []) or [])
 
     _write(container, "graph-map.json", json.dumps(graph_map, ensure_ascii=False), "application/json")
@@ -77,9 +91,12 @@ def run_scan(force_permissions: bool = False) -> dict:
            "application/json")
     if coverage:
         _write(container, "coverage.json", json.dumps(coverage, ensure_ascii=False), "application/json")
-    _write(container, "index.html", build_page.render(template, graph_map), "text/html; charset=utf-8")
+    if generated:
+        _write(container, "generated.json", json.dumps(generated, ensure_ascii=False), "application/json")
+    _write(container, "index.html", html, "text/html; charset=utf-8")
 
     summary = {"changes": len(changes), "scan": graph_map["meta"].get("scan"),
+               "warnings": (generated.get("meta") or {}).get("warnings") or [],
                "notFound": [n["id"] for n in graph_map["nodes"] if (n.get("scan") or {}).get("status") == "not found"]}
     log.info("MGC scan complete: %s", summary)
     return summary

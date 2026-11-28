@@ -41,6 +41,10 @@ BETA_URL = "https://graph.microsoft.com/beta/$metadata"
 GRAPH_APP_ID = "00000003-0000-0000-c000-000000000000"
 CHANGELOG_KEEP = 2000
 RECENT_KEEP = 60
+# "Changed this week" on the page: nodes with a schema change (not a new node, retarget or baseline) in the last
+# CHANGED_DAYS days. Kept apart from recentChanges, which is cut to RECENT_KEEP entries.
+SCHEMA_CHANGE_KINDS = {"status", "props-added", "props-removed", "navs-added", "navs-removed"}
+CHANGED_DAYS = 7
 # "New in Graph" entries per kind that go into recentChanges; the rest are summarised (full list in changelog.json).
 NEW_IN_GRAPH_RECENT = 5
 # Roots are areas. When a type is equally close to two roots, the earlier one in AREA_PRIORITY wins, then
@@ -284,6 +288,7 @@ def scan_nodes(curated: dict, v1: Schema | None, beta: Schema | None) -> dict:
             beta_props = sorted((eb["props"] if eb else set()) - set(props))
             beta_navs = sorted(set(eb["navs"] if eb else {}) - set(navs))
             out[n["id"]] = {
+                "of": et,   # the type these results describe; --no-scan uses it to spot a curated retarget
                 "status": _status(bool(e1), bool(eb)),
                 "props": props,
                 "navs": navs,
@@ -292,8 +297,8 @@ def scan_nodes(curated: dict, v1: Schema | None, beta: Schema | None) -> dict:
                 "baseTypes": (e1 or eb or {"chain": []})["chain"][1:],
             }
         elif action:
-            out[n["id"]] = {"status": _status(bool(v1 and v1.operation_anywhere(action)),
-                                              bool(beta and beta.operation_anywhere(action)))}
+            out[n["id"]] = {"of": action, "status": _status(bool(v1 and v1.operation_anywhere(action)),
+                                                            bool(beta and beta.operation_anywhere(action)))}
     return out
 
 
@@ -344,13 +349,25 @@ def discover_edges(curated: dict, v1: Schema | None, beta: Schema | None) -> lis
 
 
 def check_permissions(curated: dict, perms: dict) -> dict:
-    known = set(perms["application"]) | set(perms["delegated"])
+    """Per node: the permission names found, the ones Graph doesn't have ('unknown') and, when both of Graph's lists
+    are known, the ones written on a side Graph doesn't offer them on ('wrongSide', for example a delegated-only name
+    under application). A list stored before the sides were kept has everything under application and no delegated
+    list, so only names are checked."""
+    app, dele = set(perms.get("application") or []), set(perms.get("delegated") or [])
+    known, sided = app | dele, bool(app and dele)
     out = {}
     for n in curated["nodes"]:
-        text = " ".join((n.get("permissions") or {}).values())
-        names = sorted(set(PERM_RE.findall(text)))
-        if names:
-            out[n["id"]] = {"checked": names, "unknown": [x for x in names if x not in known]}
+        p = n.get("permissions") or {}
+        names = sorted(set(PERM_RE.findall(" ".join(p.values()))))
+        if not names:
+            continue
+        r = {"checked": names, "unknown": [x for x in names if x not in known]}
+        if sided:
+            wrong = [{"name": x, "side": side} for side, have in (("delegated", dele), ("application", app))
+                     for x in sorted(set(PERM_RE.findall(p.get(side) or ""))) if x in known and x not in have]
+            if wrong:
+                r["wrongSide"] = wrong
+        out[n["id"]] = r
     return out
 
 
@@ -617,9 +634,11 @@ def cap_new_in_graph(changes: list) -> list:
 # --------------------------------------------------------------------------- diff
 
 
-def diff(curated, prev_map, nodes_scan, discovered, perms, today):
+def diff(curated, prev_map, nodes_scan, discovered, perms, today, edges=()):
     changes = []
     prev_nodes = {n["id"]: n.get("scan") for n in (prev_map or {}).get("nodes", []) if n.get("scan")}
+    # results a --no-scan run set aside because the curated type had changed (see build_map)
+    prev_nodes.update(((prev_map or {}).get("state") or {}).get("retargetedScans") or {})
     prev_target = {n["id"]: n.get("entityType") or n.get("action") for n in (prev_map or {}).get("nodes", [])}
     labels = {n["id"]: n["label"] for n in curated["nodes"]}
     targets = {n["id"]: n.get("entityType") or n.get("action") for n in curated["nodes"]}
@@ -630,19 +649,25 @@ def diff(curated, prev_map, nodes_scan, discovered, perms, today):
     if not prev_nodes:
         add(None, "baseline", "First schema scan. Results recorded as the baseline.")
     else:
+        retargeted = set()
         for nid, cur in nodes_scan.items():
             old = prev_nodes.get(nid)
             lab = labels.get(nid, nid)
             if not old:
                 add(nid, "new-node", f"{lab}: scanned for the first time ({cur['status']}).")
                 continue
-            if prev_target.get(nid) != targets.get(nid):
+            was = old.get("of") or prev_target.get(nid)
+            if was != targets.get(nid):
+                retargeted.add(nid)
                 # a curation edit, not a schema change: record it once and don't diff the old type's members
-                add(nid, "retargeted", f"{lab}: curated type changed from {prev_target.get(nid)} to "
+                add(nid, "retargeted", f"{lab}: curated type changed from {was} to "
                                        f"{targets.get(nid)} ({cur['status']}). Scan results restarted.")
                 continue
             if old.get("status") != cur["status"]:
+                # props and navs list v1.0 members only, so a promotion would list every member as new (and a
+                # demotion every member as gone); the status line already says what happened
                 add(nid, "status", f"{lab}: moved from {old.get('status')} to {cur['status']}.")
+                continue
             for field, word in (("props", "property"), ("navs", "relationship")):
                 if field not in cur:
                     continue
@@ -656,6 +681,18 @@ def diff(curated, prev_map, nodes_scan, discovered, perms, today):
             if (e["s"], e["t"], e["nav"]) not in old_disc:
                 add(e["s"], "link-discovered",
                     f"New link {labels[e['s']]} → {labels[e['t']]} via '{e['nav']}' ({e['scan']}).")
+        # A curated link's own check (its relationship or action on the source type) moving between v1.0, beta
+        # only and not found. Links from a retargeted node changed because of the curation edit, so they are skipped.
+        def edge_key(e):
+            return e["s"], e["t"], e.get("nav") or e.get("action") or e.get("label")
+        old_edge = {edge_key(e): e.get("scan") for e in (prev_map or {}).get("edges", []) if e["kind"] != "discovered"}
+        for e in edges:
+            was, now_ = old_edge.get(edge_key(e)), e.get("scan")
+            if e["s"] in retargeted or not was or was in ("n/a", "not scanned") or now_ in (None, "n/a") or was == now_:
+                continue
+            via = e.get("nav") or e.get("action") or e.get("label") or e["kind"]
+            add(e["s"], "link-status", f"Link {labels.get(e['s'], e['s'])} → {labels.get(e['t'], e['t'])} "
+                                       f"via '{via}': moved from {was} to {now_}.")
 
     if perms:
         old_names = set(((prev_map or {}).get("state") or {}).get("permissionNames") or [])
@@ -697,13 +734,13 @@ def build_generated(v1, beta, types, prev_generated=None, fetch=True, now=None, 
             meta["warnings"].append(f"permissions.json has an unexpected shape ({e}); kept the previous permissions")
         except Exception as e:  # network or GitHub API
             meta["warnings"].append(f"could not read permissions.json ({e}); kept the previous permissions")
-        if docs_index:
-            docs, meta["docs"] = docs_index
-        else:
-            try:
-                docs, meta["docs"] = generate.fetch_docs_index()
-            except Exception as e:
-                meta["warnings"].append(f"could not list the Learn resource pages ({e}); kept the previous links")
+    if docs_index:   # a saved index needs no network, so it applies with --offline too
+        docs, meta["docs"] = docs_index
+    elif fetch:
+        try:
+            docs, meta["docs"] = generate.fetch_docs_index()
+        except Exception as e:
+            meta["warnings"].append(f"could not list the Learn resource pages ({e}); kept the previous links")
     generate.enrich(entries, catalogue, docs)
     prev = {e["id"]: e for e in (prev_generated or {}).get("entries", [])}
     for e in entries:   # carry forward what this run could not fetch
@@ -726,6 +763,7 @@ def build_map(curated, prev_map=None, v1_src=None, beta_src=None, token=None, sc
     today = now.date().isoformat()
     v1 = beta = None
     perms = None
+    retargeted = {}
     meta = dict(curated["meta"])
     meta["generatedAt"] = now.isoformat(timespec="seconds")
 
@@ -763,7 +801,7 @@ def build_map(curated, prev_map=None, v1_src=None, beta_src=None, token=None, sc
         nodes_scan = scan_nodes(curated, v1, beta)
         edges = scan_edges(curated, v1, beta)
         discovered = discover_edges(curated, v1, beta)
-        changes = diff(curated, prev_map, nodes_scan, discovered, perms, today)
+        changes = diff(curated, prev_map, nodes_scan, discovered, perms, today, edges)
         roots = {"v1.0": sorted(v1.roots), "beta": sorted(beta.roots)}
         cov = summarise_coverage(merged, types, roots, meta["scan"]["at"])
         changes += coverage_changes(prev_coverage, cov, today)
@@ -771,6 +809,17 @@ def build_map(curated, prev_map=None, v1_src=None, beta_src=None, token=None, sc
         # keep the previous scan results, re-attached to the current curated content
         prev_nodes = {n["id"]: n for n in (prev_map or {}).get("nodes", [])}
         nodes_scan = {k: v["scan"] for k, v in prev_nodes.items() if v.get("scan")}
+        # A curated node whose type changed since the scan: its results describe the old type, so they are not
+        # shown. They are kept in state so the next scan logs the change once, as 'retargeted'.
+        cur_targets = {n["id"]: n.get("entityType") or n.get("action") for n in curated["nodes"]}
+        retargeted = dict(((prev_map or {}).get("state") or {}).get("retargetedScans") or {})
+        for nid in [k for k in nodes_scan if k in cur_targets]:
+            p = prev_nodes[nid]
+            was = nodes_scan[nid].get("of") or p.get("entityType") or p.get("action")
+            if was != cur_targets[nid]:
+                retargeted.setdefault(nid, dict(nodes_scan.pop(nid), of=was))
+        for nid in [k for k, v in retargeted.items() if v.get("of") == cur_targets.get(k)]:
+            nodes_scan[nid] = retargeted.pop(nid)   # changed back before a scan: the old results fit again
         prev_edges = {(e["s"], e["t"], e.get("nav") or e.get("action") or e.get("label")): e.get("scan")
                       for e in (prev_map or {}).get("edges", [])}
         edges = []
@@ -778,7 +827,11 @@ def build_map(curated, prev_map=None, v1_src=None, beta_src=None, token=None, sc
             e = dict(e)
             e["scan"] = prev_edges.get((e["s"], e["t"], e.get("nav") or e.get("action") or e.get("label")), "not scanned")
             edges.append(e)
-        discovered = [e for e in (prev_map or {}).get("edges", []) if e["kind"] == "discovered"]
+        # as discover_edges() would: not for a pair a curated link now covers, nor for a node that has gone
+        covered = {(e["s"], e["t"]) for e in curated["edges"]}
+        ids = {n["id"] for n in curated["nodes"]}
+        discovered = [e for e in (prev_map or {}).get("edges", []) if e["kind"] == "discovered"
+                      and (e["s"], e["t"]) not in covered and e["s"] in ids and e["t"] in ids]
         changes = []
         cov = (summarise_coverage(merged, prev_coverage["types"], prev_coverage.get("roots") or {},
                                   prev_coverage.get("at")) if prev_coverage and prev_coverage.get("types") else None)
@@ -787,12 +840,15 @@ def build_map(curated, prev_map=None, v1_src=None, beta_src=None, token=None, sc
     prev_state = (prev_map or {}).get("state") or {}
     if perms:
         perm_names, perm_at = sorted(set(perms["application"]) | set(perms["delegated"])), today
+        perm_sides = {"application": sorted(set(perms["application"])), "delegated": sorted(set(perms["delegated"]))}
     else:
         prev_scan = (prev_map or {}).get("meta", {}).get("scan") or {}
         perm_names = prev_state.get("permissionNames")
+        perm_sides = prev_state.get("permissionNamesBySide")   # stored from the first --permissions run that kept sides
         perm_at = (prev_state.get("permissionNamesAt") or prev_scan.get("permissionsCheckedAt")
                    or (prev_scan.get("at") or "")[:10] or None)
-    perm_check = check_permissions(merged, {"application": perm_names, "delegated": []}) if perm_names else {}
+    perm_check = (check_permissions(merged, perm_sides) if perm_sides else
+                  check_permissions(merged, {"application": perm_names, "delegated": []}) if perm_names else {})
     if meta.get("scan"):
         meta["scan"] = dict(meta["scan"])
         gmeta = (generated or {}).get("meta") or {}
@@ -819,10 +875,16 @@ def build_map(curated, prev_map=None, v1_src=None, beta_src=None, token=None, sc
         nodes.append(n)
 
     recent = (cap_new_in_graph(changes) + list((prev_map or {}).get("recentChanges", [])))[:RECENT_KEEP]
+    changed_nodes = changed_this_week((prev_map or {}), changes, now if scan else None)
     state = dict(prev_state)
     if perm_names:
         state["permissionNames"], state["permissionNamesAt"] = perm_names, perm_at
+    if perm_sides:
+        state["permissionNamesBySide"] = perm_sides
     state.pop("placement", None)
+    state.pop("retargetedScans", None)
+    if not scan and retargeted:
+        state["retargetedScans"] = retargeted
     if placement_report is not None:   # read by build_page.py's completeness rule, never embedded in the page
         state["placement"] = {k: v for k, v in placement_report.items() if k != "inheritedVariants"}
 
@@ -834,12 +896,32 @@ def build_map(curated, prev_map=None, v1_src=None, beta_src=None, token=None, sc
         "edges": edges + discovered,
         "scenarios": curated.get("scenarios", []),
         "recentChanges": recent,
+        "changedNodes": changed_nodes,
         "state": state,
     }
     summary = coverage_summary(cov) or (prev_map or {}).get("coverage")
     if summary:
         graph_map["coverage"] = summary
     return graph_map, changes
+
+
+def changed_this_week(prev_map: dict, changes: list, now) -> dict:
+    """node id -> date of its latest schema change in the CHANGED_DAYS days up to this scan. now=None (--no-scan)
+    keeps the previous list. A map written before changedNodes existed is read from its recent list."""
+    prev = prev_map.get("changedNodes")
+    if prev is None:
+        prev = {}
+        for c in prev_map.get("recentChanges", []):
+            if c.get("node") and c["kind"] in SCHEMA_CHANGE_KINDS:
+                prev[c["node"]] = max(prev.get(c["node"], ""), c["date"])
+    if now is None:
+        return dict(sorted(prev.items()))
+    cutoff = (now - dt.timedelta(days=CHANGED_DAYS)).date().isoformat()
+    out = {k: d for k, d in prev.items() if d >= cutoff}
+    for c in changes:
+        if c.get("node") and c["kind"] in SCHEMA_CHANGE_KINDS:
+            out[c["node"]] = max(out.get(c["node"], ""), c["date"])
+    return dict(sorted(out.items()))
 
 
 def unsorted_nodes(curated: dict) -> list:

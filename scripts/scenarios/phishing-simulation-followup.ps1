@@ -112,6 +112,12 @@ function Write-Skip {
     Write-Information "Skipped: $Text" -InformationAction Continue
 }
 
+function ConvertTo-ODataLiteral {
+    # Doubles single quotes, so a value such as o'brien@contoso.com can sit inside '...' in an OData $filter.
+    param([string]$Value)
+    $Value.Replace("'", "''")
+}
+
 function Get-UtcStamp {
     param([int]$DaysAgo = 0)
     (Get-Date).ToUniversalTime().AddDays(-$DaysAgo).ToString('yyyy-MM-ddTHH:mm:ssZ')
@@ -142,7 +148,7 @@ $users = @(Invoke-ReadStep '3-users' {
 # Step 4: GET /reports/authenticationMethods/userRegistrationDetails (is each user protected by strong MFA?)
 $null = Invoke-ReadStep '4-registration-details' {
     foreach ($u in $users) {
-        Get-MgReportAuthenticationMethodUserRegistrationDetail -Filter "userPrincipalName eq '$($u.UserPrincipalName)'" |
+        Get-MgReportAuthenticationMethodUserRegistrationDetail -Filter "userPrincipalName eq '$(ConvertTo-ODataLiteral $u.UserPrincipalName)'" |
             Select-Object UserPrincipalName, IsMfaRegistered, IsPasswordlessCapable, IsSsprRegistered, @{n = 'Methods'; e = { ($_.MethodsRegistered) -join ';' } }
     }
 }

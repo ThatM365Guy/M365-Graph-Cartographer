@@ -110,8 +110,13 @@ def _descendants(schema) -> dict:
     return out
 
 
-def find_paths(schema) -> dict:
+def find_paths(schema, info: dict | None = None) -> dict:
     """fq -> {root: (path, item_path)}: the shortest containment path from each top-level root.
+
+    info, when given, receives 'inherited': the types whose path is only their base's fallback path (an operation
+    or relationship returns the base, so its derived types are reached too). build_entries() folds them into the
+    base as variants rather than giving each an entry with the same path, and 'post': the types whose path runs
+    through a bound action (/communications/calls/{id}/mute), which is called with POST and can't be read with GET.
 
     path is what a caller lists or gets (a collection, or a single object); item_path is one object in it.
     Contained navigation properties declared on a derived type are followed with a cast segment, for example
@@ -144,25 +149,31 @@ def find_paths(schema) -> dict:
                 if target not in seen:
                     seen.add(target)
                     queue.append((target, out[target][root][1]))
-    _fallback_paths(schema, out, desc)
+    _fallback_paths(schema, out, desc, info if info is not None else {})
     return out
 
 
-def _fallback_paths(schema, out: dict, desc: dict) -> None:
+def _fallback_paths(schema, out: dict, desc: dict, info: dict) -> None:
     """For types no containment path reaches: first a bound function or action that returns them
     (/copilot/.../getAllEnterpriseInteractions), then a relationship that isn't containment (/sites/{id}/analytics).
     One step at a time from the shortest known path, so the nearest wins. The result of an operation is not
     addressable item by item, so its path is also its item path. Navs typed as entity are ignored."""
     broad = NOT_A_BASE
+    inherited = info.setdefault("inherited", set())
+    post = info.setdefault("post", set())
 
     def best(fq):
         return min(out[fq].items(), key=lambda kv: (_segments(kv[1][0]), kv[1][0].lower()))
 
-    def add(target, root, path, item):
+    def add(target, root, path, item, via_post):
         for t in [target] + desc.get(target, []):
             if t not in out and t in schema.entities:
                 out[t] = {root: (path, item)}
                 added.append(t)
+                if t != target:
+                    inherited.add(t)
+                if via_post:
+                    post.add(t)
 
     while True:
         added = []
@@ -177,7 +188,7 @@ def _fallback_paths(schema, out: dict, desc: dict) -> None:
                 for o in sorted(by_binding.get(b, []), key=lambda o: o["name"]):
                     if o["returns"] not in out:
                         p = (path if o["bindingMany"] else item) + "/" + o["name"]
-                        add(o["returns"], root, p, p)
+                        add(o["returns"], root, p, p, fq in post or o["kind"] == "Action")
         if not added:
             for fq in sorted(out, key=lambda f: _segments(best(f)[1][0])):
                 if fq not in schema.entities:
@@ -189,7 +200,7 @@ def _fallback_paths(schema, out: dict, desc: dict) -> None:
                     if t in broad or t in out:
                         continue
                     p = item + "/" + nav
-                    add(t, root, p, p + "/{id}" if nav in eff["many"] else p)
+                    add(t, root, p, p + "/{id}" if nav in eff["many"] else p, fq in post)
         if not added:
             return
 
@@ -236,15 +247,18 @@ def build_entries(v1, beta, types: dict) -> list:
     no reachable ancestor. Every other type is a variant, folded into its nearest reachable ancestor.
 
     types: fq -> {"area", "status"} (from scan.coverage_types or coverage.json)."""
-    paths = find_paths(v1)
+    info: dict = {}
+    paths = find_paths(v1, info)
+    own = {fq for fq in paths if fq not in info["inherited"]}   # types with a path of their own
+    post = info["post"]
     v1_types = [fq for fq in v1.entities if fq != "microsoft.graph.entity"]
     owner = {}   # fq -> the fq of the entry it belongs to
     for fq in v1_types:
-        if fq in paths:
+        if fq in own:
             owner[fq] = fq
             continue
         cur = v1.entities[fq]["base"]
-        while cur and cur not in NOT_A_BASE and cur not in paths:
+        while cur and cur not in NOT_A_BASE and cur not in own:
             cur = v1.entities.get(cur, {}).get("base")
         owner[fq] = cur if cur and cur not in NOT_A_BASE else fq
     variants: dict[str, list] = {}
@@ -263,6 +277,7 @@ def build_entries(v1, beta, types: dict) -> list:
             "area": area,
             "path": chosen[0][0] if chosen else None,
             "itemPath": chosen[0][1] if chosen else None,
+            **({"pathMethod": "POST"} if fq in post else {}),   # the path runs through a bound action
             "altPaths": [p for p, _ in chosen[1:]],
             "variants": sorted(variants.get(fq, [])),
             "ops": _ops(v1, fq),
@@ -294,7 +309,10 @@ def build_beta_entries(beta, v1_entries: list, types: dict) -> tuple[list, dict]
     No Learn link: the docs index covers v1.0 pages only."""
     if beta is None:
         return [], {}
-    paths = find_paths(beta)
+    info: dict = {}
+    paths = find_paths(beta, info)
+    own = {fq for fq in paths if fq not in info["inherited"]}
+    post = info["post"]
     v1_owner = {}
     for e in v1_entries:
         v1_owner[e["entityType"]] = e["id"]
@@ -303,11 +321,11 @@ def build_beta_entries(beta, v1_entries: list, types: dict) -> tuple[list, dict]
     beta_only = [fq for fq in beta.entities if (types.get(fq) or {}).get("status") == "beta only"]
     owner, beta_variants = {}, {}
     for fq in beta_only:
-        if fq in paths:
+        if fq in own:
             owner[fq] = fq
             continue
         cur = beta.entities[fq]["base"]
-        while cur and cur not in NOT_A_BASE and cur not in paths:
+        while cur and cur not in NOT_A_BASE and cur not in own:
             cur = beta.entities.get(cur, {}).get("base")
         if cur and cur not in NOT_A_BASE and cur in v1_owner:
             beta_variants.setdefault(v1_owner[cur], []).append(fq)
@@ -330,6 +348,7 @@ def build_beta_entries(beta, v1_entries: list, types: dict) -> tuple[list, dict]
             "area": area,
             "path": chosen[0][0] if chosen else None,
             "itemPath": chosen[0][1] if chosen else None,
+            **({"pathMethod": "POST"} if fq in post else {}),   # the path runs through a bound action
             "altPaths": [p for p, _ in chosen[1:]],
             "variants": sorted(variants.get(fq, [])),
             "ops": _ops(beta, fq),
@@ -453,13 +472,17 @@ def permissions_for(entry: dict, idx: dict) -> dict | None:
     for p in [entry.get("itemPath"), entry.get("path")] + [a + "/{id}" for a in entry.get("altPaths", [])] + entry.get("altPaths", []):
         if p and p.lower() not in candidates:
             candidates.append(p.lower())
+    first = None
     for p in candidates:
         slot = idx.get(p)
         if not slot:
             continue
         pick = lambda scheme: ", ".join(sorted((slot.get(scheme) or {}).get("least", ())))
-        return {"delegated": pick("DelegatedWork"), "application": pick("Application"), "matchedPath": p}
-    return None
+        found = {"delegated": pick("DelegatedWork"), "application": pick("Application"), "matchedPath": p}
+        if found["delegated"] or found["application"]:
+            return found
+        first = first or found   # the catalogue knows this path but marks nothing least: try the next one
+    return first
 
 
 def docs_for(fq: str, area: str, names: set) -> str | None:
@@ -531,15 +554,20 @@ def place(entry: dict, rules: list) -> tuple[str, str] | None:
     return None
 
 
-def rule_problems(placement: dict, workloads: list) -> list:
+def _bad_rules(placement: dict, workloads: list) -> list:
+    """Rules whose 'to' is not an existing workload/sub-service."""
     subs = {w["id"]: {s["id"] for s in w.get("subservices") or []} for w in workloads}
     out = []
     for r in placement.get("rules", []):
-        to = r.get("to", "")
-        w, _, s = to.partition("/")
+        w, _, s = str(r.get("to", "")).partition("/")
         if w not in subs or s not in subs[w]:
-            out.append(f"placement rule {json.dumps(r)} points to '{to}', which is not a workload/sub-service")
+            out.append(r)
     return out
+
+
+def rule_problems(placement: dict, workloads: list) -> list:
+    return [f"placement rule {json.dumps(r)} points to '{r.get('to', '')}', which is not a workload/sub-service"
+            for r in _bad_rules(placement, workloads)]
 
 
 def merge(curated_nodes: list, entries: list, placement: dict, workloads: list) -> tuple[list, dict]:
@@ -550,7 +578,8 @@ def merge(curated_nodes: list, entries: list, placement: dict, workloads: list) 
     'areas', 'unplaced' (entry types no rule places) and 'rules' (rules that point nowhere)."""
     areas = set(placement.get("areas", []))
     every = "*" in areas   # every area: a new Graph area that no rule places fails the build
-    rules = placement.get("rules", [])
+    bad = _bad_rules(placement, workloads)   # reported below (the build fails on them), never applied
+    rules = [r for r in placement.get("rules", []) if r not in bad]
     curated_types = set()
     for n in curated_nodes:
         if n.get("entityType"):

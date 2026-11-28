@@ -31,7 +31,10 @@ AUTH_OK = {"Connect-MgGraph", "Get-MgContext", "Invoke-MgGraphRequest"}
 # Anything that could send data somewhere other than Microsoft Graph, or run other code.
 FORBIDDEN = re.compile(r"\b(Invoke-RestMethod|Invoke-WebRequest|irm|iwr|curl|wget|Send-MailMessage|Start-Process|"
                        r"Invoke-Expression|iex|Net\.WebClient|HttpClient|Start-BitsTransfer|Invoke-Command|"
-                       r"Set-Content|Out-File|Add-Content|Remove-Item|Disconnect-MgGraph)\b", re.I)
+                       r"Set-Content|Out-File|Add-Content|Remove-Item|Disconnect-MgGraph|"
+                       # an alias of Invoke-MgGraphRequest that the -Method check below would not see
+                       # (the other alias, Invoke-MgRestMethod, is caught as a non-Get Mg cmdlet)
+                       r"Invoke-GraphRequest)\b", re.I)
 WRITE_VERBS = ("New", "Set", "Update", "Remove", "Add")
 
 
@@ -122,9 +125,12 @@ class ScriptFiles(unittest.TestCase):
                "Invoke-MgGraphRequest -Method POST -Uri '/v1.0/users/x/revokeSignInSessions'\n"
                "Start-MgSecurityHuntingQuery -BodyParameter $b\n"
                "Invoke-RestMethod https://example.com -Body $data\n"
+               "Invoke-GraphRequest -Method DELETE -Uri '/v1.0/users/x'\n"
+               "Invoke-MgRestMethod -Method DELETE -Uri '/v1.0/users/x'\n"
                "# Remove-MgUser in a comment is fine\n")
         found = guard_problems(bad, "x")
-        self.assertEqual(len(found), 10, found)
+        self.assertEqual(len(found), 12, found)
+        self.assertTrue(any("Invoke-GraphRequest" in f for f in found))
 
     def test_scopes_are_read_only_and_real(self):
         names = set(build_page_state().get("permissionNames") or [])
@@ -137,6 +143,24 @@ class ScriptFiles(unittest.TestCase):
                 if names:
                     self.assertIn(sc, names, f"{s['id']}: {sc} is not a Microsoft Graph permission name")
             self.assertIn("Connect-MgGraph -Scopes $Scopes", read(s["id"]), s["id"])
+
+    def test_names_and_addresses_in_filters_are_quote_escaped(self):
+        """A UPN or address can hold an apostrophe (o'brien@contoso.com), which ends an OData string early."""
+        raw = re.compile(r"(userPrincipalName|senderAddress|recipientAddress|mail)\s+(eq|ne)\s+'\$(?!\(ConvertTo-ODataLiteral )", re.I)
+        bad = []
+        for s in CURATED["scenarios"]:
+            for i, line in enumerate(code_only(read(s["id"])).splitlines(), 1):
+                if raw.search(line):
+                    bad.append(f"{s['id']}:{i}: use ConvertTo-ODataLiteral for the value")
+        self.assertEqual(bad, [])
+        self.assertTrue(raw.search("-Filter \"userPrincipalName eq '$($u.UserPrincipalName)'\""))
+
+    def test_recipient_lists_are_read_one_by_one(self):
+        """$list.EmailAddress.Address returns System.Array's Address method once a list has two recipients."""
+        rx = re.compile(r"(ForwardTo|RedirectTo|ForwardAsAttachmentTo|Recipients)\.EmailAddress\.Address", re.I)
+        bad = [f"{s['id']}:{i}" for s in CURATED["scenarios"]
+               for i, line in enumerate(code_only(read(s["id"])).splitlines(), 1) if rx.search(line)]
+        self.assertEqual(bad, [], "use Get-RecipientAddress")
 
     def test_csv_output_only_to_output_folder(self):
         for s in CURATED["scenarios"]:

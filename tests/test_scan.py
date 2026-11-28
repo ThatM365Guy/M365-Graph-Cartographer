@@ -141,6 +141,44 @@ class ScanTests(unittest.TestCase):
         self.assertIn("Sensitivity label: moved from beta only to v1.0", texts)
         self.assertIn("User: new v1.0 property 'employeeLeaveDateTime'", texts)
         self.assertEqual(second["recentChanges"][0]["date"], "2026-11-21")
+        promoted = [c["kind"] for c in changes if c["node"] == "sensitivityLabel"]
+        self.assertEqual(promoted, ["status"])          # not one entry per property as well
+
+    def test_a_curated_link_changing_status_is_logged(self):
+        first, _ = self.run_scan("v1.xml", "beta.xml")
+        prev = copy.deepcopy(first)
+        for e in prev["edges"]:
+            if (e["s"], e["t"], e.get("nav")) == ("user", "drive", "drive"):
+                e["scan"] = "beta only"                       # as if the relationship had only been in beta
+        _, changes = self.run_scan("v1.xml", "beta.xml", prev=prev, now=D2)
+        links = [c for c in changes if c["kind"] == "link-status"]
+        self.assertEqual(len(links), 1)
+        self.assertIn("via 'drive': moved from beta only to v1.0", links[0]["text"])
+        _, same = self.run_scan("v1.xml", "beta.xml", prev=first, now=D2)
+        self.assertFalse([c for c in same if c["kind"] == "link-status"])
+
+    def test_changed_this_week_is_not_cut_by_the_recent_list(self):
+        first, _ = self.run_scan("v1.xml", "beta.xml")
+        self.assertEqual(first["changedNodes"], {})                      # a baseline is not a change
+        keep = scan.RECENT_KEEP
+        scan.RECENT_KEEP = 1                                             # far fewer than the changes in this scan
+        try:
+            second, _ = self.run_scan("v1_later.xml", "beta.xml", prev=first, now=D2)
+        finally:
+            scan.RECENT_KEEP = keep
+        self.assertEqual(len(second["recentChanges"]), 1)
+        self.assertEqual(second["changedNodes"].get("user"), "2026-11-21")
+        self.assertEqual(second["changedNodes"].get("sensitivityLabel"), "2026-11-21")
+        kept, _ = scan.build_map(curated(), second, scan=False, now=D2 + dt.timedelta(days=30))
+        self.assertEqual(kept["changedNodes"], second["changedNodes"])   # --no-scan keeps the list as it was
+        later, _ = self.run_scan("v1_later.xml", "beta.xml", prev=second, now=D2 + dt.timedelta(days=8))
+        self.assertEqual(later["changedNodes"], {})                      # older than a week, and nothing new
+        old_map = {k: v for k, v in second.items() if k != "changedNodes"}
+        seeded = scan.changed_this_week(old_map, [], None)               # a map from before changedNodes existed
+        self.assertEqual(sorted(seeded), sorted(c["node"] for c in second["recentChanges"]
+                                                if c["node"] and c["kind"] in scan.SCHEMA_CHANGE_KINDS))
+        with open(os.path.join(ROOT, "web", "template.html"), encoding="utf-8") as f:
+            self.assertIn("D.changedNodes", f.read())
 
     def test_retargeted_node_is_one_curation_entry_not_schema_changes(self):
         first, _ = self.run_scan("v1.xml", "beta.xml")
@@ -150,6 +188,38 @@ class ScanTests(unittest.TestCase):
         user_changes = [c for c in changes if c["node"] == "user"]
         self.assertEqual([c["kind"] for c in user_changes], ["retargeted"])
         self.assertIn("from microsoft.graph.user to microsoft.graph.group", user_changes[0]["text"])
+
+    def test_no_scan_after_a_retarget_hides_old_results_and_next_scan_logs_it_once(self):
+        first, _ = self.run_scan("v1.xml", "beta.xml")
+        self.assertEqual(next(n for n in first["nodes"] if n["id"] == "user")["scan"]["of"], "microsoft.graph.user")
+        cur = curated()
+        next(n for n in cur["nodes"] if n["id"] == "user")["entityType"] = "microsoft.graph.group"
+        mid, _ = scan.build_map(cur, first, scan=False, now=D2)
+        self.assertNotIn("scan", next(n for n in mid["nodes"] if n["id"] == "user"))   # not the old type's schema
+        self.assertEqual(mid["state"]["retargetedScans"]["user"]["of"], "microsoft.graph.user")
+        again, _ = scan.build_map(cur, mid, scan=False, now=D2)                         # a second --no-scan keeps it
+        self.assertEqual(again["state"]["retargetedScans"]["user"]["of"], "microsoft.graph.user")
+        second, changes = scan.build_map(cur, again, os.path.join(FX, "v1.xml"), os.path.join(FX, "beta.xml"), now=D2)
+        self.assertEqual([c["kind"] for c in changes if c["node"] == "user"], ["retargeted"])
+        self.assertNotIn("retargetedScans", second["state"])
+        back, _ = scan.build_map(curated(), mid, scan=False, now=D2)                    # changed back before a scan
+        self.assertEqual(next(n for n in back["nodes"] if n["id"] == "user")["scan"]["of"], "microsoft.graph.user")
+        self.assertNotIn("retargetedScans", back["state"])
+
+    def test_no_scan_drops_discovered_links_that_are_now_curated(self):
+        cur = curated()
+        user_site = next(e for e in cur["edges"] if (e["s"], e["t"]) == ("user", "site"))
+        cur["edges"].remove(user_site)
+        first, _ = scan.build_map(cur, None, os.path.join(FX, "v1.xml"), os.path.join(FX, "beta.xml"), now=D1)
+        self.assertTrue(any(e["kind"] == "discovered" and (e["s"], e["t"]) == ("user", "site") for e in first["edges"]))
+        gm, _ = scan.build_map(curated(), first, scan=False, now=D2)        # the link is curated again
+        pair = [e["kind"] for e in gm["edges"] if (e["s"], e["t"]) == ("user", "site")]
+        self.assertEqual(pair, ["nav"])
+        gone = curated()
+        gone["nodes"] = [n for n in gone["nodes"] if n["id"] != "site"]
+        gone["edges"] = [e for e in gone["edges"] if "site" not in (e["s"], e["t"])]
+        gm, _ = scan.build_map(gone, first, scan=False, now=D2)             # a node that has gone
+        self.assertFalse([e for e in gm["edges"] if "site" in (e["s"], e["t"])])
 
     def test_no_scan_keeps_previous_results_and_new_curated_text(self):
         first, _ = self.run_scan("v1.xml", "beta.xml")
@@ -167,6 +237,20 @@ class ScanTests(unittest.TestCase):
         self.assertEqual(res["user"]["unknown"], [])
         self.assertIn("Group.Read.All", res["group"]["unknown"])
         self.assertNotIn("v1.0", " ".join(sum((r["checked"] for r in res.values()), [])))
+
+    def test_permission_check_flags_a_name_on_the_wrong_side(self):
+        cur = {"nodes": [{"id": "x", "permissions": {"delegated": "Agreement.Read.All, AppOnly.Read.All",
+                                                     "application": "AgreementAcceptance.Read"}},
+                         {"id": "ok", "permissions": {"delegated": "Both.Read.All", "application": "Both.Read.All"}}]}
+        perms = {"application": ["AppOnly.Read.All", "Both.Read.All", "Agreement.Read.All"],
+                 "delegated": ["Agreement.Read.All", "AgreementAcceptance.Read", "Both.Read.All"]}
+        res = scan.check_permissions(cur, perms)
+        self.assertEqual(res["x"]["wrongSide"], [{"name": "AppOnly.Read.All", "side": "delegated"},
+                                                 {"name": "AgreementAcceptance.Read", "side": "application"}])
+        self.assertEqual(res["x"]["unknown"], [])
+        self.assertNotIn("wrongSide", res["ok"])
+        flat = scan.check_permissions(cur, {"application": sorted(set(sum(perms.values(), []))), "delegated": []})
+        self.assertNotIn("wrongSide", flat["x"])        # a list stored without sides only checks names
 
 
 class PermissionCarryOverTests(unittest.TestCase):
@@ -196,6 +280,14 @@ class PermissionCarryOverTests(unittest.TestCase):
         self.assertEqual(gm["meta"]["scan"]["permissionsCheckedAt"], "2026-11-14")
         self.assertEqual(gm["meta"]["scan"]["permissionCount"], 4)
         self.assertEqual(gm["state"]["permissionNames"], first["state"]["permissionNames"])
+        self.assertEqual(gm["state"]["permissionNamesBySide"]["delegated"], ["User.Read", "User.ReadBasic.All"])
+        self.assertNotIn("wrongSide", nodes["user"]["permCheck"])       # User.Read delegated, User.Read.All application
+        cur2 = curated()
+        next(n for n in cur2["nodes"] if n["id"] == "user")["permissions"] = {"delegated": "User.Read.All",
+                                                                              "application": "User.Read.All"}
+        gm2, _ = scan.build_map(cur2, first, scan=False, now=D2)        # checked by side without a token too
+        self.assertEqual(next(n for n in gm2["nodes"] if n["id"] == "user")["permCheck"]["wrongSide"],
+                         [{"name": "User.Read.All", "side": "delegated"}])
 
     def test_no_scan_rechecks_too(self):
         first = self.first_with_perms()
@@ -402,6 +494,17 @@ class SubserviceTests(unittest.TestCase):
             build_page.render(self.TPL, gm)
         self.assertIn("education: sub-service", str(cm.exception))
 
+    def test_build_fails_on_more_sub_services_than_the_ring_fits(self):
+        gm, _ = real_map()
+        w = max(gm["workloads"], key=lambda x: len(x["subservices"]))
+        self.assertLessEqual(len(w["subservices"]), build_page.MAX_SUBSERVICES)   # today's data fits
+        w["planned"] = True                                                        # so the new ones may be empty
+        while len(w["subservices"]) <= build_page.MAX_SUBSERVICES:
+            w["subservices"].append({"id": f"extra-{len(w['subservices'])}", "label": "Extra"})
+        with self.assertRaises(build_page.BuildError) as cm:
+            build_page.render(self.TPL, gm)
+        self.assertIn(f"the ring fits at most {build_page.MAX_SUBSERVICES}", str(cm.exception))
+
     def test_build_fails_on_duplicate_subservice_id(self):
         msg = self._broken(lambda gm: gm["workloads"][0]["subservices"].append({"id": "directory", "label": "Again"}))
         self.assertIn("identity: sub-service id 'directory' is used twice", msg)
@@ -517,6 +620,20 @@ class GeneratedTierTests(unittest.TestCase):
         self.assertEqual(self.by_type["deviceNote"]["path"], "/deviceManagement/managedDevices/{id}/note")
         self.assertEqual(self.by_type["managedDevice"]["path"], "/deviceManagement/managedDevices")   # containment still wins
 
+    def test_derived_type_of_a_fallback_result_is_a_variant_not_a_second_entry(self):
+        self.assertNotIn("detailedReportResult", self.by_type)
+        self.assertEqual(self.by_type["reportResult"]["variants"], ["microsoft.graph.detailedReportResult"])
+        paths = [e["path"] for e in self.entries if e["path"]]
+        self.assertEqual(len(paths), len(set(paths)), "two entries share a path")
+
+    def test_paths_through_a_bound_action_are_marked_post(self):
+        wipe, detail = self.by_type["wipeResult"], self.by_type["wipeDetail"]
+        self.assertEqual((wipe["path"], wipe["pathMethod"]), ("/deviceManagement/wipeReport", "POST"))
+        self.assertEqual((detail["path"], detail["pathMethod"]), ("/deviceManagement/wipeReport/details", "POST"))
+        self.assertNotIn("pathMethod", self.by_type["reportResult"])      # a function result is read with GET
+        self.assertNotIn("pathMethod", self.by_type["deviceNote"])
+        self.assertIsNone(explorer_request(dict(wipe)))                    # no GET link for a POST path
+
     def test_unreachable_type_keeps_an_entry_without_a_path(self):
         self.assertIsNone(self.by_type["lonelyType"]["path"])
 
@@ -543,6 +660,19 @@ class GeneratedTierTests(unittest.TestCase):
         p = generate.permissions_for(self.by_type["deviceCompliancePolicy"], idx)   # falls back to the collection path
         self.assertEqual((p["delegated"], p["application"]), ("", "DeviceManagementConfiguration.Read.All"))
         self.assertIsNone(generate.permissions_for(self.by_type["lonelyType"], idx))
+
+    def test_catalogue_path_with_nothing_marked_least_falls_through(self):
+        cat = copy.deepcopy(CATALOGUE)
+        cat["permissions"]["DeviceManagementConfiguration.ReadWrite.All"] = {"authorizationType": "oAuth2", "pathSets": [
+            {"schemeKeys": ["Application"], "methods": ["GET"], "paths": {"/devicemanagement/devicecompliancepolicies/{id}": ""}}]}
+        idx = generate.index_catalogue(cat)
+        p = generate.permissions_for(self.by_type["deviceCompliancePolicy"], idx)   # item path known, nothing least
+        self.assertEqual((p["application"], p["matchedPath"]),
+                         ("DeviceManagementConfiguration.Read.All", "/devicemanagement/devicecompliancepolicies"))
+        del cat["permissions"]["DeviceManagementConfiguration.Read.All"]
+        p = generate.permissions_for(self.by_type["deviceCompliancePolicy"], generate.index_catalogue(cat))
+        self.assertEqual((p["delegated"], p["application"], p["matchedPath"]),
+                         ("", "", "/devicemanagement/devicecompliancepolicies/{id}"))   # no path has any: the first one
 
     def test_catalogue_shape_is_checked(self):
         generate.check_catalogue_shape(CATALOGUE)
@@ -577,6 +707,11 @@ class GeneratedTierTests(unittest.TestCase):
         self.assertIn("microsoft.graph.lonelyType", rep["unplaced"])
         _, rep = generate.merge([], self.entries, {"areas": [], "rules": [{"area": "x", "to": "devices/nope"}]}, WORKLOADS)
         self.assertTrue(rep["rules"])
+        no_slash = {"areas": ["deviceManagement"], "rules": [{"area": "deviceManagement", "to": "devices"}]}
+        nodes, rep = generate.merge([], self.entries, no_slash, WORKLOADS)   # reported, not a ValueError
+        self.assertIn("points to 'devices'", rep["rules"][0])
+        self.assertEqual(nodes, [])
+        self.assertIn("microsoft.graph.managedDevice", rep["unplaced"])
 
     def test_curated_entry_overrides_generated_and_inherits_variants(self):
         cur = [{"id": "compliance", "label": "Compliance policy", "entityType": "microsoft.graph.deviceCompliancePolicy",
@@ -631,6 +766,16 @@ class GeneratedTierTests(unittest.TestCase):
         self.assertEqual(gm["coverage"]["onMap"], gm["coverage"]["v1Types"])
         self.assertEqual(gm["coverage"]["betaOnMap"], gm["coverage"]["betaOnlyTypes"])
 
+    def test_saved_docs_index_applies_offline(self):
+        types = scan.coverage_types(self.v1, self.v1)
+        pin = {"commit": "abc", "repo": generate.DOCS_REPO, "path": generate.DOCS_DIR}
+        gen = scan.build_generated(self.v1, None, types, fetch=False, now=D1,
+                                   docs_index=(["intune-devices-manageddevice"], pin))
+        md = next(e for e in gen["entries"] if e["entityType"] == "microsoft.graph.managedDevice")
+        self.assertTrue(md["docs"].endswith("/intune-devices-manageddevice?view=graph-rest-1.0"))
+        self.assertEqual(gen["meta"]["docs"], pin)
+        self.assertEqual(gen["meta"]["warnings"], [])
+
     def test_name_rule_places_types_without_a_path(self):
         rules = [{"name": "lonely*", "to": "devices/intune-admin"}]
         self.assertEqual(generate.place(self.by_type["lonelyType"], rules), ("devices", "intune-admin"))
@@ -639,7 +784,7 @@ class GeneratedTierTests(unittest.TestCase):
 
 def explorer_request(n):
     """Python twin of explorerUrl() in web/template.html: (request, version) or None."""
-    if n.get("kind") == "gap" or not n.get("path"):
+    if n.get("kind") == "gap" or not n.get("path") or n.get("pathMethod") == "POST":
         return None
     req, version = n["path"].split("·")[0].strip(), ("beta" if (n.get("scan") or {}).get("status") == "beta only" else "v1.0")
     if n.get("tier") != "generated":
@@ -647,9 +792,9 @@ def explorer_request(n):
         if not m:
             return None
         req = m.group(1).strip()
+    req = re.sub(r"^https://graph\.microsoft\.com", "", req)
     if not req.startswith("/"):
         return None
-    req = re.sub(r"^https://graph\.microsoft\.com", "", req)
     v = re.match(r"^/(v1\.0|beta)(/.*)$", req)
     if v:
         version, req = v.group(1), v.group(2)
@@ -672,6 +817,37 @@ class ExtrasTests(unittest.TestCase):
         self.assertEqual(by_id["sensitiveType"], ("/dataClassification/sensitiveTypes", "beta"))
         self.assertIsNone(by_id["hunting"])                  # POST only: no read-only link
         self.assertIsNone(by_id["exGap"])                    # outside Graph
+        nodes = {n["id"]: n for n in gm["nodes"]}
+        self.assertFalse([i for i, _ in linked if nodes[i].get("pathMethod") == "POST"])   # an action path isn't a read
+        full = {"path": "GET https://graph.microsoft.com/beta/dataClassification/sensitiveTypes", "scan": {"status": "v1.0"}}
+        self.assertEqual(explorer_request(full), ("/dataClassification/sensitiveTypes", "beta"))   # a full URL works too
+        with open(os.path.join(ROOT, "web", "template.html"), encoding="utf-8") as f:
+            tpl = f.read()
+        self.assertLess(tpl.index("req = req.replace(/^https:"), tpl.index("if (!req.startsWith('/')) return null;"))
+
+    def test_page_fetches_nothing_at_runtime(self):
+        """CLAUDE.md rule 4: one self-contained page, so it works offline and as an artifact. Links people click are fine."""
+        with open(os.path.join(ROOT, "web", "template.html"), encoding="utf-8") as f:
+            tpl = f.read()
+        self.assertFalse(re.findall(r"<link[^>]+href=[\"']https?:", tpl), "stylesheet, preconnect or font link")
+        self.assertFalse(re.findall(r"<(script|img|iframe)[^>]+src=[\"']https?:", tpl))
+        self.assertFalse(re.findall(r"@import|url\(\s*[\"']?https?:", tpl))
+        self.assertFalse(re.findall(r"\bfetch\(|XMLHttpRequest|new EventSource|new WebSocket", tpl))
+        body = re.search(r"body\{[^}]*font:15px/1\.5 ([^;]+);", tpl).group(1)
+        canvas = re.search(r"const FONT = '([^']+)'", tpl).group(1)
+        self.assertEqual(body.replace(" ", ""), canvas.replace(" ", ""))   # labels are measured in the font they are drawn in
+
+    def test_hash_decoding_cannot_throw(self):
+        with open(os.path.join(ROOT, "web", "template.html"), encoding="utf-8") as f:
+            tpl = f.read()
+        for m in re.finditer(r"decodeURIComponent\(", tpl):
+            self.assertIn("try {", tpl[max(0, m.start() - 20):m.start()], "decodeURIComponent outside a try")
+
+    def test_search_enter_only_picks_from_the_open_list(self):
+        with open(os.path.join(ROOT, "web", "template.html"), encoding="utf-8") as f:
+            tpl = f.read()
+        self.assertIn("if (e.key === 'Enter' && !qres.hidden && hits[hi])", tpl)
+        self.assertIn("if (!t) { hits = []; closeResults(); dimForSearch(); updateReset(); return; }", tpl)
 
     def test_template_links_to_explorer_and_permissions_site(self):
         with open(os.path.join(ROOT, "web", "template.html"), encoding="utf-8") as f:

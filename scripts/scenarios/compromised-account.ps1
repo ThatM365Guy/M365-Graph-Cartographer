@@ -117,6 +117,19 @@ function Write-Skip {
     Write-Information "Skipped: $Text" -InformationAction Continue
 }
 
+function ConvertTo-ODataLiteral {
+    # Doubles single quotes, so a value such as o'brien@contoso.com can sit inside '...' in an OData $filter.
+    param([string]$Value)
+    $Value.Replace("'", "''")
+}
+
+function Get-RecipientAddress {
+    # The addresses in a list of recipients. $list.EmailAddress.Address would return System.Array's own Address
+    # method once the list holds two or more recipients, so each recipient is read in turn.
+    param($Recipients)
+    @($Recipients | ForEach-Object { $_.EmailAddress.Address } | Where-Object { $_ })
+}
+
 function Get-UtcStamp {
     param([int]$DaysAgo = 0)
     (Get-Date).ToUniversalTime().AddDays(-$DaysAgo).ToString('yyyy-MM-ddTHH:mm:ssZ')
@@ -150,7 +163,7 @@ $null = Invoke-ReadStep '2-alerts' {
 
 # Step 3: confirming the user compromised changes data. This reads the user's risk state instead (GET /identityProtection/riskyUsers).
 $null = Invoke-ReadStep '3-risk-state' {
-    Get-MgRiskyUser -Filter "userPrincipalName eq '$($user.UserPrincipalName)'" | Select-Object Id, UserPrincipalName, RiskLevel, RiskState, RiskDetail, RiskLastUpdatedDateTime
+    Get-MgRiskyUser -Filter "userPrincipalName eq '$(ConvertTo-ODataLiteral $user.UserPrincipalName)'" | Select-Object Id, UserPrincipalName, RiskLevel, RiskState, RiskDetail, RiskLastUpdatedDateTime
 }
 
 # Step 4: GET /auditLogs/signIns
@@ -170,8 +183,8 @@ $null = Invoke-ReadStep '5-changes-by-user' {
 $null = Invoke-ReadStep '6-inbox-rules' {
     Get-MgUserMailFolderMessageRule -UserId $userId -MailFolderId 'inbox' -All |
         Select-Object DisplayName, IsEnabled, Sequence,
-            @{n = 'ForwardTo'; e = { ($_.Actions.ForwardTo.EmailAddress.Address) -join ';' } },
-            @{n = 'RedirectTo'; e = { ($_.Actions.RedirectTo.EmailAddress.Address) -join ';' } },
+            @{n = 'ForwardTo'; e = { (Get-RecipientAddress $_.Actions.ForwardTo) -join ';' } },
+            @{n = 'RedirectTo'; e = { (Get-RecipientAddress $_.Actions.RedirectTo) -join ';' } },
             @{n = 'DeletesMessage'; e = { $_.Actions.Delete } }, @{n = 'MovesToFolder'; e = { $_.Actions.MoveToFolder } }
 }
 

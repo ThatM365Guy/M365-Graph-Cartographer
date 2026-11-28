@@ -5,23 +5,20 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>MGC: M365 Graph Cartographer</title>
 <link rel="icon" href="data:,">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 /* VOICE: a working reference sheet for Microsoft 365 architects. Precise, calm, nothing decorative.
    IDEA: a surveyor's plan that opens like a fan. Graph at the centre, services on the first ring, sub-services
    on the second, APIs on the third; only one branch is open at a time, and the open branch turns to face the
    free space on the right. The side panel is the title block and notes.
    COLOUR and TYPE: stone ground, black ink, brick accent, white panels; four workload families (identity blues,
-   collaboration greens, security and compliance reds, AI purple). Schibsted Grotesk.
+   collaboration greens, security and compliance reds, AI purple). System fonts only: the page fetches nothing at runtime.
    LAYOUT: one header row; the ring fills the left; notes on the right. Desktop only (1280 px and up). */
 :root{color-scheme:light;--bg:#e7e4df;--ink:#141210;--mute:#5b554e;--panel:#fff;--soft:#f3f1ed;--rule:#d3cec6;--brick:#c8371e;--line:rgba(20,18,16,.28);--spoke:rgba(20,18,16,.16);--guide:rgba(20,18,16,.22)}
 @media (prefers-color-scheme:dark){:root:not([data-theme=light]){color-scheme:dark;--bg:#171513;--ink:#ece8e2;--mute:#a49d94;--panel:#211e1b;--soft:#2a2622;--rule:#3b3631;--brick:#ec6a49;--line:rgba(236,232,226,.30);--spoke:rgba(236,232,226,.15);--guide:rgba(236,232,226,.22)}}
 :root[data-theme=dark]{color-scheme:dark;--bg:#171513;--ink:#ece8e2;--mute:#a49d94;--panel:#211e1b;--soft:#2a2622;--rule:#3b3631;--brick:#ec6a49;--line:rgba(236,232,226,.30);--spoke:rgba(236,232,226,.15);--guide:rgba(236,232,226,.22)}
 *{box-sizing:border-box;min-width:0}
 html,body{height:100%}
-body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 "Schibsted Grotesk",system-ui,-apple-system,"Segoe UI",sans-serif;overflow:hidden}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;overflow:hidden}
 button,input{font:inherit;color:inherit}
 code{font:13.5px/1.45 ui-monospace,"Cascadia Mono",Consolas,monospace;overflow-wrap:anywhere}
 a{color:inherit;text-underline-offset:3px}
@@ -353,7 +350,10 @@ function init(){
   // seven days up to the latest scan. New nodes, retargets, baselines and discovered links don't count.
   const SCHEMA_KINDS = /^(status|props-added|props-removed|navs-added|navs-removed)$/;
   const lastScan = scanInfo ? new Date(scanInfo.at) : new Date();
-  const changed = new Set(recent.filter(c => c.node && SCHEMA_KINDS.test(c.kind) && (lastScan - new Date(c.date)) < 8*864e5).map(c => c.node));
+  // The scanner's changedNodes (node -> date) is complete; recentChanges is cut to 60 entries, so it is only the fallback.
+  const inWeek = d => (lastScan - new Date(d)) < 8*864e5;
+  const changed = new Set(D.changedNodes ? Object.keys(D.changedNodes).filter(id => inWeek(D.changedNodes[id]))
+    : recent.filter(c => c.node && SCHEMA_KINDS.test(c.kind) && inWeek(c.date)).map(c => c.node));
   const SCEN = D.scenarios || [], SC = {}; SCEN.forEach(x => SC[x.id] = x);
   const SCEN_GROUPS = ['Classic', 'AI', 'Purview', 'Cost and hygiene'];
   const scenGroups = s => s.steps.reduce((g, st) => { if (st.or && g.length) g[g.length-1].push(st); else g.push([st]); return g; }, []);
@@ -398,7 +398,7 @@ function init(){
 
   /* ================= text measuring ================= */
   const ctx = document.createElement('canvas').getContext('2d');
-  const FONT = '"Schibsted Grotesk", system-ui, -apple-system, "Segoe UI", sans-serif';
+  const FONT = 'system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';   // the same stack as body
   const mcache = {};
   const tw = (txt, size, weight) => {
     const k = size + '|' + (weight || 400) + '|' + txt;
@@ -458,6 +458,7 @@ function init(){
     const open = subs.find(s => s.id === S.sub);
     const shares = subs.map(s => {
       if (!open) return span/k;
+      // span - (k - 1)*16 is 48 at 8 sub-services, the most build_page.py allows (MAX_SUBSERVICES): more leaves too little room
       if (s === open) return Math.min(Math.max(Math.min(apisOf(S.svc, s.id).length, CAP)*17 + 12, 52), span - (k - 1)*16, 110);
       return 0;
     });
@@ -1097,7 +1098,9 @@ function init(){
       <h4>Service-wide limits</h4>${ul(w.limits)}${docsLink(w.docs)}`;
   }
   const statusOf = n => n.kind === 'gap' ? 'outside Graph' : n.scan ? n.scan.status : '';
-  const apiRow = (n, w, off) => `<li><button class="lk" data-go="${esc(n.id)}" style="--c:${w.colour}"><i></i><span><b>${esc(n.label)}</b><span class="sv"><code>${esc(n.path || '')}</code></span></span><small>${esc(statusOf(n))}${linksOf(n) ? `<br>${pl(linksOf(n), 'link')}` : ''}${off ? '<br>in the list only' : ''}</small></button></li>`;
+  // A generated path that runs through a bound action is shown with its method; curated paths already say theirs.
+  const pathText = n => (n.pathMethod === 'POST' ? 'POST ' : '') + (n.path || '');
+  const apiRow = (n, w, off) => `<li><button class="lk" data-go="${esc(n.id)}" style="--c:${w.colour}"><i></i><span><b>${esc(n.label)}</b><span class="sv"><code>${esc(pathText(n))}</code></span></span><small>${esc(statusOf(n))}${linksOf(n) ? `<br>${pl(linksOf(n), 'link')}` : ''}${off ? '<br>in the list only' : ''}</small></button></li>`;
   const LIST = {key: '', q: '', sort: 'rank'};
   const STATUS_ORDER = {'v1.0': 0, 'beta only': 1, 'not found': 2, 'outside Graph': 3, '': 4};
   function listRows(){
@@ -1162,16 +1165,18 @@ function init(){
   const shortType = fq => String(fq).replace(/^microsoft\.graph\./, '');
   const variantsBlock = n => n.variants && n.variants.length ? `<p class="props">${n.variants.map(v => esc(shortType(v))).join('<br>')}</p>` : '';
   const catPin = () => { const c = scanInfo && scanInfo.permissionsCatalogue; return c ? `<a href="https://github.com/${esc(c.repo)}/blob/${esc(c.commit)}/${esc(c.path)}" target="_blank" rel="noopener">permissions.json at ${esc(c.commit.slice(0, 7))}</a>` : 'the permissions catalogue'; };
+  // A name written under a side Graph doesn't offer it on (from the scanner's per-side check).
+  const sideWarn = pc => pc && pc.wrongSide && pc.wrongSide.length ? `<p class="warn">On the wrong side for Graph: ${pc.wrongSide.map(w => `${esc(w.name)} is listed as ${w.side === 'delegated' ? 'delegated' : 'application'}, but Graph only offers it as ${w.side === 'delegated' ? 'an application' : 'a delegated'} permission`).join('; ')}.</p>` : '';
   const permLines = v => v ? v.split(', ').map(x => KNOWN_PERMS.has(x) ? permLink(x) : esc(x).replace(/\./g, '.<wbr>')).join('<br>') : 'None marked least privileged';
   function renderGenerated(n){
     const p = n.permissions, pc = n.permCheck, o = n.ops || {acts: []}, nV = (n.variants || []).length;
     const perms = p ? `<table class="perm"><tr><th>Delegated</th><td>${permLines(p.delegated)}</td></tr><tr><th>Application</th><td>${permLines(p.application)}</td></tr></table>
-      <p class="warn">Generated, not checked. From ${catPin()}${n.permissionsPath ? ` for <code>GET ${esc(n.permissionsPath)}</code>` : ''}. Where it marks more than one permission as least privileged, all are listed; Microsoft's own reviews of this file have found least-privilege errors.</p>${pc && pc.unknown && pc.unknown.length ? `<p class="warn">Not found in the current permission list: ${pc.unknown.map(esc).join(', ')}.</p>` : ''}`
+      <p class="warn">Generated, not checked. From ${catPin()}${n.permissionsPath ? ` for <code>GET ${esc(n.permissionsPath)}</code>` : ''}. Where it marks more than one permission as least privileged, all are listed; Microsoft's own reviews of this file have found least-privilege errors.</p>${pc && pc.unknown && pc.unknown.length ? `<p class="warn">Not found in the current permission list: ${pc.unknown.map(esc).join(', ')}.</p>` : ''}${sideWarn(pc)}`
       : `<p>The permission catalogue has no read entry for this path. Check the Microsoft Learn page.</p>`;
     const opsList = [...(o.actions || []).map(a => a + ' (action)'), ...(o.functions || []).map(f => f + ' (function)')];
     panel.innerHTML = `${wlName(WL[n.workload], (subOf(n.id) || {}).label || 'Unsorted')}<h2>${esc(n.label)}${nV ? ` <small style="font-size:15px;color:var(--mute);font-weight:500">(${pl(nV, 'variant')})</small>` : ''}</h2>${badges(n)}
       <p class="lead">Generated from the ${n.scan && n.scan.status === 'beta only' ? 'beta' : 'v1.0'} schema. Nobody has written or checked notes for this entry yet, so there is no summary, licensing or limits here.${n.scan && n.scan.status === 'beta only' ? ' Beta APIs can change without notice and are not supported in production.' : ''}</p>
-      ${n.path ? `<div class="ep"><code>${esc(n.path)}</code><button class="copy" data-copy="${esc(n.path)}">Copy</button></div>${geLink(n)}` : '<p>No path from a top-level root reaches this type.</p>'}
+      ${n.path ? `<div class="ep"><code>${esc(pathText(n))}</code><button class="copy" data-copy="${esc(n.path)}">Copy</button></div>${n.pathMethod === 'POST' ? '<p class="foot">This path runs through a bound action, so it is called with POST and changes or starts something. It is not a read.</p>' : ''}${geLink(n)}` : '<p>No path from a top-level root reaches this type.</p>'}
       ${det('Permissions', perms, true, 'generated, not checked')}
       ${det('Variants', variantsBlock(n), nV > 0 && nV <= 12, nV ? `${nV} folded into this entry` : '')}
       ${det('Beta variants', n.betaVariants && n.betaVariants.length ? `<p class="props">${n.betaVariants.map(v => esc(shortType(v))).join('<br>')}</p>` : '', false, n.betaVariants && n.betaVariants.length ? `${n.betaVariants.length} beta-only types folded in` : '')}
@@ -1185,11 +1190,11 @@ function init(){
   // Placeholders such as {id | userPrincipalName} become {id}; the version comes from a /beta prefix or the scan status.
   const GE = 'https://developer.microsoft.com/graph/graph-explorer';
   function explorerUrl(n){
-    if (n.kind === 'gap' || !n.path) return null;
+    if (n.kind === 'gap' || !n.path || n.pathMethod === 'POST') return null;   // a path through a bound action can't be read with GET
     let req = String(n.path).split('\u00b7')[0].trim(), version = n.scan && n.scan.status === 'beta only' ? 'beta' : 'v1.0';
     if (!isGen(n)) { const m = req.match(/^GET\s+(\S.*)$/); if (!m) return null; req = m[1].trim(); }
+    req = req.replace(/^https:\/\/graph\.microsoft\.com/, '');   // a full URL becomes a path first
     if (!req.startsWith('/')) return null;
-    req = req.replace(/^https:\/\/graph\.microsoft\.com/, '');
     const v = req.match(/^\/(v1\.0|beta)(\/.*)$/); if (v) { version = v[1]; req = v[2]; }
     req = req.replace(/\{\s*([^}|\s]+)\s*\|[^}]*\}/g, '{$1}');
     return {url: `${GE}?request=${encodeURIComponent(req.slice(1))}&method=GET&version=${version}&GraphUrl=https://graph.microsoft.com`, holes: /\{[^}]*\}/.test(req)};
@@ -1209,7 +1214,7 @@ function init(){
     if (isGen(n)) return renderGenerated(n);
     const p = n.permissions, pc = n.permCheck, conn = connections(n.id), used = scenariosFor(n.id);
     const nConn = edges.filter(e => (e.s === n.id || e.t === n.id) && (e.kind !== 'discovered' || F.disc)).length;
-    const perms = p ? `<table class="perm"><tr><th>Delegated</th><td>${permHtml(p.delegated)}</td></tr><tr><th>Application</th><td>${permHtml(p.application)}</td></tr></table>${pc && pc.unknown && pc.unknown.length ? `<p class="warn">Not found in the current permission list: ${pc.unknown.map(esc).join(', ')}. Check whether it has been renamed.</p>` : ''}` : '';
+    const perms = p ? `<table class="perm"><tr><th>Delegated</th><td>${permHtml(p.delegated)}</td></tr><tr><th>Application</th><td>${permHtml(p.application)}</td></tr></table>${pc && pc.unknown && pc.unknown.length ? `<p class="warn">Not found in the current permission list: ${pc.unknown.map(esc).join(', ')}. Check whether it has been renamed.</p>` : ''}${sideWarn(pc)}` : '';
     const legacy = n.legacy && n.legacy.length ? `<h5>Don't build on</h5><ul class="legacy-list">${n.legacy.map(l => `<li><code>${esc(l.path)}</code>${l.note ? `<small>${esc(l.note)}</small>` : ''}${l.replacedBy ? `<small>Use instead: ${esc(l.replacedBy)}</small>` : ''}</li>`).join('')}</ul>` : '';
     panel.innerHTML = `${wlName(WL[n.workload], (subOf(n.id) || {}).label || 'Unsorted')}<h2>${esc(n.label)}</h2>${badges(n)}<p class="lead">${esc(n.summary)}</p>
       ${n.path ? `<div class="ep"><code>${esc(n.path)}</code><button class="copy" data-copy="${esc(n.path)}">Copy</button></div>` : ''}
@@ -1421,7 +1426,7 @@ function init(){
   }
   function showResults(){
     const t = q.value.trim().toLowerCase();
-    if (!t) { closeResults(); dimForSearch(); return; }
+    if (!t) { hits = []; closeResults(); dimForSearch(); updateReset(); return; }
     hits = searchHits(t); hi = 0;
     qres.innerHTML = hits.length ? hits.slice(0, 12).map((h, i) => `<li role="option" id="qr${i}" data-go="${h.n.id}" aria-selected="${i === hi}" style="--c:${WL[h.n.workload].colour}"><i></i>${esc(h.n.label)}<small>${esc(where(h.n))} · matched ${esc(h.why)}</small></li>`).join('') + (hits.length > 12 ? `<li class="none">${hits.length - 12} more: keep typing to narrow it down</li>` : '')
       : '<li class="none">No APIs match</li>';
@@ -1442,7 +1447,7 @@ function init(){
       q.setAttribute('aria-activedescendant', 'qr' + hi);
       qres.querySelector(`#qr${hi}`)?.scrollIntoView({block: 'nearest'});
     }
-    if (e.key === 'Enter' && hits[hi]) { e.preventDefault(); pick(hits[hi].n.id); }
+    if (e.key === 'Enter' && !qres.hidden && hits[hi]) { e.preventDefault(); pick(hits[hi].n.id); }   // only from the list on screen
     if (e.key === 'Escape') { e.stopPropagation(); if (!qres.hidden) closeResults(); else { q.value = ''; dimForSearch(); updateReset(); } }
   });
   qres.addEventListener('pointerdown', e => { const li = e.target.closest('[data-go]'); if (li) { e.preventDefault(); pick(li.dataset.go); } });
@@ -1480,7 +1485,7 @@ function init(){
     if (it.type === 'sub') { const a = apisOf(t.w, t.s); return `${wlName(WL[t.w])}<h3>${esc((SUBS[t.w].find(x => x.id === t.s) || {}).label || t.lab)}</h3><p>${a.length ? a.slice(0, 12).map(n => esc(n.label)).join(' · ') + (a.length > 12 ? ` and ${a.length - 12} more` : '') : 'Nothing is mapped here yet.'}</p><p class="more">Click to open</p>`; }
     if (it.type === 'mor') { const h = ringApis(t.w, t.s).hidden; return `${wlName(WL[t.w], (SUBS[t.w].find(x => x.id === t.s) || {}).label)}<h3>${pl(h.length, 'more API')}</h3><p>${h.slice(0, 8).map(n => esc(n.label)).join(' · ')}${h.length > 8 ? ' …' : ''}</p><p class="more">Click to list them all</p>`; }
     const n = N[t.id], p = n.permissions || {};
-    return `${wlName(WL[n.workload], (subOf(n.id) || {}).label)}<h3>${esc(n.label)}</h3>${badges(n)}${n.path ? `<p><code>${esc(n.path)}</code></p>` : ''}` +
+    return `${wlName(WL[n.workload], (subOf(n.id) || {}).label)}<h3>${esc(n.label)}</h3>${badges(n)}${n.path ? `<p><code>${esc(pathText(n))}</code></p>` : ''}` +
       (isGen(n) ? (n.permissions ? `<p><b>Delegated:</b> ${esc(p.delegated) || '–'}<br><b>Application:</b> ${esc(p.application) || '–'}<br><small>Generated, not checked</small></p>` : '<p>Generated from the schema. No notes yet.</p>') + ((n.variants || []).length ? `<p>${pl(n.variants.length, 'variant')} folded in</p>` : '') :
       p.delegated ? `<p><b>Delegated:</b> ${esc(p.delegated)}<br><b>Application:</b> ${esc(p.application)}</p>` : `<p>${esc(n.summary)}</p>`) +
       (n.limits && n.limits[0] ? `<p><b>Watch for:</b> ${esc(n.limits[0])}</p>` : '') +
@@ -1632,7 +1637,9 @@ function init(){
     try { history.replaceState(null, '', h || location.pathname + location.search); } catch (e) {}
   }
   function route(raw){
-    const h = decodeURIComponent((raw || '').replace(/^#/, ''));
+    let h;
+    try { h = decodeURIComponent((raw || '').replace(/^#/, '')); }
+    catch (e) { goStart(); return; }   // a malformed escape such as #100% must not stop the page starting
     if (!h) { goStart(); return; }
     if (h.startsWith('scenario-') && SC[h.slice(9)]) { startScenario(h.slice(9)); return; }
     if (h.startsWith('svc/')) {

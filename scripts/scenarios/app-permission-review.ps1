@@ -117,7 +117,9 @@ function Get-UtcStamp {
 $graphAppId = '00000003-0000-0000-c000-000000000000'
 
 # Step 1: GET /servicePrincipals(appId='00000003-0000-0000-c000-000000000000')
-$graphSp = Get-MgServicePrincipal -Filter "appId eq '$graphAppId'" -Property id,appId,displayName,appRoles,oauth2PermissionScopes
+$graphSp = $null
+try { $graphSp = Get-MgServicePrincipal -Filter "appId eq '$graphAppId'" -Property id,appId,displayName,appRoles,oauth2PermissionScopes }
+catch { Write-Warning "Microsoft Graph service principal: $($_.Exception.Message) (the steps that need it will warn too)" }
 $roleName = @{}; foreach ($r in @($graphSp.AppRoles)) { $roleName["$($r.Id)"] = $r.Value }
 $null = Invoke-ReadStep '1-graph-service-principal' { $graphSp | Select-Object Id, AppId, DisplayName, @{n = 'AppRoles'; e = { @($_.AppRoles).Count } }, @{n = 'DelegatedScopes'; e = { @($_.Oauth2PermissionScopes).Count } } }
 

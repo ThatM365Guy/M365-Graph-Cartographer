@@ -132,11 +132,25 @@ $null = Invoke-ReadStep '1-subscriptions' {
 }
 
 # Step 2: GET /users?$select=id,userPrincipalName,accountEnabled,assignedLicenses,signInActivity (page size 500)
-$licensed = @(Get-MgUser -All -PageSize 500 -Property id,userPrincipalName,accountEnabled,assignedLicenses,licenseAssignmentStates,signInActivity | Where-Object { @($_.AssignedLicenses).Count })
-$null = Invoke-ReadStep '2-inactive-licensed-users' {
-    $licensed | Where-Object { -not $_.SignInActivity.LastSignInDateTime -or $_.SignInActivity.LastSignInDateTime -lt $cutoff } |
-        Select-Object Id, UserPrincipalName, AccountEnabled, @{n = 'Licences'; e = { ($_.AssignedLicenses | ForEach-Object { $skuName["$($_.SkuId)"] }) -join ';' } },
-            @{n = 'LastSignIn'; e = { $_.SignInActivity.LastSignInDateTime } }, @{n = 'LastNonInteractiveSignIn'; e = { $_.SignInActivity.LastNonInteractiveSignInDateTime } }
+# Reading signInActivity needs Microsoft Entra ID P1 or P2. Without it the list is read again without sign-ins, so
+# step 4 can still run, and step 2 is skipped with a warning.
+$licensed = $null
+$haveSignIns = $true
+try {
+    $licensed = @(Get-MgUser -All -PageSize 500 -Property id,userPrincipalName,accountEnabled,assignedLicenses,licenseAssignmentStates,signInActivity | Where-Object { @($_.AssignedLicenses).Count })
+} catch {
+    Write-Warning "2-inactive-licensed-users: $($_.Exception.Message) (signInActivity needs Microsoft Entra ID P1 or P2 and AuditLog.Read.All; step 2 is skipped)"
+    $haveSignIns = $false
+    try {
+        $licensed = @(Get-MgUser -All -PageSize 500 -Property id,userPrincipalName,accountEnabled,assignedLicenses,licenseAssignmentStates | Where-Object { @($_.AssignedLicenses).Count })
+    } catch { Write-Warning "Licensed users: $($_.Exception.Message)" }
+}
+if ($haveSignIns -and $null -ne $licensed) {
+    $null = Invoke-ReadStep '2-inactive-licensed-users' {
+        $licensed | Where-Object { -not $_.SignInActivity.LastSignInDateTime -or $_.SignInActivity.LastSignInDateTime -lt $cutoff } |
+            Select-Object Id, UserPrincipalName, AccountEnabled, @{n = 'Licences'; e = { ($_.AssignedLicenses | ForEach-Object { $skuName["$($_.SkuId)"] }) -join ';' } },
+                @{n = 'LastSignIn'; e = { $_.SignInActivity.LastSignInDateTime } }, @{n = 'LastNonInteractiveSignIn'; e = { $_.SignInActivity.LastNonInteractiveSignInDateTime } }
+    }
 }
 
 # Step 3: GET /users?$filter=accountEnabled eq false and assignedLicenses/$count ne 0&$count=true (ConsistencyLevel: eventual)
@@ -146,12 +160,14 @@ $null = Invoke-ReadStep '3-disabled-with-licences' {
 }
 
 # Step 4: GET /groups/{id} (groups that assign licences, from users' licenseAssignmentStates)
-$null = Invoke-ReadStep '4-licensing-groups' {
-    $groupIds = @($licensed | ForEach-Object { $_.LicenseAssignmentStates.AssignedByGroup } | Where-Object { $_ } | Sort-Object -Unique)
-    foreach ($g in $groupIds) {
-        Get-MgGroup -GroupId $g -Property id,displayName,assignedLicenses | Select-Object Id, DisplayName,
-            @{n = 'Licences'; e = { ($_.AssignedLicenses | ForEach-Object { $skuName["$($_.SkuId)"] }) -join ';' } },
-            @{n = 'LicensedMembers'; e = { @($licensed | Where-Object { $_.LicenseAssignmentStates.AssignedByGroup -contains $g }).Count } }
+if ($null -eq $licensed) { Write-Skip 'Step 4 needs the list of licensed users, which could not be read.' } else {
+    $null = Invoke-ReadStep '4-licensing-groups' {
+        $groupIds = @($licensed | ForEach-Object { $_.LicenseAssignmentStates.AssignedByGroup } | Where-Object { $_ } | Sort-Object -Unique)
+        foreach ($g in $groupIds) {
+            Get-MgGroup -GroupId $g -Property id,displayName,assignedLicenses | Select-Object Id, DisplayName,
+                @{n = 'Licences'; e = { ($_.AssignedLicenses | ForEach-Object { $skuName["$($_.SkuId)"] }) -join ';' } },
+                @{n = 'LicensedMembers'; e = { @($licensed | Where-Object { $_.LicenseAssignmentStates.AssignedByGroup -contains $g }).Count } }
+        }
     }
 }
 

@@ -7,7 +7,13 @@ on:
   workflow_dispatch:
   push:
     branches: [main]   # work branches don't deploy; the github-pages environment only allows main
-    paths: ["data/curated.json", "web/template.html"]
+    # everything the page is built from; the bot's own data commits don't match, so they don't trigger a run
+    paths: ["data/curated.json", "data/placement.json", "web/template.html", "scanner/**", "scripts/scenarios/**",
+            ".github/workflows/scan.yml"]
+# One scan at a time: a run queues behind the one in progress instead of racing it to push to main.
+concurrency:
+  group: mgc-scan
+  cancel-in-progress: false
 permissions:
   contents: write
   pages: write
@@ -24,13 +30,19 @@ jobs:
         with: { python-version: "3.12" }
       - run: python -m unittest discover tests
       - run: python scanner/scan.py --curated data/curated.json --out data/graph-map.json --changelog data/changelog.json --coverage data/coverage.json
+        env:
+          GITHUB_TOKEN: ${{ github.token }}   # the Learn index uses the REST API; anonymous calls share the runner's limit of 60 an hour
       - run: python scanner/build_page.py --data data/graph-map.json --template web/template.html --out dist/index.html
       - name: Commit refreshed data
         run: |
           git config user.name "mgc-bot"
           git config user.email "mgc-bot@users.noreply.github.com"
-          git add data/graph-map.json data/changelog.json data/coverage.json
-          git diff --cached --quiet || git commit -m "Scan $(date -u +%F)" && git push
+          git add data/graph-map.json data/changelog.json data/coverage.json data/generated.json
+          if ! git diff --cached --quiet; then
+            git commit -m "Scan $(date -u +%F)"
+            git pull --rebase origin main   # main may have moved while the scan ran
+            git push origin HEAD:main
+          fi
       - uses: actions/upload-pages-artifact@v5
         with: { path: dist }
       - id: deployment

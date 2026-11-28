@@ -1,5 +1,5 @@
 #Requires -Version 7.0
-#Requires -Modules Microsoft.Graph.Authentication, Microsoft.Graph.Mail, Microsoft.Graph.Security, Microsoft.Graph.Users
+#Requires -Modules Microsoft.Graph.Authentication, Microsoft.Graph.Identity.DirectoryManagement, Microsoft.Graph.Mail, Microsoft.Graph.Security, Microsoft.Graph.Users
 <#
 .SYNOPSIS
 Mail forwarding to external addresses (read-only example).
@@ -9,8 +9,8 @@ Purpose: Auto-forwarding is a classic exfiltration route, and it can be set in p
 
 Scenario: https://thatm365guy.github.io/M365-Graph-Cartographer/#scenario-external-mail-forwarding
 
-Scopes (delegated, read-only): User.Read.All, MailboxSettings.Read, SecurityAlert.Read.All, ThreatHunting.Read.All
-Application permissions (only for steps that Microsoft Graph serves app-only): MailboxSettings.Read (step 2, for other users' inbox rules)
+Scopes (delegated, read-only): User.Read, User.Read.All, MailboxSettings.Read, SecurityAlert.Read.All, ThreatHunting.Read.All
+Application permissions (only for steps that Microsoft Graph serves app-only): MailboxSettings.Read (step 2, for other users' inbox rules); Organization.Read.All to read the tenant's verified domains in an app-only session
 Entra roles: Security Reader for alerts and hunting. Global Reader covers the reads in this script; Learn lists the least-privileged role for each call on its API page.
 Licence: Exchange Online. Defender XDR for alerts and hunting.
 
@@ -36,7 +36,7 @@ Use the current Connect-MgGraph session instead of signing in again. Use it for 
 Mailboxes whose inbox rules are read. Default 200.
 
 .PARAMETER InternalDomain
-Your own mail domains. Without it the script uses the domains of your users' mail addresses.
+Your own mail domains. Without it the script uses the tenant's verified domains (GET /organization, which User.Read can read). A subdomain of an internal domain counts as internal. Guests' addresses never make a domain internal.
 
 .PARAMETER Days
 How far back to look for alerts and outbound mail. Default 7.
@@ -46,7 +46,7 @@ How far back to look for alerts and outbound mail. Default 7.
 
 .NOTES
 Microsoft Graph PowerShell SDK v2 on PowerShell 7. Install the modules listed in #Requires first, for example:
-Install-Module Microsoft.Graph.Authentication, Microsoft.Graph.Mail, Microsoft.Graph.Security, Microsoft.Graph.Users -Scope CurrentUser
+Install-Module Microsoft.Graph.Authentication, Microsoft.Graph.Identity.DirectoryManagement, Microsoft.Graph.Mail, Microsoft.Graph.Security, Microsoft.Graph.Users -Scope CurrentUser
 Written for M365 Graph Cartographer (MGC). Every call matches a step of the scenario on the live site.
 
 .LINK
@@ -64,7 +64,7 @@ param(
 Set-StrictMode -Version 1.0
 $ErrorActionPreference = 'Stop'
 
-$Scopes = @('User.Read.All', 'MailboxSettings.Read', 'SecurityAlert.Read.All', 'ThreatHunting.Read.All')
+$Scopes = @('User.Read', 'User.Read.All', 'MailboxSettings.Read', 'SecurityAlert.Read.All', 'ThreatHunting.Read.All')
 if (-not $UseExistingConnection) { Connect-MgGraph -Scopes $Scopes -NoWelcome }
 $context = Get-MgContext
 if (-not $context) { throw 'Not connected to Microsoft Graph. Run Connect-MgGraph first or drop -UseExistingConnection.' }
@@ -122,6 +122,13 @@ function Write-Skip {
     Write-Information "Skipped: $Text" -InformationAction Continue
 }
 
+function Get-RecipientAddress {
+    # The addresses in a list of recipients. $list.EmailAddress.Address would return System.Array's own Address
+    # method once the list holds two or more recipients, so each recipient is read in turn.
+    param($Recipients)
+    @($Recipients | ForEach-Object { $_.EmailAddress.Address } | Where-Object { $_ })
+}
+
 function Get-UtcStamp {
     param([int]$DaysAgo = 0)
     (Get-Date).ToUniversalTime().AddDays(-$DaysAgo).ToString('yyyy-MM-ddTHH:mm:ssZ')
@@ -140,17 +147,35 @@ $since = Get-UtcStamp -DaysAgo $Days
 $users = @(Invoke-ReadStep '1-mailboxes' {
     Get-MgUser -Filter 'mail ne null' -Property id,mail,userPrincipalName -CountVariable mailUsers -ConsistencyLevel eventual -All | Select-Object Id, Mail, UserPrincipalName
 })
-if (-not $InternalDomain) { $InternalDomain = @($users | ForEach-Object { ($_.Mail -split '@')[-1].ToLowerInvariant() } | Sort-Object -Unique) }
+
+# Internal domains: -InternalDomain, or else the tenant's verified domains (GET /organization?$select=verifiedDomains).
+# Not the users' mail domains: guests have mail addresses too, and those domains are external.
+if (-not $InternalDomain) {
+    try {
+        $InternalDomain = @(Get-MgOrganization -Property verifiedDomains | ForEach-Object { $_.VerifiedDomains.Name } | Where-Object { $_ })
+    } catch { Write-Warning "Verified domains: $($_.Exception.Message)" }
+}
+$InternalDomain = @($InternalDomain | ForEach-Object { "$_".Trim().ToLowerInvariant() } | Where-Object { $_ } | Sort-Object -Unique)
+
+function Test-InternalAddress {
+    # True when the address is in an internal domain or a subdomain of one (mail.contoso.com under contoso.com).
+    param([string]$Address)
+    $domain = ($Address -split '@')[-1].ToLowerInvariant()
+    foreach ($d in $InternalDomain) { if ($domain -eq $d -or $domain.EndsWith(".$d")) { return $true } }
+    return $false
+}
 
 # Step 2: GET /users/{id}/mailFolders/inbox/messageRules (rules that send mail outside your domains)
-$null = Invoke-ReadStep '2-forwarding-rules' {
-    foreach ($u in $users | Select-Object -First $MaxMailboxes) {
-        try { $rules = @(Get-MgUserMailFolderMessageRule -UserId $u.Id -MailFolderId 'inbox' -All) } catch { Write-Verbose "$($u.Mail): $($_.Exception.Message)"; continue }
-        foreach ($r in $rules) {
-            $targets = @($r.Actions.ForwardTo.EmailAddress.Address) + @($r.Actions.ForwardAsAttachmentTo.EmailAddress.Address) + @($r.Actions.RedirectTo.EmailAddress.Address) | Where-Object { $_ }
-            $external = @($targets | Where-Object { $InternalDomain -notcontains ($_ -split '@')[-1].ToLowerInvariant() })
-            if ($external.Count) {
-                [pscustomobject]@{ Mailbox = $u.Mail; Rule = $r.DisplayName; Enabled = $r.IsEnabled; ExternalTargets = $external -join ';' }
+if (-not $InternalDomain) { Write-Skip 'Step 2 needs your internal domains. Pass -InternalDomain, for example -InternalDomain contoso.com, contoso.co.uk.' } else {
+    $null = Invoke-ReadStep '2-forwarding-rules' {
+        foreach ($u in $users | Select-Object -First $MaxMailboxes) {
+            try { $rules = @(Get-MgUserMailFolderMessageRule -UserId $u.Id -MailFolderId 'inbox' -All) } catch { Write-Verbose "$($u.Mail): $($_.Exception.Message)"; continue }
+            foreach ($r in $rules) {
+                $targets = @(Get-RecipientAddress $r.Actions.ForwardTo) + @(Get-RecipientAddress $r.Actions.ForwardAsAttachmentTo) + @(Get-RecipientAddress $r.Actions.RedirectTo)
+                $external = @($targets | Where-Object { -not (Test-InternalAddress $_) })
+                if ($external.Count) {
+                    [pscustomobject]@{ Mailbox = $u.Mail; Rule = $r.DisplayName; Enabled = $r.IsEnabled; ExternalTargets = $external -join ';' }
+                }
             }
         }
     }
