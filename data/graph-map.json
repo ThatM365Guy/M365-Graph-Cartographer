@@ -5,9 +5,9 @@
   "curatedOn": "2026-11-28",
   "phase": "Purview covered in depth from 0.3.0: information protection, records, eDiscovery, audit, privacy and the data security API, with what Graph does not cover.",
   "note": "Hand-written content lives here. The scanner never edits this file; it writes graph-map.json alongside it.",
-  "generatedAt": "2026-11-28T14:31:45+00:00",
+  "generatedAt": "2026-11-28T14:38:53+00:00",
   "scan": {
-   "at": "2026-11-28T14:31:45+00:00",
+   "at": "2026-11-28T14:38:53+00:00",
    "v1EntityTypes": 1264,
    "betaEntityTypes": 2625,
    "permissionsCatalogue": {
@@ -99861,7 +99861,7 @@
   }
  },
  "coverage": {
-  "at": "2026-11-28T14:31:45+00:00",
+  "at": "2026-11-28T14:38:53+00:00",
   "v1Types": 1264,
   "betaOnlyTypes": 1369,
   "onMap": 1264,
