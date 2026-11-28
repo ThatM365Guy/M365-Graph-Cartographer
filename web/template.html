@@ -3,8 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>MGC: M365 Graph Cartographer</title>
-<link rel="icon" href="data:,">
+<title>M365 Graph Cartographer</title>
+<!-- the title mark as an inline SVG data URI (a favicon cannot read the page CSS, so the lines are #141210, #ece8e2 in dark mode). Phase 8's Content Security Policy must allow data: for images. -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22%3E%3Cstyle%3E%40media (prefers-color-scheme:dark)%7B%5Bstroke=%22%23141210%22%5D%7Bstroke:%23ece8e2%7D%7D%3C/style%3E%3Cpath d=%22M27.78 18.49A13 13 0 0 1 4.22 18.49%22 fill=%22none%22 stroke=%22%23141210%22 stroke-width=%221.9%22 stroke-linecap=%22round%22/%3E%3Cpath d=%22M27.26 19.50L29.16 20.60%22 stroke=%22%23141210%22 stroke-width=%221.1%22/%3E%3Cpath d=%22M25.19 22.19L26.75 23.75%22 stroke=%22%23141210%22 stroke-width=%221.1%22/%3E%3Cpath d=%22M22.50 24.26L23.60 26.16%22 stroke=%22%23141210%22 stroke-width=%221.1%22/%3E%3Cpath d=%22M19.36 25.56L19.93 27.68%22 stroke=%22%23141210%22 stroke-width=%221.1%22/%3E%3Cpath d=%22M16.00 26.00L16.00 28.20%22 stroke=%22%23141210%22 stroke-width=%221.1%22/%3E%3Cpath d=%22M12.64 25.56L12.07 27.68%22 stroke=%22%23141210%22 stroke-width=%221.1%22/%3E%3Cpath d=%22M9.50 24.26L8.40 26.16%22 stroke=%22%23141210%22 stroke-width=%221.1%22/%3E%3Cpath d=%22M6.81 22.19L5.25 23.75%22 stroke=%22%23141210%22 stroke-width=%221.1%22/%3E%3Cpath d=%22M4.74 19.50L2.84 20.60%22 stroke=%22%23141210%22 stroke-width=%221.1%22/%3E%3Ccircle cx=%2216%22 cy=%2213%22 r=%229%22 fill=%22none%22 stroke=%22%23141210%22 stroke-width=%221.8%22/%3E%3Cellipse cx=%2216%22 cy=%2213%22 rx=%223.9%22 ry=%229%22 fill=%22none%22 stroke=%22%23141210%22 stroke-opacity=%22.45%22 stroke-width=%221.2%22/%3E%3Cpath d=%22M7 13h18%22 stroke=%22%23141210%22 stroke-opacity=%22.3%22 stroke-width=%221.1%22/%3E%3Cpath d=%22M12.2 8.4L20.4 13 13.6 17.6z%22 fill=%22none%22 stroke=%22%23141210%22 stroke-width=%221.3%22 stroke-linejoin=%22round%22/%3E%3Cpath d=%22M16 13L22.10 24.48%22 stroke=%22%23141210%22 stroke-width=%221.5%22 stroke-linecap=%22round%22/%3E%3Ccircle cx=%2212.2%22 cy=%228.4%22 r=%222.1%22 fill=%22%233d86c6%22/%3E%3Ccircle cx=%2220.4%22 cy=%2213%22 r=%222.1%22 fill=%22%23b37a0f%22/%3E%3Ccircle cx=%2213.6%22 cy=%2217.6%22 r=%222.1%22 fill=%22%230f8a78%22/%3E%3Ccircle cx=%2222.10%22 cy=%2224.48%22 r=%222.1%22 fill=%22%23c13b2a%22/%3E%3C/svg%3E">
 <style>
 /* VOICE: a working reference sheet for Microsoft 365 architects. Precise, calm, nothing decorative.
    IDEA: a surveyor's plan that opens like a fan. Graph at the centre, services on the first ring, sub-services
@@ -32,9 +33,36 @@ a{color:inherit;text-underline-offset:3px}
 .app{height:100vh;display:flex;flex-direction:column}
 /* header: one row */
 .top{display:flex;align-items:center;gap:18px;padding:10px 20px;border-bottom:1px solid var(--rule);background:var(--bg);position:relative;z-index:5}
-.brand{display:flex;align-items:baseline;gap:8px;white-space:nowrap;margin-right:auto}
-.brand b{font-size:22px;letter-spacing:.02em}
-.brand span{color:var(--mute);font-size:14px}
+.brand{display:flex;align-items:center;gap:8px;white-space:nowrap;margin-right:auto;flex:none}
+.mark{flex:none;color:var(--ink);display:block}
+.brand .mark{width:26px;height:26px;margin-right:1px}
+.brand .name{font-size:19px;font-weight:700;letter-spacing:.005em;line-height:1.2}
+.ver{font-size:12px;line-height:1;color:var(--mute);border:1px solid var(--rule);border-radius:10px;padding:3px 7px;text-decoration:none;font-variant-numeric:tabular-nums}
+.ver:hover{color:var(--ink);border-color:var(--mute)}
+.info{flex:none;display:inline-grid;place-items:center;width:24px;height:24px;padding:0;border:1px solid var(--rule);border-radius:50%;background:var(--panel);color:var(--mute);cursor:pointer}
+.info svg{width:14px;height:14px;display:block}
+.info:hover{color:var(--ink);border-color:var(--mute)}
+.info[aria-expanded=true]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+/* About popup */
+.about-back{position:fixed;inset:0;z-index:20;display:grid;place-items:center;padding:24px;background:rgba(20,18,16,.45)}
+.about-back[hidden]{display:none}
+.about{position:relative;width:min(460px,100%);max-height:calc(100vh - 48px);overflow-y:auto;background:var(--panel);color:var(--ink);border:1px solid var(--rule);border-radius:14px;box-shadow:0 20px 60px rgba(0,0,0,.35);padding:22px 24px 18px;font-size:14.5px}
+.about:focus{outline:none}
+.about .x{position:absolute;top:10px;right:10px;width:32px;height:32px;border:0;border-radius:8px;background:none;cursor:pointer;font-size:22px;line-height:1;color:var(--mute)}
+.about .x:hover{background:var(--soft);color:var(--ink)}
+.ahead{display:flex;align-items:center;gap:12px;padding-right:30px}
+.ahead .mark{width:40px;height:40px}
+.ahead h2{margin:0;font-size:21px;line-height:1.15}
+.ahead p{margin:2px 0 0;color:var(--mute);font-size:13px}
+.about>p{margin:14px 0 0}
+.who{display:flex;gap:12px;align-items:center;margin:16px 0 0;padding:12px 14px;border:1px solid var(--rule);border-radius:10px;background:var(--soft)}
+.who .mono{flex:none;display:grid;place-items:center;width:40px;height:40px;border-radius:50%;background:#c8371e;color:#fff;font-weight:700;font-size:14.5px;letter-spacing:.03em}
+.who b{display:block}
+.who span{display:block;color:var(--mute);font-size:13px;line-height:1.4}
+.alinks{list-style:none;margin:14px 0 0;padding:0;display:flex;flex-direction:column;gap:2px}
+.alinks a{display:inline-block;padding:3px 0;font-weight:500}
+.afoot{margin:12px 0 0!important;color:var(--mute);font-size:12.5px}
+.afoot+.afoot{margin-top:4px!important}
 .seg{display:inline-flex;border:1px solid var(--ink);border-radius:8px;overflow:hidden}
 .seg button{border:0;background:transparent;padding:6px 16px;min-height:36px;cursor:pointer;font-size:14px;font-weight:500}
 .seg button+button{border-left:1px solid var(--ink)}
@@ -93,7 +121,11 @@ a{color:inherit;text-underline-offset:3px}
 .it.svc.open .cnt{font-size:11px;font-weight:500}
 .it.sat circle,.sat circle{stroke:none}
 .it.hub .bub{fill:var(--ink);stroke:none}
-.it.hub text{fill:var(--bg);font-size:12.5px;font-weight:700}
+.it.hub text{fill:var(--bg);font-size:9.6px;font-weight:700}
+/* service and Graph icons: decorative outline symbols above the count (the Graph name); hidden on bubbles too small for them */
+.it .ico{fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;pointer-events:none}
+.it.hub .ico{stroke:var(--bg)}
+.it.empty .ico{stroke:var(--c)}
 .it.api.sel .bub{stroke:var(--ink);stroke-width:3}
 .it.api.sel .lab{font-weight:700}
 .it.sub.open .bub,.it.svc.open .bub{stroke:var(--ink);stroke-width:2.5}
@@ -112,8 +144,8 @@ a{color:inherit;text-underline-offset:3px}
 .it.mor .bub{fill:var(--panel);stroke:var(--c);stroke-width:1.8}
 .it.mor .cnt{fill:var(--c);font-size:14px;font-weight:700}
 .it.mor .lab{pointer-events:auto}   /* "23 more" is what people aim at */
-svg.dim .it.api:not(.hot) .bub,svg.dim .it.api:not(.hot) .lab,svg.dim .it.sub:not(.hot) .bub,svg.dim .it.sub:not(.hot) text,svg.dim .it.svc:not(.hot) .bub,svg.dim .it.svc:not(.hot) text{opacity:.3}
-.it.nohit .bub,.it.nohit text,.it.nohit .sat{opacity:.25}
+svg.dim .it.api:not(.hot) .bub,svg.dim .it.api:not(.hot) .lab,svg.dim .it.sub:not(.hot) .bub,svg.dim .it.sub:not(.hot) text,svg.dim .it.svc:not(.hot) .bub,svg.dim .it.svc:not(.hot) text,svg.dim .it.svc:not(.hot) .ico{opacity:.3}
+.it.nohit .bub,.it.nohit text,.it.nohit .sat,.it.nohit .ico{opacity:.25}
 .it:hover .lab{text-decoration:underline;text-underline-offset:2px}
 .it.pill:hover .lab,.it.hub:hover .lab{text-decoration:none}
 
@@ -280,10 +312,11 @@ div.card:hover{border-color:var(--rule)}
 </style>
 </head>
 <body>
-<div class="narrow" role="note"><h1>M365 Graph Cartographer</h1><p>MGC is designed for desktop screens. Open it on a screen at least 1,000 pixels wide to explore the map.</p></div>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><symbol id="mgc-mark" viewBox="0 0 32 32"><path d="M27.78 18.49A13 13 0 0 1 4.22 18.49" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/><path d="M27.26 19.50L29.16 20.60" stroke="currentColor" stroke-width="1.1"/><path d="M25.19 22.19L26.75 23.75" stroke="currentColor" stroke-width="1.1"/><path d="M22.50 24.26L23.60 26.16" stroke="currentColor" stroke-width="1.1"/><path d="M19.36 25.56L19.93 27.68" stroke="currentColor" stroke-width="1.1"/><path d="M16.00 26.00L16.00 28.20" stroke="currentColor" stroke-width="1.1"/><path d="M12.64 25.56L12.07 27.68" stroke="currentColor" stroke-width="1.1"/><path d="M9.50 24.26L8.40 26.16" stroke="currentColor" stroke-width="1.1"/><path d="M6.81 22.19L5.25 23.75" stroke="currentColor" stroke-width="1.1"/><path d="M4.74 19.50L2.84 20.60" stroke="currentColor" stroke-width="1.1"/><circle cx="16" cy="13" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><ellipse cx="16" cy="13" rx="3.9" ry="9" fill="none" stroke="currentColor" stroke-opacity=".45" stroke-width="1.2"/><path d="M7 13h18" stroke="currentColor" stroke-opacity=".3" stroke-width="1.1"/><path d="M12.2 8.4L20.4 13 13.6 17.6z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M16 13L22.10 24.48" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="12.2" cy="8.4" r="2.1" fill="#3d86c6"/><circle cx="20.4" cy="13" r="2.1" fill="#b37a0f"/><circle cx="13.6" cy="17.6" r="2.1" fill="#0f8a78"/><circle cx="22.10" cy="24.48" r="2.1" fill="#c13b2a"/></symbol></svg>
+<div class="narrow" role="note"><h1>M365 Graph Cartographer</h1><p>It is designed for desktop screens. Open it on a screen at least 1,000 pixels wide to explore the map.</p></div>
 <div class="app">
 <header class="top">
- <div class="brand"><b>MGC</b><span>M365 Graph Cartographer</span></div>
+ <div class="brand"><svg class="mark" aria-hidden="true" focusable="false"><use href="#mgc-mark"/></svg><span class="name">M365 Graph Cartographer</span><a class="ver" id="ver" href="https://github.com/ThatM365Guy/M365-Graph-Cartographer/blob/main/CHANGELOG.md" target="_blank" rel="noopener noreferrer" title="What’s new in v{{version}}">v{{version}}</a><button class="info" id="aboutBtn" type="button" aria-label="About M365 Graph Cartographer" title="About" aria-haspopup="dialog" aria-controls="about" aria-expanded="false"><svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><circle cx="8" cy="4.2" r="1.25" fill="currentColor"/><path d="M8 7.2v5.6" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg></button></div>
  <div class="seg" role="group" aria-label="View"><button data-view="explore" aria-pressed="true">Explore</button><button data-view="scen" aria-pressed="false">Scenarios</button><button data-view="cov" aria-pressed="false">Coverage</button></div>
  <div class="search"><input id="q" type="search" placeholder="Search APIs, paths, permissions" aria-label="Search APIs by name, path, permission or limitation" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="qres" aria-autocomplete="list"><ul class="qres" id="qres" role="listbox" hidden></ul></div>
  <button class="tbtn" id="fbtn" aria-expanded="false" aria-controls="fpanel">Filter<span class="n" id="fn" hidden></span></button>
@@ -299,6 +332,22 @@ div.card:hover{border-color:var(--rule)}
  </div>
  <aside class="panel" id="panel" aria-live="polite"></aside>
 </div>
+</div>
+<div class="about-back" id="aboutBack" hidden>
+ <div class="about" id="about" role="dialog" aria-modal="true" aria-labelledby="aboutTitle" aria-describedby="aboutWhat" tabindex="-1">
+  <button class="x" id="aboutClose" type="button" aria-label="Close">×</button>
+  <div class="ahead"><svg class="mark" aria-hidden="true" focusable="false"><use href="#mgc-mark"/></svg><div><h2 id="aboutTitle">M365 Graph Cartographer</h2><p id="aboutVer">Version {{version}} · released {{released}}</p></div></div>
+  <p id="aboutWhat">An interactive map of Microsoft Graph: what each API does, the permissions it needs and where it falls short.</p>
+  <div class="who"><span class="mono" aria-hidden="true">MT</span><div><b>Created by Matt Thomson</b><span>Data Security Architect with 20+ years’ experience in data security and governance</span></div></div>
+  <ul class="alinks">
+   <li><a href="https://www.linkedin.com/in/thatm365guy" target="_blank" rel="noopener noreferrer">LinkedIn</a></li>
+   <li><a href="https://github.com/ThatM365Guy/M365-Graph-Cartographer" target="_blank" rel="noopener noreferrer">GitHub</a></li>
+   <li><a href="https://github.com/ThatM365Guy/M365-Graph-Cartographer/issues" target="_blank" rel="noopener noreferrer">Report a problem or suggest a scenario</a></li>
+   <li><a href="https://github.com/ThatM365Guy/M365-Graph-Cartographer/blob/main/CHANGELOG.md" target="_blank" rel="noopener noreferrer">What’s new in v{{version}}</a></li>
+  </ul>
+  <p class="afoot" id="aboutScan"></p>
+  <p class="afoot">An independent community project, not affiliated with or endorsed by Microsoft.</p>
+ </div>
 </div>
 <script>
 {
@@ -415,6 +464,9 @@ function init(){
   const svcR = n => 7.5*Math.sqrt(Math.min(Math.max(n, 1), SVC_CAP)) + 4;   // bubble area grows with the number of APIs, up to SVC_CAP
   const subR = n => 5.5 + 4.3*Math.sqrt(Math.min(Math.max(n, 1), SVC_CAP));   // capped like services: neighbours sit at least 16° (about 81 px) apart
   const API_R = 6.5, SMALL_R = 12, OPEN_R = 34;
+  // Service icons (D.icons, from curated.json: key -> SVG content for a 24x24 box). Only bubbles of radius 23 or more
+  // carry one: about 30 px on screen at the start ring's usual scale of 1.3.
+  const ICONS = D.icons || {}, ICON_MIN = 23;
   // Label placement, anchored outward by angle. Returns the text origin, anchor and the box it covers.
   function labelAt(a, r, off, w, h){
     const c = Math.cos(rad(a)), s = Math.sin(rad(a));
@@ -622,13 +674,16 @@ function init(){
     } else shape = mk('circle', {class: 'bub', fill: colour}, g);
     const pill = type === 'sub' ? mk('rect', {class: 'bub pillr', fill: colour, rx: 10, height: 20, y: -10, display: 'none'}, g) : null;
     const sats = type === 'svc' ? mk('g', {class: 'sat'}, g) : null;
+    const icon = ICONS[type === 'hub' ? hub.id : type === 'svc' ? key.slice(4) : ''];
+    const ico = icon ? mk('g', {class: 'ico', 'aria-hidden': 'true'}, g) : null;   // decorative: the accessible name stays on the bubble
+    if (ico) ico.innerHTML = icon;
     const cnt = mk('text', {class: 'cnt', 'text-anchor': 'middle'}, g);
     const inn = mk('text', {class: 'in', 'text-anchor': 'middle'}, g);
     const lab = mk('text', {class: 'lab'}, g);
     const bdg = type === 'api' ? mk('g', {class: 'bdg'}, g) : null;
     const title = {set textContent(v){}};   // the hover card does the tooltip's job
-    if (type === 'hub') { inn.innerHTML = '<tspan x="0" dy="-0.15em">Microsoft</tspan><tspan x="0" dy="1.2em">Graph</tspan>'; }
-    const it = {key, type, g, shape, pill, sats, cnt, inn, lab, bdg, title, cur: null, t: null};
+    if (type === 'hub') { inn.innerHTML = ico ? '<tspan x="0">Microsoft</tspan><tspan x="0" dy="1.2em">Graph</tspan>' : '<tspan x="0" dy="-0.15em">Microsoft</tspan><tspan x="0" dy="1.2em">Graph</tspan>'; }
+    const it = {key, type, g, shape, pill, sats, ico, cnt, inn, lab, bdg, title, cur: null, t: null};
     items.set(key, it);
     return it;
   }
@@ -775,8 +830,16 @@ function init(){
       it.lab.setAttribute('x', lg.x.toFixed(1)); it.lab.setAttribute('y', lg.y.toFixed(1)); it.lab.setAttribute('text-anchor', lg.anchor);
     }
     if (it.type === 'svc') {
+      // A full-size service bubble (start ring) shows its icon above the count; smaller ones show the count alone.
+      const withIcon = it.ico && t.mode === 'full' && t.size >= ICON_MIN;
+      if (it.ico) {
+        it.ico.style.display = withIcon ? '' : 'none';
+        if (withIcon) it.ico.setAttribute('transform', `translate(0 ${(-0.214*s).toFixed(2)}) scale(${(0.62*s/24).toFixed(4)}) translate(-12 -12)`);
+      }
+      if (withIcon) { it.cnt.setAttribute('y', (0.524*s).toFixed(2)); it.cnt.style.fontSize = (0.333*s).toFixed(2) + 'px'; }
+      else if (it.cnt.style.fontSize) it.cnt.style.removeProperty('font-size');
       if (t.mode === 'open') { it.inn.setAttribute('y', -2); it.cnt.setAttribute('y', 12); }
-      else { it.cnt.setAttribute('y', t.mode === 'small' ? 3.8 : 4.6); }
+      else if (!withIcon) { it.cnt.setAttribute('y', t.mode === 'small' ? 3.8 : 4.6); }
       const fl = it.g.querySelector('[data-flag]');
       if (fl) { fl.setAttribute('cx', s*0.72); fl.setAttribute('cy', -s*0.72); }
       // satellites: one small dot per sub-service, round the inner side of the bubble
@@ -789,7 +852,10 @@ function init(){
     }
     if (it.type === 'sub') it.cnt.setAttribute('y', 4.2);
     if (it.type === 'mor') it.cnt.setAttribute('y', 4.8);
-    if (it.type === 'hub') it.inn.setAttribute('y', 0);
+    if (it.type === 'hub') {
+      if (it.ico) { it.ico.setAttribute('transform', `translate(0 ${(-0.263*s).toFixed(2)}) scale(${(0.526*s/24).toFixed(4)}) translate(-12 -12)`); it.inn.setAttribute('y', (0.298*s).toFixed(2)); }
+      else it.inn.setAttribute('y', 0);
+    }
   }
   function drawSpokes(){
     let h = '';
@@ -1087,7 +1153,7 @@ function init(){
       <ul class="links svlist">${svcList().map(w => `<li><button class="lk" data-svc="${w.id}" style="--c:${w.colour}"><i></i><span><b>${esc(w.label)}</b><span class="sv">${subsOf(w.id).map(s => esc(s.label)).join(' · ')}</span></span><small>${apisOf(w.id).length ? pl(apisOf(w.id).length, 'API') : 'not mapped yet'}</small></button></li>`).join('')}</ul>
       <div class="cards"><button class="card" data-act="search"><b>Search for a resource</b><span>By name, path, permission or limitation.</span></button><button class="card" data-act="scen"><b>Walk through a scenario</b><span>${SCEN.length} step-by-step routes for reviews and investigations.</span></button></div>
       <details class="sm"><summary>Recent changes</summary>${changesFor(null)}</details>
-      <p class="foot">${nodes.length} APIs (${nodes.filter(isGen).length} generated) · ${D.workloads.length} services · ${relCount} links${cov ? ` · ${nf(cov.onMap)} of ${nf(cov.v1Types)} v1.0 types mapped` : ''}. Curated notes v${esc(D.meta.curatedVersion)}, ${fmtDate(D.meta.curatedOn)}. ${scanInfo ? `Schema scanned ${fmtDate(scanInfo.at)}: ${nf(scanInfo.v1EntityTypes)} entity types in v1.0, ${nf(scanInfo.betaEntityTypes)} in beta${scanInfo.permissionsChecked ? `. Permission names checked against Graph's ${nf(scanInfo.permissionCount)} permissions${scanInfo.permissionsCheckedAt ? ` (list fetched ${fmtDate(scanInfo.permissionsCheckedAt)})` : ''}` : ''}.` : 'The schema scan has not run yet.'}${scanInfo && scanInfo.permissionsCatalogue ? ` Generated permissions from ${catPin()}.` : ''}</p>`;
+      <p class="foot">${nodes.length} APIs (${nodes.filter(isGen).length} generated) · ${D.workloads.length} services · ${relCount} links${cov ? ` · ${nf(cov.onMap)} of ${nf(cov.v1Types)} v1.0 types mapped` : ''}. <span class="appver">M365 Graph Cartographer v{{version}}</span>, curated notes v${esc(D.meta.curatedVersion)}, ${fmtDate(D.meta.curatedOn)}. ${scanInfo ? `Schema scanned ${fmtDate(scanInfo.at)}: ${nf(scanInfo.v1EntityTypes)} entity types in v1.0, ${nf(scanInfo.betaEntityTypes)} in beta${scanInfo.permissionsChecked ? `. Permission names checked against Graph's ${nf(scanInfo.permissionCount)} permissions${scanInfo.permissionsCheckedAt ? ` (list fetched ${fmtDate(scanInfo.permissionsCheckedAt)})` : ''}` : ''}.` : 'The schema scan has not run yet.'}${scanInfo && scanInfo.permissionsCatalogue ? ` Generated permissions from ${catPin()}.` : ''}</p>`;
   }
   function renderSvc(w){
     const none = !apisOf(w.id).length;
@@ -1471,11 +1537,42 @@ function init(){
   }
   function updateReset(){ $('#rdot').hidden = isStart(); }
   $('#reset').addEventListener('click', () => {
+    closeAbout(false);
     F = DEFAULT_FILTERS(); q.value = ''; closeResults(); toggleFilters(false); renderFilters(); hideTip();
     touched = false; S.view = 'explore'; S.svc = S.sub = S.sel = S.scen = S.preview = S.hover = null; S.step = 0; setSeg();
     try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
     sync({refit: true});
   });
+
+  /* ================= About popup =================
+     A modal: focus moves in when it opens, Tab and Shift+Tab stay inside, and it closes on the ×, Esc, a click on the
+     backdrop or Reset, giving focus back to the "i" button. */
+  const aboutBack = $('#aboutBack'), aboutBox = $('#about'), aboutBtn = $('#aboutBtn');
+  if (scanInfo || cov) $('#aboutScan').textContent = [scanInfo ? `Schema scanned ${fmtDate(scanInfo.at)}` : '', cov ? `${nf(cov.onMap)} of ${nf(cov.v1Types)} v1.0 types mapped` : ''].filter(Boolean).join(' · ') + '.';
+  const focusables = () => [...aboutBox.querySelectorAll('a[href],button')];
+  function openAbout(){
+    toggleFilters(false); closeResults(); hideTip(); endGesture();
+    aboutBack.hidden = false; aboutBtn.setAttribute('aria-expanded', 'true');
+    $('.app').inert = true;
+    aboutBox.focus();
+  }
+  function closeAbout(refocus = true){
+    if (aboutBack.hidden) return;
+    aboutBack.hidden = true; aboutBtn.setAttribute('aria-expanded', 'false');
+    $('.app').inert = false;
+    if (refocus) aboutBtn.focus();
+  }
+  aboutBtn.addEventListener('click', () => aboutBack.hidden ? openAbout() : closeAbout());
+  $('#aboutClose').addEventListener('click', () => closeAbout());
+  aboutBack.addEventListener('click', e => { if (e.target === aboutBack) closeAbout(); });
+  aboutBack.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); closeAbout(); return; }
+    if (e.key !== 'Tab') return;
+    const f = focusables(), first = f[0], last = f[f.length - 1], at = document.activeElement;
+    if (e.shiftKey && (at === first || at === aboutBox)) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && at === last) { e.preventDefault(); first.focus(); }
+  });
+  aboutBox.addEventListener('focusout', e => { if (!aboutBack.hidden && e.relatedTarget && !aboutBox.contains(e.relatedTarget)) aboutBox.focus(); });
 
   /* ================= hover card ================= */
   function tipHtml(key){
@@ -1546,7 +1643,7 @@ function init(){
   // After a relayout, keep focus on the item that was activated (or its replacement).
   function focusKey(k){ requestAnimationFrame(() => { const it = items.get(k); if (it && it.t) it.g.focus({preventScroll: true}); }); }
   document.addEventListener('keydown', e => {
-    if (e.key !== 'Escape') return;
+    if (e.key !== 'Escape' || !aboutBack.hidden) return;
     if (!fpanel.hidden) { toggleFilters(false); fbtn.focus(); return; }
     if (e.target === q) return;
     const had = document.activeElement && document.activeElement.closest && document.activeElement.closest('.it');
