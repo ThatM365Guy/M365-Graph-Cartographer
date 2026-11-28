@@ -141,6 +141,8 @@ class ScanTests(unittest.TestCase):
         self.assertIn("Sensitivity label: moved from beta only to v1.0", texts)
         self.assertIn("User: new v1.0 property 'employeeLeaveDateTime'", texts)
         self.assertEqual(second["recentChanges"][0]["date"], "2026-11-21")
+        promoted = [c["kind"] for c in changes if c["node"] == "sensitivityLabel"]
+        self.assertEqual(promoted, ["status"])          # not one entry per property as well
 
     def test_retargeted_node_is_one_curation_entry_not_schema_changes(self):
         first, _ = self.run_scan("v1.xml", "beta.xml")

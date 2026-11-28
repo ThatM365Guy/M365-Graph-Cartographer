@@ -646,7 +646,10 @@ def diff(curated, prev_map, nodes_scan, discovered, perms, today):
                                        f"{targets.get(nid)} ({cur['status']}). Scan results restarted.")
                 continue
             if old.get("status") != cur["status"]:
+                # props and navs list v1.0 members only, so a promotion would list every member as new (and a
+                # demotion every member as gone); the status line already says what happened
                 add(nid, "status", f"{lab}: moved from {old.get('status')} to {cur['status']}.")
+                continue
             for field, word in (("props", "property"), ("navs", "relationship")):
                 if field not in cur:
                     continue
