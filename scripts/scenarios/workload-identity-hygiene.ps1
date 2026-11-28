@@ -128,8 +128,8 @@ function Get-UtcStamp {
 }
 
 function ConvertTo-CredentialRow {
-    param($Owner, [string]$Kind, $Credentials, [string]$Type)
-    foreach ($c in @($Credentials)) {
+    param($Owner, [string]$Kind, $KeyList, [string]$Type)
+    foreach ($c in @($KeyList)) {
         if ($null -eq $c) { continue }
         $left = if ($c.EndDateTime) { [math]::Floor(($c.EndDateTime.ToUniversalTime() - (Get-Date).ToUniversalTime()).TotalDays) } else { $null }
         [pscustomobject]@{ Kind = $Kind; Name = $Owner.DisplayName; AppId = $Owner.AppId; ObjectId = $Owner.Id; Type = $Type; KeyId = $c.KeyId

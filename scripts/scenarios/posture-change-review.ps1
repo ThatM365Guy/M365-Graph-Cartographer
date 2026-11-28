@@ -120,7 +120,7 @@ function Get-UtcStamp {
 $cutoff = (Get-Date).ToUniversalTime().AddDays(-$Days)
 
 # Step 1: GET /security/secureScores?$top=1 (and the week before, for comparison)
-$scores = @(Invoke-ReadStep '1-secure-score' {
+$null = @(Invoke-ReadStep '1-secure-score' {
     Get-MgSecuritySecureScore -Top 8 | Select-Object CreatedDateTime, CurrentScore, MaxScore, @{n = 'Percent'; e = { if ($_.MaxScore) { [math]::Round(100 * $_.CurrentScore / $_.MaxScore, 1) } } }, ActiveUserCount, LicensedUserCount
 })
 $latest = Get-MgSecuritySecureScore -Top 1
