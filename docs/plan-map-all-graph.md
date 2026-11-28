@@ -9,7 +9,7 @@ Exported from the owner's Claude Doc "MGC: Claude Code brief to map all of Micro
 - [x] Phase 2: generated tier, proved on Intune (branch `claude/phase2-generated-intune`, stacked on Phase 1, committed locally 28 Nov 2026; waiting for the owner's review and push)
 - [x] Phase 3: every v1.0 area, then beta (branch `claude/phase3-all-areas`, stacked on Phase 2, committed locally 28 Nov 2026; waiting for the owner's review and push)
 - [x] Phase 4: curated depth for security (branch `claude/phase4-security-depth`, cut from `main` after Phases 1-3 merged, committed locally 28 Nov 2026; the owner approved all six scenarios, now written)
-- [ ] Phase 5: extras
+- [x] Phase 5: extras (branch `claude/phase5-extras`, cut from `main` after Phase 4 merged, committed locally 28 Nov 2026)
 
 ## Decisions and findings
 
@@ -66,6 +66,10 @@ Each step names the node and what to do; the call, permission and catch default 
 Checks made before writing them (Microsoft Learn, 28 Nov 2026): the service principal sign-in filter `signInEventTypes/any(t: t eq 'servicePrincipal')` is only documented in beta, so step 4 of scenario 1 uses the beta endpoint and says so. `provisioningStatusInfo` isn't documented as filterable in v1.0, so scenario 5 filters on `activityDateTime` and picks out failures in code. A risk detection's `correlationId` is the sign-in's correlation ID and `signIn` supports `$filter` on it, so scenario 2 joins on that (and a curated link records it). The repeat offenders report needs `AttackSimulation.Read.All`. Every property the steps name (complianceState, azureADDeviceId, deviceId, isCompliant, actionRequiredByDateTime, isResolved) was checked against $metadata. Scenario ids: workload-identity-triage, risky-signin-investigation, device-compliance-gap, phishing-simulation-followup, provisioning-failure-review, posture-change-review.
 
 Overlap with Phase 6: Phase 6 scenario 2 (phishing-resistant MFA migration) and scenario 6 (Conditional Access coverage) will also use user registration details, authentication method and cross-tenant access policy, so they are not proposed again here.
+- 28 Nov 2026: owner merged PR #8 (Phase 4) into `main`; deploy green, live page serves curated 0.8.0 with the six new scenarios.
+- 28 Nov 2026, Phase 5 (extras):
+  - "Open in Graph Explorer" on every entry with a GET path: 76 of 85 curated and 1,671 of 1,835 generated entries. The link format (`https://developer.microsoft.com/graph/graph-explorer?request=<encoded path>&method=GET&version=<v1.0|beta>&GraphUrl=https://graph.microsoft.com`) is the one Learn's own "try it" links use; checked that it opens with the request filled in (nobody signed in, nothing run). The link uses the entry's first request, simplifies placeholders such as `{id | userPrincipalName}` to `{id}`, takes the version from a `/beta` prefix or the scan status, and adds a note when placeholders need filling. POST-only entries (for example `runHuntingQuery`) and entries outside Graph get no link, so every link is read-only.
+  - Permission names link to `https://graphpermissions.merill.net/permission/<name>` (checked: real pages load, including hyphenated names; a made-up name doesn't resolve). Only names the scanner has confirmed against Graph's permission list are linked (441 distinct names), in curated and generated panels and in scenario steps.
 
 ---
 

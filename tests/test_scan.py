@@ -636,5 +636,50 @@ class GeneratedTierTests(unittest.TestCase):
         self.assertEqual(generate.place(self.by_type["lonelyType"], rules), ("devices", "intune-admin"))
 
 
+
+def explorer_request(n):
+    """Python twin of explorerUrl() in web/template.html: (request, version) or None."""
+    if n.get("kind") == "gap" or not n.get("path"):
+        return None
+    req, version = n["path"].split("·")[0].strip(), ("beta" if (n.get("scan") or {}).get("status") == "beta only" else "v1.0")
+    if n.get("tier") != "generated":
+        m = re.match(r"^GET\s+(\S.*)$", req)
+        if not m:
+            return None
+        req = m.group(1).strip()
+    if not req.startswith("/"):
+        return None
+    req = re.sub(r"^https://graph\.microsoft\.com", "", req)
+    v = re.match(r"^/(v1\.0|beta)(/.*)$", req)
+    if v:
+        version, req = v.group(1), v.group(2)
+    return re.sub(r"\{\s*([^}|\s]+)\s*\|[^}]*\}", r"{\1}", req), version
+
+
+class ExtrasTests(unittest.TestCase):
+    def test_graph_explorer_requests_are_clean_get_paths(self):
+        gm, _ = real_map()
+        made = [(n["id"], explorer_request(n)) for n in gm["nodes"]]
+        linked = [(i, r) for i, r in made if r]
+        self.assertGreater(len(linked), 1500)
+        for i, (req, version) in linked:
+            self.assertTrue(req.startswith("/") and not req.startswith("//"), i)
+            self.assertNotIn("·", req, i)
+            self.assertNotIn("|", req.split("?")[0], i)      # placeholder alternatives are simplified
+            self.assertIn(version, ("v1.0", "beta"), i)
+        by_id = dict(made)
+        self.assertEqual(by_id["user"], ("/users/{id}", "v1.0"))
+        self.assertEqual(by_id["sensitiveType"], ("/dataClassification/sensitiveTypes", "beta"))
+        self.assertIsNone(by_id["hunting"])                  # POST only: no read-only link
+        self.assertIsNone(by_id["exGap"])                    # outside Graph
+
+    def test_template_links_to_explorer_and_permissions_site(self):
+        with open(os.path.join(ROOT, "web", "template.html"), encoding="utf-8") as f:
+            tpl = f.read()
+        self.assertIn("https://developer.microsoft.com/graph/graph-explorer", tpl)
+        self.assertIn("https://graphpermissions.merill.net/permission/", tpl)
+        self.assertIn(scan.PERM_RE.pattern, tpl)            # the page and the scanner find permission names the same way
+
+
 if __name__ == "__main__":
     unittest.main()

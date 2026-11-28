@@ -174,6 +174,10 @@ svg.dim .it.api:not(.hot) .bub,svg.dim .it.api:not(.hot) .lab,svg.dim .it.sub:no
 .panel li{margin:4px 0}
 .lead{font-size:15.5px}
 .ep{background:var(--soft);border-radius:8px;padding:9px 12px;display:flex;gap:10px;align-items:start;justify-content:space-between;margin:10px 0}
+.ge{font-size:13.5px;margin:-4px 0 10px}
+.ge small{display:block;color:var(--mute);font-size:12.5px}
+a.perm-l{text-decoration:underline dotted;text-underline-offset:3px}
+a.perm-l:hover{text-decoration-style:solid}
 .copy{border:1px solid var(--rule);background:var(--panel);border-radius:6px;font-size:12.5px;padding:3px 10px;min-height:30px;cursor:pointer;flex:none}
 .perm{width:100%;border-collapse:collapse;font-size:14px}
 .perm th{text-align:left;font-weight:500;color:var(--mute);width:92px;vertical-align:top;padding:6px 8px 6px 0}
@@ -1152,7 +1156,7 @@ function init(){
   const shortType = fq => String(fq).replace(/^microsoft\.graph\./, '');
   const variantsBlock = n => n.variants && n.variants.length ? `<p class="props">${n.variants.map(v => esc(shortType(v))).join('<br>')}</p>` : '';
   const catPin = () => { const c = scanInfo && scanInfo.permissionsCatalogue; return c ? `<a href="https://github.com/${esc(c.repo)}/blob/${esc(c.commit)}/${esc(c.path)}" target="_blank" rel="noopener">permissions.json at ${esc(c.commit.slice(0, 7))}</a>` : 'the permissions catalogue'; };
-  const permLines = v => v ? v.split(', ').map(x => esc(x).replace(/\./g, '.<wbr>')).join('<br>') : 'None marked least privileged';
+  const permLines = v => v ? v.split(', ').map(x => KNOWN_PERMS.has(x) ? permLink(x) : esc(x).replace(/\./g, '.<wbr>')).join('<br>') : 'None marked least privileged';
   function renderGenerated(n){
     const p = n.permissions, pc = n.permCheck, o = n.ops || {acts: []}, nV = (n.variants || []).length;
     const perms = p ? `<table class="perm"><tr><th>Delegated</th><td>${permLines(p.delegated)}</td></tr><tr><th>Application</th><td>${permLines(p.application)}</td></tr></table>
@@ -1161,7 +1165,7 @@ function init(){
     const opsList = [...(o.actions || []).map(a => a + ' (action)'), ...(o.functions || []).map(f => f + ' (function)')];
     panel.innerHTML = `${wlName(WL[n.workload], (subOf(n.id) || {}).label || 'Unsorted')}<h2>${esc(n.label)}${nV ? ` <small style="font-size:15px;color:var(--mute);font-weight:500">(${pl(nV, 'variant')})</small>` : ''}</h2>${badges(n)}
       <p class="lead">Generated from the ${n.scan && n.scan.status === 'beta only' ? 'beta' : 'v1.0'} schema. Nobody has written or checked notes for this entry yet, so there is no summary, licensing or limits here.${n.scan && n.scan.status === 'beta only' ? ' Beta APIs can change without notice and are not supported in production.' : ''}</p>
-      ${n.path ? `<div class="ep"><code>${esc(n.path)}</code><button class="copy" data-copy="${esc(n.path)}">Copy</button></div>` : '<p>No path from a top-level root reaches this type.</p>'}
+      ${n.path ? `<div class="ep"><code>${esc(n.path)}</code><button class="copy" data-copy="${esc(n.path)}">Copy</button></div>${geLink(n)}` : '<p>No path from a top-level root reaches this type.</p>'}
       ${det('Permissions', perms, true, 'generated, not checked')}
       ${det('Variants', variantsBlock(n), nV > 0 && nV <= 12, nV ? `${nV} folded into this entry` : '')}
       ${det('Beta variants', n.betaVariants && n.betaVariants.length ? `<p class="props">${n.betaVariants.map(v => esc(shortType(v))).join('<br>')}</p>` : '', false, n.betaVariants && n.betaVariants.length ? `${n.betaVariants.length} beta-only types folded in` : '')}
@@ -1171,14 +1175,39 @@ function init(){
       ${n.docs ? docsLink(n.docs) : '<p class="foot">No Microsoft Learn resource page was found for this type.</p>'}
       <p class="foot"><button class="copy" data-copy="#${esc(n.id)}" data-link>Copy link to this API</button></p>`;
   }
+  // Graph Explorer: the entry's first GET request, opened ready to run (read-only; POST-only entries get no link).
+  // Placeholders such as {id | userPrincipalName} become {id}; the version comes from a /beta prefix or the scan status.
+  const GE = 'https://developer.microsoft.com/graph/graph-explorer';
+  function explorerUrl(n){
+    if (n.kind === 'gap' || !n.path) return null;
+    let req = String(n.path).split('\u00b7')[0].trim(), version = n.scan && n.scan.status === 'beta only' ? 'beta' : 'v1.0';
+    if (!isGen(n)) { const m = req.match(/^GET\s+(\S.*)$/); if (!m) return null; req = m[1].trim(); }
+    if (!req.startsWith('/')) return null;
+    req = req.replace(/^https:\/\/graph\.microsoft\.com/, '');
+    const v = req.match(/^\/(v1\.0|beta)(\/.*)$/); if (v) { version = v[1]; req = v[2]; }
+    req = req.replace(/\{\s*([^}|\s]+)\s*\|[^}]*\}/g, '{$1}');
+    return {url: `${GE}?request=${encodeURIComponent(req.slice(1))}&method=GET&version=${version}&GraphUrl=https://graph.microsoft.com`, holes: /\{[^}]*\}/.test(req)};
+  }
+  const geLink = n => { const g = explorerUrl(n); return g ? `<p class="ge"><a href="${esc(g.url)}" target="_blank" rel="noopener">Open in Graph Explorer ↗</a>${g.holes ? '<small>Sign in, then replace placeholders such as {id} before you run it.</small>' : ''}</p>` : ''; };
+  // Permission names link to graphpermissions.merill.net, but only names the scanner has checked against Graph's own list.
+  const KNOWN_PERMS = new Set();
+  nodes.forEach(x => { const pc = x.permCheck; if (pc && pc.checked) pc.checked.forEach(p => { if (!(pc.unknown || []).includes(p)) KNOWN_PERMS.add(p); }); });
+  const PERM_RX = /\b[A-Za-z][A-Za-z0-9]*(?:-[A-Za-z0-9]+)*(?:\.[A-Z][A-Za-z0-9]*)+\b/g;
+  const permLink = name => `<a class="perm-l" href="https://graphpermissions.merill.net/permission/${encodeURIComponent(name)}" target="_blank" rel="noopener" title="${esc(name)} on graphpermissions.merill.net">${esc(name).replace(/\./g, '.<wbr>')}</a>`;
+  function permHtml(text){
+    const t = String(text ?? ''); let out = '', last = 0;
+    for (const m of t.matchAll(PERM_RX)) { out += esc(t.slice(last, m.index)) + (KNOWN_PERMS.has(m[0]) ? permLink(m[0]) : esc(m[0])); last = m.index + m[0].length; }
+    return out + esc(t.slice(last));
+  }
   function renderApi(n){
     if (isGen(n)) return renderGenerated(n);
     const p = n.permissions, pc = n.permCheck, conn = connections(n.id), used = scenariosFor(n.id);
     const nConn = edges.filter(e => (e.s === n.id || e.t === n.id) && (e.kind !== 'discovered' || F.disc)).length;
-    const perms = p ? `<table class="perm"><tr><th>Delegated</th><td>${esc(p.delegated)}</td></tr><tr><th>Application</th><td>${esc(p.application)}</td></tr></table>${pc && pc.unknown && pc.unknown.length ? `<p class="warn">Not found in the current permission list: ${pc.unknown.map(esc).join(', ')}. Check whether it has been renamed.</p>` : ''}` : '';
+    const perms = p ? `<table class="perm"><tr><th>Delegated</th><td>${permHtml(p.delegated)}</td></tr><tr><th>Application</th><td>${permHtml(p.application)}</td></tr></table>${pc && pc.unknown && pc.unknown.length ? `<p class="warn">Not found in the current permission list: ${pc.unknown.map(esc).join(', ')}. Check whether it has been renamed.</p>` : ''}` : '';
     const legacy = n.legacy && n.legacy.length ? `<h5>Don't build on</h5><ul class="legacy-list">${n.legacy.map(l => `<li><code>${esc(l.path)}</code>${l.note ? `<small>${esc(l.note)}</small>` : ''}${l.replacedBy ? `<small>Use instead: ${esc(l.replacedBy)}</small>` : ''}</li>`).join('')}</ul>` : '';
     panel.innerHTML = `${wlName(WL[n.workload], (subOf(n.id) || {}).label || 'Unsorted')}<h2>${esc(n.label)}</h2>${badges(n)}<p class="lead">${esc(n.summary)}</p>
       ${n.path ? `<div class="ep"><code>${esc(n.path)}</code><button class="copy" data-copy="${esc(n.path)}">Copy</button></div>` : ''}
+      ${geLink(n)}
       ${det('Permissions', perms, true, 'least privileged first')}
       ${det('Watch for', n.limits && n.limits[0] ? `<p>${esc(n.limits[0])}</p>` : '', true)}
       ${det('Used in scenarios', used, false, used ? '' : '')}
@@ -1204,7 +1233,7 @@ function init(){
   function stepDetail(st){
     const n = N[st.node], call = st.call || n.path, perm = permText(st, n), lic = st.licence || n.licence, gotcha = st.note || (n.limits && n.limits[0]);
     return `<h3>${esc(n.label)}</h3><p class="where">${esc(where(n))}</p><p>${esc(st.do)}</p>
-      <dl class="sdl">${call ? `<dt>Call</dt><dd><code>${esc(call)}</code></dd>` : ''}${perm ? `<dt>Permission</dt><dd>${esc(perm)}</dd>` : ''}${lic ? `<dt>Licence</dt><dd>${esc(lic)}</dd>` : ''}${gotcha ? `<dt>Gotcha</dt><dd>${esc(gotcha)}</dd>` : ''}</dl>
+      <dl class="sdl">${call ? `<dt>Call</dt><dd><code>${esc(call)}</code></dd>` : ''}${perm ? `<dt>Permission</dt><dd>${permHtml(perm)}</dd>` : ''}${lic ? `<dt>Licence</dt><dd>${esc(lic)}</dd>` : ''}${gotcha ? `<dt>Gotcha</dt><dd>${esc(gotcha)}</dd>` : ''}</dl>
       <p><button class="back" data-go="${esc(n.id)}">Open ${esc(n.label)} in Explore →</button></p>`;
   }
   function renderScenario(s){
