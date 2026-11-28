@@ -453,13 +453,17 @@ def permissions_for(entry: dict, idx: dict) -> dict | None:
     for p in [entry.get("itemPath"), entry.get("path")] + [a + "/{id}" for a in entry.get("altPaths", [])] + entry.get("altPaths", []):
         if p and p.lower() not in candidates:
             candidates.append(p.lower())
+    first = None
     for p in candidates:
         slot = idx.get(p)
         if not slot:
             continue
         pick = lambda scheme: ", ".join(sorted((slot.get(scheme) or {}).get("least", ())))
-        return {"delegated": pick("DelegatedWork"), "application": pick("Application"), "matchedPath": p}
-    return None
+        found = {"delegated": pick("DelegatedWork"), "application": pick("Application"), "matchedPath": p}
+        if found["delegated"] or found["application"]:
+            return found
+        first = first or found   # the catalogue knows this path but marks nothing least: try the next one
+    return first
 
 
 def docs_for(fq: str, area: str, names: set) -> str | None:

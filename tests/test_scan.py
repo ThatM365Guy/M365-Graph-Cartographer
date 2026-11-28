@@ -636,6 +636,19 @@ class GeneratedTierTests(unittest.TestCase):
         self.assertEqual((p["delegated"], p["application"]), ("", "DeviceManagementConfiguration.Read.All"))
         self.assertIsNone(generate.permissions_for(self.by_type["lonelyType"], idx))
 
+    def test_catalogue_path_with_nothing_marked_least_falls_through(self):
+        cat = copy.deepcopy(CATALOGUE)
+        cat["permissions"]["DeviceManagementConfiguration.ReadWrite.All"] = {"authorizationType": "oAuth2", "pathSets": [
+            {"schemeKeys": ["Application"], "methods": ["GET"], "paths": {"/devicemanagement/devicecompliancepolicies/{id}": ""}}]}
+        idx = generate.index_catalogue(cat)
+        p = generate.permissions_for(self.by_type["deviceCompliancePolicy"], idx)   # item path known, nothing least
+        self.assertEqual((p["application"], p["matchedPath"]),
+                         ("DeviceManagementConfiguration.Read.All", "/devicemanagement/devicecompliancepolicies"))
+        del cat["permissions"]["DeviceManagementConfiguration.Read.All"]
+        p = generate.permissions_for(self.by_type["deviceCompliancePolicy"], generate.index_catalogue(cat))
+        self.assertEqual((p["delegated"], p["application"], p["matchedPath"]),
+                         ("", "", "/devicemanagement/devicecompliancepolicies/{id}"))   # no path has any: the first one
+
     def test_catalogue_shape_is_checked(self):
         generate.check_catalogue_shape(CATALOGUE)
         for bad in ({}, {"permissions": {"X": {"paths": {}}}}, {"permissions": {"X": {"pathSets": [{"methods": []}]}}}):
