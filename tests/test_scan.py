@@ -151,6 +151,23 @@ class ScanTests(unittest.TestCase):
         self.assertEqual([c["kind"] for c in user_changes], ["retargeted"])
         self.assertIn("from microsoft.graph.user to microsoft.graph.group", user_changes[0]["text"])
 
+    def test_no_scan_after_a_retarget_hides_old_results_and_next_scan_logs_it_once(self):
+        first, _ = self.run_scan("v1.xml", "beta.xml")
+        self.assertEqual(next(n for n in first["nodes"] if n["id"] == "user")["scan"]["of"], "microsoft.graph.user")
+        cur = curated()
+        next(n for n in cur["nodes"] if n["id"] == "user")["entityType"] = "microsoft.graph.group"
+        mid, _ = scan.build_map(cur, first, scan=False, now=D2)
+        self.assertNotIn("scan", next(n for n in mid["nodes"] if n["id"] == "user"))   # not the old type's schema
+        self.assertEqual(mid["state"]["retargetedScans"]["user"]["of"], "microsoft.graph.user")
+        again, _ = scan.build_map(cur, mid, scan=False, now=D2)                         # a second --no-scan keeps it
+        self.assertEqual(again["state"]["retargetedScans"]["user"]["of"], "microsoft.graph.user")
+        second, changes = scan.build_map(cur, again, os.path.join(FX, "v1.xml"), os.path.join(FX, "beta.xml"), now=D2)
+        self.assertEqual([c["kind"] for c in changes if c["node"] == "user"], ["retargeted"])
+        self.assertNotIn("retargetedScans", second["state"])
+        back, _ = scan.build_map(curated(), mid, scan=False, now=D2)                    # changed back before a scan
+        self.assertEqual(next(n for n in back["nodes"] if n["id"] == "user")["scan"]["of"], "microsoft.graph.user")
+        self.assertNotIn("retargetedScans", back["state"])
+
     def test_no_scan_keeps_previous_results_and_new_curated_text(self):
         first, _ = self.run_scan("v1.xml", "beta.xml")
         cur = curated()

@@ -284,6 +284,7 @@ def scan_nodes(curated: dict, v1: Schema | None, beta: Schema | None) -> dict:
             beta_props = sorted((eb["props"] if eb else set()) - set(props))
             beta_navs = sorted(set(eb["navs"] if eb else {}) - set(navs))
             out[n["id"]] = {
+                "of": et,   # the type these results describe; --no-scan uses it to spot a curated retarget
                 "status": _status(bool(e1), bool(eb)),
                 "props": props,
                 "navs": navs,
@@ -292,8 +293,8 @@ def scan_nodes(curated: dict, v1: Schema | None, beta: Schema | None) -> dict:
                 "baseTypes": (e1 or eb or {"chain": []})["chain"][1:],
             }
         elif action:
-            out[n["id"]] = {"status": _status(bool(v1 and v1.operation_anywhere(action)),
-                                              bool(beta and beta.operation_anywhere(action)))}
+            out[n["id"]] = {"of": action, "status": _status(bool(v1 and v1.operation_anywhere(action)),
+                                                            bool(beta and beta.operation_anywhere(action)))}
     return out
 
 
@@ -620,6 +621,8 @@ def cap_new_in_graph(changes: list) -> list:
 def diff(curated, prev_map, nodes_scan, discovered, perms, today):
     changes = []
     prev_nodes = {n["id"]: n.get("scan") for n in (prev_map or {}).get("nodes", []) if n.get("scan")}
+    # results a --no-scan run set aside because the curated type had changed (see build_map)
+    prev_nodes.update(((prev_map or {}).get("state") or {}).get("retargetedScans") or {})
     prev_target = {n["id"]: n.get("entityType") or n.get("action") for n in (prev_map or {}).get("nodes", [])}
     labels = {n["id"]: n["label"] for n in curated["nodes"]}
     targets = {n["id"]: n.get("entityType") or n.get("action") for n in curated["nodes"]}
@@ -636,9 +639,10 @@ def diff(curated, prev_map, nodes_scan, discovered, perms, today):
             if not old:
                 add(nid, "new-node", f"{lab}: scanned for the first time ({cur['status']}).")
                 continue
-            if prev_target.get(nid) != targets.get(nid):
+            was = old.get("of") or prev_target.get(nid)
+            if was != targets.get(nid):
                 # a curation edit, not a schema change: record it once and don't diff the old type's members
-                add(nid, "retargeted", f"{lab}: curated type changed from {prev_target.get(nid)} to "
+                add(nid, "retargeted", f"{lab}: curated type changed from {was} to "
                                        f"{targets.get(nid)} ({cur['status']}). Scan results restarted.")
                 continue
             if old.get("status") != cur["status"]:
@@ -726,6 +730,7 @@ def build_map(curated, prev_map=None, v1_src=None, beta_src=None, token=None, sc
     today = now.date().isoformat()
     v1 = beta = None
     perms = None
+    retargeted = {}
     meta = dict(curated["meta"])
     meta["generatedAt"] = now.isoformat(timespec="seconds")
 
@@ -771,6 +776,17 @@ def build_map(curated, prev_map=None, v1_src=None, beta_src=None, token=None, sc
         # keep the previous scan results, re-attached to the current curated content
         prev_nodes = {n["id"]: n for n in (prev_map or {}).get("nodes", [])}
         nodes_scan = {k: v["scan"] for k, v in prev_nodes.items() if v.get("scan")}
+        # A curated node whose type changed since the scan: its results describe the old type, so they are not
+        # shown. They are kept in state so the next scan logs the change once, as 'retargeted'.
+        cur_targets = {n["id"]: n.get("entityType") or n.get("action") for n in curated["nodes"]}
+        retargeted = dict(((prev_map or {}).get("state") or {}).get("retargetedScans") or {})
+        for nid in [k for k in nodes_scan if k in cur_targets]:
+            p = prev_nodes[nid]
+            was = nodes_scan[nid].get("of") or p.get("entityType") or p.get("action")
+            if was != cur_targets[nid]:
+                retargeted.setdefault(nid, dict(nodes_scan.pop(nid), of=was))
+        for nid in [k for k, v in retargeted.items() if v.get("of") == cur_targets.get(k)]:
+            nodes_scan[nid] = retargeted.pop(nid)   # changed back before a scan: the old results fit again
         prev_edges = {(e["s"], e["t"], e.get("nav") or e.get("action") or e.get("label")): e.get("scan")
                       for e in (prev_map or {}).get("edges", [])}
         edges = []
@@ -823,6 +839,9 @@ def build_map(curated, prev_map=None, v1_src=None, beta_src=None, token=None, sc
     if perm_names:
         state["permissionNames"], state["permissionNamesAt"] = perm_names, perm_at
     state.pop("placement", None)
+    state.pop("retargetedScans", None)
+    if not scan and retargeted:
+        state["retargetedScans"] = retargeted
     if placement_report is not None:   # read by build_page.py's completeness rule, never embedded in the page
         state["placement"] = {k: v for k, v in placement_report.items() if k != "inheritedVariants"}
 
