@@ -1,7 +1,7 @@
 {
  "meta": {
   "title": "M365 Graph Cartographer (MGC)",
-  "curatedVersion": "0.10.0",
+  "curatedVersion": "0.11.0",
   "curatedOn": "2026-11-28",
   "phase": "Purview covered in depth from 0.3.0: information protection, records, eDiscovery, audit, privacy and the data security API, with what Graph does not cover.",
   "note": "Hand-written content lives here. The scanner never edits this file; it writes graph-map.json alongside it."
@@ -3932,32 +3932,463 @@
      "do": "List sites and spot broadly shared ones (Everyone except external users, large Members groups).",
      "call": "GET /sites/getAllSites",
      "note": "getAllSites needs application permissions.",
-     "ps": "Invoke-MgGraphRequest -Method GET -Uri \"https://graph.microsoft.com/v1.0/sites/getAllSites\""
+     "ps": "Invoke-MgGraphRequest -Method GET -Uri \"https://graph.microsoft.com/v1.0/sites/getAllSites\"",
+     "live": {
+      "says": "Reads the SharePoint sites you can open. Changes nothing. Sends nothing anywhere except Microsoft Graph.",
+      "scopes": [
+       "Sites.Read.All"
+      ],
+      "whyScope": "Searching for SharePoint sites needs Sites.Read.All. It is delegated, so MGC only sees the sites you can already open.",
+      "caveat": "Only the sites you can open. Listing every site in the tenant (getAllSites) needs application permissions, which MGC never asks for.",
+      "input": {
+       "label": "Search for",
+       "default": "*",
+       "help": "* asks for every site you can open. Learn documents searching with a keyword, so if * returns nothing, try a word from your site names."
+      },
+      "calls": [
+       {
+        "method": "GET",
+        "url": "/v1.0/sites?search={input}",
+        "rows": "value",
+        "as": "site",
+        "pages": 5,
+        "what": "sites"
+       }
+      ],
+      "columns": [
+       {
+        "label": "Site",
+        "from": [
+         "site.displayName",
+         "site.name"
+        ]
+       },
+       {
+        "label": "Address",
+        "from": "site.webUrl"
+       },
+       {
+        "label": "Created",
+        "from": "site.createdDateTime"
+       },
+       {
+        "label": "Last changed",
+        "from": "site.lastModifiedDateTime"
+       }
+      ],
+      "counts": [
+       {
+        "label": "Sites found"
+       }
+      ],
+      "carry": {
+       "name": "sites",
+       "key": "site.id",
+       "label": [
+        "site.webUrl",
+        "site.displayName"
+       ],
+       "keep": "site",
+       "max": 25,
+       "help": "Ticked sites go to step 2. The first 25 are ticked to keep the run short."
+      }
+     }
     },
     {
      "node": "permission",
      "do": "List site and file permissions and sharing links, especially organisation-wide and anyone links.",
-     "ps": "Get-MgDriveItemPermission -DriveId $driveId -DriveItemId $itemId -All"
+     "ps": "Get-MgDriveItemPermission -DriveId $driveId -DriveItemId $itemId -All",
+     "live": {
+      "says": "Reads who has access to the top level of each ticked site's main document library, including sharing links. Changes nothing. Sends nothing anywhere except Microsoft Graph.",
+      "scopes": [
+       "Files.Read.All"
+      ],
+      "whyScope": "Reading the sharing permissions on a library needs Files.Read.All. It is delegated, so MGC only sees what you can already see.",
+      "caveat": "Only the top level of each site's main library. Unless you own the site, Microsoft Graph only returns the permissions that apply to you, so most links won't show.",
+      "from": {
+       "carry": "sites",
+       "as": "site"
+      },
+      "calls": [
+       {
+        "method": "GET",
+        "url": "/v1.0/sites/{site.id}/drive",
+        "as": "drive",
+        "batch": true,
+        "what": "each site's main library"
+       },
+       {
+        "method": "GET",
+        "url": "/v1.0/drives/{drive.id}/root/permissions",
+        "rows": "value",
+        "as": "perm",
+        "batch": true,
+        "pages": 3,
+        "what": "the permissions on each library",
+        "keepEmpty": true
+       }
+      ],
+      "columns": [
+       {
+        "label": "Site",
+        "from": "site.webUrl"
+       },
+       {
+        "label": "Sharing link",
+        "from": "perm.link.scope",
+        "empty": "none"
+       },
+       {
+        "label": "Link type",
+        "from": "perm.link.type"
+       },
+       {
+        "label": "Roles",
+        "from": "perm.roles",
+        "empty": "(nothing returned to you)"
+       },
+       {
+        "label": "Granted to",
+        "from": [
+         "perm.grantedToV2.user.displayName",
+         "perm.grantedToV2.group.displayName",
+         "perm.grantedToV2.siteGroup.displayName",
+         "perm.grantedToV2.siteUser.displayName",
+         "perm.grantedToIdentitiesV2[].user.displayName"
+        ]
+       },
+       {
+        "label": "Inherited from",
+        "from": "perm.inheritedFrom.path"
+       },
+       {
+        "label": "Problem",
+        "from": "_error",
+        "error": true
+       }
+      ],
+      "counts": [
+       {
+        "label": "Permissions read",
+        "where": {
+         "field": "perm.id",
+         "exists": true
+        }
+       },
+       {
+        "label": "Sharing links",
+        "where": {
+         "field": "perm.link.type",
+         "exists": true
+        }
+       },
+       {
+        "label": "Anyone links",
+        "where": {
+         "field": "perm.link.scope",
+         "is": "anonymous"
+        }
+       },
+       {
+        "label": "Organisation-wide links",
+        "where": {
+         "field": "perm.link.scope",
+         "is": "organization"
+        }
+       },
+       {
+        "label": "Sites with a sharing link",
+        "where": {
+         "field": "perm.link.type",
+         "exists": true
+        },
+        "distinct": "site.id"
+       },
+       {
+        "label": "Sites with nothing returned to you",
+        "where": {
+         "field": "perm.id",
+         "exists": false
+        },
+        "distinct": "site.id"
+       }
+      ],
+      "carry": {
+       "name": "sites",
+       "key": "site.id",
+       "label": [
+        "site.webUrl"
+       ],
+       "keep": "site",
+       "tick": {
+        "field": "perm.link.scope",
+        "is": [
+         "anonymous",
+         "organization"
+        ]
+       },
+       "help": "Ticked sites go to step 3. Sites with an anyone or organisation-wide link are ticked."
+      }
+     }
     },
     {
      "node": "driveItem",
      "do": "Find sensitive files in those sites (search or by library) and their labels.",
      "call": "POST /search/query (entityTypes: driveItem)",
-     "ps": "Invoke-MgQuerySearch -Body @{ requests = @(@{ entityTypes = @('driveItem'); query = @{ queryString = $searchText } }) }  # read-only, uses POST"
+     "ps": "Invoke-MgQuerySearch -Body @{ requests = @(@{ entityTypes = @('driveItem'); query = @{ queryString = $searchText } }) }  # read-only, uses POST",
+     "live": {
+      "says": "Searches the ticked sites for files that match your words. Changes nothing. Sends nothing anywhere except Microsoft Graph.",
+      "scopes": [
+       "Files.Read.All"
+      ],
+      "whyScope": "Searching files needs Files.Read.All. It is delegated, so search only returns files you can already open.",
+      "caveat": "Search only returns files you can open. MGC reads at most 100 results for each site.",
+      "input": {
+       "label": "Search for",
+       "default": "confidential",
+       "help": "Words or KQL, for example salary or filetype:xlsx. MGC adds a path: filter for each ticked site."
+      },
+      "from": {
+       "carry": "sites",
+       "as": "site"
+      },
+      "calls": [
+       {
+        "method": "POST",
+        "url": "/v1.0/search/query",
+        "body": {
+         "requests": [
+          {
+           "entityTypes": [
+            "driveItem"
+           ],
+           "query": {
+            "queryString": "{input} path:\"{site.webUrl}\""
+           },
+           "from": 0,
+           "size": 25
+          }
+         ]
+        },
+        "rows": "value[].hitsContainers[].hits[]",
+        "as": "hit",
+        "pageBy": "search",
+        "pages": 4,
+        "what": "matching files"
+       }
+      ],
+      "columns": [
+       {
+        "label": "File",
+        "from": "hit.resource.name"
+       },
+       {
+        "label": "Site",
+        "from": "site.webUrl"
+       },
+       {
+        "label": "Address",
+        "from": "hit.resource.webUrl"
+       },
+       {
+        "label": "Last changed",
+        "from": "hit.resource.lastModifiedDateTime"
+       },
+       {
+        "label": "Changed by",
+        "from": "hit.resource.lastModifiedBy.user.displayName"
+       },
+       {
+        "label": "Problem",
+        "from": "_error",
+        "error": true
+       }
+      ],
+      "counts": [
+       {
+        "label": "Files found"
+       },
+       {
+        "label": "Sites with matches",
+        "distinct": "site.id"
+       }
+      ],
+      "carry": {
+       "name": "files",
+       "key": "hit.resource.id",
+       "label": [
+        "hit.resource.name"
+       ],
+       "keep": "hit.resource",
+       "max": 50,
+       "help": "Ticked files go to step 4. The first 50 are ticked."
+      }
+     }
     },
     {
      "node": "sensitivityLabel",
      "do": "Check which labels exist and apply or raise labels on sensitive content.",
      "call": "POST /drives/{id}/items/{id}/assignSensitivityLabel",
      "note": "assignSensitivityLabel is a metered API, and app-only calls can't replace the content of a labelled file.",
-     "psNote": "This step changes data, so the read-only script leaves it out."
+     "psNote": "This step changes data, so the read-only script leaves it out.",
+     "live": {
+      "says": "Reads the sensitivity labels already on the files you ticked. Doesn't apply or change any label. Sends nothing anywhere except Microsoft Graph.",
+      "scopes": [
+       "Files.Read.All"
+      ],
+      "whyScope": "Reading the labels on a file needs Files.Read.All. It is delegated, so MGC only reads files you can already open.",
+      "caveat": "Shows label IDs, not names: match them in the Purview portal. Learn notes that this call can refresh the label details SharePoint keeps for a file. It doesn't change the file or its label.",
+      "from": {
+       "carry": "files",
+       "as": "file"
+      },
+      "calls": [
+       {
+        "method": "POST",
+        "url": "/v1.0/drives/{file.parentReference.driveId}/items/{file.id}/extractSensitivityLabels",
+        "rows": "value",
+        "as": "res",
+        "perItemErrors": true,
+        "what": "the labels on each file"
+       }
+      ],
+      "columns": [
+       {
+        "label": "File",
+        "from": "file.name"
+       },
+       {
+        "label": "Address",
+        "from": "file.webUrl"
+       },
+       {
+        "label": "Label IDs",
+        "from": "res.labels[].sensitivityLabelId",
+        "empty": "no label"
+       },
+       {
+        "label": "How it was applied",
+        "from": "res.labels[].assignmentMethod"
+       },
+       {
+        "label": "Problem",
+        "from": "_error",
+        "error": true
+       }
+      ],
+      "counts": [
+       {
+        "label": "Files checked"
+       },
+       {
+        "label": "With a label",
+        "where": {
+         "field": "res.labels[].sensitivityLabelId",
+         "exists": true
+        }
+       },
+       {
+        "label": "Without a label",
+        "where": {
+         "field": "res.labels[].sensitivityLabelId",
+         "exists": false
+        }
+       }
+      ],
+      "skip": [
+       {
+        "what": "Apply or raise a label (assignSensitivityLabel)",
+        "why": "It changes data, and it is a metered API. The runner never sends it."
+       }
+      ],
+      "notes": {
+       "423": "The file is locked, so its labels could not be read (for example, it uses double key encryption)."
+      }
+     }
     },
     {
      "node": "reportRoot",
      "do": "Track Copilot readiness and usage after rollout.",
      "call": "GET /copilot/reports/getMicrosoft365CopilotUsageUserDetail(period='D28')",
      "note": "Check Learn for the current Copilot usage report endpoints; some are beta.",
-     "ps": "Invoke-MgGraphRequest -Method GET -Uri \"https://graph.microsoft.com/v1.0/copilot/reports/getMicrosoft365CopilotUsageUserDetail(period='D28')\" -OutputFilePath ./copilot-usage.csv"
+     "ps": "Invoke-MgGraphRequest -Method GET -Uri \"https://graph.microsoft.com/v1.0/copilot/reports/getMicrosoft365CopilotUsageUserDetail(period='D28')\" -OutputFilePath ./copilot-usage.csv",
+     "live": {
+      "says": "Reads the Copilot usage report for the last 28 days. Changes nothing. Sends nothing anywhere except Microsoft Graph.",
+      "scopes": [
+       "Reports.Read.All"
+      ],
+      "whyScope": "Usage reports need Reports.Read.All. An admin has to approve it for the app, and your account also needs a reports role.",
+      "caveat": "Only users with a Copilot licence are in the report. Names can be hidden if your tenant's report settings conceal user details.",
+      "calls": [
+       {
+        "method": "GET",
+        "url": "/v1.0/copilot/reports/getMicrosoft365CopilotUsageUserDetail(period='D28')",
+        "format": "csv",
+        "as": "u",
+        "what": "the Copilot usage report"
+       }
+      ],
+      "columns": [
+       {
+        "label": "Name",
+        "from": [
+         "u.Display Name",
+         "u.displayName"
+        ]
+       },
+       {
+        "label": "User",
+        "from": [
+         "u.User Principal Name",
+         "u.userPrincipalName"
+        ]
+       },
+       {
+        "label": "Last activity",
+        "from": [
+         "u.Last Activity Date",
+         "u.lastActivityDate"
+        ],
+        "empty": "none"
+       },
+       {
+        "label": "Active days",
+        "from": "u.Active Usage Days for all apps"
+       },
+       {
+        "label": "Prompts",
+        "from": "u.Prompts submitted for all apps"
+       }
+      ],
+      "counts": [
+       {
+        "label": "Users in the report"
+       },
+       {
+        "label": "Used Copilot in the period",
+        "where": {
+         "field": [
+          "u.Last Activity Date",
+          "u.lastActivityDate"
+         ],
+         "exists": true
+        }
+       },
+       {
+        "label": "No Copilot activity",
+        "where": {
+         "field": [
+          "u.Last Activity Date",
+          "u.lastActivityDate"
+         ],
+         "exists": false
+        }
+       }
+      ],
+      "notes": {
+       "403": "Reading usage reports needs a reports role as well as the permission, for example Reports Reader or AI Administrator. Learn lists Company Administrator, AI Administrator, Exchange Administrator, SharePoint Administrator, Lync Administrator, Teams Service Administrator, Teams Communications Administrator and Reports Reader. Ask an admin to assign one, then run the step again."
+      }
+     }
     }
    ]
   },
@@ -4899,5 +5330,8 @@
     "dormant-licensed-accounts"
    ]
   }
+ ],
+ "liveScenarios": [
+  "copilot-oversharing"
  ]
 }

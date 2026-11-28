@@ -5,11 +5,15 @@ Exported from the owner's Claude Doc "MGC: Claude Code brief to map all of Micro
 ## Progress
 
 - [x] Phase 0: git pull and tidy-up (28 Nov 2026)
-- [x] Phase 1: make the ring cope with volume (branch `claude/phase1-ring-volume`, committed locally 28 Nov 2026; waiting for the owner's review and push)
-- [x] Phase 2: generated tier, proved on Intune (branch `claude/phase2-generated-intune`, stacked on Phase 1, committed locally 28 Nov 2026; waiting for the owner's review and push)
-- [x] Phase 3: every v1.0 area, then beta (branch `claude/phase3-all-areas`, stacked on Phase 2, committed locally 28 Nov 2026; waiting for the owner's review and push)
-- [x] Phase 4: curated depth for security (branch `claude/phase4-security-depth`, cut from `main` after Phases 1-3 merged, committed locally 28 Nov 2026; the owner approved all six scenarios, now written)
-- [x] Phase 5: extras (branch `claude/phase5-extras`, cut from `main` after Phase 4 merged, committed locally 28 Nov 2026)
+- [x] Phase 1: make the ring cope with volume (branch `claude/phase1-ring-volume`; merged into `main` 28 Nov 2026, PR #5)
+- [x] Phase 2: generated tier, proved on Intune (branch `claude/phase2-generated-intune`; merged 28 Nov 2026, PR #6)
+- [x] Phase 3: every v1.0 area, then beta (branch `claude/phase3-all-areas`; merged 28 Nov 2026, PR #7, merge commit f686d15)
+- [x] Phase 4: curated depth for security (branch `claude/phase4-security-depth`; merged 28 Nov 2026, PR #8, merge commit 2df0557; the owner approved all six scenarios)
+- [x] Phase 5: extras (branch `claude/phase5-extras`; merged 28 Nov 2026 with Phase 6 in PR #9, merge commit 7b5658b)
+- [x] Phase 6: nine new scenarios (branch `claude/phase6-scenarios`; merged 28 Nov 2026, PR #9, merge commit 7b5658b)
+- [x] Phase 7: script examples for every scenario (branch `claude/phase7-scripts`; merged 28 Nov 2026, PR #11, merge commit 4884c2e; no script is marked Tested yet)
+- [x] Code review fixes (`claude/review-fixes`; merged 28 Nov 2026, PR #12) and the polish release v0.10.0 (`claude/polish-header-icons`; merged 28 Nov 2026, PR #14, merge commit d77010c)
+- [ ] Phase 8: live read-only runner, piloted on `copilot-oversharing` (branch `claude/phase8-live-runner`, cut from `main` at cf169a2; built 28 Nov 2026 as v0.11.0; PR #15 open; the owner read the wording, registered the app and ran the dev-tenant checklist on 28 Nov 2026: all of it worked; the owner said merge)
 
 ## Decisions and findings
 
@@ -366,3 +370,256 @@ Every scenario gets a script that people can run themselves: the 15 that exist a
 - **Correction found on the way:** the Copilot oversharing scenario's last step called `/reports/getMicrosoft365CopilotUsageUserDetail(period='D30')`, which is the beta-only report written without `/beta`. It now uses the v1.0 `/copilot/reports/getMicrosoft365CopilotUsageUserDetail(period='D28')`, as the licence clean-up scenario does.
 - **Audit permission:** the scripts ask for `AuditLogsQuery.Read.All`. Learn lists narrower workload permissions (such as `AuditLogsQuery-Entra.Read.All`) but doesn't say which one covers CopilotInteraction, DLP or sharing records.
 - **Page:** each step has an HTTP / PowerShell switch (remembered per viewer) with a Copy button; each scenario has a "Download script" button (the scripts are embedded in the page and downloaded from a Blob, so the page still makes no runtime fetches) with "read-only" and the Tested date or "not yet tested in a tenant", and the as-is note.
+
+---
+
+## Added by the owner on 28 Nov 2026: Phase 8
+
+This is the full Phase 8 brief (it replaces the earlier Phase 8 add-ons): the original phase, the additions (build for expansion, explain it clearly to users, data-flow diagrams) and a final section on changes since it was written. Give the owner the Phase 8 plan and wait for their OK before writing code.
+
+Ground rules:
+
+- Stop and ask before anything that touches GitHub, Azure or any Entra tenant.
+- Never invent permission names, API paths or limits.
+- Never run anything against a tenant yourself.
+
+#### Phase 8: live read-only runner, piloted on one scenario
+
+This phase adds a Run tab, so people can run a scenario's read-only steps against their own tenant from the MGC page and see the results there. It's a pilot for one scenario only, Oversharing check before Copilot rollout (`copilot-oversharing`). Don't add it to any other scenario. The owner will decide after trying it.
+
+The design mockups are on the "Live run (read-only)" page of the MGC design canvas.
+
+1. Sign-in: bring your own app registration.
+   - Use MSAL.js (msal-browser) with the auth code flow and PKCE.
+   - The person enters their tenant and the client ID of a single-page app they registered themselves. Store those two values in the browser, never the token.
+   - Don't publish a multi-tenant MGC app.
+   - Request delegated scopes one step at a time, only when a step needs them.
+   - Write a short how-to for registering the app, with the redirect URIs for the live site and for local testing.
+   - Registering the app is a change to a tenant, so the owner does it. Claude Code only writes the instructions.
+2. Live calls. Give each step of this scenario a `live` block with the browser call, its scopes and a caveat where the live result is narrower than the script's. Confirm every call, scope and limit on Microsoft Learn before using it, and stop if one doesn't hold. Proposed:
+   1. Sites: `GET /sites?search=*`. Caveat: only sites the signed-in person can open. `getAllSites` needs app-only permissions.
+   2. Sharing links: `$batch` of `GET /drives/{drive-id}/root/permissions` for each site from step 1. Caveat: library top level only.
+   3. Sensitive files: `POST /search/query` (driveItem), limited to the sites the person carries over from step 2.
+   4. Apply labels: never sent. Shown as skipped because it changes data.
+   5. Copilot usage: the current Copilot usage report endpoint, whatever Learn shows. Handle a 403 with a clear "needs a reports role" message.
+3. Read-only guard. One small function every request goes through. It allows:
+   - only `https://graph.microsoft.com/v1.0` or `/beta`
+   - only GET, plus an allow list of read-only POSTs (`/search/query`, and `$batch` only when every request inside it is a GET)
+   - only scopes ending `.Read` or `.Read.All`
+
+   Anything else is refused before it is sent, with a message. Unit tests cover every rule, including a write hidden inside a batch.
+4. Token and page safety.
+   - Keep the token in memory only (MSAL memory cache). Sign-out or closing the tab ends the session.
+   - Build MSAL into the page at a pinned version. Don't load it from a CDN.
+   - Add a Content Security Policy meta tag that limits connections to login.microsoftonline.com and graph.microsoft.com. `build_page.py` hashes the inline scripts for it.
+   - Show all Graph data as text, never as HTML.
+   - Send no analytics and no telemetry.
+5. Results.
+   - Show results in a table with headline counts, a raw JSON view and an Export CSV button. Exports are saved only on the person's own machine.
+   - Carry IDs from one step to the next, with ticks so the person chooses what carries forward.
+   - "Run all read-only steps" shows a log of every step: done, skipped (writes) or failed (with the reason).
+   - Results live in the tab only and are never saved by MGC.
+6. Sample data mode. A "Try it with sample data" path that runs the same screens on made-up responses (fictional sites and names), so people without a tenant or an app registration can still see it work.
+7. Labels. Mark the Run tab "Preview" and show it only on this scenario.
+8. Checks before merging.
+   - All tests and the label checks pass.
+   - The owner runs the whole flow in their dev tenant, including one forbidden request, a 403 and sign-out.
+   - A separate review agent, which hasn't seen the build, reviews the guard, the CSP, token handling and the result rendering. Its findings are fixed or answered.
+   - Report what was found.
+9. What the owner will judge.
+   - Is the setup too much for the target audience?
+   - Are the results useful, given the delegated-only limits?
+   - Is any step misleading?
+
+   Write down what worked and what didn't, so the decision on other scenarios is easy.
+
+#### Phase 8 (continued): build it for expansion
+
+Only one scenario gets the Run tab now, but build it so that adding another one later needs only data, sample responses and tests, with no new runner code.
+
+1. One scenario-agnostic runner. The sign-in, the read-only guard, the request queue, paging, throttling and retries (respecting `Retry-After`), the results table, the CSV export and the run log are shared code, and know nothing about oversharing.
+2. Driven by data. Each step's `live` block in `curated.json` holds:
+   - the request
+   - its scopes
+   - what it carries forward (for example `sites[].id`)
+   - the results columns and headline counts, declared as field mappings
+   - its caveat
+   - its plain-English explanation
+
+   A schema check in `build_page.py` fails the build on a malformed `live` block, or on a block that asks for a write method or a non-read scope.
+3. Switched on by a list. A `liveScenarios` list holds just `copilot-oversharing` for now. The Run tab appears only for scenarios on that list.
+4. Sample data beside the scenario. Sample responses go in `data/samples/<scenario-id>/`, one file per step, all fictional.
+5. Tests that generalise. The guard and runner tests loop over every `live` block, so a new scenario is tested automatically.
+6. "How to add a scenario to the runner." Write it up in `CLAUDE.md`, with a checklist.
+
+#### Phase 8 (continued): explain it clearly to users
+
+Assume the person is careful and security-minded, and has never let a web page call Graph for them before. They should never have to guess what is about to happen.
+
+1. A first-run explainer, before sign-in. It covers:
+   - what will happen and where the data goes
+   - what MGC can and can't do
+   - the data-flow diagram (next section)
+
+   The person ticks "I understand" once per session.
+2. Before every step: one plain sentence on what the step does and what it doesn't do. For example: "Reads the sites you can open. Changes nothing. Sends nothing anywhere except Microsoft Graph."
+3. Before every consent prompt: which permission is being asked for, why this step needs it, and that it is read-only and delegated (limited to what the person can already see).
+4. While running: a live status line, such as "Asking Microsoft Graph for page 2 of sites…".
+5. The run log: every request in the order it was sent (method, URL, status, time), so the person can audit what happened.
+6. When something is refused or fails: the reason in plain words and what to do next. Cover a write blocked by the guard, a 403, throttling and an expired sign-in.
+7. A short glossary: delegated and application permissions, consent, access token, read-only.
+8. Consistent wording. Use the same words everywhere and keep sentences short. Ask the owner to read the wording before merging.
+
+#### Phase 8 (continued): data-flow diagrams
+
+Add diagrams that show exactly where data goes between the MGC page, Microsoft's sign-in, Microsoft Graph (the person's tenant) and the person's own computer. The page has no server and no AI model is involved: the diagrams must make both clear.
+
+1. Where:
+   - in the first-run explainer
+   - behind a "How this works" link on the Run tab
+   - in a new `docs/live-runner.md`
+2. How: inline SVG built into the page, with no external diagram library. Each diagram has a text description for screen readers.
+3. A live hop diagram. A small version of the boundary diagram sits on the Run tab and lights up the current hop while a request runs.
+4. Starting points, to be refined to match the build. (The brief gave these as diagrams; they are written out here as Mermaid source.)
+
+Sequence: one step, from Run to results.
+
+```mermaid
+sequenceDiagram
+    actor You
+    participant Page as MGC page (your browser)
+    participant Entra as Microsoft Entra sign-in
+    participant Graph as Microsoft Graph (your tenant)
+    Note over Page: GitHub Pages only served the page. It never sees your token or your results. No AI model is involved.
+    You->>Page: Press Run on a step
+    Page->>Entra: Sign in. Ask for this step's read-only permission
+    Entra-->>Page: Access token, kept in this tab's memory only
+    Note over Page: Read-only guard checks the URL, method and permission
+    Page->>Graph: GET request with the token
+    Graph-->>Page: Results: only what you can already see
+    Page-->>You: Table, counts and raw JSON
+```
+
+Boundary: what crosses where.
+
+```mermaid
+flowchart LR
+    GH[GitHub Pages]
+    subgraph Tab[Your browser tab]
+        Page[MGC page]
+        Guard[Read-only guard]
+        Token[Access token: memory only]
+    end
+    Entra[Microsoft Entra ID]
+    Graph[Microsoft Graph: your tenant]
+    NotSent[Not sent]
+    PC[Your computer]
+    GH -- serves the page once --> Page
+    Page <-- sign-in --> Entra
+    Guard -- allowed GET --> Graph
+    Graph -- results --> Page
+    Guard -. write blocked .-> NotSent
+    Page -- Export CSV --> PC
+```
+
+#### Phase 8 (continued): changes since this phase was written (28 Nov 2026)
+
+Phases 1–7, the code review fixes and the polish release (bubble icons, title mark, version and About popup) have all landed since Phase 8 was written. Build Phase 8 on what is there now.
+
+1. Start from `main`, and check first. Phases 1–7, `claude/review-fixes` and `claude/polish-header-icons` must all be merged into `main`. If any isn't, stop and tell the owner.
+2. Change the "no runtime fetches" rule. Rule 4 in `CLAUDE.md` says the page makes no runtime fetches. Amend it rather than quietly breaking it:
+   - The page still loads and works with no network calls.
+   - The live runner is the only exception. It calls only login.microsoftonline.com and graph.microsoft.com, and only after the person chooses to sign in.
+   - Opened as a local file or inside an artifact, the Run tab offers sample data only and says why.
+
+   Rule 5 (no tenant data in the page) still holds: results live only in memory and are never written to the page, the repo or browser storage.
+3. Build from the current oversharing steps.
+   - Read `copilot-oversharing` as it stands in `curated.json` now. Its steps have changed: Phase 7 corrected the Copilot usage call to the v1.0 `/copilot/reports/getMicrosoft365CopilotUsageUserDetail(period='D28')`.
+   - Use each step's existing `ps` and its notes, and derive the `live` blocks from them.
+   - Confirm the scope for every call on Microsoft Learn.
+4. One allow list. The scripts already have `scripts/allowlist.json` (runHuntingQuery, auditLog/queries, extractSensitivityLabels, conditionalAccess/evaluate, search/query).
+   - Make that file the single source for the browser guard too, so the two can't drift apart.
+   - Add `$batch` (only when every request inside it is a GET) as a rule in the guard, not as an allow-list entry.
+5. Step 4 (apply labels) can still give a read-only result. `extractSensitivityLabels` is already on the read-only allow list. If Learn confirms it is read-only, isn't metered, and works with delegated permissions, step 4 can read the existing labels on the files step 3 found, and skip only the labelling itself. Otherwise keep it as skipped.
+6. The Run tab sits in the existing switch. Each step already has an HTTP / PowerShell switch, remembered for each viewer. Add Run as a third option, on this scenario only.
+7. Match the current site, not the old mockups.
+   - The "Live run (read-only)" mockups on the design canvas predate the dark theme. Use them for layout and content only.
+   - Build with the current styles and test in both themes.
+   - Use the polish release's patterns: modals like the About popup (centred, Esc, focus kept inside the popup and returned to its button) and the same icon style.
+8. Content Security Policy for what the page does today. The meta tag must still allow:
+   - the favicon, which is a `data:` image (`img-src 'self' data:`)
+   - the "Download script" buttons, which use Blob URLs
+   - the page's inline styles: choose and document how, because inline `style` attributes can't be hashed
+   - MSAL's sign-in, whichever flow you choose (popup or redirect)
+
+   Then check each of these still works with the policy on.
+9. Version and About.
+   - Release Phase 8 as v0.11.0, with a `CHANGELOG.md` entry labelled "Preview: live read-only runner".
+   - Add a "How the live runner works" link to the About popup, pointing to `docs/live-runner.md`.
+10. Save the plan. Add Phase 8, the Phase 8 additions and this section to `docs/plan-map-all-graph.md`. Add Phases 6 and 7 to the Progress list with their real status.
+
+#### Phase 8 plan (proposed 28 Nov 2026, waiting for the owner's OK)
+
+**Starting point checked.** Local `main` is at cf169a2 (Scan 2026-11-28). Phases 1–7 (PRs #5–#9, #11), `claude/review-fixes` (PR #12) and `claude/polish-header-icons` (PR #14) are all merged. This was checked against local refs only, without fetching from GitHub. Work goes on a new branch cut from `main`.
+
+**Checked on Microsoft Learn (28 Nov 2026).**
+
+| Step | Live call | Delegated scope (Learn) | What Learn says that matters |
+| --- | --- | --- | --- |
+| 1 Sites | `GET /v1.0/sites?search={query}` | Sites.Read.All (least; Sites.Selected not supported) | Learn documents `search={query}` but doesn't mention `*`. The runner will default to `*` with a box to change it, and the owner's tenant test confirms that `*` works. |
+| 2 Sharing links | `POST /v1.0/$batch` (at most 20 requests per batch, per Learn) of `GET /sites/{site-id}/drive?$select=id,webUrl`, then of `GET /drives/{drive-id}/root/permissions` | Files.Read is least, but it only reaches the person's own files, so use **Files.Read.All** (listed higher on Learn) | **Bigger caveat than the brief's:** "For a non-owner caller, only the sharing permissions that apply to the caller are returned." Unless the person owns the site, step 2 under-reports. Throttled requests inside a batch come back as 429 with their own `Retry-After` and are retried individually. |
+| 3 Sensitive files | `POST /v1.0/search/query`, `entityTypes: ["driveItem"]`, KQL `path:"<site url>"` for each carried site | Files.Read.All or Sites.Read.All (Search API overview, driveItem row) | Results are trimmed to what the person can open. `path:` scoping is documented on "Search OneDrive and SharePoint content". |
+| 4 Labels | `POST /v1.0/drives/{id}/items/{id}/extractSensitivityLabels` (already on `scripts/allowlist.json`) | Files.Read.All (least) | Delegated: yes. Learn doesn't call it metered (assignSensitivityLabel is the metered one). **But** Learn says it "update[s] the metadata of a drive item" with the latest label details, so it is not strictly read-only. It changes no file and no label. Decision needed (question 2). Returns 423 for double-key-encrypted or deferred files. Assigning a label is never sent and shows as skipped. |
+| 5 Copilot usage | `GET /v1.0/copilot/reports/getMicrosoft365CopilotUsageUserDetail(period='D28')` | Reports.Read.All (no higher) | The v1.0 page says it returns 200 with a CSV stream, not the beta 302 redirect to reports.office.com, so connect-src can stay on graph.microsoft.com. Delegated callers need a role: Global Administrator ("Company Administrator"), AI Administrator, Exchange, SharePoint, Lync (Skype for Business), Teams Service or Teams Communications Administrator, or Reports Reader. A 403 shows that list. Periods: D7, D28, D90, D180, ALL. |
+
+Guard scopes: Sites.Read.All, Files.Read.All and Reports.Read.All all end `.Read.All`. MSAL also asks for `openid`, `profile` and `offline_access` at sign-in. The guard allows those three by name, and the explainer says what they are.
+
+**Design.**
+
+1. Files and sharing. The runner is written as plain JS in `web/live/` (`guard.js`, `runner.js`, `auth.js`, `ui.js`), and `build_page.py` inlines it, like the template. The guard is one pure function, `checkRequest({method, url, body, scopes}, allowList)`, that returns `{ok, reason}`. `graphFetch()` is the only code that calls `fetch`, and it calls the guard first.
+2. One allow list. `scripts/allowlist.json` gains a `browser` section, so its `uris` entries can be matched in the browser: method, path pattern with `{id}`, and v1.0/beta. `build_page.py` embeds it, and both the script test and the guard read the same file. `$batch` is a rule in the guard: every inner request must be GET, have a relative URL that passes the same path rules, have no body and not be a nested `$batch`.
+3. Data. Each live step gets a `live` block in `curated.json`: `request` (method, url template, body template, batch: true/false), `scopes`, `carry` (for example `sites[].id`), `columns` (field mappings), `counts`, `caveat`, `says` (the plain sentence before the step), `whyScope`, `skip` (for writes, with the reason). `liveScenarios: ["copilot-oversharing"]` sits at the top level. `build_page.py` fails the build on a malformed block, a non-GET request that isn't allowed, or a scope that doesn't end `.Read`/`.Read.All`.
+4. Sign-in. msal-browser at a pinned version is vendored into `vendor/msal-browser/<version>/` with its licence, checked against the npm registry's integrity hash, and inlined by the build. It doesn't come from a CDN. It uses the popup flow, because a redirect reloads the page and would lose the in-memory results at every new consent. `cacheLocation: "memoryStorage"`. Tenant and client ID are saved in localStorage (`mgc-live-tenant`, `mgc-live-client`), and nothing else is. A blank `auth.html` beside `index.html` is the popup redirect URI. Each step calls `acquireTokenSilent` for its own scopes and falls back to `acquireTokenPopup`, but only after the consent explainer for that step.
+5. Where it runs live. Live mode is offered only on https://thatm365guy.github.io/M365-Graph-Cartographer/ and http://localhost:8765 (the existing `mgc-dist` preview). From `file:`, an artifact or any other origin, the Run tab offers sample data only and says why.
+6. CSP (meta tag, emitted by `build_page.py`): `default-src 'none'; script-src 'sha256-…'` (the hashes of the inline scripts); `style-src 'sha256-…'` (the `<style>` block); `img-src 'self' data: blob:`; `connect-src https://login.microsoftonline.com https://graph.microsoft.com`; `frame-src https://login.microsoftonline.com` (MSAL's silent iframe fallback); `base-uri 'none'; form-action 'none'; object-src 'none'`. A meta tag can't set `frame-ancestors`; this will be noted in `docs/live-runner.md`. Inline styles: the template has 26 `style="…"` attributes, some built through `innerHTML`. They move to classes, or to `el.style` (which CSP doesn't block), so no `'unsafe-inline'` is needed (question 4). A test fails if a `style=` attribute comes back. The checks with the policy on: the favicon, Download script (Blob), both themes, the About popup, MSAL popup sign-in, and `MGC.check()`.
+7. Results. Every Graph value is shown with `textContent` or `createTextNode`, and a test bans `innerHTML` in `web/live/`. The results view has a table with headline counts, a raw JSON view (`<pre>` with textContent), Export CSV (Blob, with formula injection neutralised by prefixing `=+-@` cells) and carry ticks. The run log lists method, URL, status and time for every request. A status line shows what is happening ("Asking Microsoft Graph for page 2 of sites…"). There is a queue with paging (`@odata.nextLink`, which must still pass the guard), throttling and retries that respect `Retry-After`, and at most 3 attempts. Plain-language errors cover a write blocked by the guard, 401/expired sign-in, 403 (with the role list for reports), 423 (step 4) and 429.
+8. Explainer and diagrams. A first-run modal like the About popup (centred, Esc, focus kept inside, focus back to the button) with an "I understand" tick per session (sessionStorage flag only). There are two inline SVG diagrams, the sequence and the boundary, with `<title>`/`<desc>` and a text alternative. A small boundary diagram on the Run tab lights up the current hop. A glossary covers delegated and application permissions, consent, access token and read-only. The same diagrams go in `docs/live-runner.md` as Mermaid, together with the app registration how-to.
+9. Sample data. `data/samples/copilot-oversharing/step-1.json` … `step-5.json` hold fictional organisations, sites and people (`fabrikam-sample` style, not real companies' tenants). A test checks that every live step has a sample file.
+10. Tests (unittest, and Node 24 when present, skipped otherwise like the PowerShell check). The guard tests run the real `guard.js` under Node: hosts, versions, methods, the allow list, a batch with a hidden PATCH/DELETE/POST, a nested batch, absolute inner URLs, scopes, and `@odata.nextLink` to another host. They loop over every `live` block. The other tests cover the build schema checks, the CSP hashes matching the built page, no `innerHTML` in the live code, no `style=` attributes, samples present and fictional, `liveScenarios` only listing scenarios with live blocks, and the CHANGELOG entry. A browser pass with Playwright and Edge covers both themes and the three sizes, the sample-data run end to end, and the CSP with no violations.
+11. Docs. Rule 4 in CLAUDE.md is amended as the brief says. `docs/live-runner.md` covers the how-to, the redirect URIs, the data flow and the security notes. CLAUDE.md also gets "How to add a scenario to the runner", with a checklist.
+12. Release. v0.11.0 with the CHANGELOG entry "Preview: live read-only runner", and a "How the live runner works" link in About. v1.0.0 follows at the owner's request (28 Nov 2026), timing to be confirmed (question 6).
+13. Before merging. A fresh review agent, given the code but not this plan's reasoning, reviews the guard, the CSP, token handling and rendering. Its findings are fixed or answered. The owner reads the wording and runs the flow in their dev tenant, including one forbidden request, a 403 and sign-out. Nothing is pushed without the owner's OK.
+
+**Questions for the owner.**
+
+1. Step 2's caveat. Non-owners only see their own sharing permissions, not every link. Keep the step with that caveat, or stop and rethink?
+2. Step 4. Use `extractSensitivityLabels`, which can refresh the stored label metadata but changes no file or label, or keep the step skipped?
+3. Scopes. Use Learn's least-privileged scope for each step (Sites.Read.All for step 1, Files.Read.All for steps 2–4, Reports.Read.All for step 5: three consent prompts), or run steps 1–4 on Sites.Read.All alone (two prompts, slightly broader)?
+4. Inline styles. Refactor the 26 `style=` attributes so the CSP needs no `'unsafe-inline'` (recommended), or allow `'unsafe-inline'` for styles only?
+5. Downloading msal-browser. May I run `npm pack @azure/msal-browser@<pinned>` from the npm registry? Before choosing the version I'll check that it ships a browser bundle, and I'll give you the file name and size first.
+6. v1.0.0. Release Phase 8 as v0.11.0 now and v1.0.0 afterwards in its own release, after your pilot decision (recommended)? Or ship Phase 8 straight as v1.0.0?
+
+**Owner's answers (28 Nov 2026).**
+
+1. Step 2: keep it, with the caveat that only site owners see every sharing link and anyone else sees only the permissions that apply to them.
+2. Step 4: use `extractSensitivityLabels` to read the existing labels on the files from step 3, with a note that it can refresh the label details SharePoint stores. Assigning a label stays skipped.
+3. Scopes: the narrowest for each step (Sites.Read.All for step 1, Files.Read.All for steps 2 to 4, Reports.Read.All for step 5), which means three consent prompts.
+4. Inline styles: move the `style=` attributes to classes or `el.style`, so the CSP needs no `'unsafe-inline'`. A test stops them coming back.
+5. msal-browser: Claude Code may download it from the npm registry at a pinned version that ships a browser bundle, without asking again.
+6. Version: release Phase 8 as v0.11.0 ("Preview: live read-only runner"), then v1.0.0 as a separate release after the owner's pilot decision.
+
+
+#### Phase 8 decisions (28 Nov 2026, while building)
+
+- **MSAL 5.29.1** (released 12 Nov 2026), from the npm registry tarball (integrity in `vendor/msal-browser/5.29.1/checksums.json`; a test checks the file hashes). MSAL v5 requires a dedicated redirect page that runs only its redirect bridge (Learn, "Sign in users"), so the build writes `dist/auth.html` next to `index.html`. Redirect URIs: `https://thatm365guy.github.io/M365-Graph-Cartographer/auth.html` and `http://localhost:8765/auth.html`. MSAL's own temporary sign-in state (not tokens) always goes to session storage; tokens stay in its memory cache. Server telemetry off, logger silent.
+- **Pop-up, not redirect:** a redirect reloads the 2.8 MB page and would lose the in-memory results at each new permission. Sign-in is offered only on `LIVE_ORIGINS` (`build_page.py`) and not inside a frame; anywhere else the Run tab offers sample data only and says why. The Azure Function's static website is not on the list, so it is sample-only.
+- **Content Security Policy** (meta tag, filled in by `build_page.py`): hashes for the two inline scripts and the style block, `img-src 'self' data:`, `connect-src` Entra sign-in and Graph only, `frame-src 'self'` and Entra (MSAL's silent frame). Inline styles: the 26 `style=""` attributes were moved to classes, or to `data-c` / `data-pct` that a MutationObserver applies through `el.style`; the build and a test fail on any new one. A meta tag can't set `frame-ancestors`.
+- **Step 1** uses `search={input}` with `*` as the default. Learn documents a keyword, so the owner's tenant test confirms `*`; the input box lets people type a word instead.
+- **Step 2** fetches each site's main library (`/sites/{id}/drive`) and then `/drives/{id}/root/permissions`, both batched (20 per batch). The owner chose to keep it with the non-owner caveat.
+- **Step 4** reads labels with `extractSensitivityLabels` (owner's choice), with the note that it can refresh SharePoint's stored label details. It shows label IDs, not names: names would need a fourth permission (`SensitivityLabel.Read`), left out to keep to the three agreed scopes. A candidate for after the pilot.
+- **Step 5:** the v1.0 Copilot report returns CSV from graph.microsoft.com (per Learn), so no extra host is needed. `fetch` uses `redirect: 'error'`, so a redirect elsewhere fails rather than leaving Graph. A 403 lists the roles Learn names.
+- **Admin consent:** Learn marks Reports.Read.All (delegated) as needing admin consent; Sites.Read.All and Files.Read.All don't, but tenant consent settings can still ask. The how-to says to grant admin consent for all three up front.
+- **Sample data:** a fictional organisation, Hollowbrook Trading, on reserved `.example` domains (a test enforces it). One batched answer is throttled once (429, Retry-After 1) and one file is locked (423), so the sample run shows retry and error handling.
+- **Run page, not a tab (owner, 28 Nov 2026):** the Run tab inside the scenario panel was too crowded. The owner asked for a "Run this scenario" button that opens a page dedicated to setting up, running and viewing the output. It is a full-width view in the same file at `#run/<scenario-id>` (one self-contained page, the same CSP and sign-in address), with "Back to the scenario". This replaces item 6 of the changes section (Run as a third option in the switch). The small hop diagram is its own compact drawing.
+- **Independent review (28 Nov 2026):** a separate agent that hadn't seen the build reviewed the guard, the CSP, token handling and rendering. It found no way to send a write, reach another host or use another version. Fixed: every token's permissions are checked, and one that isn't read-only stops the run; batch requests with unknown fields (such as `Method`) and inner paths with `..`, `%2e`, `%2f` or spaces are refused; `{id}` in allow-listed paths matches only plain segments; bodies must be absent or a JSON object; POSTs are retried only on 429; switching mode during Run all is blocked; step 2 keeps sites with no permissions returned; plain numbers stay numbers in CSV; redirects are reported, not followed. Answered: the review expected step 5 to get a 302 to a download host, but Learn's v1.0 page says it returns 200 with the CSV in the body; the runner also reads Learn's documented JSON names if Graph ever answers JSON. Open for the owner: GitHub Pages makes all of `thatm365guy.github.io` one origin, so any other Pages site on that account could reach MGC's stored IDs and its sign-in page; a custom domain would remove that (docs/live-runner.md).
+- **Versions:** v0.11.0 now; v1.0.0 as a separate release after the owner's pilot decision.

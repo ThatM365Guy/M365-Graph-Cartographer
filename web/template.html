@@ -2,6 +2,8 @@
 <html lang="en-GB">
 <head>
 <meta charset="utf-8">
+<!-- Content Security Policy: filled in by scanner/build_page.py with hashes of the inline scripts and the style block (no 'unsafe-inline': the page has no style="" attributes). Connections only to Microsoft sign-in and Microsoft Graph, which only the live runner uses, after the person chooses to sign in. -->
+<meta http-equiv="Content-Security-Policy" content="{{csp}}">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>M365 Graph Cartographer</title>
 <!-- the title mark as an inline SVG data URI (a favicon cannot read the page CSS, so the lines are #141210, #ece8e2 in dark mode). Phase 8's Content Security Policy must allow data: for images. -->
@@ -12,7 +14,8 @@
    on the second, APIs on the third; only one branch is open at a time, and the open branch turns to face the
    free space on the right. The side panel is the title block and notes.
    COLOUR and TYPE: stone ground, black ink, brick accent, white panels; four workload families (identity blues,
-   collaboration greens, security and compliance reds, AI purple). System fonts only: the page fetches nothing at runtime.
+   collaboration greens, security and compliance reds, AI purple). System fonts only: the page fetches nothing at runtime
+   (the live runner's calls to Microsoft sign-in and Graph, after someone chooses to sign in, are the one exception).
    LAYOUT: one header row; the ring fills the left; notes on the right. Desktop only (1280 px and up). */
 :root{color-scheme:light;--bg:#e7e4df;--ink:#141210;--mute:#5b554e;--panel:#fff;--soft:#f3f1ed;--rule:#d3cec6;--brick:#c8371e;--line:rgba(20,18,16,.28);--spoke:rgba(20,18,16,.16);--guide:rgba(20,18,16,.22)}
 @media (prefers-color-scheme:dark){:root:not([data-theme=light]){color-scheme:dark;--bg:#171513;--ink:#ece8e2;--mute:#a49d94;--panel:#211e1b;--soft:#2a2622;--rule:#3b3631;--brick:#ec6a49;--line:rgba(236,232,226,.30);--spoke:rgba(236,232,226,.15);--guide:rgba(236,232,226,.22)}}
@@ -309,10 +312,148 @@ div.card:hover{border-color:var(--rule)}
 .cov th{text-align:left;font-weight:500;color:var(--mute);padding:4px 6px 4px 0;border-bottom:1px solid var(--rule)}
 .cov td{padding:4px 6px 4px 0;border-bottom:1px solid var(--rule);overflow-wrap:anywhere}
 .cov th:not(:first-child),.cov td:not(:first-child){text-align:right;white-space:nowrap}
+/* replacements for inline style="" attributes (the Content Security Policy blocks them) */
+.sprite{position:absolute}
+.kc-empty{fill:var(--panel);stroke:var(--mute);stroke-width:1.6;stroke-dasharray:3 2}
+.kc-more{fill:var(--panel);stroke:var(--mute);stroke-width:1.8}
+.kc-more-t{fill:var(--mute);font-size:12px;font-weight:700}
+.kc-beta{fill:none;stroke:var(--brick);stroke-width:1.6}
+.kc-legacy{fill:none;stroke:var(--mute);stroke-width:1.6;stroke-dasharray:3 2}
+.panel h2 small.nv{font-size:15px;color:var(--mute);font-weight:500}
+.props.one{columns:1}
+.steps button small.inl{display:inline}
+.panel p.exitp{margin-top:18px}
+
+/* live runner (Preview) */
+.linkbtn{margin-left:auto;border:0;background:none;padding:2px 0;cursor:pointer;font-size:13px;text-decoration:underline;text-underline-offset:3px;color:var(--ink)}
+.lnote{color:var(--mute);font-size:12.5px}
+.lmode{margin:6px 0 2px}
+.seg2 button:disabled{opacity:.45;cursor:default}
+.lsign{border-top:1px dashed var(--rule);margin-top:8px;padding-top:8px}
+.lform{display:grid;grid-template-columns:118px 1fr;gap:6px 8px;align-items:center;margin:6px 0}
+.lform.one{grid-template-columns:auto 1fr}
+.lform label{font-size:13px;color:var(--mute)}
+.lform input{border:1px solid var(--rule);border-radius:7px;background:var(--panel);padding:5px 8px;font-size:13.5px;min-height:32px;width:100%}
+.lform input:focus{border-color:var(--ink)}
+.lbtns{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0}
+.lhopwrap{margin:8px 0;background:var(--soft);border-radius:8px;padding:6px 10px 8px}
+.lhop svg{width:100%;height:auto;display:block}
+.lhow{padding-left:18px;font-size:13px}
+.lhow code{font-size:12px}
+.lsum{list-style:none;padding:0!important;margin:4px 0}
+.lsum li{display:grid;grid-template-columns:auto 1fr;gap:2px 8px;align-items:baseline;margin:5px 0}
+.lsum .why{grid-column:2;color:var(--mute);font-size:12.5px;overflow-wrap:anywhere}
+.chip{display:inline-block;font-size:11px;font-weight:700;border-radius:8px;padding:0 6px;border:1px solid var(--rule);white-space:nowrap;margin-right:6px}
+.chip.st-done{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.chip.st-failed,.chip.st-blocked,.chip.st-stopped{color:var(--brick);border-color:var(--brick)}
+.chip.st-skipped{color:var(--mute);border-style:dashed}
+#liveLog{max-height:280px;overflow:auto}
+.llog{width:100%;border-collapse:collapse;font-size:12px;font-variant-numeric:tabular-nums}
+.llog th{text-align:left;font-weight:500;color:var(--mute);padding:3px 6px 3px 0;border-bottom:1px solid var(--rule);position:sticky;top:0;background:var(--panel)}
+.llog td{padding:3px 6px 3px 0;border-bottom:1px solid var(--rule);vertical-align:top}
+.llog td.u{font-family:ui-monospace,"Cascadia Mono",Consolas,monospace;overflow-wrap:anywhere;font-size:11.5px}
+.llog tr.in td{color:var(--mute);border-bottom-style:dashed}
+.llog tr.nt td{color:var(--mute);border-bottom-style:dashed}
+.llog tr.blk td{color:var(--brick)}
+.llog td.st{white-space:nowrap}
+.lstep{margin:8px 0 2px;font-size:13.5px}
+.lstep p{margin:6px 0}
+.lstep .says{font-weight:600}
+.lcav,.lscope{font-size:13px}
+.lcall code{font-size:12px;overflow-wrap:anywhere}
+.lskip{font-size:13px}
+.lskip b{margin-right:2px}
+.lerr{border-left:3px solid var(--brick);background:var(--panel);padding:6px 10px;border-radius:0 6px 6px 0;font-size:13px}
+.consent{border:1.5px solid var(--brick);border-radius:10px;background:var(--panel);padding:8px 12px;margin:8px 0}
+.lcounts{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+.lcounts .tile{background:var(--panel);border:1px solid var(--rule);border-radius:8px;padding:5px 10px;min-width:86px}
+.lcounts .tile b{display:block;font-size:20px;line-height:1.15;font-variant-numeric:tabular-nums}
+.lcounts .tile span{font-size:11.5px;color:var(--mute)}
+.ltable{max-height:320px;overflow:auto;border:1px solid var(--rule);border-radius:8px;background:var(--panel)}
+.rt{border-collapse:collapse;font-size:12px;width:max-content;min-width:100%}
+.rt th{text-align:left;font-weight:600;padding:5px 8px;border-bottom:1px solid var(--rule);position:sticky;top:0;background:var(--panel);white-space:nowrap}
+.rt td{padding:4px 8px;border-bottom:1px solid var(--rule);vertical-align:top;overflow-wrap:anywhere;min-width:7em;max-width:20em}
+.rt tr.err td{color:var(--brick)}
+.lcarry{list-style:none;padding:0!important;max-height:200px;overflow:auto;margin:4px 0}
+.lcarry li{display:flex;gap:6px;align-items:baseline;margin:2px 0;font-size:12.5px}
+.lcarry label{overflow-wrap:anywhere}
+pre.raw{max-height:280px;overflow:auto;background:var(--panel);border:1px solid var(--rule);border-radius:8px;padding:8px;font-size:11.5px;white-space:pre-wrap;overflow-wrap:anywhere}
+
+/* the live runner explainer (a modal like About) and the data-flow diagrams */
+.about.wide{width:min(720px,100%)}
+.about.wide h3{font-size:15px;margin:16px 0 4px}
+.about.wide ul{margin:4px 0;padding-left:18px}
+.about.wide li{margin:3px 0}
+.lxok{display:flex;gap:8px;align-items:flex-start;margin:14px 0 0;font-weight:600}
+.lxok input{margin-top:4px}
+.lxbtns{display:flex;gap:8px;margin:12px 0 0}
+.df{width:100%;height:auto;display:block;margin:8px 0}
+.df .bx{fill:var(--panel);stroke:var(--ink);stroke-width:1.2}
+.df .zone{fill:none;stroke:var(--mute);stroke-width:1.2;stroke-dasharray:5 4}
+.df .life{stroke:var(--mute);stroke-width:1;stroke-dasharray:3 4}
+.df .no{fill:var(--panel);stroke:var(--brick);stroke-width:1.2;stroke-dasharray:4 3}
+.df text{fill:var(--ink);font-size:12px;font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif}
+.df text.b{font-weight:700}
+.df text.s{fill:var(--mute);font-size:11px}
+.df text.x{fill:var(--brick);font-size:11px}
+.df .ar{stroke:var(--ink);stroke-width:1.3;fill:none;marker-end:url(#df-arrow)}
+.df .ar.ret{stroke-dasharray:5 3}
+.df .ar.two{marker-start:url(#df-arrow)}
+.df text.sm{font-size:11px}
+.df .ar.blk{stroke:var(--brick);stroke-dasharray:4 3;marker-end:url(#df-arrow-x)}
+.df-head{fill:var(--ink)}
+.df-head-x{fill:var(--brick)}
+.df.hop .ar{stroke:var(--mute)}
+.df.hop{margin:2px 0;max-width:420px}
+.df.hop text{font-size:11px}
+.df.hop text.s{font-size:10px}
+.df.hop .bx.on,.df.hop .no.on{stroke:var(--brick);stroke-width:2.2}
+.df.hop .ar.on{stroke:var(--brick);stroke-width:2}
+.dfdesc{font-size:12.5px;color:var(--mute)}
+dl.gl{display:grid;grid-template-columns:150px 1fr;gap:4px 10px;margin:6px 0;font-size:13.5px}
+dl.gl dt{font-weight:600}
+dl.gl dd{margin:0}
+/* the Run page (#run/<scenario-id>) */
+.main[hidden],.runpage[hidden]{display:none!important}
+.runpage{flex:1;min-height:0;display:flex;flex-direction:column;background:var(--bg)}
+.runpage:focus{outline:none}
+.rp-top{display:flex;align-items:center;gap:12px;padding:12px 24px;border-bottom:1px solid var(--rule)}
+.rp-top .back{border:0;background:none;padding:4px 0;cursor:pointer;font-size:14px;color:var(--mute)}
+.rp-top .back:hover{color:var(--ink)}
+.rp-top h1{font-size:20px;line-height:1.2;margin:0 0 0 10px}
+.rp-top .pv{color:var(--brick);font-size:10.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;border:1px solid currentColor;border-radius:8px;padding:0 5px}
+.rp-top .linkbtn{margin-left:auto}
+.rp-grid{flex:1;min-height:0;display:grid;grid-template-columns:minmax(360px,400px) 1fr}
+.rp-side{overflow-y:auto;padding:16px 16px 40px;border-right:1px solid var(--rule)}
+.rp-main{overflow-y:auto;padding:16px 28px 40px}
+.rp-card{background:var(--panel);border:1px solid var(--rule);border-radius:12px;padding:12px 16px;margin:0 0 14px;font-size:13.5px}
+.runpage h5{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--mute);margin:4px 0 6px;font-weight:700}
+.runpage p{margin:6px 0}
+.runpage .lnote{margin:6px 0}
+.runpage .none{color:var(--mute)}
+.runpage .consent h5{margin:2px 0 4px;color:var(--brick)}
+.runpage p.lstatus{margin:4px 0 0;font-size:13px;min-height:1.5em}
+.rp-step h2{font-size:24px;line-height:1.15;margin:2px 0 6px}
+.rp-step>p.lnote{margin:0}
+.rp-nav{border-top:1px solid var(--rule);padding-top:10px;margin-top:14px}
+.rp-steps{list-style:none;margin:0;padding:0}
+.rp-steps button{width:100%;display:grid;grid-template-columns:24px 1fr auto;gap:8px;align-items:center;text-align:left;border:1px solid transparent;border-radius:8px;background:none;padding:6px 8px;cursor:pointer;font-size:13.5px}
+.rp-steps button:hover{background:var(--soft)}
+.rp-steps button[aria-current=step]{border-color:var(--ink);background:var(--soft)}
+.rp-steps .num{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;border:1.5px solid var(--ink);font-size:12px;font-weight:700}
+.rp-steps .nm small{display:block;color:var(--mute);font-size:12px}
+.rp-steps .chip{margin:0}
+.chip.st-running,.chip.st-consent{color:var(--brick);border-color:var(--brick)}
+.runentry{border:1px solid var(--rule);border-radius:10px;padding:10px 12px;margin:12px 0;font-size:13.5px}
+.runentry .row{display:flex;gap:6px;align-items:center}
+.runentry .pv{color:var(--brick);font-size:10.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;border:1px solid currentColor;border-radius:8px;padding:0 5px}
+.runentry p{margin:4px 0 8px;color:var(--mute);font-size:12.5px}
+.rp-main .ltable{max-height:60vh}
+.rp-main .rt td{max-width:28em}
 </style>
 </head>
 <body>
-<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><symbol id="mgc-mark" viewBox="0 0 32 32"><path d="M27.78 18.49A13 13 0 0 1 4.22 18.49" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/><path d="M27.26 19.50L29.16 20.60" stroke="currentColor" stroke-width="1.1"/><path d="M25.19 22.19L26.75 23.75" stroke="currentColor" stroke-width="1.1"/><path d="M22.50 24.26L23.60 26.16" stroke="currentColor" stroke-width="1.1"/><path d="M19.36 25.56L19.93 27.68" stroke="currentColor" stroke-width="1.1"/><path d="M16.00 26.00L16.00 28.20" stroke="currentColor" stroke-width="1.1"/><path d="M12.64 25.56L12.07 27.68" stroke="currentColor" stroke-width="1.1"/><path d="M9.50 24.26L8.40 26.16" stroke="currentColor" stroke-width="1.1"/><path d="M6.81 22.19L5.25 23.75" stroke="currentColor" stroke-width="1.1"/><path d="M4.74 19.50L2.84 20.60" stroke="currentColor" stroke-width="1.1"/><circle cx="16" cy="13" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><ellipse cx="16" cy="13" rx="3.9" ry="9" fill="none" stroke="currentColor" stroke-opacity=".45" stroke-width="1.2"/><path d="M7 13h18" stroke="currentColor" stroke-opacity=".3" stroke-width="1.1"/><path d="M12.2 8.4L20.4 13 13.6 17.6z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M16 13L22.10 24.48" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="12.2" cy="8.4" r="2.1" fill="#3d86c6"/><circle cx="20.4" cy="13" r="2.1" fill="#b37a0f"/><circle cx="13.6" cy="17.6" r="2.1" fill="#0f8a78"/><circle cx="22.10" cy="24.48" r="2.1" fill="#c13b2a"/></symbol></svg>
+<svg width="0" height="0" class="sprite" aria-hidden="true" focusable="false"><defs><marker id="df-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="df-head" d="M0 0L10 5L0 10z"/></marker><marker id="df-arrow-x" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="df-head-x" d="M0 0L10 5L0 10z"/></marker></defs><symbol id="mgc-mark" viewBox="0 0 32 32"><path d="M27.78 18.49A13 13 0 0 1 4.22 18.49" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/><path d="M27.26 19.50L29.16 20.60" stroke="currentColor" stroke-width="1.1"/><path d="M25.19 22.19L26.75 23.75" stroke="currentColor" stroke-width="1.1"/><path d="M22.50 24.26L23.60 26.16" stroke="currentColor" stroke-width="1.1"/><path d="M19.36 25.56L19.93 27.68" stroke="currentColor" stroke-width="1.1"/><path d="M16.00 26.00L16.00 28.20" stroke="currentColor" stroke-width="1.1"/><path d="M12.64 25.56L12.07 27.68" stroke="currentColor" stroke-width="1.1"/><path d="M9.50 24.26L8.40 26.16" stroke="currentColor" stroke-width="1.1"/><path d="M6.81 22.19L5.25 23.75" stroke="currentColor" stroke-width="1.1"/><path d="M4.74 19.50L2.84 20.60" stroke="currentColor" stroke-width="1.1"/><circle cx="16" cy="13" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><ellipse cx="16" cy="13" rx="3.9" ry="9" fill="none" stroke="currentColor" stroke-opacity=".45" stroke-width="1.2"/><path d="M7 13h18" stroke="currentColor" stroke-opacity=".3" stroke-width="1.1"/><path d="M12.2 8.4L20.4 13 13.6 17.6z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M16 13L22.10 24.48" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="12.2" cy="8.4" r="2.1" fill="#3d86c6"/><circle cx="20.4" cy="13" r="2.1" fill="#b37a0f"/><circle cx="13.6" cy="17.6" r="2.1" fill="#0f8a78"/><circle cx="22.10" cy="24.48" r="2.1" fill="#c13b2a"/></symbol></svg>
 <div class="narrow" role="note"><h1>M365 Graph Cartographer</h1><p>It is designed for desktop screens. Open it on a screen at least 1,000 pixels wide to explore the map.</p></div>
 <div class="app">
 <header class="top">
@@ -332,6 +473,7 @@ div.card:hover{border-color:var(--rule)}
  </div>
  <aside class="panel" id="panel" aria-live="polite"></aside>
 </div>
+<section class="runpage" id="runpage" hidden tabindex="-1" aria-labelledby="rpTitle"></section>
 </div>
 <div class="about-back" id="aboutBack" hidden>
  <div class="about" id="about" role="dialog" aria-modal="true" aria-labelledby="aboutTitle" aria-describedby="aboutWhat" tabindex="-1">
@@ -344,11 +486,91 @@ div.card:hover{border-color:var(--rule)}
    <li><a href="https://github.com/ThatM365Guy/M365-Graph-Cartographer" target="_blank" rel="noopener noreferrer">GitHub</a></li>
    <li><a href="https://github.com/ThatM365Guy/M365-Graph-Cartographer/issues" target="_blank" rel="noopener noreferrer">Report a problem or suggest a scenario</a></li>
    <li><a href="https://github.com/ThatM365Guy/M365-Graph-Cartographer/blob/main/CHANGELOG.md" target="_blank" rel="noopener noreferrer">What’s new in v{{version}}</a></li>
+   <li><a href="https://github.com/ThatM365Guy/M365-Graph-Cartographer/blob/main/docs/live-runner.md" target="_blank" rel="noopener noreferrer">How the live runner works</a></li>
   </ul>
   <p class="afoot" id="aboutScan"></p>
   <p class="afoot">An independent community project, not affiliated with or endorsed by Microsoft.</p>
  </div>
 </div>
+<!-- The live runner explainer (Preview): shown before sign-in and behind "How this works" on the Run page. -->
+<div class="about-back" id="lxBack" hidden>
+ <div class="about wide" id="lx" role="dialog" aria-modal="true" aria-labelledby="lxTitle" tabindex="-1">
+  <button class="x" id="lxClose" type="button" aria-label="Close">×</button>
+  <div class="ahead"><svg class="mark" aria-hidden="true" focusable="false"><use href="#mgc-mark"/></svg><div><h2 id="lxTitle">Running a scenario in your tenant</h2><p>Live run (Preview): how it works and where the data goes</p></div></div>
+  <h3>What happens</h3>
+  <ul>
+   <li>You sign in to Microsoft with your own work account, through an app registration your organisation created for MGC.</li>
+   <li>Before each step, MGC tells you which permission the step needs and why. Microsoft then asks you to allow it, in its own window.</li>
+   <li>MGC sends the step’s requests to Microsoft Graph. Graph answers with what your account can already see.</li>
+   <li>MGC shows the answer here: a table, headline counts and the raw JSON.</li>
+  </ul>
+  <h3>Where your data goes</h3>
+  <ul>
+   <li>From Microsoft Graph to this browser tab, and nowhere else.</li>
+   <li>MGC has no server. GitHub Pages only served the page file. It never sees your sign-in or your results.</li>
+   <li>No AI model is involved. MGC sends no analytics and no telemetry.</li>
+   <li>Results stay in this tab’s memory. Signing out or closing the tab deletes them. Export CSV saves a file on your computer, and only when you press it.</li>
+   <li>Your browser remembers your tenant and the app (client) ID, so you don’t have to type them again. MGC never stores your access token.</li>
+  </ul>
+  <h3>What MGC can and can’t do</h3>
+  <ul>
+   <li>It can read, with delegated permissions, what your account can already see. Nothing more.</li>
+   <li>It can’t change, create or delete anything. A read-only guard checks every request before it is sent and blocks anything that could change data.</li>
+   <li>It never uses application permissions, so it can’t reach data your account can’t.</li>
+  </ul>
+  <h3>One step, from Run to results</h3>
+  <svg class="df" id="df-sequence" viewBox="0 0 640 372" role="img" aria-labelledby="dfSeqT dfSeqD">
+   <title id="dfSeqT">One step, from Run to results</title>
+   <desc id="dfSeqD">You press Run on a step. The MGC page, in your browser, signs you in with Microsoft Entra and asks for that step's read-only permission. Entra returns an access token, which is kept in this tab's memory only. The read-only guard checks the address, method and permission. The page sends a GET request with the token to Microsoft Graph in your tenant. Graph returns results: only what you can already see. The page shows you a table, counts and raw JSON. GitHub Pages only served the page and never sees your token or your results. No AI model is involved.</desc>
+   <rect class="bx" x="10" y="8" width="100" height="40" rx="6"/><text class="b" x="60" y="33" text-anchor="middle">You</text>
+   <rect class="bx" x="160" y="8" width="140" height="40" rx="6"/><text class="b" x="230" y="25" text-anchor="middle">MGC page</text><text class="s" x="230" y="40" text-anchor="middle">(your browser)</text>
+   <rect class="bx" x="345" y="8" width="150" height="40" rx="6"/><text class="b" x="420" y="25" text-anchor="middle">Microsoft Entra</text><text class="s" x="420" y="40" text-anchor="middle">sign-in</text>
+   <rect class="bx" x="505" y="8" width="130" height="40" rx="6"/><text class="b" x="570" y="25" text-anchor="middle">Microsoft Graph</text><text class="s" x="570" y="40" text-anchor="middle">(your tenant)</text>
+   <path class="life" d="M60 48V362M230 48V186M230 224V362M420 48V362M570 48V362"/>
+   <path class="ar" d="M60 86H226"/><text x="145" y="78" text-anchor="middle">Press Run on a step</text>
+   <path class="ar" d="M230 128H416"/><text x="325" y="108" text-anchor="middle">Sign in and ask for this</text><text x="325" y="121" text-anchor="middle">step’s read-only permission</text>
+   <path class="ar ret" d="M420 170H234"/><text x="325" y="150" text-anchor="middle">Access token, kept in this</text><text x="325" y="163" text-anchor="middle">tab’s memory only</text>
+   <rect class="bx" x="140" y="186" width="180" height="38" rx="6"/><text class="sm" x="230" y="201" text-anchor="middle">Read-only guard checks the</text><text class="sm" x="230" y="216" text-anchor="middle">address, method and permission</text>
+   <path class="ar" d="M230 258H566"/><text x="400" y="250" text-anchor="middle">GET request with the token</text>
+   <path class="ar ret" d="M570 298H234"/><text x="400" y="290" text-anchor="middle">Results: only what you can already see</text>
+   <path class="ar" d="M230 338H64"/><text x="145" y="330" text-anchor="middle">Table, counts and raw JSON</text>
+  </svg>
+  <p class="dfdesc">GitHub Pages only served the page file. It never sees your access token or your results. There is no MGC server, and no AI model is involved.</p>
+  <h3>What crosses where</h3>
+  <svg class="df" id="df-boundary" viewBox="0 0 680 250" role="img" aria-labelledby="dfBndT dfBndD">
+   <title id="dfBndT">What crosses where</title>
+   <desc id="dfBndD">GitHub Pages serves the MGC page once. Inside your browser tab are the MGC page, the read-only guard and the access token, which is kept in memory only. The page signs in with Microsoft Entra ID. The guard lets read requests through to Microsoft Graph in your tenant, which returns results to the page. A request that could change data is blocked and not sent. Export CSV saves a file on your computer.</desc>
+   <rect class="zone" x="170" y="26" width="250" height="210" rx="10"/><text class="s" x="182" y="44">Your browser tab</text>
+   <rect class="bx" x="190" y="54" width="210" height="40" rx="6"/><text class="b" x="295" y="79" text-anchor="middle">MGC page</text>
+   <rect class="bx" x="190" y="112" width="210" height="40" rx="6"/><text class="b" x="295" y="137" text-anchor="middle">Read-only guard</text>
+   <rect class="bx" x="190" y="170" width="210" height="48" rx="6"/><text class="b" x="295" y="190" text-anchor="middle">Access token</text><text class="s" x="295" y="207" text-anchor="middle">memory only</text>
+   <rect class="bx" x="8" y="54" width="110" height="40" rx="6"/><text class="b" x="63" y="79" text-anchor="middle">GitHub Pages</text>
+   <path class="ar" d="M118 74H186"/><text class="s" x="63" y="110" text-anchor="middle">serves the page once</text>
+   <rect class="bx" x="8" y="164" width="110" height="40" rx="6"/><text class="b" x="63" y="189" text-anchor="middle">Your computer</text>
+   <path class="ar" d="M190 88H150V184H122"/><text class="s" x="63" y="222" text-anchor="middle">Export CSV</text>
+   <rect class="bx" x="520" y="30" width="150" height="40" rx="6"/><text class="b" x="595" y="55" text-anchor="middle">Microsoft Entra ID</text>
+   <path class="ar two" d="M404 64L516 52"/><text class="s" x="462" y="48" text-anchor="middle">sign-in</text>
+   <rect class="bx" x="520" y="104" width="150" height="48" rx="6"/><text class="b" x="595" y="124" text-anchor="middle">Microsoft Graph</text><text class="s" x="595" y="141" text-anchor="middle">your tenant</text>
+   <path class="ar ret" d="M520 108L404 88"/><text class="s" x="476" y="91" text-anchor="middle">results</text>
+   <path class="ar" d="M404 132H516"/><text class="s" x="472" y="126" text-anchor="middle">allowed read</text>
+   <rect class="no" x="520" y="176" width="150" height="40" rx="6"/><text class="x" x="595" y="200" text-anchor="middle">Not sent</text>
+   <path class="ar blk" d="M404 146L516 190"/><text class="x" x="595" y="170" text-anchor="middle">write blocked</text>
+  </svg>
+  <h3>Words used here</h3>
+  <dl class="gl">
+   <dt>Delegated permission</dt><dd>The app acts as you. It can only reach what your account can reach, and only the kind of data the permission covers.</dd>
+   <dt>Application permission</dt><dd>The app acts as itself, with no one signed in, across the whole tenant. MGC never uses these.</dd>
+   <dt>Consent</dt><dd>Your approval, or an admin’s, for the app to use a permission. Microsoft asks for it in its own window.</dd>
+   <dt>Access token</dt><dd>A short-lived pass from Microsoft that lets this page call Microsoft Graph as you. MGC keeps it in this tab’s memory only.</dd>
+   <dt>Read-only</dt><dd>A request that only reads data. MGC sends GET requests, plus a few searches and checks that use POST but change nothing.</dd>
+  </dl>
+  <p class="afoot">More detail, including how to register the app: <a href="https://github.com/ThatM365Guy/M365-Graph-Cartographer/blob/main/docs/live-runner.md" target="_blank" rel="noopener noreferrer">How the live runner works</a>.</p>
+  <p class="afoot" id="lxDone" hidden>You’ve already confirmed this for this session.</p>
+  <label class="lxok"><input type="checkbox" id="lxOk"> I understand what will happen and where the data goes.</label>
+  <div class="lxbtns"><button class="pbtn solid" type="button" id="lxGo" disabled>Continue</button></div>
+ </div>
+</div>
+<script>/*__MSAL__*/</script>
 <script>
 {
 const D = /*__GRAPH_DATA__*/null;
@@ -358,6 +580,19 @@ const fmtDate = s => { try { return new Date(s).toLocaleDateString('en-GB',{day:
 const NS = 'http://www.w3.org/2000/svg';
 const nf = x => Number(x).toLocaleString('en-GB');
 const pl = (k, one, many) => `${k} ${k === 1 ? one : (many || one + 's')}`;
+
+/* The Content Security Policy blocks style="" attributes, so markup carries colours and bar widths as data-c and
+   data-pct, and this sets them through the CSSOM (which the policy allows) as soon as the markup is added. */
+function paintData(el){
+  const c = el.dataset.c, p = el.dataset.pct;
+  if (c && /^#[0-9a-f]{3,8}$/i.test(c)) el.style.setProperty('--c', c);
+  if (p !== undefined) { const n = parseFloat(p); if (Number.isFinite(n)) el.style.width = Math.max(0, Math.min(100, n)) + '%'; }
+}
+new MutationObserver(ms => {
+  for (const m of ms) for (const n of m.addedNodes) if (n.nodeType === 1) { if (n.dataset) paintData(n); n.querySelectorAll('[data-c],[data-pct]').forEach(paintData); }
+}).observe(document.body, {childList: true, subtree: true});
+
+/*__LIVE_CODE__*/
 
 if (!D) {
   $('#panel').innerHTML = '<p class="empty">No data embedded. Build the page with scanner/build_page.py.</p>';
@@ -412,7 +647,7 @@ function init(){
   /* ================= state ================= */
   const DEFAULT_FILTERS = () => ({hidden: new Set(), allLinks: false, status: true, disc: false, changed: false, gaps: true, betaGen: false});
   let F = DEFAULT_FILTERS();
-  const S = {view: 'explore', svc: null, sub: null, sel: null, hover: null, scen: null, step: 0, preview: null};
+  const S = {view: 'explore', svc: null, sub: null, sel: null, hover: null, scen: null, step: 0, preview: null, run: null};
   let touched = false;   // the user panned or zoomed
 
   // Generated entries for beta-only types stay hidden until Filter › Beta-only APIs is on; curated beta-only APIs always show.
@@ -1002,11 +1237,11 @@ function init(){
       h += ks('<path d="M2 12Q13 1 24 12" class="lnk"/>', 'Relationship or action') + ks('<path d="M2 12Q13 1 24 12" class="lnk ref"/>', 'Reference by ID');
       if (F.disc) h += ks('<path d="M2 12Q13 1 24 12" class="lnk discovered"/>', 'Found by the scanner');
     }
-    if (L && [...L.m.values()].some(t => t.empty)) h += ks('<circle cx="13" cy="8" r="6" style="fill:var(--panel);stroke:var(--mute);stroke-width:1.6;stroke-dasharray:3 2"/>', 'Not mapped yet');
-    if (L && [...L.m.keys()].some(k => k.startsWith('mor:'))) h += ks('<circle cx="13" cy="8" r="6.5" style="fill:var(--panel);stroke:var(--mute);stroke-width:1.8"/><text x="13" y="12.2" text-anchor="middle" style="fill:var(--mute);font-size:12px;font-weight:700">+</text>', 'More in the list');
+    if (L && [...L.m.values()].some(t => t.empty)) h += ks('<circle cx="13" cy="8" r="6" class="kc-empty"/>', 'Not mapped yet');
+    if (L && [...L.m.keys()].some(k => k.startsWith('mor:'))) h += ks('<circle cx="13" cy="8" r="6.5" class="kc-more"/><text x="13" y="12.2" text-anchor="middle" class="kc-more-t">+</text>', 'More in the list');
     if (F.gaps && nodes.some(n => n.kind === 'gap' && visNode(n))) h += ks('<rect x="8" y="3" width="10" height="10" transform="rotate(45 13 8)" fill="var(--mute)"/>', 'Outside Graph');
-    if (F.status) h += ks('<circle cx="13" cy="8" r="4" fill="var(--mute)"/><circle cx="13" cy="8" r="7" class="mk beta" style="fill:none;stroke:var(--brick);stroke-width:1.6"/>', 'Beta only') +
-      ks('<circle cx="13" cy="8" r="4" fill="var(--mute)"/><circle cx="13" cy="8" r="7" style="fill:none;stroke:var(--mute);stroke-width:1.6;stroke-dasharray:3 2"/>', 'Legacy API');
+    if (F.status) h += ks('<circle cx="13" cy="8" r="4" fill="var(--mute)"/><circle cx="13" cy="8" r="7" class="kc-beta"/>', 'Beta only') +
+      ks('<circle cx="13" cy="8" r="4" fill="var(--mute)"/><circle cx="13" cy="8" r="7" class="kc-legacy"/>', 'Legacy API');
     if (F.changed) h += ks('<circle cx="13" cy="8" r="5" fill="var(--mute)"/><circle cx="18" cy="4" r="3.5" fill="var(--brick)"/>', changed.size ? 'Changed this week' : 'Changed this week (none)');
     $('#key').innerHTML = h;
   }
@@ -1044,7 +1279,7 @@ function init(){
   });
 
   /* ================= actions ================= */
-  function sync(opts){ relayout(opts); crumbs(); renderPanel(); writeHash(); updateReset(); }
+  function sync(opts){ closeRun(); relayout(opts); crumbs(); renderPanel(); writeHash(); updateReset(); }
   function goStart(){ S.view = 'explore'; S.svc = S.sub = S.sel = null; S.scen = S.preview = null; S.hover = null; setSeg(); sync({refit: true}); }
   function openSvc(w){
     if (S.view !== 'explore') { S.view = 'explore'; S.scen = S.preview = null; setSeg(); }
@@ -1125,7 +1360,7 @@ function init(){
   /* ================= panel ================= */
   const ul = items_ => items_ && items_.length ? `<ul>${items_.map(x => `<li>${esc(x)}</li>`).join('')}</ul>` : '<p>None recorded yet.</p>';
   const docsLink = u => u ? `<p><a href="${esc(u)}" target="_blank" rel="noopener">Microsoft Learn reference ↗</a></p>` : '';
-  const wlName = (w, extra) => `<div class="wlname" style="--c:${w.colour}"><i></i>${esc(w.label)}${extra ? ' › ' + esc(extra) : ''}</div>`;
+  const wlName = (w, extra) => `<div class="wlname" data-c="${w.colour}"><i></i>${esc(w.label)}${extra ? ' › ' + esc(extra) : ''}</div>`;
   const det = (title, body, open, note) => body ? `<details class="d"${open ? ' open' : ''}><summary>${esc(title)}${note ? `<small>${esc(note)}</small>` : ''}</summary><div>${body}</div></details>` : '';
   const kindWord = {nav: 'relationship', ref: 'reference by ID', action: 'action', discovered: 'found by scanner'};
   const statusBadge = n => {
@@ -1150,7 +1385,7 @@ function init(){
     const relCount = edges.filter(e => e.kind !== 'discovered').length;
     panel.innerHTML = `<h2>Start with a service</h2>
       <p class="lead">Microsoft Graph sits at the centre. Open a service to fan out its sub-services, then a sub-service to see its APIs. Select an API for its permissions, limits and connections.</p>
-      <ul class="links svlist">${svcList().map(w => `<li><button class="lk" data-svc="${w.id}" style="--c:${w.colour}"><i></i><span><b>${esc(w.label)}</b><span class="sv">${subsOf(w.id).map(s => esc(s.label)).join(' · ')}</span></span><small>${apisOf(w.id).length ? pl(apisOf(w.id).length, 'API') : 'not mapped yet'}</small></button></li>`).join('')}</ul>
+      <ul class="links svlist">${svcList().map(w => `<li><button class="lk" data-svc="${w.id}" data-c="${w.colour}"><i></i><span><b>${esc(w.label)}</b><span class="sv">${subsOf(w.id).map(s => esc(s.label)).join(' · ')}</span></span><small>${apisOf(w.id).length ? pl(apisOf(w.id).length, 'API') : 'not mapped yet'}</small></button></li>`).join('')}</ul>
       <div class="cards"><button class="card" data-act="search"><b>Search for a resource</b><span>By name, path, permission or limitation.</span></button><button class="card" data-act="scen"><b>Walk through a scenario</b><span>${SCEN.length} step-by-step routes for reviews and investigations.</span></button></div>
       <details class="sm"><summary>Recent changes</summary>${changesFor(null)}</details>
       <p class="foot">${nodes.length} APIs (${nodes.filter(isGen).length} generated) · ${D.workloads.length} services · ${relCount} links${cov ? ` · ${nf(cov.onMap)} of ${nf(cov.v1Types)} v1.0 types mapped` : ''}. <span class="appver">M365 Graph Cartographer v{{version}}</span>, curated notes v${esc(D.meta.curatedVersion)}, ${fmtDate(D.meta.curatedOn)}. ${scanInfo ? `Schema scanned ${fmtDate(scanInfo.at)}: ${nf(scanInfo.v1EntityTypes)} entity types in v1.0, ${nf(scanInfo.betaEntityTypes)} in beta${scanInfo.permissionsChecked ? `. Permission names checked against Graph's ${nf(scanInfo.permissionCount)} permissions${scanInfo.permissionsCheckedAt ? ` (list fetched ${fmtDate(scanInfo.permissionsCheckedAt)})` : ''}` : ''}.` : 'The schema scan has not run yet.'}${scanInfo && scanInfo.permissionsCatalogue ? ` Generated permissions from ${catPin()}.` : ''}</p>`;
@@ -1160,13 +1395,13 @@ function init(){
     const names = a => a.slice(0, 10).map(n => esc(n.label)).join(' · ') + (a.length > 10 ? ` and ${a.length - 10} more` : '');
     panel.innerHTML = `${wlName({...w, label: FAMILIES[w.family] || ''})}<h2>${esc(w.label)}</h2><p class="lead">${esc(w.summary)}</p>
       ${none ? '<p>No APIs in this service are on the map yet. The sub-services below show where they will go.</p>' : ''}
-      <h5>Sub-services</h5><ul class="links">${subsOf(w.id).map(s => { const a = apisOf(w.id, s.id); return `<li><button class="lk" data-sub="${w.id}/${s.id}" style="--c:${w.colour}"><i></i><span><b>${esc(s.label)}</b><span class="sv">${a.length ? names(a) : 'Not mapped yet'}</span></span><small>${a.length ? pl(a.length, 'API') : ''}</small></button></li>`; }).join('')}</ul>
+      <h5>Sub-services</h5><ul class="links">${subsOf(w.id).map(s => { const a = apisOf(w.id, s.id); return `<li><button class="lk" data-sub="${w.id}/${s.id}" data-c="${w.colour}"><i></i><span><b>${esc(s.label)}</b><span class="sv">${a.length ? names(a) : 'Not mapped yet'}</span></span><small>${a.length ? pl(a.length, 'API') : ''}</small></button></li>`; }).join('')}</ul>
       <h4>Service-wide limits</h4>${ul(w.limits)}${docsLink(w.docs)}`;
   }
   const statusOf = n => n.kind === 'gap' ? 'outside Graph' : n.scan ? n.scan.status : '';
   // A generated path that runs through a bound action is shown with its method; curated paths already say theirs.
   const pathText = n => (n.pathMethod === 'POST' ? 'POST ' : '') + (n.path || '');
-  const apiRow = (n, w, off) => `<li><button class="lk" data-go="${esc(n.id)}" style="--c:${w.colour}"><i></i><span><b>${esc(n.label)}</b><span class="sv"><code>${esc(pathText(n))}</code></span></span><small>${esc(statusOf(n))}${linksOf(n) ? `<br>${pl(linksOf(n), 'link')}` : ''}${off ? '<br>in the list only' : ''}</small></button></li>`;
+  const apiRow = (n, w, off) => `<li><button class="lk" data-go="${esc(n.id)}" data-c="${w.colour}"><i></i><span><b>${esc(n.label)}</b><span class="sv"><code>${esc(pathText(n))}</code></span></span><small>${esc(statusOf(n))}${linksOf(n) ? `<br>${pl(linksOf(n), 'link')}` : ''}${off ? '<br>in the list only' : ''}</small></button></li>`;
   const LIST = {key: '', q: '', sort: 'rank'};
   const STATUS_ORDER = {'v1.0': 0, 'beta only': 1, 'not found': 2, 'outside Graph': 3, '': 4};
   function listRows(){
@@ -1199,7 +1434,7 @@ function init(){
       const out = e.s === id, other = N[out ? e.t : e.s];
       const via = e.via || e.nav || e.action || e.label || '';
       const st = e.scan && !['v1.0', 'n/a', 'not scanned'].includes(e.scan) ? ` · ${e.scan}` : '';
-      return `<li><button class="lk" data-go="${other.id}" style="--c:${WL[other.workload].colour}"><i></i><span>${out ? '→' : '←'} ${esc(other.label)}<span class="sv">${esc(where(other))}</span></span><small>${esc(via)}<br>${esc(e.desc || kindWord[e.kind] || e.kind)}${esc(st)}</small></button></li>`;
+      return `<li><button class="lk" data-go="${other.id}" data-c="${WL[other.workload].colour}"><i></i><span>${out ? '→' : '←'} ${esc(other.label)}<span class="sv">${esc(where(other))}</span></span><small>${esc(via)}<br>${esc(e.desc || kindWord[e.kind] || e.kind)}${esc(st)}</small></button></li>`;
     });
     return rows.length ? `<ul class="links">${rows.join('')}</ul>` : '';
   }
@@ -1240,13 +1475,13 @@ function init(){
       <p class="warn">Generated, not checked. From ${catPin()}${n.permissionsPath ? ` for <code>GET ${esc(n.permissionsPath)}</code>` : ''}. Where it marks more than one permission as least privileged, all are listed; Microsoft's own reviews of this file have found least-privilege errors.</p>${pc && pc.unknown && pc.unknown.length ? `<p class="warn">Not found in the current permission list: ${pc.unknown.map(esc).join(', ')}.</p>` : ''}${sideWarn(pc)}`
       : `<p>The permission catalogue has no read entry for this path. Check the Microsoft Learn page.</p>`;
     const opsList = [...(o.actions || []).map(a => a + ' (action)'), ...(o.functions || []).map(f => f + ' (function)')];
-    panel.innerHTML = `${wlName(WL[n.workload], (subOf(n.id) || {}).label || 'Unsorted')}<h2>${esc(n.label)}${nV ? ` <small style="font-size:15px;color:var(--mute);font-weight:500">(${pl(nV, 'variant')})</small>` : ''}</h2>${badges(n)}
+    panel.innerHTML = `${wlName(WL[n.workload], (subOf(n.id) || {}).label || 'Unsorted')}<h2>${esc(n.label)}${nV ? ` <small class="nv">(${pl(nV, 'variant')})</small>` : ''}</h2>${badges(n)}
       <p class="lead">Generated from the ${n.scan && n.scan.status === 'beta only' ? 'beta' : 'v1.0'} schema. Nobody has written or checked notes for this entry yet, so there is no summary, licensing or limits here.${n.scan && n.scan.status === 'beta only' ? ' Beta APIs can change without notice and are not supported in production.' : ''}</p>
       ${n.path ? `<div class="ep"><code>${esc(pathText(n))}</code><button class="copy" data-copy="${esc(n.path)}">Copy</button></div>${n.pathMethod === 'POST' ? '<p class="foot">This path runs through a bound action, so it is called with POST and changes or starts something. It is not a read.</p>' : ''}${geLink(n)}` : '<p>No path from a top-level root reaches this type.</p>'}
       ${det('Permissions', perms, true, 'generated, not checked')}
       ${det('Variants', variantsBlock(n), nV > 0 && nV <= 12, nV ? `${nV} folded into this entry` : '')}
       ${det('Beta variants', n.betaVariants && n.betaVariants.length ? `<p class="props">${n.betaVariants.map(v => esc(shortType(v))).join('<br>')}</p>` : '', false, n.betaVariants && n.betaVariants.length ? `${n.betaVariants.length} beta-only types folded in` : '')}
-      ${det('Other paths', (n.altPaths || []).length ? `<p class="props" style="columns:1">${n.altPaths.map(x => `<code>${esc(x)}</code>`).join('<br>')}</p>` : '', false)}
+      ${det('Other paths', (n.altPaths || []).length ? `<p class="props one">${n.altPaths.map(x => `<code>${esc(x)}</code>`).join('<br>')}</p>` : '', false)}
       ${det('Actions and functions', opsList.length ? `<p class="props">${opsList.map(esc).join('<br>')}</p>` : '', false, opsList.length ? String(opsList.length) : '')}
       ${det('Schema', schemaBlock(n), false)}
       ${n.docs ? docsLink(n.docs) : '<p class="foot">No Microsoft Learn resource page was found for this type.</p>'}
@@ -1318,11 +1553,13 @@ function init(){
   let CODE = 'http';
   try { if (localStorage.getItem('mgc-code') === 'ps') CODE = 'ps'; } catch (err) {}
   const SCRIPTS = D.scripts || {};
+  // The live runner (Preview): scenarios on liveScenarios get a "Run this scenario" button that opens the Run page.
+  const LIVE = MGCLive.mount({D, SC, N, where, onBack: id => { closeRun(); startScenario(id, S.step); }});
   function codeBlock(st, n, call){
-    const http = call || '';
-    const seg = `<div class="seg2" role="group" aria-label="Show this step as"><button data-code="http" aria-pressed="${CODE === 'http'}">HTTP</button><button data-code="ps" aria-pressed="${CODE === 'ps'}">PowerShell</button></div>`;
+    const http = call || '', mode = CODE;
+    const seg = `<div class="seg2" role="group" aria-label="Show this step as"><button data-code="http" aria-pressed="${mode === 'http'}">HTTP</button><button data-code="ps" aria-pressed="${mode === 'ps'}">PowerShell</button></div>`;
     let body;
-    if (CODE === 'ps') {
+    if (mode === 'ps') {
       body = st.ps ? `<div class="ep"><code>${esc(st.ps)}</code><button class="copy" data-copy="${esc(st.ps)}">Copy</button></div>`
         : `<p class="none">${esc(st.psNote || (n.kind === 'gap' ? 'This step is outside Graph, so it has no PowerShell here.' : 'No PowerShell for this step.'))}</p>`;
     } else {
@@ -1357,20 +1594,37 @@ function init(){
       <div class="badges"><span class="b">${esc(s.group)}</span><span class="b">${pl(g.length, 'step')}</span></div>
       <h2>${esc(s.label)}</h2><p class="lead">${esc(s.summary)}</p>
       ${s.licence ? `<p><b>Licensing:</b> ${esc(s.licence)}</p>` : ''}
+      ${LIVE.enabled(s.id) ? `<div class="runentry"><div class="row"><b>Run it in your tenant</b><span class="pv">Preview</span></div><p>Runs the read-only steps against your own tenant, or with sample data, on a page of its own. It changes nothing.</p><button class="pbtn solid" data-run="${esc(s.id)}">Run this scenario</button></div>` : ''}
       ${scriptBox(s)}
       <div class="scnav"><span class="of">Step ${i + 1} of ${g.length}</span><button class="pbtn" data-stepnav="-1"${i ? '' : ' disabled'}>Back</button><button class="pbtn solid" data-stepnav="1"${i < g.length - 1 ? '' : ' disabled'}>Next</button></div>
       <div class="stepcard">${cur.map((st, j) => `<div${j ? ' class="alt"' : ''}>${j ? '<p class="where"><b>or</b></p>' : ''}${stepDetail(st)}</div>`).join('')}</div>
       <h5>All steps</h5>
-      <ol class="steps">${g.map((x, k) => `<li class="${k < i ? 'done' : k === i ? 'cur' : ''}"><button data-goto="${k}"><span class="num">${k + 1}</span><span>${x.map(st => esc(N[st.node].label)).join(' <small style="display:inline">or</small> ')}<small>${esc(where(N[x[0].node]))}</small></span></button></li>`).join('')}</ol>
+      <ol class="steps">${g.map((x, k) => `<li class="${k < i ? 'done' : k === i ? 'cur' : ''}"><button data-goto="${k}"><span class="num">${k + 1}</span><span>${x.map(st => esc(N[st.node].label)).join(' <small class="inl">or</small> ')}<small>${esc(where(N[x[0].node]))}</small></span></button></li>`).join('')}</ol>
       ${(s.seeAlso || []).filter(id => SC[id]).length ? `<h5>See also</h5><ul class="sclist">${s.seeAlso.filter(id => SC[id]).map(id => `<li><button data-scen="${esc(id)}">${esc(SC[id].label)}<small>${esc(s.seeAlsoNote && s.seeAlsoNote[id] || SC[id].summary)}</small></button></li>`).join('')}</ul>` : ''}
-      <p style="margin-top:18px"><button class="pbtn" data-exit>Exit scenario</button></p>
+      <p class="exitp"><button class="pbtn" data-exit>Exit scenario</button></p>
       <p class="foot">Calls and permissions come from the API's own notes unless the step overrides them.</p>`;
+  }
+  /* The Run page (#run/<scenario-id>) replaces the map and the panel until you go back. It holds Graph data, so
+     web/live/ui.js builds it as DOM text, never HTML. Any other navigation (sync) closes it. */
+  const runPage = $('#runpage'), mainEl = $('.main');
+  function openRun(id){
+    if (!LIVE.enabled(id)) return;
+    if (S.scen !== id || S.view !== 'scen') startScenario(id);
+    toggleFilters(false); closeResults(); hideTip(); endGesture();
+    S.run = id; mainEl.hidden = true; runPage.hidden = false;
+    LIVE.renderPage(runPage, SC[id]);
+    writeHash(); updateReset();
+    runPage.scrollTop = 0; runPage.focus({preventScroll: true});
+  }
+  function closeRun(){
+    if (!S.run) return;
+    S.run = null; runPage.hidden = true; mainEl.hidden = false;
   }
   // Solid: curated types; pale: generated (mapped, not curated); outlined: beta only.
   function bar(label, on, cur, beta, max, colour, attr){
     const w1 = max ? cur/max*100 : 0, wg = max ? (on - cur)/max*100 : 0, w2 = max ? beta/max*100 : 0;
     const v = on ? `${on}${cur < on ? ` (${cur})` : ''}${beta ? ` +${beta}` : ''}` : 'not mapped';
-    return `<li><button ${attr || ''} style="--c:${colour}"><i></i>${esc(label)}</button><span class="tr" style="--c:${colour}"><span class="fill" style="width:${w1.toFixed(1)}%"></span><span class="fill gen" style="width:${wg.toFixed(1)}%"></span><span class="fill beta" style="width:${w2.toFixed(1)}%"></span></span><span class="v">${v}</span></li>`;
+    return `<li><button ${attr || ''} data-c="${colour}"><i></i>${esc(label)}</button><span class="tr" data-c="${colour}"><span class="fill" data-pct="${w1.toFixed(1)}"></span><span class="fill gen" data-pct="${wg.toFixed(1)}"></span><span class="fill beta" data-pct="${w2.toFixed(1)}"></span></span><span class="v">${v}</span></li>`;
   }
   // Purview solutions (from the scanner's name patterns) line up with Purview's sub-services.
   const PURVIEW_SUB = {'Information protection': 'information-protection', 'Data security API': 'information-protection', 'Records': 'records-management', 'eDiscovery': 'ediscovery', 'Audit': 'audit', 'Privacy': 'privacy'};
@@ -1385,7 +1639,7 @@ function init(){
         return {s, on: sols.reduce((t, r) => t + r.onMap, 0), v1: sols.reduce((t, r) => t + r.v1, 0), beta: sols.reduce((t, r) => t + r.betaOnly, 0), sols};
       });
       pv = `<h4>Purview by sub-service</h4><p>${nf(cov.purview.onMap)} of ${nf(cov.purview.v1)} Purview v1.0 types are on the map, and ${nf(cov.purview.betaOnly)} more are beta only. Bars show the share of each sub-service's v1.0 types on the map.</p>
-        <ul class="bars">${subs.map(x => x.v1 ? `<li><button data-sub="purview/${x.s.id}" style="--c:${WL.purview.colour}"><i></i>${esc(x.s.label)}</button><span class="tr" style="--c:${WL.purview.colour}"><span class="fill" style="width:${(x.on/x.v1*100).toFixed(1)}%"></span></span><span class="v">${x.on} / ${x.v1}</span></li>` : `<li><button data-sub="purview/${x.s.id}" style="--c:${WL.purview.colour}"><i></i>${esc(x.s.label)}</button><span class="tr"></span><span class="v">${x.s.id === 'outside-graph' ? 'not in Graph' : 'n/a'}</span></li>`).join('')}</ul>
+        <ul class="bars">${subs.map(x => x.v1 ? `<li><button data-sub="purview/${x.s.id}" data-c="${WL.purview.colour}"><i></i>${esc(x.s.label)}</button><span class="tr" data-c="${WL.purview.colour}"><span class="fill" data-pct="${(x.on/x.v1*100).toFixed(1)}"></span></span><span class="v">${x.on} / ${x.v1}</span></li>` : `<li><button data-sub="purview/${x.s.id}" data-c="${WL.purview.colour}"><i></i>${esc(x.s.label)}</button><span class="tr"></span><span class="v">${x.s.id === 'outside-graph' ? 'not in Graph' : 'n/a'}</span></li>`).join('')}</ul>
         <p class="foot">Information protection includes the Purview data security API. Types are tagged by solution from their names.</p>`;
     }
     const curOf = r => r.curated ?? r.onMap;
@@ -1423,6 +1677,7 @@ function init(){
       return;
     }
     const dl = t.closest('[data-dl]'); if (dl) { downloadScript(dl.dataset.dl); return; }
+    const rn = t.closest('[data-run]'); if (rn) { openRun(rn.dataset.run); return; }
     const cp = t.closest('[data-copy]');
     if (cp) {
       let text = cp.dataset.copy;
@@ -1444,7 +1699,7 @@ function init(){
   const fpanel = $('#fpanel'), fbtn = $('#fbtn');
   function renderFilters(){
     const cb = (id, on, text, note) => `<label><input type="checkbox" data-f="${id}"${on ? ' checked' : ''}>${text}${note ? `<small>${note}</small>` : ''}</label>`;
-    fpanel.innerHTML = `<h5>Workloads</h5>${D.workloads.map(w => `<label class="sw" style="--c:${w.colour}"><input type="checkbox" data-w="${w.id}"${F.hidden.has(w.id) ? '' : ' checked'}><i></i>${esc(w.label)}<small>${apisOf(w.id).length || nodes.filter(n => n.workload === w.id).length}</small></label>`).join('')}
+    fpanel.innerHTML = `<h5>Workloads</h5>${D.workloads.map(w => `<label class="sw" data-c="${w.colour}"><input type="checkbox" data-w="${w.id}"${F.hidden.has(w.id) ? '' : ' checked'}><i></i>${esc(w.label)}<small>${apisOf(w.id).length || nodes.filter(n => n.workload === w.id).length}</small></label>`).join('')}
       <h5>Show</h5>
       ${cb('allLinks', F.allLinks, 'All links', 'off by default')}
       ${cb('status', F.status, 'API status', 'beta only, legacy')}
@@ -1494,7 +1749,7 @@ function init(){
     const t = q.value.trim().toLowerCase();
     if (!t) { hits = []; closeResults(); dimForSearch(); updateReset(); return; }
     hits = searchHits(t); hi = 0;
-    qres.innerHTML = hits.length ? hits.slice(0, 12).map((h, i) => `<li role="option" id="qr${i}" data-go="${h.n.id}" aria-selected="${i === hi}" style="--c:${WL[h.n.workload].colour}"><i></i>${esc(h.n.label)}<small>${esc(where(h.n))} · matched ${esc(h.why)}</small></li>`).join('') + (hits.length > 12 ? `<li class="none">${hits.length - 12} more: keep typing to narrow it down</li>` : '')
+    qres.innerHTML = hits.length ? hits.slice(0, 12).map((h, i) => `<li role="option" id="qr${i}" data-go="${h.n.id}" aria-selected="${i === hi}" data-c="${WL[h.n.workload].colour}"><i></i>${esc(h.n.label)}<small>${esc(where(h.n))} · matched ${esc(h.why)}</small></li>`).join('') + (hits.length > 12 ? `<li class="none">${hits.length - 12} more: keep typing to narrow it down</li>` : '')
       : '<li class="none">No APIs match</li>';
     qres.hidden = false; q.setAttribute('aria-expanded', 'true');
     q.setAttribute('aria-activedescendant', hits.length ? 'qr0' : '');
@@ -1537,7 +1792,7 @@ function init(){
   }
   function updateReset(){ $('#rdot').hidden = isStart(); }
   $('#reset').addEventListener('click', () => {
-    closeAbout(false);
+    closeAbout(false); LIVE.reset();
     F = DEFAULT_FILTERS(); q.value = ''; closeResults(); toggleFilters(false); renderFilters(); hideTip();
     touched = false; S.view = 'explore'; S.svc = S.sub = S.sel = S.scen = S.preview = S.hover = null; S.step = 0; setSeg();
     try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
@@ -1643,7 +1898,7 @@ function init(){
   // After a relayout, keep focus on the item that was activated (or its replacement).
   function focusKey(k){ requestAnimationFrame(() => { const it = items.get(k); if (it && it.t) it.g.focus({preventScroll: true}); }); }
   document.addEventListener('keydown', e => {
-    if (e.key !== 'Escape' || !aboutBack.hidden) return;
+    if (e.key !== 'Escape' || !aboutBack.hidden || S.run) return;   // Escape doesn't leave the Run page
     if (!fpanel.hidden) { toggleFilters(false); fbtn.focus(); return; }
     if (e.target === q) return;
     const had = document.activeElement && document.activeElement.closest && document.activeElement.closest('.it');
@@ -1721,6 +1976,7 @@ function init(){
      #scenario-<id> starts a scenario. */
   let lastHash = null;
   function hashFor(){
+    if (S.run) return '#run/' + S.run;
     if (S.view === 'scen' && S.scen) return '#scenario-' + S.scen;
     if (S.view !== 'explore') return '';
     if (S.sel) return '#' + S.sel;
@@ -1739,6 +1995,7 @@ function init(){
     catch (e) { goStart(); return; }   // a malformed escape such as #100% must not stop the page starting
     if (!h) { goStart(); return; }
     if (h.startsWith('scenario-') && SC[h.slice(9)]) { startScenario(h.slice(9)); return; }
+    if (h.startsWith('run/') && SC[h.slice(4)] && LIVE.enabled(h.slice(4))) { openRun(h.slice(4)); return; }
     if (h.startsWith('svc/')) {
       const [w, s] = h.slice(4).split('/');
       if (WL[w]) { if (s && SUBS[w].some(x => x.id === s)) openSub(w, s); else openSvc(w); return; }

@@ -46,6 +46,14 @@ class FunctionPackage(unittest.TestCase):
         for script, sep in (("package.sh", "/"), ("package.ps1", "\\")):
             self.assertIn(f"..{sep}data{sep}version.json", read("function_app", script), script)
 
+    def test_package_scripts_copy_the_live_runner(self):
+        # build_page.render() builds in the runner's code, MSAL, the allow list and the samples from next to the scanner
+        for script, sep in (("package.sh", "/"), ("package.ps1", "\\")):
+            text = read("function_app", script)
+            for part in (f"..{sep}web{sep}live", f"..{sep}vendor{sep}msal-browser", f"..{sep}scripts{sep}allowlist.json",
+                         f"..{sep}data{sep}samples"):
+                self.assertIn(part, text, script)
+
 
 class Workflow(unittest.TestCase):
     def setUp(self):
@@ -78,8 +86,8 @@ class Workflow(unittest.TestCase):
     def test_push_trigger_covers_every_build_input_but_not_bot_output(self):
         m = re.search(r"paths: \[([^\]]+)\]", self.yml)
         paths = re.findall(r'"([^"]+)"', m.group(1))
-        for p in ("data/curated.json", "data/placement.json", "data/version.json", "web/template.html", "scanner/**",
-                  "scripts/scenarios/**"):
+        for p in ("data/curated.json", "data/placement.json", "data/version.json", "web/**", "scanner/**",
+                  "scripts/scenarios/**", "scripts/allowlist.json", "vendor/**", "data/samples/**"):
             self.assertIn(p, paths)
         for bot in ("data/graph-map.json", "data/changelog.json", "data/coverage.json", "data/generated.json"):
             self.assertFalse(any(p == bot or p in ("data/**", "**") for p in paths), bot)

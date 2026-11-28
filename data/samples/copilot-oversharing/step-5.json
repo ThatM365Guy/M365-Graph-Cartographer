@@ -1,0 +1,14 @@
+{
+ "about": "Step 5, Copilot usage: the report as CSV text, the way Graph v1.0 returns it.",
+ "responses": [
+  {
+   "method": "GET",
+   "path": "/v1.0/copilot/reports/getMicrosoft365CopilotUsageUserDetail(period='D28')",
+   "status": 200,
+   "headers": {
+    "Content-Type": "application/octet-stream"
+   },
+   "body": "Report Refresh Date,User Principal Name,Display Name,Report Period,Prompts submitted for all apps,Prompts submitted for Copilot Chat (work),Prompts submitted for Copilot Chat (web),Active Usage Days for all apps,Last Activity Date,Copilot Chat Last Activity Date,Microsoft Teams Copilot Last Activity Date,Word Copilot Last Activity Date,Excel Copilot Last Activity Date,PowerPoint Copilot Last Activity Date,Outlook Copilot Last Activity Date,OneNote Copilot Last Activity Date,Loop Copilot Last Activity Date,Copilot Chat (work) Last Activity Date,Copilot Chat (web) Last Activity Date,Microsoft 365 Copilot Last Activity Date,Edge Last Activity Date\r\n2026-11-27,priya.sample@hollowbrook.example,Priya Sample,28,214,107,0,19,2026-11-26,2026-11-26,2026-11-26,2026-11-26,,,2026-11-26,,,2026-11-26,,2026-11-26,\r\n2026-11-27,tom.example@hollowbrook.example,Tom Example,28,88,44,0,11,2026-11-25,2026-11-25,2026-11-25,,,,2026-11-25,,,2026-11-25,,2026-11-25,\r\n2026-11-27,alex.placeholder@hollowbrook.example,Alex Placeholder,28,0,0,0,0,,,,,,,,,,,,,\r\n2026-11-27,morgan.fictional@hollowbrook.example,Morgan Fictional,28,31,15,0,6,2026-11-12,2026-11-12,2026-11-12,,,,2026-11-12,,,2026-11-12,,2026-11-12,\r\n2026-11-27,sam.testcase@hollowbrook.example,Sam Testcase,28,0,0,0,0,,,,,,,,,,,,,\r\n2026-11-27,jo.mockley@hollowbrook.example,Jo Mockley,28,142,71,0,17,2026-11-27,2026-11-27,2026-11-27,2026-11-27,,,2026-11-27,,,2026-11-27,,2026-11-27,\r\n"
+  }
+ ]
+}
