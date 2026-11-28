@@ -5,9 +5,9 @@
   "curatedOn": "2026-11-28",
   "phase": "Purview covered in depth from 0.3.0: information protection, records, eDiscovery, audit, privacy and the data security API, with what Graph does not cover.",
   "note": "Hand-written content lives here. The scanner never edits this file; it writes graph-map.json alongside it.",
-  "generatedAt": "2026-11-28T15:26:23+00:00",
+  "generatedAt": "2026-11-28T17:17:31+00:00",
   "scan": {
-   "at": "2026-11-28T15:26:23+00:00",
+   "at": "2026-11-28T17:17:31+00:00",
    "v1EntityTypes": 1264,
    "betaEntityTypes": 2625,
    "permissionsCatalogue": {
@@ -627,6 +627,7 @@
     "microsoft.graph.agentUser"
    ],
    "scan": {
+    "of": "microsoft.graph.user",
     "status": "v1.0",
     "props": [
      "aboutMe",
@@ -847,6 +848,7 @@
    ],
    "docs": "https://learn.microsoft.com/graph/api/resources/group",
    "scan": {
+    "of": "microsoft.graph.group",
     "status": "v1.0",
     "props": [
      "accessType",
@@ -981,6 +983,7 @@
    ],
    "docs": "https://learn.microsoft.com/graph/api/resources/application",
    "scan": {
+    "of": "microsoft.graph.application",
     "status": "v1.0",
     "props": [
      "addIns",
@@ -1089,6 +1092,7 @@
     "microsoft.graph.agentIdentityBlueprintPrincipal"
    ],
    "scan": {
+    "of": "microsoft.graph.servicePrincipal",
     "status": "v1.0",
     "props": [
      "accountEnabled",
@@ -1200,6 +1204,7 @@
    ],
    "docs": "https://learn.microsoft.com/graph/api/resources/device",
    "scan": {
+    "of": "microsoft.graph.device",
     "status": "v1.0",
     "props": [
      "accountEnabled",
@@ -1292,6 +1297,7 @@
    ],
    "docs": "https://learn.microsoft.com/graph/api/resources/administrativeunit",
    "scan": {
+    "of": "microsoft.graph.administrativeUnit",
     "status": "v1.0",
     "props": [
      "deletedDateTime",
@@ -1347,6 +1353,7 @@
    ],
    "docs": "https://learn.microsoft.com/graph/api/resources/directoryrole",
    "scan": {
+    "of": "microsoft.graph.directoryRole",
     "status": "v1.0",
     "props": [
      "deletedDateTime",
@@ -1403,6 +1410,7 @@
     "microsoft.graph.eventMessageResponse"
    ],
    "scan": {
+    "of": "microsoft.graph.message",
     "status": "v1.0",
     "props": [
      "bccRecipients",
@@ -1490,6 +1498,7 @@
     "microsoft.graph.mailSearchFolder"
    ],
    "scan": {
+    "of": "microsoft.graph.mailFolder",
     "status": "v1.0",
     "props": [
      "childFolderCount",
@@ -1549,6 +1558,7 @@
    ],
    "docs": "https://learn.microsoft.com/graph/api/resources/event",
    "scan": {
+    "of": "microsoft.graph.event",
     "status": "v1.0",
     "props": [
      "allowNewTimeProposals",
@@ -1644,6 +1654,7 @@
    ],
    "docs": "https://learn.microsoft.com/graph/api/resources/calendar",
    "scan": {
+    "of": "microsoft.graph.calendar",
     "status": "v1.0",
     "props": [
      "allowedOnlineMeetingProviders",
@@ -1709,6 +1720,7 @@
    ],
    "docs": "https://learn.microsoft.com/graph/api/resources/contact",
    "scan": {
+    "of": "microsoft.graph.contact",
     "status": "v1.0",
     "props": [
      "assistantName",
@@ -1805,6 +1817,7 @@
    ],
    "docs": "https://learn.microsoft.com/graph/api/resources/site",
    "scan": {
+    "of": "microsoft.graph.site",
     "status": "v1.0",
     "props": [
      "createdBy",
@@ -1895,6 +1908,7 @@
    ],
    "docs": "https://learn.microsoft.com/graph/api/resources/list",
    "scan": {
+    "of": "microsoft.graph.list",
     "status": "v1.0",
     "props": [
      "createdBy",
@@ -1964,6 +1978,7 @@
    ],
    "docs": "https://learn.microsoft.com/graph/api/resources/listitem",
    "scan": {
+    "of": "microsoft.graph.listItem",
     "status": "v1.0",
     "props": [
      "contentType",
@@ -2030,6 +2045,7 @@
    ],
    "docs": "https://learn.microsoft.com/graph/api/resources/drive",
    "scan": {
+    "of": "microsoft.graph.drive",
     "status": "v1.0",
     "props": [
      "createdBy",
@@ -2103,6 +2119,7 @@
    ],
    "docs": "https://learn.microsoft.com/graph/api/resources/driveitem",
    "scan": {
+    "of": "microsoft.graph.driveItem",
     "status": "v1.0",
     "props": [
      "audio",
@@ -2201,6 +2218,7 @@
    ],
    "docs": "https://learn.microsoft.com/graph/api/resources/permission",
    "scan": {
+    "of": "microsoft.graph.permission",
     "status": "v1.0",
     "props": [
      "expirationDateTime",
@@ -2274,6 +2292,7 @@
    ],
    "docs": "https://learn.microsoft.com/graph/api/resources/team",
    "scan": {
+    "of": "microsoft.graph.team",
     "status": "v1.0",
     "props": [
      "classification",
@@ -2352,6 +2371,7 @@
    ],
    "docs": "https://learn.microsoft.com/graph/api/resources/channel",
    "scan": {
+    "of": "microsoft.graph.channel",
     "status": "v1.0",
     "props": [
      "createdDateTime",
@@ -2420,6 +2440,7 @@
    ],
    "docs": "https://learn.microsoft.com/graph/api/resources/chat",
    "scan": {
+    "of": "microsoft.graph.chat",
     "status": "v1.0",
     "props": [
      "chatType",
@@ -2488,6 +2509,7 @@
    ],
    "docs": "https://learn.microsoft.com/graph/api/resources/chatmessage",
    "scan": {
+    "of": "microsoft.graph.chatMessage",
     "status": "v1.0",
     "props": [
      "attachments",
@@ -2559,6 +2581,7 @@
    ],
    "docs": "https://learn.microsoft.com/graph/api/resources/onlinemeeting",
    "scan": {
+    "of": "microsoft.graph.onlineMeeting",
     "status": "v1.0",
     "props": [
      "allowAttendeeToEnableCamera",
@@ -2660,6 +2683,7 @@
    ],
    "docs": "https://learn.microsoft.com/graph/api/resources/plannerplan",
    "scan": {
+    "of": "microsoft.graph.plannerPlan",
     "status": "v1.0",
     "props": [
      "container",
@@ -2719,6 +2743,7 @@
    ],
    "docs": "https://learn.microsoft.com/graph/api/resources/plannertask",
    "scan": {
+    "of": "microsoft.graph.plannerTask",
     "status": "v1.0",
     "props": [
      "activeChecklistItemCount",
@@ -2799,6 +2824,7 @@
    ],
    "docs": "https://learn.microsoft.com/graph/api/resources/todotasklist",
    "scan": {
+    "of": "microsoft.graph.todoTaskList",
     "status": "v1.0",
     "props": [
      "displayName",
@@ -2847,6 +2873,7 @@
    ],
    "docs": "https://learn.microsoft.com/graph/api/resources/todotask",
    "scan": {
+    "of": "microsoft.graph.todoTask",
     "status": "v1.0",
     "props": [
      "body",
@@ -2911,6 +2938,7 @@
    ],
    "docs": "https://learn.microsoft.com/graph/api/resources/report",
    "scan": {
+    "of": "microsoft.graph.reportRoot",
     "status": "v1.0",
     "props": [],
     "navs": {
@@ -2974,6 +3002,7 @@
    ],
    "docs": "https://learn.microsoft.com/graph/api/resources/signin",
    "scan": {
+    "of": "microsoft.graph.signIn",
     "status": "v1.0",
     "props": [
      "appDisplayName",
@@ -3095,6 +3124,7 @@
     "microsoft.graph.appManagementAudit"
    ],
    "scan": {
+    "of": "microsoft.graph.directoryAudit",
     "status": "v1.0",
     "props": [
      "activityDateTime",
@@ -3152,6 +3182,7 @@
     "microsoft.graph.security.manualAlert"
    ],
    "scan": {
+    "of": "microsoft.graph.security.alert",
     "status": "v1.0",
     "props": [
      "actorDisplayName",
@@ -3226,6 +3257,7 @@
    ],
    "docs": "https://learn.microsoft.com/graph/api/resources/security-incident",
    "scan": {
+    "of": "microsoft.graph.security.incident",
     "status": "v1.0",
     "props": [
      "assignedTo",
@@ -3289,6 +3321,7 @@
    ],
    "docs": "https://learn.microsoft.com/graph/api/resources/securescore",
    "scan": {
+    "of": "microsoft.graph.secureScore",
     "status": "v1.0",
     "props": [
      "activeUserCount",
@@ -3341,6 +3374,7 @@
    ],
    "docs": "https://learn.microsoft.com/graph/api/security-security-runhuntingquery",
    "scan": {
+    "of": "runHuntingQuery",
     "status": "v1.0"
    },
    "permCheck": {
@@ -3385,6 +3419,7 @@
     }
    ],
    "scan": {
+    "of": "microsoft.graph.sensitivityLabel",
     "status": "v1.0",
     "props": [
      "actionSource",
@@ -3453,6 +3488,7 @@
     "microsoft.graph.itemRetentionLabel"
    ],
    "scan": {
+    "of": "microsoft.graph.security.retentionLabel",
     "status": "v1.0",
     "props": [
      "actionAfterRetentionPeriod",
@@ -3519,6 +3555,7 @@
     }
    ],
    "scan": {
+    "of": "microsoft.graph.security.ediscoveryCase",
     "status": "v1.0",
     "props": [
      "closedBy",
@@ -3581,6 +3618,7 @@
    ],
    "docs": "https://learn.microsoft.com/graph/api/resources/security-auditlogquery",
    "scan": {
+    "of": "microsoft.graph.security.auditLogQuery",
     "status": "v1.0",
     "props": [
      "administrativeUnitIdFilters",
@@ -3675,6 +3713,7 @@
    ],
    "docs": "https://learn.microsoft.com/graph/api/conditionalaccessroot-list-policies",
    "scan": {
+    "of": "microsoft.graph.conditionalAccessPolicy",
     "status": "v1.0",
     "props": [
      "conditions",
@@ -3725,6 +3764,7 @@
    ],
    "docs": "https://learn.microsoft.com/graph/api/resources/riskyuser",
    "scan": {
+    "of": "microsoft.graph.riskyUser",
     "status": "v1.0",
     "props": [
      "id",
@@ -3776,6 +3816,7 @@
    ],
    "docs": "https://learn.microsoft.com/graph/api/oauth2permissiongrant-list",
    "scan": {
+    "of": "microsoft.graph.oAuth2PermissionGrant",
     "status": "v1.0",
     "props": [
      "clientId",
@@ -3826,6 +3867,7 @@
    ],
    "docs": "https://learn.microsoft.com/graph/api/serviceprincipal-list-approleassignedto",
    "scan": {
+    "of": "microsoft.graph.appRoleAssignment",
     "status": "v1.0",
     "props": [
      "appRoleId",
@@ -3878,6 +3920,7 @@
    ],
    "docs": "https://learn.microsoft.com/graph/api/rbacapplication-list-roleeligibilityschedules",
    "scan": {
+    "of": "microsoft.graph.unifiedRoleEligibilitySchedule",
     "status": "v1.0",
     "props": [
      "appScopeId",
@@ -3935,6 +3978,7 @@
    ],
    "docs": "https://learn.microsoft.com/graph/api/subscribedsku-list",
    "scan": {
+    "of": "microsoft.graph.subscribedSku",
     "status": "v1.0",
     "props": [
      "accountId",
@@ -3986,6 +4030,7 @@
    ],
    "docs": "https://learn.microsoft.com/graph/api/mailfolder-list-messagerules",
    "scan": {
+    "of": "microsoft.graph.messageRule",
     "status": "v1.0",
     "props": [
      "actions",
@@ -4056,6 +4101,7 @@
    ],
    "docs": "https://learn.microsoft.com/graph/api/aiinteractionhistory-getallenterpriseinteractions",
    "scan": {
+    "of": "microsoft.graph.aiInteraction",
     "status": "v1.0",
     "props": [
      "appClass",
@@ -4123,6 +4169,7 @@
     "microsoft.graph.contentActivity"
    ],
    "scan": {
+    "of": "processContent",
     "status": "v1.0"
    },
    "permCheck": {
@@ -4158,6 +4205,7 @@
    ],
    "docs": "https://learn.microsoft.com/graph/api/agentidentity-list",
    "scan": {
+    "of": "microsoft.graph.agentIdentity",
     "status": "v1.0",
     "props": [
      "accountEnabled",
@@ -4284,6 +4332,7 @@
    ],
    "docs": "https://learn.microsoft.com/graph/api/agentidentityblueprint-list",
    "scan": {
+    "of": "microsoft.graph.agentIdentityBlueprint",
     "status": "v1.0",
     "props": [
      "addIns",
@@ -4392,6 +4441,7 @@
    ],
    "docs": "https://learn.microsoft.com/graph/api/resources/sensitivetype?view=graph-rest-beta",
    "scan": {
+    "of": "microsoft.graph.sensitiveType",
     "status": "beta only",
     "props": [],
     "navs": {},
@@ -4440,6 +4490,7 @@
    ],
    "docs": "https://learn.microsoft.com/purview/sit-get-started-exact-data-match-hash-upload",
    "scan": {
+    "of": "microsoft.graph.exactMatchDataStore",
     "status": "beta only",
     "props": [],
     "navs": {},
@@ -4485,6 +4536,7 @@
    ],
    "docs": "https://learn.microsoft.com/graph/api/security-retentionevent-list",
    "scan": {
+    "of": "microsoft.graph.security.retentionEvent",
     "status": "v1.0",
     "props": [
      "createdBy",
@@ -4547,6 +4599,7 @@
    ],
    "docs": "https://learn.microsoft.com/graph/api/resources/security-fileplandescriptor",
    "scan": {
+    "of": "microsoft.graph.security.filePlanDescriptor",
     "status": "v1.0",
     "props": [
      "authority",
@@ -4599,6 +4652,7 @@
    ],
    "docs": "https://learn.microsoft.com/graph/api/resources/security-dispositionreviewstage",
    "scan": {
+    "of": "microsoft.graph.security.dispositionReviewStage",
     "status": "v1.0",
     "props": [
      "name",
@@ -4644,6 +4698,7 @@
    ],
    "docs": "https://learn.microsoft.com/graph/api/resources/security-ediscoverycustodian",
    "scan": {
+    "of": "microsoft.graph.security.ediscoveryCustodian",
     "status": "v1.0",
     "props": [
      "acknowledgedDateTime",
@@ -4701,6 +4756,7 @@
    ],
    "docs": "https://learn.microsoft.com/graph/api/resources/security-ediscoverysearch",
    "scan": {
+    "of": "microsoft.graph.security.ediscoverySearch",
     "status": "v1.0",
     "props": [
      "contentQuery",
@@ -4761,6 +4817,7 @@
    ],
    "docs": "https://learn.microsoft.com/graph/api/security-ediscoveryreviewset-export",
    "scan": {
+    "of": "microsoft.graph.security.ediscoveryReviewSet",
     "status": "v1.0",
     "props": [
      "createdBy",
@@ -4816,6 +4873,7 @@
    ],
    "docs": "https://learn.microsoft.com/graph/api/security-ediscoverycustodian-applyhold",
    "scan": {
+    "of": "microsoft.graph.security.ediscoveryHoldPolicy",
     "status": "beta only",
     "props": [],
     "navs": {},
@@ -4870,6 +4928,7 @@
    ],
    "docs": "https://learn.microsoft.com/graph/api/resources/security-auditlogrecord",
    "scan": {
+    "of": "microsoft.graph.security.auditLogRecord",
     "status": "v1.0",
     "props": [
      "administrativeUnits",
@@ -4933,6 +4992,7 @@
    ],
    "docs": "https://learn.microsoft.com/graph/api/subjectrightsrequest-list",
    "scan": {
+    "of": "microsoft.graph.subjectRightsRequest",
     "status": "v1.0",
     "props": [
      "assignedTo",
@@ -5007,6 +5067,7 @@
    ],
    "docs": "https://learn.microsoft.com/graph/api/messagetracingroot-list-messagetraces",
    "scan": {
+    "of": "microsoft.graph.exchangeMessageTrace",
     "status": "v1.0",
     "props": [
      "fromIP",
@@ -5065,6 +5126,7 @@
    ],
    "docs": "https://learn.microsoft.com/graph/api/accessreviewset-list-definitions",
    "scan": {
+    "of": "microsoft.graph.accessReviewScheduleDefinition",
     "status": "v1.0",
     "props": [
      "additionalNotificationRecipients",
@@ -5129,6 +5191,7 @@
    ],
    "docs": "https://learn.microsoft.com/graph/api/accessreviewinstance-list-decisions",
    "scan": {
+    "of": "microsoft.graph.accessReviewInstanceDecisionItem",
     "status": "v1.0",
     "props": [
      "accessReviewId",
@@ -5208,6 +5271,7 @@
     "microsoft.graph.customDataProvidedResource"
    ],
    "scan": {
+    "of": "microsoft.graph.accessPackage",
     "status": "v1.0",
     "props": [
      "createdDateTime",
@@ -5274,6 +5338,7 @@
    ],
    "docs": "https://learn.microsoft.com/graph/api/entitlementmanagement-list-assignments",
    "scan": {
+    "of": "microsoft.graph.accessPackageAssignment",
     "status": "v1.0",
     "props": [
      "customExtensionCalloutInstances",
@@ -5335,6 +5400,7 @@
    ],
    "docs": "https://learn.microsoft.com/graph/api/entitlementmanagement-list-connectedorganizations",
    "scan": {
+    "of": "microsoft.graph.connectedOrganization",
     "status": "v1.0",
     "props": [
      "createdDateTime",
@@ -5401,6 +5467,7 @@
    ],
    "docs": "https://learn.microsoft.com/graph/api/identitygovernance-lifecycleworkflowscontainer-list-workflows",
    "scan": {
+    "of": "microsoft.graph.identityGovernance.workflow",
     "status": "v1.0",
     "props": [
      "category",
@@ -5471,6 +5538,7 @@
    ],
    "docs": "https://learn.microsoft.com/graph/api/termsofusecontainer-list-agreements",
    "scan": {
+    "of": "microsoft.graph.agreement",
     "status": "v1.0",
     "props": [
      "displayName",
@@ -5530,6 +5598,7 @@
    ],
    "docs": "https://learn.microsoft.com/graph/api/privilegedaccessgroup-list-eligibilityschedules",
    "scan": {
+    "of": "microsoft.graph.privilegedAccessGroupEligibilitySchedule",
     "status": "v1.0",
     "props": [
      "accessId",
@@ -5588,6 +5657,7 @@
    ],
    "docs": "https://learn.microsoft.com/graph/api/appconsentapprovalroute-list-appconsentrequests",
    "scan": {
+    "of": "microsoft.graph.appConsentRequest",
     "status": "v1.0",
     "props": [
      "appDisplayName",
@@ -5640,6 +5710,7 @@
     "microsoft.graph.qrCodePinAuthenticationMethod"
    ],
    "scan": {
+    "of": "microsoft.graph.authenticationMethod",
     "status": "v1.0",
     "props": [
      "createdDateTime",
@@ -5686,6 +5757,7 @@
    ],
    "docs": "https://learn.microsoft.com/graph/api/resources/userregistrationdetails",
    "scan": {
+    "of": "microsoft.graph.userRegistrationDetails",
     "status": "v1.0",
     "props": [
      "id",
@@ -5744,6 +5816,7 @@
    ],
    "docs": "https://learn.microsoft.com/graph/api/resources/riskdetection",
    "scan": {
+    "of": "microsoft.graph.riskDetection",
     "status": "v1.0",
     "props": [
      "activity",
@@ -5806,6 +5879,7 @@
    ],
    "docs": "https://learn.microsoft.com/graph/api/resources/riskyserviceprincipal",
    "scan": {
+    "of": "microsoft.graph.riskyServicePrincipal",
     "status": "v1.0",
     "props": [
      "appId",
@@ -5862,6 +5936,7 @@
    ],
    "docs": "https://learn.microsoft.com/graph/api/resources/crosstenantaccesspolicy-overview",
    "scan": {
+    "of": "microsoft.graph.crossTenantAccessPolicy",
     "status": "v1.0",
     "props": [
      "allowedCloudEndpoints",
@@ -5917,6 +5992,7 @@
     "microsoft.graph.windowsManagedDevice"
    ],
    "scan": {
+    "of": "microsoft.graph.managedDevice",
     "status": "v1.0",
     "props": [
      "activationLockBypassCode",
@@ -6069,6 +6145,7 @@
     "microsoft.graph.windowsSoftwareCompliancePolicy"
    ],
    "scan": {
+    "of": "microsoft.graph.deviceCompliancePolicy",
     "status": "v1.0",
     "props": [
      "createdDateTime",
@@ -6124,6 +6201,7 @@
    ],
    "docs": "https://learn.microsoft.com/graph/api/resources/simulation",
    "scan": {
+    "of": "microsoft.graph.simulation",
     "status": "v1.0",
     "props": [
      "attackTechnique",
@@ -6184,6 +6262,7 @@
    ],
    "docs": "https://learn.microsoft.com/graph/api/resources/securescorecontrolprofile",
    "scan": {
+    "of": "microsoft.graph.secureScoreControlProfile",
     "status": "v1.0",
     "props": [
      "actionType",
@@ -6244,6 +6323,7 @@
    ],
    "docs": "https://learn.microsoft.com/graph/api/resources/servicehealthissue",
    "scan": {
+    "of": "microsoft.graph.serviceHealthIssue",
     "status": "v1.0",
     "props": [
      "classification",
@@ -6295,6 +6375,7 @@
    ],
    "docs": "https://learn.microsoft.com/graph/api/resources/serviceupdatemessage",
    "scan": {
+    "of": "microsoft.graph.serviceUpdateMessage",
     "status": "v1.0",
     "props": [
      "actionRequiredByDateTime",
@@ -6353,6 +6434,7 @@
    ],
    "docs": "https://learn.microsoft.com/graph/api/resources/provisioningobjectsummary",
    "scan": {
+    "of": "microsoft.graph.provisioningObjectSummary",
     "status": "v1.0",
     "props": [
      "activityDateTime",
@@ -6412,6 +6494,7 @@
    ],
    "docs": "https://learn.microsoft.com/graph/api/resources/authenticationmethodspolicy",
    "scan": {
+    "of": "microsoft.graph.authenticationMethodsPolicy",
     "status": "v1.0",
     "props": [
      "description",
@@ -6465,6 +6548,7 @@
    ],
    "docs": "https://learn.microsoft.com/graph/api/resources/authenticationstrengthpolicy",
    "scan": {
+    "of": "microsoft.graph.authenticationStrengthPolicy",
     "status": "v1.0",
     "props": [
      "allowedCombinations",
@@ -6515,6 +6599,7 @@
    ],
    "docs": "https://learn.microsoft.com/graph/api/resources/sharepointsettings",
    "scan": {
+    "of": "microsoft.graph.sharepointSettings",
     "status": "v1.0",
     "props": [
      "allowedDomainGuidsForSyncApp",
@@ -6816,6 +6901,7 @@
    "tier": "generated",
    "path": "/communications/calls/{id}/addLargeGalleryView",
    "itemPath": "/communications/calls/{id}/addLargeGalleryView",
+   "pathMethod": "POST",
    "altPaths": [],
    "variants": [],
    "ops": {
@@ -11606,6 +11692,7 @@
    "tier": "generated",
    "path": "/communications/calls/{id}/cancelMediaProcessing",
    "itemPath": "/communications/calls/{id}/cancelMediaProcessing",
+   "pathMethod": "POST",
    "altPaths": [],
    "variants": [],
    "ops": {
@@ -21234,6 +21321,7 @@
    "tier": "generated",
    "path": "/connections/{id}/items/{id}/addActivities",
    "itemPath": "/connections/{id}/items/{id}/addActivities",
+   "pathMethod": "POST",
    "altPaths": [],
    "variants": [],
    "ops": {
@@ -24394,14 +24482,21 @@
    },
    "links": 1,
    "permissions": {
-    "delegated": "",
-    "application": ""
+    "delegated": "Domain-InternalFederation.Read.All, Domain-InternalFederation.ReadWrite.All",
+    "application": "Domain-InternalFederation.Read.All, Domain-InternalFederation.ReadWrite.All"
    },
-   "permissionsPath": "/domains/{id}/federationconfiguration/{id}",
+   "permissionsPath": "/domains/{id}/federationconfiguration",
    "docs": "https://learn.microsoft.com/graph/api/resources/internaldomainfederation?view=graph-rest-1.0",
    "workload": "identity",
    "subservice": "tenant-org",
-   "area": "identity"
+   "area": "identity",
+   "permCheck": {
+    "checked": [
+     "Domain-InternalFederation.Read.All",
+     "Domain-InternalFederation.ReadWrite.All"
+    ],
+    "unknown": []
+   }
   },
   {
    "id": "gen-internetExplorerMode",
@@ -24490,6 +24585,7 @@
    "tier": "generated",
    "path": "/communications/calls/{id}/participants/invite",
    "itemPath": "/communications/calls/{id}/participants/invite",
+   "pathMethod": "POST",
    "altPaths": [],
    "variants": [],
    "ops": {
@@ -28204,6 +28300,7 @@
    "tier": "generated",
    "path": "/communications/calls/{id}/mute",
    "itemPath": "/communications/calls/{id}/mute",
+   "pathMethod": "POST",
    "altPaths": [],
    "variants": [],
    "ops": {
@@ -31840,6 +31937,7 @@
    "tier": "generated",
    "path": "/communications/calls/{id}/playPrompt",
    "itemPath": "/communications/calls/{id}/playPrompt",
+   "pathMethod": "POST",
    "altPaths": [],
    "variants": [],
    "ops": {
@@ -33418,6 +33516,7 @@
    "tier": "generated",
    "path": "/solutions/backupRestore/driveInclusionRules/{id}/deleteAndUnprotect",
    "itemPath": "/solutions/backupRestore/driveInclusionRules/{id}/deleteAndUnprotect",
+   "pathMethod": "POST",
    "altPaths": [],
    "variants": [],
    "ops": {
@@ -33461,6 +33560,7 @@
    "tier": "generated",
    "path": "/solutions/backupRestore/driveProtectionUnits/{id}/cancelOffboard",
    "itemPath": "/solutions/backupRestore/driveProtectionUnits/{id}/cancelOffboard",
+   "pathMethod": "POST",
    "altPaths": [],
    "variants": [],
    "ops": {
@@ -33883,6 +33983,7 @@
    "tier": "generated",
    "path": "/communications/calls/{id}/recordResponse",
    "itemPath": "/communications/calls/{id}/recordResponse",
+   "pathMethod": "POST",
    "altPaths": [],
    "variants": [],
    "ops": {
@@ -36191,7 +36292,9 @@
    "path": "/security/threatIntelligence/articleIndicators/{id}/artifact",
    "itemPath": "/security/threatIntelligence/articleIndicators/{id}/artifact",
    "altPaths": [],
-   "variants": [],
+   "variants": [
+    "microsoft.graph.security.unclassifiedArtifact"
+   ],
    "ops": {
     "actions": [],
     "functions": []
@@ -36851,7 +36954,10 @@
    "path": "/security/threatIntelligence/hosts",
    "itemPath": "/security/threatIntelligence/hosts/{id}",
    "altPaths": [],
-   "variants": [],
+   "variants": [
+    "microsoft.graph.security.hostname",
+    "microsoft.graph.security.ipAddress"
+   ],
    "ops": {
     "actions": [],
     "functions": []
@@ -36935,7 +37041,7 @@
      "microsoft.graph.entity"
     ]
    },
-   "links": 4,
+   "links": 2,
    "permissions": {
     "delegated": "ThreatIntelligence.Read.All",
     "application": "ThreatIntelligence.Read.All"
@@ -36984,7 +37090,7 @@
      "microsoft.graph.entity"
     ]
    },
-   "links": 4,
+   "links": 2,
    "permissions": {
     "delegated": "ThreatIntelligence.Read.All",
     "application": "ThreatIntelligence.Read.All"
@@ -37032,7 +37138,7 @@
      "microsoft.graph.entity"
     ]
    },
-   "links": 4,
+   "links": 2,
    "permissions": {
     "delegated": "ThreatIntelligence.Read.All",
     "application": "ThreatIntelligence.Read.All"
@@ -37086,7 +37192,7 @@
      "microsoft.graph.entity"
     ]
    },
-   "links": 5,
+   "links": 3,
    "permissions": null,
    "permissionsPath": null,
    "docs": "https://learn.microsoft.com/graph/api/resources/security-hostport?view=graph-rest-1.0",
@@ -37122,7 +37228,7 @@
      "microsoft.graph.entity"
     ]
    },
-   "links": 3,
+   "links": 1,
    "permissions": {
     "delegated": "ThreatIntelligence.Read.All",
     "application": "ThreatIntelligence.Read.All"
@@ -37171,7 +37277,7 @@
      "microsoft.graph.entity"
     ]
    },
-   "links": 5,
+   "links": 3,
    "permissions": null,
    "permissionsPath": null,
    "docs": "https://learn.microsoft.com/graph/api/resources/security-hostsslcertificate?view=graph-rest-1.0",
@@ -37211,7 +37317,7 @@
      "microsoft.graph.entity"
     ]
    },
-   "links": 4,
+   "links": 2,
    "permissions": {
     "delegated": "ThreatIntelligence.Read.All",
     "application": "ThreatIntelligence.Read.All"
@@ -37227,59 +37333,6 @@
     ],
     "unknown": []
    }
-  },
-  {
-   "id": "gen-security-hostname",
-   "label": "Hostname",
-   "entityType": "microsoft.graph.security.hostname",
-   "tier": "generated",
-   "path": "/security/threatIntelligence/articleIndicators/{id}/artifact",
-   "itemPath": "/security/threatIntelligence/articleIndicators/{id}/artifact",
-   "altPaths": [],
-   "variants": [],
-   "ops": {
-    "actions": [],
-    "functions": []
-   },
-   "scan": {
-    "status": "v1.0",
-    "props": [
-     "firstSeenDateTime",
-     "id",
-     "lastSeenDateTime",
-     "registrant",
-     "registrar"
-    ],
-    "navs": {
-     "childHostPairs": "microsoft.graph.security.hostPair",
-     "components": "microsoft.graph.security.hostComponent",
-     "cookies": "microsoft.graph.security.hostCookie",
-     "hostPairs": "microsoft.graph.security.hostPair",
-     "parentHostPairs": "microsoft.graph.security.hostPair",
-     "passiveDns": "microsoft.graph.security.passiveDnsRecord",
-     "passiveDnsReverse": "microsoft.graph.security.passiveDnsRecord",
-     "ports": "microsoft.graph.security.hostPort",
-     "reputation": "microsoft.graph.security.hostReputation",
-     "sslCertificates": "microsoft.graph.security.hostSslCertificate",
-     "subdomains": "microsoft.graph.security.subdomain",
-     "trackers": "microsoft.graph.security.hostTracker",
-     "whois": "microsoft.graph.security.whoisRecord"
-    },
-    "betaOnlyProps": [],
-    "betaOnlyNavs": [],
-    "baseTypes": [
-     "microsoft.graph.security.host",
-     "microsoft.graph.security.artifact",
-     "microsoft.graph.entity"
-    ]
-   },
-   "links": 10,
-   "permissions": null,
-   "permissionsPath": null,
-   "docs": "https://learn.microsoft.com/graph/api/resources/security-hostname?view=graph-rest-1.0",
-   "workload": "security",
-   "subservice": "threat-intel",
-   "area": "security"
   },
   {
    "id": "gen-security-identityAccounts",
@@ -37504,61 +37557,6 @@
    "area": "security"
   },
   {
-   "id": "gen-security-ipAddress",
-   "label": "Ip address",
-   "entityType": "microsoft.graph.security.ipAddress",
-   "tier": "generated",
-   "path": "/security/threatIntelligence/articleIndicators/{id}/artifact",
-   "itemPath": "/security/threatIntelligence/articleIndicators/{id}/artifact",
-   "altPaths": [],
-   "variants": [],
-   "ops": {
-    "actions": [],
-    "functions": []
-   },
-   "scan": {
-    "status": "v1.0",
-    "props": [
-     "autonomousSystem",
-     "countryOrRegion",
-     "firstSeenDateTime",
-     "hostingProvider",
-     "id",
-     "lastSeenDateTime",
-     "netblock"
-    ],
-    "navs": {
-     "childHostPairs": "microsoft.graph.security.hostPair",
-     "components": "microsoft.graph.security.hostComponent",
-     "cookies": "microsoft.graph.security.hostCookie",
-     "hostPairs": "microsoft.graph.security.hostPair",
-     "parentHostPairs": "microsoft.graph.security.hostPair",
-     "passiveDns": "microsoft.graph.security.passiveDnsRecord",
-     "passiveDnsReverse": "microsoft.graph.security.passiveDnsRecord",
-     "ports": "microsoft.graph.security.hostPort",
-     "reputation": "microsoft.graph.security.hostReputation",
-     "sslCertificates": "microsoft.graph.security.hostSslCertificate",
-     "subdomains": "microsoft.graph.security.subdomain",
-     "trackers": "microsoft.graph.security.hostTracker",
-     "whois": "microsoft.graph.security.whoisRecord"
-    },
-    "betaOnlyProps": [],
-    "betaOnlyNavs": [],
-    "baseTypes": [
-     "microsoft.graph.security.host",
-     "microsoft.graph.security.artifact",
-     "microsoft.graph.entity"
-    ]
-   },
-   "links": 10,
-   "permissions": null,
-   "permissionsPath": null,
-   "docs": "https://learn.microsoft.com/graph/api/resources/security-ipaddress?view=graph-rest-1.0",
-   "workload": "security",
-   "subservice": "threat-intel",
-   "area": "security"
-  },
-  {
    "id": "gen-security-labelsRoot",
    "label": "Labels root",
    "entityType": "microsoft.graph.security.labelsRoot",
@@ -37666,7 +37664,7 @@
      "microsoft.graph.entity"
     ]
    },
-   "links": 5,
+   "links": 3,
    "permissions": {
     "delegated": "ThreatIntelligence.Read.All",
     "application": "ThreatIntelligence.Read.All"
@@ -38020,7 +38018,7 @@
      "microsoft.graph.entity"
     ]
    },
-   "links": 4,
+   "links": 2,
    "permissions": null,
    "permissionsPath": null,
    "docs": "https://learn.microsoft.com/graph/api/resources/security-subdomain?view=graph-rest-1.0",
@@ -38184,42 +38182,6 @@
    "docs": null,
    "workload": "purview",
    "subservice": "records-management",
-   "area": "security"
-  },
-  {
-   "id": "gen-security-unclassifiedArtifact",
-   "label": "Unclassified artifact",
-   "entityType": "microsoft.graph.security.unclassifiedArtifact",
-   "tier": "generated",
-   "path": "/security/threatIntelligence/articleIndicators/{id}/artifact",
-   "itemPath": "/security/threatIntelligence/articleIndicators/{id}/artifact",
-   "altPaths": [],
-   "variants": [],
-   "ops": {
-    "actions": [],
-    "functions": []
-   },
-   "scan": {
-    "status": "v1.0",
-    "props": [
-     "id",
-     "kind",
-     "value"
-    ],
-    "navs": {},
-    "betaOnlyProps": [],
-    "betaOnlyNavs": [],
-    "baseTypes": [
-     "microsoft.graph.security.artifact",
-     "microsoft.graph.entity"
-    ]
-   },
-   "links": 0,
-   "permissions": null,
-   "permissionsPath": null,
-   "docs": "https://learn.microsoft.com/graph/api/resources/security-unclassifiedartifact?view=graph-rest-1.0",
-   "workload": "security",
-   "subservice": "threat-intel",
    "area": "security"
   },
   {
@@ -38476,7 +38438,7 @@
      "microsoft.graph.entity"
     ]
    },
-   "links": 5,
+   "links": 3,
    "permissions": null,
    "permissionsPath": null,
    "docs": "https://learn.microsoft.com/graph/api/resources/security-whoisrecord?view=graph-rest-1.0",
@@ -38528,6 +38490,7 @@
    "tier": "generated",
    "path": "/communications/calls/{id}/sendDtmfTones",
    "itemPath": "/communications/calls/{id}/sendDtmfTones",
+   "pathMethod": "POST",
    "altPaths": [],
    "variants": [],
    "ops": {
@@ -40260,6 +40223,7 @@
    "tier": "generated",
    "path": "/communications/calls/{id}/participants/{id}/startHoldMusic",
    "itemPath": "/communications/calls/{id}/participants/{id}/startHoldMusic",
+   "pathMethod": "POST",
    "altPaths": [],
    "variants": [],
    "ops": {
@@ -40297,6 +40261,7 @@
    "tier": "generated",
    "path": "/communications/calls/{id}/participants/{id}/stopHoldMusic",
    "itemPath": "/communications/calls/{id}/participants/{id}/stopHoldMusic",
+   "pathMethod": "POST",
    "altPaths": [],
    "variants": [],
    "ops": {
@@ -40437,6 +40402,7 @@
    "tier": "generated",
    "path": "/communications/calls/{id}/subscribeToTone",
    "itemPath": "/communications/calls/{id}/subscribeToTone",
+   "pathMethod": "POST",
    "altPaths": [],
    "variants": [],
    "ops": {
@@ -44362,6 +44328,7 @@
    "tier": "generated",
    "path": "/communications/calls/{id}/unmute",
    "itemPath": "/communications/calls/{id}/unmute",
+   "pathMethod": "POST",
    "altPaths": [],
    "variants": [],
    "ops": {
@@ -44399,6 +44366,7 @@
    "tier": "generated",
    "path": "/communications/calls/{id}/updateRecordingStatus",
    "itemPath": "/communications/calls/{id}/updateRecordingStatus",
+   "pathMethod": "POST",
    "altPaths": [],
    "variants": [],
    "ops": {
@@ -47180,6 +47148,7 @@
    "tier": "generated",
    "path": "/identity/conditionalAccess/evaluate",
    "itemPath": "/identity/conditionalAccess/evaluate",
+   "pathMethod": "POST",
    "altPaths": [],
    "variants": [],
    "ops": {
@@ -49288,6 +49257,7 @@
    "tier": "generated",
    "path": "/drive/bundles/{id}/workbook/functions/abs",
    "itemPath": "/drive/bundles/{id}/workbook/functions/abs",
+   "pathMethod": "POST",
    "altPaths": [],
    "variants": [],
    "ops": {
@@ -55192,6 +55162,7 @@
    "tier": "generated",
    "path": "/solutions/businessScenarios/{id}/planner/getPlan",
    "itemPath": "/solutions/businessScenarios/{id}/planner/getPlan",
+   "pathMethod": "POST",
    "altPaths": [],
    "variants": [],
    "ops": {
@@ -55443,45 +55414,6 @@
     ],
     "unknown": []
    }
-  },
-  {
-   "id": "gen-categoryDefinition",
-   "label": "Category definition",
-   "entityType": "microsoft.graph.categoryDefinition",
-   "tier": "generated",
-   "path": "/me/planner/delta",
-   "itemPath": "/me/planner/delta",
-   "altPaths": [],
-   "variants": [],
-   "ops": {
-    "actions": [],
-    "functions": [
-     "delta"
-    ]
-   },
-   "scan": {
-    "status": "beta only",
-    "props": [],
-    "navs": {},
-    "betaOnlyProps": [
-     "capabilities",
-     "displayName",
-     "extensions",
-     "id"
-    ],
-    "betaOnlyNavs": [],
-    "baseTypes": [
-     "microsoft.graph.plannerDelta",
-     "microsoft.graph.entity"
-    ]
-   },
-   "links": 0,
-   "permissions": null,
-   "permissionsPath": null,
-   "docs": null,
-   "workload": "identity",
-   "subservice": "users-groups",
-   "area": "users"
   },
   {
    "id": "gen-certificateAuthorityAsEntity",
@@ -55781,58 +55713,17 @@
    }
   },
   {
-   "id": "gen-classificationGradingJobResponse",
-   "label": "Classification grading job response",
-   "entityType": "microsoft.graph.classificationGradingJobResponse",
-   "tier": "generated",
-   "path": "/dataClassification/classifyFile",
-   "itemPath": "/dataClassification/classifyFile",
-   "altPaths": [],
-   "variants": [],
-   "ops": {
-    "actions": [],
-    "functions": []
-   },
-   "scan": {
-    "status": "beta only",
-    "props": [],
-    "navs": {},
-    "betaOnlyProps": [
-     "creationDateTime",
-     "endDateTime",
-     "error",
-     "id",
-     "result",
-     "startDateTime",
-     "status",
-     "tenantId",
-     "type",
-     "userId"
-    ],
-    "betaOnlyNavs": [],
-    "baseTypes": [
-     "microsoft.graph.classificationJobResponse",
-     "microsoft.graph.jobResponseBase",
-     "microsoft.graph.entity"
-    ]
-   },
-   "links": 0,
-   "permissions": null,
-   "permissionsPath": null,
-   "docs": null,
-   "workload": "purview",
-   "subservice": "information-protection",
-   "area": "dataClassification"
-  },
-  {
    "id": "gen-classificationJobResponse",
    "label": "Classification job response",
    "entityType": "microsoft.graph.classificationJobResponse",
    "tier": "generated",
    "path": "/dataClassification/classifyFile",
    "itemPath": "/dataClassification/classifyFile",
+   "pathMethod": "POST",
    "altPaths": [],
-   "variants": [],
+   "variants": [
+    "microsoft.graph.classificationGradingJobResponse"
+   ],
    "ops": {
     "actions": [],
     "functions": []
@@ -56076,6 +55967,7 @@
    "tier": "generated",
    "path": "/deviceManagement/cloudCertificationAuthority/{id}/getCloudCertificationAuthorityVersion",
    "itemPath": "/deviceManagement/cloudCertificationAuthority/{id}/getCloudCertificationAuthorityVersion",
+   "pathMethod": "POST",
    "altPaths": [],
    "variants": [],
    "ops": {
@@ -56967,14 +56859,20 @@
    },
    "links": 1,
    "permissions": {
-    "delegated": "",
-    "application": ""
+    "delegated": "CloudPC.Read.All",
+    "application": "CloudPC.Read.All"
    },
-   "permissionsPath": "/users/{id}/cloudpcpools/{id}",
+   "permissionsPath": "/devicemanagement/virtualendpoint/cloudpcpools/{id}",
    "docs": null,
    "workload": "identity",
    "subservice": "users-groups",
-   "area": "users"
+   "area": "users",
+   "permCheck": {
+    "checked": [
+     "CloudPC.Read.All"
+    ],
+    "unknown": []
+   }
   },
   {
    "id": "gen-cloudPcPoolAssignment",
@@ -59228,44 +59126,6 @@
    "area": "roleManagement"
   },
   {
-   "id": "gen-customChoiceOption",
-   "label": "Custom choice option",
-   "entityType": "microsoft.graph.customChoiceOption",
-   "tier": "generated",
-   "path": "/me/planner/delta",
-   "itemPath": "/me/planner/delta",
-   "altPaths": [],
-   "variants": [],
-   "ops": {
-    "actions": [],
-    "functions": [
-     "delta"
-    ]
-   },
-   "scan": {
-    "status": "beta only",
-    "props": [],
-    "navs": {},
-    "betaOnlyProps": [
-     "displayName",
-     "extensions",
-     "id"
-    ],
-    "betaOnlyNavs": [],
-    "baseTypes": [
-     "microsoft.graph.plannerDelta",
-     "microsoft.graph.entity"
-    ]
-   },
-   "links": 1,
-   "permissions": null,
-   "permissionsPath": null,
-   "docs": null,
-   "workload": "identity",
-   "subservice": "users-groups",
-   "area": "users"
-  },
-  {
    "id": "gen-customClaimsPolicy",
    "label": "Custom claims policy",
    "entityType": "microsoft.graph.customClaimsPolicy",
@@ -59350,55 +59210,6 @@
    "workload": "governance",
    "subservice": "entitlement-management",
    "area": "identityGovernance"
-  },
-  {
-   "id": "gen-customFieldDefinition",
-   "label": "Custom field definition",
-   "entityType": "microsoft.graph.customFieldDefinition",
-   "tier": "generated",
-   "path": "/me/planner/delta",
-   "itemPath": "/me/planner/delta",
-   "altPaths": [],
-   "variants": [],
-   "ops": {
-    "actions": [],
-    "functions": [
-     "delta"
-    ]
-   },
-   "scan": {
-    "status": "beta only",
-    "props": [],
-    "navs": {},
-    "betaOnlyProps": [
-     "archivalInfo",
-     "createdBy",
-     "createdDateTime",
-     "deletedBy",
-     "deletedDateTime",
-     "displayName",
-     "id",
-     "lastModifiedBy",
-     "lastModifiedDateTime",
-     "planId",
-     "rollupType",
-     "valueType"
-    ],
-    "betaOnlyNavs": [
-     "choiceOptions"
-    ],
-    "baseTypes": [
-     "microsoft.graph.plannerDelta",
-     "microsoft.graph.entity"
-    ]
-   },
-   "links": 2,
-   "permissions": null,
-   "permissionsPath": null,
-   "docs": null,
-   "workload": "tasks",
-   "subservice": "planner",
-   "area": "planner"
   },
   {
    "id": "gen-customFieldValue",
@@ -60402,50 +60213,6 @@
    "workload": "devices",
    "subservice": "intune-admin",
    "area": "deviceManagement"
-  },
-  {
-   "id": "gen-dependency",
-   "label": "Dependency",
-   "entityType": "microsoft.graph.dependency",
-   "tier": "generated",
-   "path": "/me/planner/delta",
-   "itemPath": "/me/planner/delta",
-   "altPaths": [],
-   "variants": [],
-   "ops": {
-    "actions": [],
-    "functions": [
-     "delta"
-    ]
-   },
-   "scan": {
-    "status": "beta only",
-    "props": [],
-    "navs": {},
-    "betaOnlyProps": [
-     "archivalInfo",
-     "constraint",
-     "creationInfo",
-     "extensions",
-     "id",
-     "lastModifiedBy",
-     "lastModifiedDateTime",
-     "sourceItemId",
-     "targetItemId"
-    ],
-    "betaOnlyNavs": [],
-    "baseTypes": [
-     "microsoft.graph.plannerDelta",
-     "microsoft.graph.entity"
-    ]
-   },
-   "links": 1,
-   "permissions": null,
-   "permissionsPath": null,
-   "docs": null,
-   "workload": "tasks",
-   "subservice": "planner",
-   "area": "planner"
   },
   {
    "id": "gen-deviceAndAppManagementAssignmentFilter",
@@ -63713,6 +63480,7 @@
    "tier": "generated",
    "path": "/informationProtection/dataLossPreventionPolicies/evaluate",
    "itemPath": "/informationProtection/dataLossPreventionPolicies/evaluate",
+   "pathMethod": "POST",
    "altPaths": [],
    "variants": [],
    "ops": {
@@ -65668,6 +65436,7 @@
    "tier": "generated",
    "path": "/dataClassification/sensitivityLabels/evaluate",
    "itemPath": "/dataClassification/sensitivityLabels/evaluate",
+   "pathMethod": "POST",
    "altPaths": [],
    "variants": [],
    "ops": {
@@ -66908,58 +66677,6 @@
     ],
     "unknown": []
    }
-  },
-  {
-   "id": "gen-goal",
-   "label": "Goal",
-   "entityType": "microsoft.graph.goal",
-   "tier": "generated",
-   "path": "/me/planner/delta",
-   "itemPath": "/me/planner/delta",
-   "altPaths": [],
-   "variants": [],
-   "ops": {
-    "actions": [],
-    "functions": [
-     "delta"
-    ]
-   },
-   "scan": {
-    "status": "beta only",
-    "props": [],
-    "navs": {},
-    "betaOnlyProps": [
-     "archivalInfo",
-     "capabilities",
-     "createdBy",
-     "createdDateTime",
-     "displayName",
-     "extensions",
-     "finishDate",
-     "id",
-     "lastModifiedBy",
-     "lastModifiedDateTime",
-     "notes",
-     "planId",
-     "priority",
-     "startDate",
-     "status"
-    ],
-    "betaOnlyNavs": [
-     "tasks"
-    ],
-    "baseTypes": [
-     "microsoft.graph.plannerDelta",
-     "microsoft.graph.entity"
-    ]
-   },
-   "links": 2,
-   "permissions": null,
-   "permissionsPath": null,
-   "docs": null,
-   "workload": "tasks",
-   "subservice": "planner",
-   "area": "planner"
   },
   {
    "id": "gen-goals",
@@ -68736,50 +68453,6 @@
    "area": "reports"
   },
   {
-   "id": "gen-historyItem",
-   "label": "History item",
-   "entityType": "microsoft.graph.historyItem",
-   "tier": "generated",
-   "path": "/me/planner/delta",
-   "itemPath": "/me/planner/delta",
-   "altPaths": [],
-   "variants": [],
-   "ops": {
-    "actions": [],
-    "functions": [
-     "delta"
-    ]
-   },
-   "scan": {
-    "status": "beta only",
-    "props": [],
-    "navs": {},
-    "betaOnlyProps": [
-     "actor",
-     "entityId",
-     "entityType",
-     "eventType",
-     "id",
-     "newData",
-     "occurredDateTime",
-     "oldData",
-     "planId"
-    ],
-    "betaOnlyNavs": [],
-    "baseTypes": [
-     "microsoft.graph.plannerDelta",
-     "microsoft.graph.entity"
-    ]
-   },
-   "links": 1,
-   "permissions": null,
-   "permissionsPath": null,
-   "docs": null,
-   "workload": "tasks",
-   "subservice": "planner",
-   "area": "planner"
-  },
-  {
    "id": "gen-hostSecurityProfile",
    "label": "Host security profile",
    "entityType": "microsoft.graph.hostSecurityProfile",
@@ -69164,6 +68837,7 @@
    "tier": "generated",
    "path": "/deviceManagement/depOnboardingSettings/{id}/importedAppleDeviceIdentities/importAppleDeviceIdentityList",
    "itemPath": "/deviceManagement/depOnboardingSettings/{id}/importedAppleDeviceIdentities/importAppleDeviceIdentityList",
+   "pathMethod": "POST",
    "altPaths": [],
    "variants": [],
    "ops": {
@@ -69266,6 +68940,7 @@
    "tier": "generated",
    "path": "/deviceManagement/importedDeviceIdentities/importDeviceIdentityList",
    "itemPath": "/deviceManagement/importedDeviceIdentities/importDeviceIdentityList",
+   "pathMethod": "POST",
    "altPaths": [],
    "variants": [],
    "ops": {
@@ -69429,92 +69104,6 @@
    }
   },
   {
-   "id": "gen-industryData-inboundApiFlow",
-   "label": "Inbound API flow",
-   "entityType": "microsoft.graph.industryData.inboundApiFlow",
-   "tier": "generated",
-   "path": "/external/industryData/runs/{id}/activities/{id}/activity",
-   "itemPath": "/external/industryData/runs/{id}/activities/{id}/activity",
-   "altPaths": [],
-   "variants": [],
-   "ops": {
-    "actions": [],
-    "functions": []
-   },
-   "scan": {
-    "status": "beta only",
-    "props": [],
-    "navs": {},
-    "betaOnlyProps": [
-     "dataDomain",
-     "displayName",
-     "effectiveDateTime",
-     "expirationDateTime",
-     "id",
-     "readinessStatus"
-    ],
-    "betaOnlyNavs": [
-     "dataConnector",
-     "year"
-    ],
-    "baseTypes": [
-     "microsoft.graph.industryData.inboundFlow",
-     "microsoft.graph.industryData.industryDataActivity",
-     "microsoft.graph.entity"
-    ]
-   },
-   "links": 2,
-   "permissions": null,
-   "permissionsPath": null,
-   "docs": null,
-   "workload": "ai",
-   "subservice": "connectors-search",
-   "area": "external"
-  },
-  {
-   "id": "gen-industryData-inboundFileFlow",
-   "label": "Inbound file flow",
-   "entityType": "microsoft.graph.industryData.inboundFileFlow",
-   "tier": "generated",
-   "path": "/external/industryData/runs/{id}/activities/{id}/activity",
-   "itemPath": "/external/industryData/runs/{id}/activities/{id}/activity",
-   "altPaths": [],
-   "variants": [],
-   "ops": {
-    "actions": [],
-    "functions": []
-   },
-   "scan": {
-    "status": "beta only",
-    "props": [],
-    "navs": {},
-    "betaOnlyProps": [
-     "dataDomain",
-     "displayName",
-     "effectiveDateTime",
-     "expirationDateTime",
-     "id",
-     "readinessStatus"
-    ],
-    "betaOnlyNavs": [
-     "dataConnector",
-     "year"
-    ],
-    "baseTypes": [
-     "microsoft.graph.industryData.inboundFlow",
-     "microsoft.graph.industryData.industryDataActivity",
-     "microsoft.graph.entity"
-    ]
-   },
-   "links": 2,
-   "permissions": null,
-   "permissionsPath": null,
-   "docs": null,
-   "workload": "ai",
-   "subservice": "connectors-search",
-   "area": "external"
-  },
-  {
    "id": "gen-industryData-inboundFlow",
    "label": "Inbound flow",
    "entityType": "microsoft.graph.industryData.inboundFlow",
@@ -69522,7 +69111,10 @@
    "path": "/external/industryData/inboundFlows",
    "itemPath": "/external/industryData/inboundFlows/{id}",
    "altPaths": [],
-   "variants": [],
+   "variants": [
+    "microsoft.graph.industryData.inboundApiFlow",
+    "microsoft.graph.industryData.inboundFileFlow"
+   ],
    "ops": {
     "actions": [],
     "functions": []
@@ -69636,7 +69228,7 @@
      "microsoft.graph.entity"
     ]
    },
-   "links": 5,
+   "links": 3,
    "permissions": {
     "delegated": "IndustryData-DataConnector.Read.All, IndustryData-DataConnector.ReadWrite.All",
     "application": "IndustryData-DataConnector.Read.All, IndustryData-DataConnector.ReadWrite.All"
@@ -70052,7 +69644,7 @@
      "microsoft.graph.entity"
     ]
    },
-   "links": 4,
+   "links": 2,
    "permissions": {
     "delegated": "IndustryData-TimePeriod.Read.All, IndustryData-TimePeriod.ReadWrite.All",
     "application": "IndustryData-TimePeriod.Read.All, IndustryData-TimePeriod.ReadWrite.All"
@@ -75690,6 +75282,7 @@
    "tier": "generated",
    "path": "/app/calls/{id}/participants/muteAll",
    "itemPath": "/app/calls/{id}/participants/muteAll",
+   "pathMethod": "POST",
    "altPaths": [],
    "variants": [],
    "ops": {
@@ -80613,7 +80206,7 @@
      "microsoft.graph.entity"
     ]
    },
-   "links": 9,
+   "links": 6,
    "permissions": {
     "delegated": "Tasks.Read",
     "application": "Tasks.Read.All"
@@ -80742,7 +80335,14 @@
    "path": "/me/planner/delta",
    "itemPath": "/me/planner/delta",
    "altPaths": [],
-   "variants": [],
+   "variants": [
+    "microsoft.graph.categoryDefinition",
+    "microsoft.graph.customChoiceOption",
+    "microsoft.graph.customFieldDefinition",
+    "microsoft.graph.dependency",
+    "microsoft.graph.goal",
+    "microsoft.graph.historyItem"
+   ],
    "ops": {
     "actions": [],
     "functions": [
@@ -80761,7 +80361,7 @@
      "microsoft.graph.entity"
     ]
    },
-   "links": 0,
+   "links": 1,
    "permissions": null,
    "permissionsPath": null,
    "docs": null,
@@ -80838,7 +80438,9 @@
     "/groups/{id}/team/channels/{id}/planner/plans/{id}/historyItems",
     "/teamTemplateDefinition/{id}/teamDefinition/channels/{id}/planner/plans/{id}/historyItems"
    ],
-   "variants": [],
+   "variants": [
+    "microsoft.graph.taskHistoryItem"
+   ],
    "ops": {
     "actions": [],
     "functions": [
@@ -85095,7 +84697,9 @@
    "path": "/security/dataDiscovery/cloudAppDiscovery/uploadedStreams/{id}/aggregatedAppsDetails",
    "itemPath": "/security/dataDiscovery/cloudAppDiscovery/uploadedStreams/{id}/aggregatedAppsDetails",
    "altPaths": [],
-   "variants": [],
+   "variants": [
+    "microsoft.graph.security.endpointDiscoveredCloudAppDetail"
+   ],
    "ops": {
     "actions": [],
     "functions": []
@@ -85169,7 +84773,7 @@
     "betaOnlyNavs": [],
     "baseTypes": []
    },
-   "links": 1,
+   "links": 0,
    "permissions": null,
    "permissionsPath": null,
    "docs": null,
@@ -85200,7 +84804,7 @@
     "betaOnlyNavs": [],
     "baseTypes": []
    },
-   "links": 2,
+   "links": 1,
    "permissions": null,
    "permissionsPath": null,
    "docs": null,
@@ -85316,7 +84920,7 @@
      "microsoft.graph.entity"
     ]
    },
-   "links": 2,
+   "links": 1,
    "permissions": null,
    "permissionsPath": null,
    "docs": null,
@@ -85347,7 +84951,7 @@
     "betaOnlyNavs": [],
     "baseTypes": []
    },
-   "links": 2,
+   "links": 1,
    "permissions": null,
    "permissionsPath": null,
    "docs": null,
@@ -85962,68 +85566,6 @@
     "checked": [
      "ThreatSubmission.Read.All",
      "ThreatSubmissionPolicy.ReadWrite.All"
-    ],
-    "unknown": []
-   }
-  },
-  {
-   "id": "gen-security-endpointDiscoveredCloudAppDetail",
-   "label": "Endpoint discovered Cloud app detail",
-   "entityType": "microsoft.graph.security.endpointDiscoveredCloudAppDetail",
-   "tier": "generated",
-   "path": "/security/dataDiscovery/cloudAppDiscovery/uploadedStreams/{id}/aggregatedAppsDetails",
-   "itemPath": "/security/dataDiscovery/cloudAppDiscovery/uploadedStreams/{id}/aggregatedAppsDetails",
-   "altPaths": [],
-   "variants": [],
-   "ops": {
-    "actions": [],
-    "functions": []
-   },
-   "scan": {
-    "status": "beta only",
-    "props": [],
-    "navs": {},
-    "betaOnlyProps": [
-     "category",
-     "description",
-     "deviceCount",
-     "displayName",
-     "domains",
-     "downloadNetworkTrafficInBytes",
-     "firstSeenDateTime",
-     "id",
-     "ipAddressCount",
-     "lastSeenDateTime",
-     "riskScore",
-     "tags",
-     "transactionCount",
-     "uploadNetworkTrafficInBytes",
-     "userCount"
-    ],
-    "betaOnlyNavs": [
-     "appInfo",
-     "devices",
-     "ipAddresses",
-     "users"
-    ],
-    "baseTypes": [
-     "microsoft.graph.security.discoveredCloudAppDetail",
-     "microsoft.graph.entity"
-    ]
-   },
-   "links": 4,
-   "permissions": {
-    "delegated": "CloudApp-Discovery.Read.All",
-    "application": "CloudApp-Discovery.Read.All"
-   },
-   "permissionsPath": "/security/datadiscovery/cloudappdiscovery/uploadedstreams/{id}/aggregatedappsdetails",
-   "docs": null,
-   "workload": "security",
-   "subservice": "hunting-posture",
-   "area": "security",
-   "permCheck": {
-    "checked": [
-     "CloudApp-Discovery.Read.All"
     ],
     "unknown": []
    }
@@ -88567,6 +88109,7 @@
    "tier": "generated",
    "path": "/app/calls/{id}/startRecording",
    "itemPath": "/app/calls/{id}/startRecording",
+   "pathMethod": "POST",
    "altPaths": [],
    "variants": [],
    "ops": {
@@ -88604,6 +88147,7 @@
    "tier": "generated",
    "path": "/app/calls/{id}/startTranscription",
    "itemPath": "/app/calls/{id}/startTranscription",
+   "pathMethod": "POST",
    "altPaths": [],
    "variants": [],
    "ops": {
@@ -88641,6 +88185,7 @@
    "tier": "generated",
    "path": "/app/calls/{id}/stopRecording",
    "itemPath": "/app/calls/{id}/stopRecording",
+   "pathMethod": "POST",
    "altPaths": [],
    "variants": [],
    "ops": {
@@ -88678,6 +88223,7 @@
    "tier": "generated",
    "path": "/app/calls/{id}/stopTranscription",
    "itemPath": "/app/calls/{id}/stopTranscription",
+   "pathMethod": "POST",
    "altPaths": [],
    "variants": [],
    "ops": {
@@ -89081,7 +88627,7 @@
      "microsoft.graph.entity"
     ]
    },
-   "links": 7,
+   "links": 6,
    "permissions": {
     "delegated": "Tasks.Read",
     "application": "Tasks.Read.All"
@@ -89098,51 +88644,6 @@
     ],
     "unknown": []
    }
-  },
-  {
-   "id": "gen-taskHistoryItem",
-   "label": "Task history item",
-   "entityType": "microsoft.graph.taskHistoryItem",
-   "tier": "generated",
-   "path": "/me/planner/delta",
-   "itemPath": "/me/planner/delta",
-   "altPaths": [],
-   "variants": [],
-   "ops": {
-    "actions": [],
-    "functions": [
-     "delta"
-    ]
-   },
-   "scan": {
-    "status": "beta only",
-    "props": [],
-    "navs": {},
-    "betaOnlyProps": [
-     "actor",
-     "entityId",
-     "entityType",
-     "eventType",
-     "id",
-     "newData",
-     "occurredDateTime",
-     "oldData",
-     "planId"
-    ],
-    "betaOnlyNavs": [],
-    "baseTypes": [
-     "microsoft.graph.plannerHistoryItem",
-     "microsoft.graph.plannerDelta",
-     "microsoft.graph.entity"
-    ]
-   },
-   "links": 0,
-   "permissions": null,
-   "permissionsPath": null,
-   "docs": null,
-   "workload": "tasks",
-   "subservice": "planner",
-   "area": "planner"
   },
   {
    "id": "gen-taxArea",
@@ -98963,6 +98464,9 @@
    "text": "First schema scan. Results recorded as the baseline."
   }
  ],
+ "changedNodes": {
+  "agentIdentity": "2026-11-23"
+ },
  "state": {
   "permissionNames": [
    "APIConnectors.Read.All",
@@ -100013,7 +99517,7 @@
   }
  },
  "coverage": {
-  "at": "2026-11-28T15:26:23+00:00",
+  "at": "2026-11-28T17:17:31+00:00",
   "v1Types": 1264,
   "betaOnlyTypes": 1369,
   "onMap": 1264,
@@ -101010,7 +100514,7 @@
     "workload": "identity",
     "onMap": 208,
     "curated": 14,
-    "betaOnly": 190
+    "betaOnly": 194
    },
    {
     "workload": "governance",
@@ -101052,7 +100556,7 @@
     "workload": "tasks",
     "onMap": 20,
     "curated": 4,
-    "betaOnly": 20
+    "betaOnly": 16
    },
    {
     "workload": "solutions",

@@ -1,5 +1,5 @@
 {
- "at": "2026-11-28T15:26:23+00:00",
+ "at": "2026-11-28T17:17:31+00:00",
  "v1Types": 1264,
  "betaOnlyTypes": 1369,
  "onMap": 1264,
@@ -2577,7 +2577,7 @@
    "workload": "identity",
    "onMap": 208,
    "curated": 14,
-   "betaOnly": 190
+   "betaOnly": 194
   },
   {
    "workload": "governance",
@@ -2619,7 +2619,7 @@
    "workload": "tasks",
    "onMap": 20,
    "curated": 4,
-   "betaOnly": 20
+   "betaOnly": 16
   },
   {
    "workload": "solutions",
