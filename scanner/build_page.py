@@ -6,7 +6,8 @@ SharePoint page, Claude artifact, a file opened from disk) with no API calls.
 
 Before embedding, the sub-service structure is checked (see subservice_problems).
 The build fails on any problem, so the expanding ring never has a branch with
-nothing in it or a node it can't place. Pass --allow-unsorted to build anyway
+nothing in it or a node it can't place. The one exception is a workload marked "planned": true, a
+service added before its APIs are mapped, whose sub-services may still be empty. Pass --allow-unsorted to build anyway
 when the only problem is nodes with no sub-service yet: the page then shows them
 under a temporary "Unsorted" sub-service until a person files them.
 
@@ -28,8 +29,10 @@ def subservice_problems(graph_map: dict) -> tuple[list, list]:
     """Returns (errors, unsorted). errors are readable strings; unsorted lists the ids of nodes with no
     sub-service at all, which --allow-unsorted tolerates."""
     errors, unsorted = [], []
-    subs = {}
+    subs, planned = {}, set()
     for w in graph_map.get("workloads", []):
+        if w.get("planned"):
+            planned.add(w["id"])
         seen = set()
         for s in w.get("subservices") or []:
             sid = s.get("id")
@@ -51,6 +54,8 @@ def subservice_problems(graph_map: dict) -> tuple[list, list]:
         else:
             used.add((n["workload"], ss))
     for wid, seen in subs.items():
+        if wid in planned:   # a planned service shows its sub-services before anything is mapped in them
+            continue
         for sid in sorted(seen - {None}):
             if (wid, sid) not in used:
                 errors.append(f"{wid}: sub-service '{sid}' has no nodes")

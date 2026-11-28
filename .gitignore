@@ -6,3 +6,4 @@ function_app/scanner/
 function_app/data/
 function_app/web/
 *.tmp
+.claude/

@@ -1,11 +1,11 @@
 {
  "meta": {
   "title": "M365 Graph Cartographer (MGC)",
-  "curatedVersion": "0.5.0",
-  "curatedOn": "2026-11-16",
+  "curatedVersion": "0.6.0",
+  "curatedOn": "2026-11-28",
   "phase": "Purview covered in depth from 0.3.0: information protection, records, eDiscovery, audit, privacy and the data security API, with what Graph does not cover.",
   "note": "Hand-written content lives here. The scanner never edits this file; it writes graph-map.json alongside it.",
-  "generatedAt": "2026-11-23T16:17:05+00:00",
+  "generatedAt": "2026-11-28T12:15:03+00:00",
   "scan": {
    "at": "2026-11-23T16:17:05+00:00",
    "v1EntityTypes": 1264,
@@ -76,6 +76,39 @@
     {
      "id": "lifecycle-consent",
      "label": "Lifecycle & consent"
+    }
+   ]
+  },
+  {
+   "id": "policies",
+   "label": "Policies",
+   "short": "Policies",
+   "colour": "#368fa1",
+   "family": "identity",
+   "planned": true,
+   "summary": "Tenant-wide Entra policies under /policies and /identity/conditionalAccess: Conditional Access, authentication methods and strengths, cross-tenant access, app and consent policies, and token and sign-in policies.",
+   "limits": [],
+   "docs": "https://learn.microsoft.com/graph/api/resources/policyroot?view=graph-rest-1.0",
+   "subservices": [
+    {
+     "id": "conditional-access",
+     "label": "Conditional Access"
+    },
+    {
+     "id": "authentication",
+     "label": "Authentication methods & strengths"
+    },
+    {
+     "id": "cross-tenant",
+     "label": "Cross-tenant access"
+    },
+    {
+     "id": "app-consent",
+     "label": "App & consent policies"
+    },
+    {
+     "id": "token-sign-in",
+     "label": "Token & sign-in policies"
     }
    ]
   },
@@ -164,6 +197,37 @@
    ]
   },
   {
+   "id": "communications",
+   "label": "Communications",
+   "short": "Comms",
+   "colour": "#5a642b",
+   "family": "collaboration",
+   "planned": true,
+   "summary": "Cloud communications under /communications: calls and call records, online meetings with their recordings, transcripts and attendance, and presence.",
+   "limits": [
+    "You may not use the cloud communications APIs to record or otherwise persist media content from calls or meetings that your application accesses (checked on Microsoft Learn, 28 Nov 2026)."
+   ],
+   "docs": "https://learn.microsoft.com/graph/api/resources/communications-api-overview?view=graph-rest-1.0",
+   "subservices": [
+    {
+     "id": "calls-records",
+     "label": "Calls & call records"
+    },
+    {
+     "id": "online-meetings",
+     "label": "Online meetings"
+    },
+    {
+     "id": "presence",
+     "label": "Presence"
+    },
+    {
+     "id": "meeting-conversations",
+     "label": "Meeting conversations"
+    }
+   ]
+  },
+  {
    "id": "tasks",
    "label": "Tasks & planning",
    "colour": "#7f8f2a",
@@ -183,6 +247,103 @@
     {
      "id": "to-do",
      "label": "To Do"
+    }
+   ]
+  },
+  {
+   "id": "solutions",
+   "label": "Solutions",
+   "short": "Solutions",
+   "colour": "#2e6b69",
+   "family": "collaboration",
+   "planned": true,
+   "summary": "Business solutions under /solutions: Microsoft Bookings, Microsoft 365 Backup, virtual events (webinars and town halls) and cross-tenant migration.",
+   "limits": [],
+   "docs": "https://learn.microsoft.com/graph/api/resources/solutionsroot?view=graph-rest-1.0",
+   "subservices": [
+    {
+     "id": "bookings",
+     "label": "Bookings"
+    },
+    {
+     "id": "backup",
+     "label": "Backup & restore"
+    },
+    {
+     "id": "virtual-events",
+     "label": "Virtual events"
+    },
+    {
+     "id": "migrations",
+     "label": "Cross-tenant migration"
+    }
+   ]
+  },
+  {
+   "id": "education",
+   "label": "Education",
+   "short": "Education",
+   "colour": "#089b4d",
+   "family": "collaboration",
+   "planned": true,
+   "summary": "Education data under /education: schools, classes and education users from School Data Sync, assignments and submissions, and Reflect and Reading Coach reports.",
+   "limits": [],
+   "docs": "https://learn.microsoft.com/graph/api/resources/education-overview?view=graph-rest-1.0",
+   "subservices": [
+    {
+     "id": "schools-classes",
+     "label": "Schools & classes"
+    },
+    {
+     "id": "education-users",
+     "label": "Education users"
+    },
+    {
+     "id": "assignments",
+     "label": "Assignments & submissions"
+    },
+    {
+     "id": "grading",
+     "label": "Rubrics & grading"
+    },
+    {
+     "id": "education-reports",
+     "label": "Reflect & Reading Coach"
+    }
+   ]
+  },
+  {
+   "id": "admin",
+   "label": "Admin & service health",
+   "short": "Admin",
+   "colour": "#b37a0f",
+   "family": "security",
+   "planned": true,
+   "summary": "Microsoft 365 admin settings under /admin: service health and Message centre, configuration monitoring (baselines and drift), Exchange, SharePoint and Teams admin settings, Microsoft 365 Apps and Edge, and people settings.",
+   "limits": [
+    "Delegated callers of the service communications API need an admin role (checked on Microsoft Learn, 28 Nov 2026)."
+   ],
+   "docs": "https://learn.microsoft.com/graph/api/resources/service-communications-api-overview?view=graph-rest-1.0",
+   "subservices": [
+    {
+     "id": "service-health",
+     "label": "Service health & Message centre"
+    },
+    {
+     "id": "configuration-monitoring",
+     "label": "Configuration monitoring"
+    },
+    {
+     "id": "product-admin",
+     "label": "Exchange, SharePoint & Teams admin"
+    },
+    {
+     "id": "apps-browser",
+     "label": "Microsoft 365 Apps & Edge"
+    },
+    {
+     "id": "people-settings",
+     "label": "People & report settings"
     }
    ]
   },
@@ -229,6 +390,45 @@
     {
      "id": "hunting-posture",
      "label": "Hunting & posture"
+    }
+   ]
+  },
+  {
+   "id": "devices",
+   "label": "Devices (Intune)",
+   "short": "Devices",
+   "colour": "#d42a5c",
+   "family": "security",
+   "planned": true,
+   "summary": "Intune device and app management under /deviceManagement and /deviceAppManagement: managed devices, compliance and configuration policies, apps and app protection, Windows 365 Cloud PCs and endpoint analytics.",
+   "limits": [
+    "The Microsoft Graph API for Intune needs an active Intune licence for the tenant (checked on Microsoft Learn, 28 Nov 2026)."
+   ],
+   "docs": "https://learn.microsoft.com/graph/api/resources/intune-graph-overview?view=graph-rest-1.0",
+   "subservices": [
+    {
+     "id": "managed-devices",
+     "label": "Managed devices"
+    },
+    {
+     "id": "compliance-configuration",
+     "label": "Compliance & configuration"
+    },
+    {
+     "id": "apps-protection",
+     "label": "Apps & app protection"
+    },
+    {
+     "id": "cloud-pc",
+     "label": "Windows 365 Cloud PC"
+    },
+    {
+     "id": "endpoint-analytics",
+     "label": "Endpoint analytics"
+    },
+    {
+     "id": "intune-admin",
+     "label": "Intune roles & connectors"
     }
    ]
   },
@@ -8100,849 +8300,1028 @@
   "v1Types": 1264,
   "betaOnlyTypes": 1368,
   "onMap": 137,
+  "curated": 137,
   "areas": [
    {
     "area": "deviceManagement",
     "v1": 134,
     "betaOnly": 376,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "security",
     "v1": 100,
     "betaOnly": 75,
-    "onMap": 36
+    "onMap": 36,
+    "curated": 36
    },
    {
     "area": "unrooted",
     "v1": 89,
     "betaOnly": 135,
-    "onMap": 4
+    "onMap": 4,
+    "curated": 4
    },
    {
     "area": "users",
     "v1": 87,
     "betaOnly": 52,
-    "onMap": 13
+    "onMap": 13,
+    "curated": 13
    },
    {
     "area": "identityGovernance",
     "v1": 84,
     "betaOnly": 84,
-    "onMap": 49
+    "onMap": 49,
+    "curated": 49
    },
    {
     "area": "sites",
     "v1": 76,
     "betaOnly": 7,
-    "onMap": 6
+    "onMap": 6,
+    "curated": 6
    },
    {
     "area": "deviceAppManagement",
     "v1": 75,
     "betaOnly": 59,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "solutions",
     "v1": 59,
     "betaOnly": 27,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "identity",
     "v1": 58,
     "betaOnly": 11,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "policies",
     "v1": 57,
     "betaOnly": 11,
-    "onMap": 1
+    "onMap": 1,
+    "curated": 1
    },
    {
     "area": "admin",
     "v1": 38,
     "betaOnly": 68,
-    "onMap": 1
+    "onMap": 1,
+    "curated": 1
    },
    {
     "area": "communications",
     "v1": 36,
     "betaOnly": 10,
-    "onMap": 1
+    "onMap": 1,
+    "curated": 1
    },
    {
     "area": "directory",
     "v1": 33,
     "betaOnly": 19,
-    "onMap": 1
+    "onMap": 1,
+    "curated": 1
    },
    {
     "area": "teams",
     "v1": 29,
     "betaOnly": 3,
-    "onMap": 2
+    "onMap": 2,
+    "curated": 2
    },
    {
     "area": "education",
     "v1": 26,
     "betaOnly": 0,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "reports",
     "v1": 21,
     "betaOnly": 27,
-    "onMap": 1
+    "onMap": 1,
+    "curated": 1
    },
    {
     "area": "storage",
     "v1": 21,
     "betaOnly": 0,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "authenticationMethodConfigurations",
     "v1": 17,
     "betaOnly": 2,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "places",
     "v1": 15,
     "betaOnly": 0,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "print",
     "v1": 15,
     "betaOnly": 0,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "roleManagement",
     "v1": 14,
     "betaOnly": 6,
-    "onMap": 1
+    "onMap": 1,
+    "curated": 1
    },
    {
     "area": "servicePrincipals",
     "v1": 13,
     "betaOnly": 1,
-    "onMap": 2
+    "onMap": 2,
+    "curated": 2
    },
    {
     "area": "copilot",
     "v1": 11,
     "betaOnly": 31,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "security (namespace)",
     "v1": 11,
     "betaOnly": 9,
-    "onMap": 1
+    "onMap": 1,
+    "curated": 1
    },
    {
     "area": "applications",
     "v1": 11,
     "betaOnly": 2,
-    "onMap": 2
+    "onMap": 2,
+    "curated": 2
    },
    {
     "area": "tenantRelationships",
     "v1": 10,
     "betaOnly": 38,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "employeeExperience",
     "v1": 10,
     "betaOnly": 1,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "planner",
     "v1": 9,
     "betaOnly": 16,
-    "onMap": 2
+    "onMap": 2,
+    "curated": 2
    },
    {
     "area": "informationProtection",
     "v1": 9,
     "betaOnly": 4,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "connections",
     "v1": 8,
     "betaOnly": 1,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "identityProtection",
     "v1": 7,
     "betaOnly": 6,
-    "onMap": 1
+    "onMap": 1,
+    "curated": 1
    },
    {
     "area": "chats",
     "v1": 7,
     "betaOnly": 0,
-    "onMap": 2
+    "onMap": 2,
+    "curated": 2
    },
    {
     "area": "domainDnsRecords",
     "v1": 6,
     "betaOnly": 0,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "teamwork",
     "v1": 5,
     "betaOnly": 8,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "groups",
     "v1": 5,
     "betaOnly": 0,
-    "onMap": 1
+    "onMap": 1,
+    "curated": 1
    },
    {
     "area": "auditLogs",
     "v1": 4,
     "betaOnly": 7,
-    "onMap": 2
+    "onMap": 2,
+    "curated": 2
    },
    {
     "area": "appCatalogs",
     "v1": 4,
     "betaOnly": 2,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "agreements",
     "v1": 4,
     "betaOnly": 0,
-    "onMap": 1
+    "onMap": 1,
+    "curated": 1
    },
    {
     "area": "search",
     "v1": 4,
     "betaOnly": 0,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "organization",
     "v1": 3,
     "betaOnly": 5,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "devices",
     "v1": 3,
     "betaOnly": 2,
-    "onMap": 1
+    "onMap": 1,
+    "curated": 1
    },
    {
     "area": "contacts",
     "v1": 2,
     "betaOnly": 0,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "external",
     "v1": 1,
     "betaOnly": 38,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "compliance",
     "v1": 1,
     "betaOnly": 22,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "domains",
     "v1": 1,
     "betaOnly": 1,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "drives",
     "v1": 1,
     "betaOnly": 1,
-    "onMap": 1
+    "onMap": 1,
+    "curated": 1
    },
    {
     "area": "identityGovernance (namespace)",
     "v1": 1,
     "betaOnly": 1,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "identityProviders",
     "v1": 1,
     "betaOnly": 1,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "agreementAcceptances",
     "v1": 1,
     "betaOnly": 0,
-    "onMap": 1
+    "onMap": 1,
+    "curated": 1
    },
    {
     "area": "applicationTemplates",
     "v1": 1,
     "betaOnly": 0,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "appRoleAssignments",
     "v1": 1,
     "betaOnly": 0,
-    "onMap": 1
+    "onMap": 1,
+    "curated": 1
    },
    {
     "area": "authenticationMethodsPolicy",
     "v1": 1,
     "betaOnly": 0,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "callRecords (namespace)",
     "v1": 1,
     "betaOnly": 0,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "certificateBasedAuthConfiguration",
     "v1": 1,
     "betaOnly": 0,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "contracts",
     "v1": 1,
     "betaOnly": 0,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "dataPolicyOperations",
     "v1": 1,
     "betaOnly": 0,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "directoryRoles",
     "v1": 1,
     "betaOnly": 0,
-    "onMap": 1
+    "onMap": 1,
+    "curated": 1
    },
    {
     "area": "directoryRoleTemplates",
     "v1": 1,
     "betaOnly": 0,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "entraRecoveryServices (namespace)",
     "v1": 1,
     "betaOnly": 0,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "filterOperators",
     "v1": 1,
     "betaOnly": 0,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "functions",
     "v1": 1,
     "betaOnly": 0,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "groupLifecyclePolicies",
     "v1": 1,
     "betaOnly": 0,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "groupSettings",
     "v1": 1,
     "betaOnly": 0,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "groupSettingTemplates",
     "v1": 1,
     "betaOnly": 0,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "invitations",
     "v1": 1,
     "betaOnly": 0,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "oauth2PermissionGrants",
     "v1": 1,
     "betaOnly": 0,
-    "onMap": 1
+    "onMap": 1,
+    "curated": 1
    },
    {
     "area": "permissionGrants",
     "v1": 1,
     "betaOnly": 0,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "privacy",
     "v1": 1,
     "betaOnly": 0,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "schemaExtensions",
     "v1": 1,
     "betaOnly": 0,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "scopedRoleMemberships",
     "v1": 1,
     "betaOnly": 0,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "search (namespace)",
     "v1": 1,
     "betaOnly": 0,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "shares",
     "v1": 1,
     "betaOnly": 0,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "subscribedSkus",
     "v1": 1,
     "betaOnly": 0,
-    "onMap": 1
+    "onMap": 1,
+    "curated": 1
    },
    {
     "area": "subscriptions",
     "v1": 1,
     "betaOnly": 0,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "teamsAdministration (namespace)",
     "v1": 1,
     "betaOnly": 0,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "teamsTemplates",
     "v1": 1,
     "betaOnly": 0,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "financials",
     "v1": 0,
     "betaOnly": 37,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "networkAccess",
     "v1": 0,
     "betaOnly": 37,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "filteringPolicies",
     "v1": 0,
     "betaOnly": 14,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "dataClassification",
     "v1": 0,
     "betaOnly": 10,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "threatSubmission",
     "v1": 0,
     "betaOnly": 9,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "onPremisesPublishingProfiles",
     "v1": 0,
     "betaOnly": 7,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "activitystatistics",
     "v1": 0,
     "betaOnly": 6,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "networkaccess (namespace)",
     "v1": 0,
     "betaOnly": 6,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "security.dlp (namespace)",
     "v1": 0,
     "betaOnly": 6,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "agentRegistry",
     "v1": 0,
     "betaOnly": 4,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "conditionalAccess",
     "v1": 0,
     "betaOnly": 4,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "approvalWorkflowProviders",
     "v1": 0,
     "betaOnly": 3,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "mobilityManagementPolicies",
     "v1": 0,
     "betaOnly": 3,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "monitoring",
     "v1": 0,
     "betaOnly": 3,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "privilegedRoles",
     "v1": 0,
     "betaOnly": 3,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "trustFramework",
     "v1": 0,
     "betaOnly": 3,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "agents",
     "v1": 0,
     "betaOnly": 2,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "authenticationMethodDevices",
     "v1": 0,
     "betaOnly": 2,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "cloudLicensing (namespace)",
     "v1": 0,
     "betaOnly": 2,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "workplace",
     "v1": 0,
     "betaOnly": 2,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "accessReviewDecisions",
     "v1": 0,
     "betaOnly": 1,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "accessReviews",
     "v1": 0,
     "betaOnly": 1,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "allowedDataLocations",
     "v1": 0,
     "betaOnly": 1,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "app",
     "v1": 0,
     "betaOnly": 1,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "businessFlowTemplates",
     "v1": 0,
     "betaOnly": 1,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "certificateAuthorities",
     "v1": 0,
     "betaOnly": 1,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "commands",
     "v1": 0,
     "betaOnly": 1,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "directorySettingTemplates",
     "v1": 0,
     "betaOnly": 1,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "ediscovery (namespace)",
     "v1": 0,
     "betaOnly": 1,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "governanceResources",
     "v1": 0,
     "betaOnly": 1,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "governanceRoleAssignmentRequests",
     "v1": 0,
     "betaOnly": 1,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "governanceRoleAssignments",
     "v1": 0,
     "betaOnly": 1,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "governanceRoleDefinitions",
     "v1": 0,
     "betaOnly": 1,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "governanceRoleSettings",
     "v1": 0,
     "betaOnly": 1,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "governanceSubjects",
     "v1": 0,
     "betaOnly": 1,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "industryData (namespace)",
     "v1": 0,
     "betaOnly": 1,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "managedTenants (namespace)",
     "v1": 0,
     "betaOnly": 1,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "messageEvents",
     "v1": 0,
     "betaOnly": 1,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "messageRecipients",
     "v1": 0,
     "betaOnly": 1,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "messageTraces",
     "v1": 0,
     "betaOnly": 1,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "network",
     "v1": 0,
     "betaOnly": 1,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "payloadResponse",
     "v1": 0,
     "betaOnly": 1,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "privilegedAccess",
     "v1": 0,
     "betaOnly": 1,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "privilegedApproval",
     "v1": 0,
     "betaOnly": 1,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "privilegedOperationEvents",
     "v1": 0,
     "betaOnly": 1,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "privilegedRoleAssignmentRequests",
     "v1": 0,
     "betaOnly": 1,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "privilegedRoleAssignments",
     "v1": 0,
     "betaOnly": 1,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "privilegedSignupStatus",
     "v1": 0,
     "betaOnly": 1,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "programControls",
     "v1": 0,
     "betaOnly": 1,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "programControlTypes",
     "v1": 0,
     "betaOnly": 1,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "programs",
     "v1": 0,
     "betaOnly": 1,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "security.caseManagement (namespace)",
     "v1": 0,
     "betaOnly": 1,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "settings",
     "v1": 0,
     "betaOnly": 1,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "teamTemplateDefinition",
     "v1": 0,
     "betaOnly": 1,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "templates",
     "v1": 0,
     "betaOnly": 1,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    },
    {
     "area": "windowsUpdates (namespace)",
     "v1": 0,
     "betaOnly": 1,
-    "onMap": 0
+    "onMap": 0,
+    "curated": 0
    }
   ],
   "services": [
    {
     "workload": "identity",
     "onMap": 12,
+    "curated": 12,
     "betaOnly": 0
    },
    {
     "workload": "governance",
     "onMap": 52,
+    "curated": 52,
+    "betaOnly": 0
+   },
+   {
+    "workload": "policies",
+    "onMap": 0,
+    "curated": 0,
     "betaOnly": 0
    },
    {
     "workload": "outlook",
     "onMap": 8,
+    "curated": 8,
     "betaOnly": 0
    },
    {
     "workload": "files",
     "onMap": 6,
+    "curated": 6,
     "betaOnly": 0
    },
    {
     "workload": "teams",
     "onMap": 5,
+    "curated": 5,
+    "betaOnly": 0
+   },
+   {
+    "workload": "communications",
+    "onMap": 0,
+    "curated": 0,
     "betaOnly": 0
    },
    {
     "workload": "tasks",
     "onMap": 4,
+    "curated": 4,
+    "betaOnly": 0
+   },
+   {
+    "workload": "solutions",
+    "onMap": 0,
+    "curated": 0,
+    "betaOnly": 0
+   },
+   {
+    "workload": "education",
+    "onMap": 0,
+    "curated": 0,
+    "betaOnly": 0
+   },
+   {
+    "workload": "admin",
+    "onMap": 0,
+    "curated": 0,
     "betaOnly": 0
    },
    {
     "workload": "reports",
     "onMap": 3,
+    "curated": 3,
     "betaOnly": 0
    },
    {
     "workload": "security",
     "onMap": 3,
+    "curated": 3,
+    "betaOnly": 0
+   },
+   {
+    "workload": "devices",
+    "onMap": 0,
+    "curated": 0,
     "betaOnly": 0
    },
    {
     "workload": "purview",
     "onMap": 41,
+    "curated": 41,
     "betaOnly": 5
    },
    {
     "workload": "ai",
     "onMap": 3,
+    "curated": 3,
     "betaOnly": 0
    }
   ],
@@ -8950,42 +9329,49 @@
    "v1": 62,
    "betaOnly": 53,
    "onMap": 41,
+   "curated": 41,
    "solutions": [
     {
      "solution": "Information protection",
      "v1": 4,
      "betaOnly": 22,
-     "onMap": 3
+     "onMap": 3,
+     "curated": 3
     },
     {
      "solution": "Records",
      "v1": 16,
      "betaOnly": 0,
-     "onMap": 13
+     "onMap": 13,
+     "curated": 13
     },
     {
      "solution": "eDiscovery",
      "v1": 28,
      "betaOnly": 25,
-     "onMap": 15
+     "onMap": 15,
+     "curated": 15
     },
     {
      "solution": "Audit",
      "v1": 4,
      "betaOnly": 6,
-     "onMap": 2
+     "onMap": 2,
+     "curated": 2
     },
     {
      "solution": "Privacy",
      "v1": 3,
      "betaOnly": 0,
-     "onMap": 2
+     "onMap": 2,
+     "curated": 2
     },
     {
      "solution": "Data security API",
      "v1": 7,
      "betaOnly": 0,
-     "onMap": 6
+     "onMap": 6,
+     "curated": 6
     }
    ]
   }

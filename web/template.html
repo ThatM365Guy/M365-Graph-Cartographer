@@ -57,6 +57,7 @@ a{color:inherit;text-underline-offset:3px}
 .tbtn .dot{position:absolute;top:5px;right:5px;width:7px;height:7px;border-radius:50%;background:var(--brick)}
 .tbtn .dot[hidden],.tbtn .n[hidden]{display:none}
 .fpanel{position:absolute;top:calc(100% - 2px);right:96px;width:320px;background:var(--panel);border:1px solid var(--rule);border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.18);padding:8px 16px 14px;z-index:8;font-size:14px}
+.fpanel{max-height:calc(100vh - 80px);overflow-y:auto}
 .fpanel[hidden]{display:none}
 .fpanel h5{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--mute);margin:12px 0 4px;font-weight:700}
 .fpanel label{display:flex;align-items:center;gap:9px;min-height:30px;cursor:pointer}
@@ -107,6 +108,13 @@ a{color:inherit;text-underline-offset:3px}
 .it.pill .bub{stroke:var(--panel)}
 .it.pill .lab{fill:#fff;stroke:none;font-weight:700;font-size:11.5px}
 .it.dotsub .bub{stroke:none}
+/* a service or sub-service with nothing mapped yet: hollow, dashed */
+.it.empty .bub{fill:var(--panel);stroke:var(--c);stroke-width:1.6;stroke-dasharray:3 2}
+.it.empty .cnt{display:none}
+/* "+n more": the APIs a crowded sub-service doesn't show on the ring */
+.it.mor .bub{fill:var(--panel);stroke:var(--c);stroke-width:1.8}
+.it.mor .cnt{fill:var(--c);font-size:14px;font-weight:700}
+.it.mor .lab{pointer-events:auto}   /* "23 more" is what people aim at */
 svg.dim .it.api:not(.hot) .bub,svg.dim .it.api:not(.hot) .lab,svg.dim .it.sub:not(.hot) .bub,svg.dim .it.sub:not(.hot) text,svg.dim .it.svc:not(.hot) .bub,svg.dim .it.svc:not(.hot) text{opacity:.3}
 .it.nohit .bub,.it.nohit text,.it.nohit .sat{opacity:.25}
 .it:hover .lab{text-decoration:underline;text-underline-offset:2px}
@@ -202,6 +210,10 @@ details.sm summary{cursor:pointer;min-height:30px;font-size:13.5px}
 .legacy-list{list-style:none;padding:0!important;margin:6px 0}
 .legacy-list li{border-left:3px solid var(--rule);padding:4px 0 4px 10px;margin:8px 0}
 .legacy-list small{display:block;color:var(--mute)}
+.lfind{display:flex;gap:8px;align-items:center;margin:12px 0 4px}
+.lfind input{flex:1;height:34px;border:1px solid var(--rule);background:var(--panel);border-radius:8px;padding:0 10px;font-size:14px}
+.lfind select{height:34px;border:1px solid var(--rule);background:var(--panel);color:var(--ink);border-radius:8px;padding:0 6px;font:inherit;font-size:13.5px}
+.lcount{color:var(--mute);font-size:12.5px;margin:4px 0}
 
 /* scenarios */
 .sclist{list-style:none;margin:0;padding:0!important}
@@ -234,11 +246,14 @@ details.sm summary{cursor:pointer;min-height:30px;font-size:13.5px}
 
 /* coverage */
 .bars{list-style:none;margin:6px 0;padding:0!important}
-.bars li{display:grid;grid-template-columns:150px 1fr 64px;gap:8px;align-items:center;margin:5px 0;font-size:13.5px}
+.bars li{display:grid;grid-template-columns:150px 1fr 78px;gap:8px;align-items:center;margin:5px 0;font-size:13.5px}
 .bars .tr{height:12px;background:var(--soft);border-radius:3px;overflow:hidden;display:flex}
 .bars .fill{height:100%;background:var(--c)}
+.bars .fill.gen{background:var(--c);opacity:.45}
 .bars .fill.beta{background:transparent;border:1.5px solid var(--c);border-left:0}
-.bars .v{text-align:right;font-variant-numeric:tabular-nums;color:var(--mute);font-size:12.5px}
+div.card{cursor:default}
+div.card:hover{border-color:var(--rule)}
+.bars .v{white-space:nowrap;text-align:right;font-variant-numeric:tabular-nums;color:var(--mute);font-size:12.5px}
 .bars button{border:0;background:none;padding:0;cursor:pointer;text-align:left;font-size:13.5px;display:flex;gap:6px;align-items:center}
 .bars button i{width:9px;height:9px;border-radius:50%;background:var(--c);flex:none}
 .cov{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}
@@ -334,7 +349,26 @@ function init(){
   const visNode = n => !F.hidden.has(n.workload) && (F.gaps || n.kind !== 'gap');
   const svcList = () => D.workloads.filter(w => !F.hidden.has(w.id));
   const apisOf = (w, s) => nodes.filter(n => n.workload === w && (s == null || n.subservice === s) && visNode(n));
-  const subsOf = w => (SUBS[w] || []).filter(s => apisOf(w, s.id).length);
+  // A planned service (added before its APIs are mapped) shows all its sub-services, even empty ones.
+  const subsOf = w => (SUBS[w] || []).filter(s => (WL[w].planned && s.id !== UNSORTED) || apisOf(w, s.id).length);
+
+  /* ================= crowded sub-services =================
+     An open sub-service shows at most CAP bubbles on the ring: curated entries first (in curated.json order), then
+     generated ones by number of links. When there are more, the last bubble is "+n more", which opens a searchable,
+     sortable list in the panel. A selected API that would be left off takes the last API slot. */
+  const CAP = 8;
+  const ORDER = {}; nodes.forEach((n, i) => ORDER[n.id] = i);
+  const DEG = {}; edges.filter(e => e.kind !== 'discovered').forEach(e => { DEG[e.s] = (DEG[e.s] || 0) + 1; DEG[e.t] = (DEG[e.t] || 0) + 1; });
+  const isGen = n => n.tier === 'generated' ? 1 : 0;
+  const rank = list => [...list].sort((p, q) => isGen(p) - isGen(q) || (isGen(p) ? (DEG[q.id] || 0) - (DEG[p.id] || 0) || p.label.localeCompare(q.label) : ORDER[p.id] - ORDER[q.id]));
+  function ringApis(w, s){
+    const all = rank(apisOf(w, s));
+    if (all.length <= CAP) return {all, shown: all, hidden: []};
+    let shown = all.slice(0, CAP - 1);
+    if (S.sel && !shown.some(n => n.id === S.sel)) { const sel = all.find(n => n.id === S.sel); if (sel) shown = [...shown.slice(0, CAP - 2), sel]; }
+    const ids = new Set(shown.map(n => n.id));
+    return {all, shown, hidden: all.filter(n => !ids.has(n.id))};
+  }
   const shortName = w => w.short || w.label;
 
   /* ================= text measuring ================= */
@@ -352,7 +386,8 @@ function init(){
   const R0 = 44, R1 = 175, R2 = 292, R3 = 405;
   const rad = d => d*Math.PI/180;
   const norm = d => ((d % 360) + 540) % 360 - 180;            // -180..180
-  const svcR = n => 7.5*Math.sqrt(Math.max(n, 1)) + 4;        // bubble area grows with the number of APIs
+  const SVC_CAP = 14;   // 16 services on R1 leave about 68 px between centres, so the largest bubble stops at radius 32
+  const svcR = n => 7.5*Math.sqrt(Math.min(Math.max(n, 1), SVC_CAP)) + 4;   // bubble area grows with the number of APIs, up to SVC_CAP
   const subR = n => 5.5 + 4.3*Math.sqrt(Math.max(n, 1));
   const API_R = 6.5, SMALL_R = 12, OPEN_R = 34;
   // Label placement, anchored outward by angle. Returns the text origin, anchor and the box it covers.
@@ -380,7 +415,7 @@ function init(){
     const sv = svcList(), n = sv.length;
     sv.forEach((w, i) => {
       const cnt = apisOf(w.id).length;
-      m.set('svc:' + w.id, {k: 'svc:' + w.id, w: w.id, a: rot + i*360/n, r: R1, size: svcR(cnt), vis: true, lab: w.label, mode: 'full', cnt, sats: subsOf(w.id).length});
+      m.set('svc:' + w.id, {k: 'svc:' + w.id, w: w.id, a: rot + i*360/n, r: R1, size: svcR(cnt), vis: true, lab: w.label, mode: 'full', cnt, empty: !cnt, sats: subsOf(w.id).length});
     });
   }
   function layoutExplore(){
@@ -391,25 +426,27 @@ function init(){
     sv.forEach((w, j) => {
       const i = (j - idx + n) % n, cnt = apisOf(w.id).length;
       if (!i) m.set('svc:' + w.id, {k: 'svc:' + w.id, w: w.id, a: 0, r: R1, size: OPEN_R, vis: true, lab: shortName(w), mode: 'open', cnt});
-      else m.set('svc:' + w.id, {k: 'svc:' + w.id, w: w.id, a: OPEN/2 + rest*(i - 0.5), r: R1, size: SMALL_R, vis: true, lab: shortName(w), mode: 'small', cnt});
+      else m.set('svc:' + w.id, {k: 'svc:' + w.id, w: w.id, a: OPEN/2 + rest*(i - 0.5), r: R1, size: SMALL_R, vis: true, lab: shortName(w), mode: 'small', cnt, empty: !cnt});
     });
     const subs = subsOf(S.svc), k = subs.length, span = Math.min(160, OPEN - 10);
     let rot = 0;
     const open = subs.find(s => s.id === S.sub);
     const shares = subs.map(s => {
       if (!open) return span/k;
-      if (s === open) return Math.min(Math.max(apisOf(S.svc, s.id).length*17 + 12, 52), span - (k - 1)*16, 110);
+      if (s === open) return Math.min(Math.max(Math.min(apisOf(S.svc, s.id).length, CAP)*17 + 12, 52), span - (k - 1)*16, 110);
       return 0;
     });
     if (open && k > 1) { const left = span - shares[subs.indexOf(open)]; subs.forEach((s, i) => { if (s !== open) shares[i] = left/(k - 1); }); }
     let a = -span/2;
     subs.forEach((s, i) => {
       const cnt = apisOf(S.svc, s.id).length, mid = a + shares[i]/2;
-      m.set(`sub:${S.svc}/${s.id}`, {k: `sub:${S.svc}/${s.id}`, w: S.svc, s: s.id, a: mid, r: R2, size: subR(cnt) + (s === open ? 2 : 0), vis: true, lab: s.label, mode: s === open ? 'open' : 'full', cnt, parent: 'svc:' + S.svc});
+      m.set(`sub:${S.svc}/${s.id}`, {k: `sub:${S.svc}/${s.id}`, w: S.svc, s: s.id, a: mid, r: R2, size: subR(cnt) + (s === open ? 2 : 0), vis: true, lab: s.label, mode: s === open ? 'open' : 'full', cnt, empty: !cnt, parent: 'svc:' + S.svc});
       if (s === open) {
         rot = -mid;
-        const apis = apisOf(S.svc, s.id), q = apis.length, step = Math.min((shares[i] - 6)/Math.max(q, 1), 19);
-        apis.forEach((n, j) => m.set('api:' + n.id, {k: 'api:' + n.id, id: n.id, w: S.svc, s: s.id, a: mid + (j - (q - 1)/2)*step, r: R3, size: API_R, vis: true, lab: n.label, mode: 'full', parent: `sub:${S.svc}/${s.id}`}));
+        const {shown, hidden} = ringApis(S.svc, s.id), q = shown.length + (hidden.length ? 1 : 0), step = Math.min((shares[i] - 6)/Math.max(q, 1), 19);
+        const sk = `sub:${S.svc}/${s.id}`, mk2 = `mor:${S.svc}/${s.id}`;
+        shown.forEach((n, j) => m.set('api:' + n.id, {k: 'api:' + n.id, id: n.id, w: S.svc, s: s.id, a: mid + (j - (q - 1)/2)*step, r: R3, size: API_R, vis: true, lab: n.label, mode: 'full', parent: sk}));
+        if (hidden.length) m.set(mk2, {k: mk2, w: S.svc, s: s.id, a: mid + (q - 1)/2*step, r: R3, size: API_R + 2, vis: true, lab: `${hidden.length} more`, mode: 'full', cnt: hidden.length, parent: sk});
       }
       a += shares[i];
     });
@@ -460,13 +497,13 @@ function init(){
   }
 
   /* ================= boxes (for fit and the overlap check) ================= */
-  const LABEL_GAP = {api: 7, sub: 6, svc: 6};
+  const LABEL_GAP = {api: 7, mor: 7, sub: 6, svc: 6};
   function boxesFor(t, rot){
     const a = t.a + rot, out = [];
     const [x, y] = polar(a, t.r);
     const type = t.k === 'hub' ? 'hub' : t.k.slice(0, 3);
     if (t.mode === 'pill') { out.push({x: x - t.pw/2, y: y - 10, w: t.pw, h: 20, k: t.k, kind: 'shape'}); return out; }
-    out.push({x: x - t.size, y: y - t.size, w: 2*t.size, h: 2*t.size, k: t.k, kind: 'shape'});
+    out.push({x: x - t.size, y: y - t.size, w: 2*t.size, h: 2*t.size, k: t.k, kind: 'shape', cx: x, cy: y, r: t.size});
     if (t.mode === 'open' && type === 'svc') return out;
     if (type === 'hub' || t.mode === 'dot') return out;
     const lb = labelGeom(t, rot);
@@ -476,8 +513,8 @@ function init(){
   }
   function labelGeom(t, rot){
     const type = t.k.slice(0, 3);
-    if (type === 'sub' && t.mode === 'open') {   // the open sub-service is labelled above, clear of its own fan
-      const [x, y] = polar(t.a + rot, t.r), w = tw(t.lab, 12.5, 700), h = 13;
+    if (type === 'sub' && t.mode === 'open') {   // the open sub-service is labelled above, clear of its own fan; if the service bubble is in the way, it moves outward (right)
+      const [x0, y] = polar(t.a + rot, t.r), x = x0 + (t.loff || 0), w = tw(t.lab, 12.5, 700), h = 13;
       return {x, y: y - t.size - 7, anchor: 'middle', box: {x: x - w/2 - 2, y: y - t.size - 7 - h, w: w + 4, h: h + 3}};
     }
     const size = type === 'svc' ? (t.mode === 'small' ? 11.5 : 13) : 12.5;
@@ -516,7 +553,11 @@ function init(){
     for (let i = 0; i < all.length; i++) for (let j = i + 1; j < all.length; j++) {
       const p = all[i], q = all[j];
       if (p.k === q.k) continue;
-      if (p.kind === 'shape' && q.kind === 'shape') { if (overlap(p, q)) out.push(`${p.k} shape × ${q.k} shape`); continue; }
+      if (p.kind === 'shape' && q.kind === 'shape') {   // two bubbles: compare them as circles, not their square boxes
+        const hit = p.r != null && q.r != null ? Math.hypot(p.cx - q.cx, p.cy - q.cy) < p.r + q.r - 0.5 : overlap(p, q);
+        if (hit) out.push(`${p.k} shape × ${q.k} shape`);
+        continue;
+      }
       if (overlap(p, q)) out.push(`${p.k} ${p.kind} × ${q.k} ${q.kind}`);
     }
     return {out, all};
@@ -542,7 +583,7 @@ function init(){
     const g = mk('g', {class: 'it ' + type, 'data-k': key, tabindex: '-1', role: 'button'}, gItems);
     let colour = 'var(--ink)', shape;
     if (type === 'svc') colour = WL[key.slice(4)].colour;
-    if (type === 'sub') colour = WL[key.slice(4).split('/')[0]].colour;
+    if (type === 'sub' || type === 'mor') colour = WL[key.slice(4).split('/')[0]].colour;
     if (type === 'api') { const n = N[key.slice(4)]; colour = WL[n.workload].colour; }
     g.style.setProperty('--c', colour);
     mk('circle', {class: 'fr'}, g);
@@ -566,7 +607,7 @@ function init(){
     return it;
   }
   makeItem('hub');
-  D.workloads.forEach(w => { makeItem('svc:' + w.id); (SUBS[w.id] || []).forEach(s => makeItem(`sub:${w.id}/${s.id}`)); });
+  D.workloads.forEach(w => { makeItem('svc:' + w.id); (SUBS[w.id] || []).forEach(s => { makeItem(`sub:${w.id}/${s.id}`); makeItem(`mor:${w.id}/${s.id}`); }); });
   nodes.forEach(n => makeItem('api:' + n.id));
   const guide = mk('circle', {class: 'guide', r: R1}, gGuides);
 
@@ -585,6 +626,7 @@ function init(){
     let anc = null;
     if (type === 'api') { const n = N[key.slice(4)]; anc = L.m.get(`sub:${n.workload}/${n.subservice}`) || L.m.get('svc:' + n.workload); }
     if (type === 'sub') anc = L.m.get('svc:' + key.slice(4).split('/')[0]);
+    if (type === 'mor') anc = L.m.get('sub:' + key.slice(4)) || L.m.get('svc:' + key.slice(4).split('/')[0]);
     if (type === 'svc') anc = L.m.get('hub');
     const a = anc ? anc.a + L.rot : (it.cur ? it.cur.a : 0), r = anc ? anc.r : 0;
     return {a, r, size: 0, op: 0, t: null};
@@ -647,6 +689,7 @@ function init(){
     g.classList.toggle('open', t.mode === 'open');
     g.classList.toggle('pill', t.mode === 'pill');
     g.classList.toggle('dotsub', t.mode === 'dot');
+    g.classList.toggle('empty', !!t.empty && !(it.type === 'svc' && t.mode === 'open'));
     if (it.type === 'hub') { it.g.setAttribute('aria-label', 'Microsoft Graph: back to the start'); it.title.textContent = 'Microsoft Graph: back to the start'; return; }
     it.lab.textContent = t.mode === 'open' && it.type === 'svc' || t.mode === 'pill' || t.mode === 'dot' ? '' : t.lab;
     if (t.mode === 'pill') it.lab.textContent = t.lab;
@@ -663,6 +706,9 @@ function init(){
       if (t.mode === 'pill') { it.pill.setAttribute('width', t.pw); it.pill.setAttribute('x', -t.pw/2); }
       it.g.setAttribute('aria-label', `${t.lab} (${WL[t.w].label})${t.cnt != null ? ': ' + pl(t.cnt, 'API') : ''}`);
       it.title.textContent = `${t.lab} · ${WL[t.w].label}`;
+    } else if (it.type === 'mor') {
+      it.cnt.textContent = '+';
+      it.g.setAttribute('aria-label', `${pl(t.cnt, 'more API')} in ${(SUBS[t.w].find(x => x.id === t.s) || {}).label}: open the full list`);
     } else if (it.type === 'api') {
       const n = N[t.id];
       it.g.setAttribute('aria-label', `${n.label}${t.nums ? ', step ' + t.nums.join(' and ') : ''}`);
@@ -716,6 +762,7 @@ function init(){
       if (it.sats.innerHTML !== h) it.sats.innerHTML = h;
     }
     if (it.type === 'sub') it.cnt.setAttribute('y', 4.2);
+    if (it.type === 'mor') it.cnt.setAttribute('y', 4.8);
     if (it.type === 'hub') it.inn.setAttribute('y', 0);
   }
   function drawSpokes(){
@@ -855,7 +902,7 @@ function init(){
   /* ================= key ================= */
   const ks = (inner, text) => `<span><svg viewBox="0 0 26 16" aria-hidden="true">${inner}</svg>${text}</span>`;
   function updateKey(){
-    let h = ks('<circle cx="8" cy="8" r="4" fill="var(--mute)"/><circle cx="19" cy="8" r="6.5" fill="var(--mute)"/>', 'Bubble size: number of APIs');
+    let h = ks('<circle cx="8" cy="8" r="4" fill="var(--mute)"/><circle cx="19" cy="8" r="6.5" fill="var(--mute)"/>', svcList().some(w => apisOf(w.id).length > SVC_CAP) ? `Bubble size: number of APIs (${SVC_CAP} or more share the largest size)` : 'Bubble size: number of APIs');
     const scen = S.view === 'scen' && (S.scen || S.preview);
     if (scen) {
       h += ks('<path d="M2 8H24" class="rt done"/>', 'Steps done') + ks('<path d="M2 8H24" class="rt todo"/>', 'Steps to come');
@@ -863,6 +910,8 @@ function init(){
       h += ks('<path d="M2 12Q13 1 24 12" class="lnk"/>', 'Relationship or action') + ks('<path d="M2 12Q13 1 24 12" class="lnk ref"/>', 'Reference by ID');
       if (F.disc) h += ks('<path d="M2 12Q13 1 24 12" class="lnk discovered"/>', 'Found by the scanner');
     }
+    if (L && [...L.m.values()].some(t => t.empty)) h += ks('<circle cx="13" cy="8" r="6" style="fill:var(--panel);stroke:var(--mute);stroke-width:1.6;stroke-dasharray:3 2"/>', 'Not mapped yet');
+    if (L && [...L.m.keys()].some(k => k.startsWith('mor:'))) h += ks('<circle cx="13" cy="8" r="6.5" style="fill:var(--panel);stroke:var(--mute);stroke-width:1.8"/><text x="13" y="12.2" text-anchor="middle" style="fill:var(--mute);font-size:12px;font-weight:700">+</text>', 'More in the list');
     if (F.gaps && nodes.some(n => n.kind === 'gap' && visNode(n))) h += ks('<rect x="8" y="3" width="10" height="10" transform="rotate(45 13 8)" fill="var(--mute)"/>', 'Outside Graph');
     if (F.status) h += ks('<circle cx="13" cy="8" r="4" fill="var(--mute)"/><circle cx="13" cy="8" r="7" class="mk beta" style="fill:none;stroke:var(--brick);stroke-width:1.6"/>', 'Beta only') +
       ks('<circle cx="13" cy="8" r="4" fill="var(--mute)"/><circle cx="13" cy="8" r="7" style="fill:none;stroke:var(--mute);stroke-width:1.6;stroke-dasharray:3 2"/>', 'Legacy API');
@@ -922,7 +971,7 @@ function init(){
     if (n.kind === 'gap' && !F.gaps) { F.gaps = true; renderFilters(); }
     const same = S.svc === n.workload && S.sub === n.subservice;
     S.svc = n.workload; S.sub = n.subservice; S.sel = id;
-    if (same) { items.forEach(it => it.t && it.type === 'api' && it.g.classList.toggle('sel', it.t.id === id)); drawLinks(); crumbs(); renderPanel(); writeHash(); updateReset(); updateKey(); }
+    if (same && L && L.m.get('api:' + id)) { items.forEach(it => it.t && it.type === 'api' && it.g.classList.toggle('sel', it.t.id === id)); drawLinks(); crumbs(); renderPanel(); writeHash(); updateReset(); updateKey(); }
     else sync({refit: true});
   }
   function stepBack(){
@@ -946,6 +995,12 @@ function init(){
     if (it.type === 'svc') { if (S.view === 'explore' && S.svc === t.w && !S.sub && !S.sel) stepBack(); else openSvc(t.w); }
     else if (it.type === 'sub') { if (S.view === 'explore' && S.sub === t.s && S.svc === t.w && !S.sel) { S.sub = null; sync({refit: true}); } else openSub(t.w, t.s); }
     else if (it.type === 'api') selectApi(t.id);
+    else if (it.type === 'mor') openList(t.w, t.s);
+  }
+  // "+n more": show the sub-service's full list in the panel and put the cursor in its filter box.
+  function openList(w, s){
+    if (S.view !== 'explore' || S.svc !== w || S.sub !== s || S.sel) { S.view = 'explore'; S.scen = S.preview = null; setSeg(); S.svc = w; S.sub = s; S.sel = null; sync(); }
+    setTimeout(() => { const i = $('#lq'); if (i) i.focus({preventScroll: true}); }, 60);   // after the click has finished moving focus
   }
 
   /* ---------- view switch ---------- */
@@ -1009,21 +1064,47 @@ function init(){
     const relCount = edges.filter(e => e.kind !== 'discovered').length;
     panel.innerHTML = `<h2>Start with a service</h2>
       <p class="lead">Microsoft Graph sits at the centre. Open a service to fan out its sub-services, then a sub-service to see its APIs. Select an API for its permissions, limits and connections.</p>
-      <ul class="links svlist">${svcList().map(w => `<li><button class="lk" data-svc="${w.id}" style="--c:${w.colour}"><i></i><span><b>${esc(w.label)}</b><span class="sv">${subsOf(w.id).map(s => esc(s.label)).join(' · ')}</span></span><small>${pl(apisOf(w.id).length, 'API')}</small></button></li>`).join('')}</ul>
+      <ul class="links svlist">${svcList().map(w => `<li><button class="lk" data-svc="${w.id}" style="--c:${w.colour}"><i></i><span><b>${esc(w.label)}</b><span class="sv">${subsOf(w.id).map(s => esc(s.label)).join(' · ')}</span></span><small>${apisOf(w.id).length ? pl(apisOf(w.id).length, 'API') : 'not mapped yet'}</small></button></li>`).join('')}</ul>
       <div class="cards"><button class="card" data-act="search"><b>Search for a resource</b><span>By name, path, permission or limitation.</span></button><button class="card" data-act="scen"><b>Walk through a scenario</b><span>${SCEN.length} step-by-step routes for reviews and investigations.</span></button></div>
       <details class="sm"><summary>Recent changes</summary>${changesFor(null)}</details>
-      <p class="foot">${nodes.length} APIs · ${D.workloads.length} services · ${relCount} links${cov ? ` · ${nf(cov.onMap)} of ${nf(cov.v1Types)} v1.0 types` : ''}. Curated notes v${esc(D.meta.curatedVersion)}, ${fmtDate(D.meta.curatedOn)}. ${scanInfo ? `Schema scanned ${fmtDate(scanInfo.at)}: ${nf(scanInfo.v1EntityTypes)} entity types in v1.0, ${nf(scanInfo.betaEntityTypes)} in beta${scanInfo.permissionsChecked ? `. Permission names checked against Graph's ${nf(scanInfo.permissionCount)} permissions${scanInfo.permissionsCheckedAt ? ` (list fetched ${fmtDate(scanInfo.permissionsCheckedAt)})` : ''}` : ''}.` : 'The schema scan has not run yet.'}</p>`;
+      <p class="foot">${nodes.length} APIs · ${D.workloads.length} services · ${relCount} links${cov ? ` · ${nf(cov.onMap)} of ${nf(cov.v1Types)} v1.0 types mapped` : ''}. Curated notes v${esc(D.meta.curatedVersion)}, ${fmtDate(D.meta.curatedOn)}. ${scanInfo ? `Schema scanned ${fmtDate(scanInfo.at)}: ${nf(scanInfo.v1EntityTypes)} entity types in v1.0, ${nf(scanInfo.betaEntityTypes)} in beta${scanInfo.permissionsChecked ? `. Permission names checked against Graph's ${nf(scanInfo.permissionCount)} permissions${scanInfo.permissionsCheckedAt ? ` (list fetched ${fmtDate(scanInfo.permissionsCheckedAt)})` : ''}` : ''}.` : 'The schema scan has not run yet.'}</p>`;
   }
   function renderSvc(w){
+    const none = !apisOf(w.id).length;
+    const names = a => a.slice(0, 10).map(n => esc(n.label)).join(' · ') + (a.length > 10 ? ` and ${a.length - 10} more` : '');
     panel.innerHTML = `${wlName({...w, label: FAMILIES[w.family] || ''})}<h2>${esc(w.label)}</h2><p class="lead">${esc(w.summary)}</p>
-      <h5>Sub-services</h5><ul class="links">${subsOf(w.id).map(s => `<li><button class="lk" data-sub="${w.id}/${s.id}" style="--c:${w.colour}"><i></i><span><b>${esc(s.label)}</b><span class="sv">${apisOf(w.id, s.id).map(n => esc(n.label)).join(' · ')}</span></span><small>${pl(apisOf(w.id, s.id).length, 'API')}</small></button></li>`).join('')}</ul>
+      ${none ? '<p>No APIs in this service are on the map yet. The sub-services below show where they will go.</p>' : ''}
+      <h5>Sub-services</h5><ul class="links">${subsOf(w.id).map(s => { const a = apisOf(w.id, s.id); return `<li><button class="lk" data-sub="${w.id}/${s.id}" style="--c:${w.colour}"><i></i><span><b>${esc(s.label)}</b><span class="sv">${a.length ? names(a) : 'Not mapped yet'}</span></span><small>${a.length ? pl(a.length, 'API') : ''}</small></button></li>`; }).join('')}</ul>
       <h4>Service-wide limits</h4>${ul(w.limits)}${docsLink(w.docs)}`;
+  }
+  const statusOf = n => n.kind === 'gap' ? 'outside Graph' : n.scan ? n.scan.status : '';
+  const apiRow = (n, w, off) => `<li><button class="lk" data-go="${esc(n.id)}" style="--c:${w.colour}"><i></i><span><b>${esc(n.label)}</b><span class="sv"><code>${esc(n.path || '')}</code></span></span><small>${esc(statusOf(n))}${DEG[n.id] ? `<br>${pl(DEG[n.id], 'link')}` : ''}${off ? '<br>in the list only' : ''}</small></button></li>`;
+  const LIST = {key: '', q: '', sort: 'rank'};
+  const STATUS_ORDER = {'v1.0': 0, 'beta only': 1, 'not found': 2, 'outside Graph': 3, '': 4};
+  function listRows(){
+    const [wid, sid] = LIST.key.split('/'), w = WL[wid], {all, hidden} = ringApis(wid, sid), off = new Set(hidden.map(n => n.id));
+    const t = LIST.q.trim().toLowerCase();
+    let rows = all.filter(n => !t || [n.label, n.path, n.entityType].some(v => v && v.toLowerCase().includes(t)));
+    if (LIST.sort === 'name') rows.sort((p, q) => p.label.localeCompare(q.label));
+    if (LIST.sort === 'links') rows.sort((p, q) => (DEG[q.id] || 0) - (DEG[p.id] || 0) || p.label.localeCompare(q.label));
+    if (LIST.sort === 'status') rows.sort((p, q) => STATUS_ORDER[statusOf(p)] - STATUS_ORDER[statusOf(q)] || p.label.localeCompare(q.label));
+    $('#lrows').innerHTML = rows.map(n => apiRow(n, w, off.has(n.id))).join('') || '<li class="lcount">No APIs match.</li>';
+    $('#lcount').textContent = t ? `${rows.length} of ${all.length} APIs match` : `${pl(all.length, 'API')}, ${CAP - 1} on the ring`;
   }
   function renderSub(wid, sid){
     const w = WL[wid], s = SUBS[wid].find(x => x.id === sid) || {label: sid};
-    const apis = apisOf(wid, sid);
-    panel.innerHTML = `${wlName(w)}<h2>${esc(s.label)}</h2>${sid === UNSORTED ? '<p class="warn">These APIs have no sub-service yet. Set <code>subservice</code> on each node in curated.json.</p>' : ''}
-      <ul class="links">${apis.map(n => `<li><button class="lk" data-go="${n.id}" style="--c:${w.colour}"><i></i><span><b>${esc(n.label)}</b><span class="sv"><code>${esc(n.path || '')}</code></span></span><small>${esc(n.kind === 'gap' ? 'outside Graph' : n.scan ? n.scan.status : '')}</small></button></li>`).join('')}</ul>`;
+    const apis = rank(apisOf(wid, sid));
+    const warn = sid === UNSORTED ? '<p class="warn">These APIs have no sub-service yet. Set <code>subservice</code> on each node in curated.json.</p>' : '';
+    if (!apis.length) { panel.innerHTML = `${wlName(w)}<h2>${esc(s.label)}</h2><p>Nothing in this sub-service is on the map yet.</p>${docsLink(w.docs)}`; return; }
+    if (apis.length <= CAP) { panel.innerHTML = `${wlName(w)}<h2>${esc(s.label)}</h2>${warn}<ul class="links">${apis.map(n => apiRow(n, w)).join('')}</ul>`; return; }
+    if (LIST.key !== wid + '/' + sid) Object.assign(LIST, {key: wid + '/' + sid, q: '', sort: 'rank'});
+    const opt = (v, txt) => `<option value="${v}"${LIST.sort === v ? ' selected' : ''}>${txt}</option>`;
+    panel.innerHTML = `${wlName(w)}<h2>${esc(s.label)}</h2>${warn}
+      <p>The ring shows the first ${CAP - 1}. Find any of them here.</p>
+      <div class="lfind"><input id="lq" type="search" placeholder="Filter by name, path or type" aria-label="Filter the APIs in ${esc(s.label)}" autocomplete="off" value="${esc(LIST.q)}">
+      <select id="lsort" aria-label="Sort by">${opt('rank', 'Ring order')}${opt('name', 'Name')}${opt('links', 'Most links')}${opt('status', 'Status')}</select></div>
+      <p class="lcount" id="lcount" aria-live="polite"></p><ul class="links" id="lrows"></ul>`;
+    listRows();
   }
   function connections(id){
     const rows = edges.filter(e => (e.s === id || e.t === id) && (e.kind !== 'discovered' || F.disc)).map(e => {
@@ -1107,9 +1188,11 @@ function init(){
       <p style="margin-top:18px"><button class="pbtn" data-exit>Exit scenario</button></p>
       <p class="foot">Calls and permissions come from the API's own notes unless the step overrides them.</p>`;
   }
-  function bar(label, on, beta, max, colour, attr){
-    const w1 = max ? on/max*100 : 0, w2 = max ? beta/max*100 : 0;
-    return `<li><button ${attr || ''} style="--c:${colour}"><i></i>${esc(label)}</button><span class="tr" style="--c:${colour}"><span class="fill" style="width:${w1.toFixed(1)}%"></span><span class="fill beta" style="width:${w2.toFixed(1)}%"></span></span><span class="v">${on}${beta ? ` +${beta}` : ''}</span></li>`;
+  // Solid: curated types; pale: generated (mapped, not curated); outlined: beta only.
+  function bar(label, on, cur, beta, max, colour, attr){
+    const w1 = max ? cur/max*100 : 0, wg = max ? (on - cur)/max*100 : 0, w2 = max ? beta/max*100 : 0;
+    const v = on ? `${on}${cur < on ? ` (${cur})` : ''}${beta ? ` +${beta}` : ''}` : 'not mapped';
+    return `<li><button ${attr || ''} style="--c:${colour}"><i></i>${esc(label)}</button><span class="tr" style="--c:${colour}"><span class="fill" style="width:${w1.toFixed(1)}%"></span><span class="fill gen" style="width:${wg.toFixed(1)}%"></span><span class="fill beta" style="width:${w2.toFixed(1)}%"></span></span><span class="v">${v}</span></li>`;
   }
   // Purview solutions (from the scanner's name patterns) line up with Purview's sub-services.
   const PURVIEW_SUB = {'Information protection': 'information-protection', 'Data security API': 'information-protection', 'Records': 'records-management', 'eDiscovery': 'ediscovery', 'Audit': 'audit', 'Privacy': 'privacy'};
@@ -1127,12 +1210,16 @@ function init(){
         <ul class="bars">${subs.map(x => x.v1 ? `<li><button data-sub="purview/${x.s.id}" style="--c:${WL.purview.colour}"><i></i>${esc(x.s.label)}</button><span class="tr" style="--c:${WL.purview.colour}"><span class="fill" style="width:${(x.on/x.v1*100).toFixed(1)}%"></span></span><span class="v">${x.on} / ${x.v1}</span></li>` : `<li><button data-sub="purview/${x.s.id}" style="--c:${WL.purview.colour}"><i></i>${esc(x.s.label)}</button><span class="tr"></span><span class="v">${x.s.id === 'outside-graph' ? 'not in Graph' : 'n/a'}</span></li>`).join('')}</ul>
         <p class="foot">Information protection includes the Purview data security API. Types are tagged by solution from their names.</p>`;
     }
-    const row = r => `<tr><td>${esc(r.area)}</td><td>${nf(r.onMap)} / ${nf(r.v1)}</td><td>${nf(r.betaOnly)}</td></tr>`;
-    const head = '<tr><th scope="col">Area</th><th scope="col">On map / v1.0</th><th scope="col">Beta only</th></tr>';
+    const curOf = r => r.curated ?? r.onMap;
+    const row = r => `<tr><td>${esc(r.area)}</td><td>${nf(r.onMap)} / ${nf(r.v1)}</td><td>${nf(curOf(r))}</td><td>${nf(r.betaOnly)}</td></tr>`;
+    const head = '<tr><th scope="col">Area</th><th scope="col">Mapped / v1.0</th><th scope="col">Curated</th><th scope="col">Beta only</th></tr>';
+    const pct = x => (x/cov.v1Types*100).toFixed(0) + '%';
     panel.innerHTML = `<h2>Coverage</h2>
-      <p class="lead">${nf(cov.onMap)} of ${nf(cov.v1Types)} v1.0 entity types are on the map, and ${nf(cov.betaOnlyTypes)} more types are beta only. The map is curated, so most types are left off on purpose.</p>
-      <h4>By service</h4><p>Types each service's APIs put on the map (the outlined part is beta only).</p>
-      <ul class="bars">${svcRows.filter(r => WL[r.workload]).map(r => bar(WL[r.workload].label, r.onMap, r.betaOnly, max, WL[r.workload].colour, `data-svc="${r.workload}"`)).join('')}</ul>
+      <p class="lead">Mapped means a type is on the map; curated means it also has hand-written notes checked against Microsoft Learn.</p>
+      <div class="cards"><div class="card"><b>${nf(cov.onMap)} of ${nf(cov.v1Types)}</b><span>v1.0 types mapped (${pct(cov.onMap)})</span></div><div class="card"><b>${nf(curOf(cov))} of ${nf(cov.v1Types)}</b><span>v1.0 types curated (${pct(curOf(cov))})</span></div></div>
+      <p>A further ${nf(cov.betaOnlyTypes)} types are beta only.</p>
+      <h4>By service</h4><p>Types each service puts on the map. The solid part is curated, the pale part generated and the outlined part beta only. Figures read mapped (curated) +beta.</p>
+      <ul class="bars">${svcRows.filter(r => WL[r.workload]).map(r => bar(WL[r.workload].label, r.onMap, curOf(r), r.betaOnly, max, WL[r.workload].colour, `data-svc="${r.workload}"`)).join('')}</ul>
       ${pv}
       <h4>By Graph area</h4><p>Each type belongs to the top-level root (such as <code>/security</code>) that reaches it first through containment.</p>
       <details class="sm"><summary>All ${cov.areas.length} areas</summary><table class="cov">${head}${cov.areas.map(row).join('')}</table></details>
@@ -1159,6 +1246,9 @@ function init(){
       setTimeout(() => { cp.textContent = was; }, 1800);
     }
   });
+  panel.addEventListener('input', e => { if (e.target.id === 'lq') { LIST.q = e.target.value; listRows(); } });
+  panel.addEventListener('change', e => { if (e.target.id === 'lsort') { LIST.sort = e.target.value; listRows(); } });
+  panel.addEventListener('keydown', e => { if (e.target.id === 'lq' && e.key === 'Escape' && e.target.value) { e.stopPropagation(); e.target.value = LIST.q = ''; listRows(); } });
   // hovering a scenario in the list previews it
   panel.addEventListener('pointerover', e => { const b = e.target.closest('[data-pv]'); if (b && S.view === 'scen' && !S.scen) preview(b.dataset.pv); });
   panel.addEventListener('pointerout', e => { const b = e.target.closest('[data-pv]'); if (b && !b.contains(e.relatedTarget) && !(e.relatedTarget && e.relatedTarget.closest && e.relatedTarget.closest('[data-pv]'))) clearPreview(); });
@@ -1251,7 +1341,7 @@ function init(){
     items.forEach(it => {
       if (!ids || !it.t || it.type === 'hub') { if (!svg.classList.contains('dim')) it.g.style.removeProperty('filter'); it.g.classList.remove('nohit'); return; }
       const t2 = it.t;
-      const has = it.type === 'api' ? ids.has(t2.id) : it.type === 'sub' ? apisOf(t2.w, t2.s).some(n => ids.has(n.id)) : apisOf(t2.w).some(n => ids.has(n.id));
+      const has = it.type === 'api' ? ids.has(t2.id) : it.type === 'mor' ? ringApis(t2.w, t2.s).hidden.some(n => ids.has(n.id)) : it.type === 'sub' ? apisOf(t2.w, t2.s).some(n => ids.has(n.id)) : apisOf(t2.w).some(n => ids.has(n.id));
       it.g.classList.toggle('nohit', !has);
     });
   }
@@ -1274,8 +1364,9 @@ function init(){
   function tipHtml(key){
     const it = items.get(key), t = it.t;
     if (it.type === 'hub') return `<h3>${esc(hub.label)}</h3><p>${esc(hub.summary)}</p><p class="more">Click to go back to the start</p>`;
-    if (it.type === 'svc') { const w = WL[t.w]; return `${wlName({...w, label: FAMILIES[w.family] || ''})}<h3>${esc(w.label)}</h3><p>${esc(w.summary)}</p><p>${subsOf(w.id).map(s => esc(s.label)).join(' · ')}</p><p class="more">${pl(apisOf(w.id).length, 'API')} · click to open</p>`; }
-    if (it.type === 'sub') return `${wlName(WL[t.w])}<h3>${esc(t.lab)}</h3><p>${apisOf(t.w, t.s).map(n => esc(n.label)).join(' · ')}</p><p class="more">Click to open</p>`;
+    if (it.type === 'svc') { const w = WL[t.w], c = apisOf(w.id).length; return `${wlName({...w, label: FAMILIES[w.family] || ''})}<h3>${esc(w.label)}</h3><p>${esc(w.summary)}</p><p>${subsOf(w.id).map(s => esc(s.label)).join(' · ')}</p><p class="more">${c ? pl(c, 'API') : 'Not mapped yet'} · click to open</p>`; }
+    if (it.type === 'sub') { const a = apisOf(t.w, t.s); return `${wlName(WL[t.w])}<h3>${esc(t.lab)}</h3><p>${a.length ? a.slice(0, 12).map(n => esc(n.label)).join(' · ') + (a.length > 12 ? ` and ${a.length - 12} more` : '') : 'Nothing is mapped here yet.'}</p><p class="more">Click to open</p>`; }
+    if (it.type === 'mor') { const h = ringApis(t.w, t.s).hidden; return `${wlName(WL[t.w], (SUBS[t.w].find(x => x.id === t.s) || {}).label)}<h3>${pl(h.length, 'more API')}</h3><p>${h.slice(0, 8).map(n => esc(n.label)).join(' · ')}${h.length > 8 ? ' …' : ''}</p><p class="more">Click to list them all</p>`; }
     const n = N[t.id], p = n.permissions || {};
     return `${wlName(WL[n.workload], (subOf(n.id) || {}).label)}<h3>${esc(n.label)}</h3>${badges(n)}${n.path ? `<p><code>${esc(n.path)}</code></p>` : ''}` +
       (p.delegated ? `<p><b>Delegated:</b> ${esc(p.delegated)}<br><b>Application:</b> ${esc(p.application)}</p>` : `<p>${esc(n.summary)}</p>`) +
@@ -1315,8 +1406,8 @@ function init(){
 
   /* ================= keyboard ================= */
   function siblings(it){
-    const type = it.type;
-    const list = [...items.values()].filter(x => x.t && x.type === type && (type !== 'sub' || x.t.w === it.t.w || S.view === 'scen') && x.t.mode !== undefined);
+    const grp = x => x.type === 'mor' ? 'api' : x.type, type = grp(it);
+    const list = [...items.values()].filter(x => x.t && grp(x) === type && (type !== 'sub' || x.t.w === it.t.w || S.view === 'scen') && x.t.mode !== undefined);
     return list.sort((p, q2) => norm(p.cur.a + 90) - norm(q2.cur.a + 90));
   }
   svg.addEventListener('keydown', e => {
