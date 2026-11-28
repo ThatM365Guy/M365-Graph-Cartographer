@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- A tiny Intune-shaped schema for the generated-tier tests: a singleton root, a collection nav, an abstract base
-     with platform variants, a nav reached only through a cast, a type nothing reaches, and a second root
-     (users) that also reaches managedDevice. -->
+     with platform variants, a nav reached only through a cast, a type nothing reaches, a second root (users)
+     that also reaches managedDevice, and a function result with a derived type (folded in as a variant). -->
 <edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
  <edmx:DataServices>
   <Schema Namespace="microsoft.graph" Alias="graph" xmlns="http://docs.oasis-open.org/odata/ns/edm">
@@ -33,6 +33,7 @@
    <EntityType Name="lonelyType" BaseType="graph.entity"/>
    <EntityType Name="reportResult" BaseType="graph.entity"><Property Name="value" Type="Edm.String"/></EntityType>
    <EntityType Name="deviceNote" BaseType="graph.entity"/>
+   <EntityType Name="detailedReportResult" BaseType="graph.reportResult"><Property Name="detail" Type="Edm.String"/></EntityType>
    <Function Name="getReport" IsBound="true"><Parameter Name="bindingParameter" Type="graph.deviceManagement"/><ReturnType Type="Collection(graph.reportResult)"/></Function>
    <Action Name="retire" IsBound="true"><Parameter Name="bindingParameter" Type="graph.managedDevice"/></Action>
    <Function Name="getStatus" IsBound="true"><Parameter Name="bindingParameter" Type="graph.managedDevice"/><ReturnType Type="Edm.String"/></Function>

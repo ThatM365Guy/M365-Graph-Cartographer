@@ -110,8 +110,12 @@ def _descendants(schema) -> dict:
     return out
 
 
-def find_paths(schema) -> dict:
+def find_paths(schema, info: dict | None = None) -> dict:
     """fq -> {root: (path, item_path)}: the shortest containment path from each top-level root.
+
+    info, when given, receives 'inherited': the types whose path is only their base's fallback path (an operation
+    or relationship returns the base, so its derived types are reached too). build_entries() folds them into the
+    base as variants rather than giving each an entry with the same path.
 
     path is what a caller lists or gets (a collection, or a single object); item_path is one object in it.
     Contained navigation properties declared on a derived type are followed with a cast segment, for example
@@ -144,16 +148,17 @@ def find_paths(schema) -> dict:
                 if target not in seen:
                     seen.add(target)
                     queue.append((target, out[target][root][1]))
-    _fallback_paths(schema, out, desc)
+    _fallback_paths(schema, out, desc, info if info is not None else {})
     return out
 
 
-def _fallback_paths(schema, out: dict, desc: dict) -> None:
+def _fallback_paths(schema, out: dict, desc: dict, info: dict) -> None:
     """For types no containment path reaches: first a bound function or action that returns them
     (/copilot/.../getAllEnterpriseInteractions), then a relationship that isn't containment (/sites/{id}/analytics).
     One step at a time from the shortest known path, so the nearest wins. The result of an operation is not
     addressable item by item, so its path is also its item path. Navs typed as entity are ignored."""
     broad = NOT_A_BASE
+    inherited = info.setdefault("inherited", set())
 
     def best(fq):
         return min(out[fq].items(), key=lambda kv: (_segments(kv[1][0]), kv[1][0].lower()))
@@ -163,6 +168,8 @@ def _fallback_paths(schema, out: dict, desc: dict) -> None:
             if t not in out and t in schema.entities:
                 out[t] = {root: (path, item)}
                 added.append(t)
+                if t != target:
+                    inherited.add(t)
 
     while True:
         added = []
@@ -236,15 +243,17 @@ def build_entries(v1, beta, types: dict) -> list:
     no reachable ancestor. Every other type is a variant, folded into its nearest reachable ancestor.
 
     types: fq -> {"area", "status"} (from scan.coverage_types or coverage.json)."""
-    paths = find_paths(v1)
+    info: dict = {}
+    paths = find_paths(v1, info)
+    own = {fq for fq in paths if fq not in info["inherited"]}   # types with a path of their own
     v1_types = [fq for fq in v1.entities if fq != "microsoft.graph.entity"]
     owner = {}   # fq -> the fq of the entry it belongs to
     for fq in v1_types:
-        if fq in paths:
+        if fq in own:
             owner[fq] = fq
             continue
         cur = v1.entities[fq]["base"]
-        while cur and cur not in NOT_A_BASE and cur not in paths:
+        while cur and cur not in NOT_A_BASE and cur not in own:
             cur = v1.entities.get(cur, {}).get("base")
         owner[fq] = cur if cur and cur not in NOT_A_BASE else fq
     variants: dict[str, list] = {}
@@ -294,7 +303,9 @@ def build_beta_entries(beta, v1_entries: list, types: dict) -> tuple[list, dict]
     No Learn link: the docs index covers v1.0 pages only."""
     if beta is None:
         return [], {}
-    paths = find_paths(beta)
+    info: dict = {}
+    paths = find_paths(beta, info)
+    own = {fq for fq in paths if fq not in info["inherited"]}
     v1_owner = {}
     for e in v1_entries:
         v1_owner[e["entityType"]] = e["id"]
@@ -303,11 +314,11 @@ def build_beta_entries(beta, v1_entries: list, types: dict) -> tuple[list, dict]
     beta_only = [fq for fq in beta.entities if (types.get(fq) or {}).get("status") == "beta only"]
     owner, beta_variants = {}, {}
     for fq in beta_only:
-        if fq in paths:
+        if fq in own:
             owner[fq] = fq
             continue
         cur = beta.entities[fq]["base"]
-        while cur and cur not in NOT_A_BASE and cur not in paths:
+        while cur and cur not in NOT_A_BASE and cur not in own:
             cur = beta.entities.get(cur, {}).get("base")
         if cur and cur not in NOT_A_BASE and cur in v1_owner:
             beta_variants.setdefault(v1_owner[cur], []).append(fq)

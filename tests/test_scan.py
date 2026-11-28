@@ -609,6 +609,12 @@ class GeneratedTierTests(unittest.TestCase):
         self.assertEqual(self.by_type["deviceNote"]["path"], "/deviceManagement/managedDevices/{id}/note")
         self.assertEqual(self.by_type["managedDevice"]["path"], "/deviceManagement/managedDevices")   # containment still wins
 
+    def test_derived_type_of_a_fallback_result_is_a_variant_not_a_second_entry(self):
+        self.assertNotIn("detailedReportResult", self.by_type)
+        self.assertEqual(self.by_type["reportResult"]["variants"], ["microsoft.graph.detailedReportResult"])
+        paths = [e["path"] for e in self.entries if e["path"]]
+        self.assertEqual(len(paths), len(set(paths)), "two entries share a path")
+
     def test_unreachable_type_keeps_an_entry_without_a_path(self):
         self.assertIsNone(self.by_type["lonelyType"]["path"])
 
