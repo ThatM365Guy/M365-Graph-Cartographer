@@ -349,13 +349,25 @@ def discover_edges(curated: dict, v1: Schema | None, beta: Schema | None) -> lis
 
 
 def check_permissions(curated: dict, perms: dict) -> dict:
-    known = set(perms["application"]) | set(perms["delegated"])
+    """Per node: the permission names found, the ones Graph doesn't have ('unknown') and, when both of Graph's lists
+    are known, the ones written on a side Graph doesn't offer them on ('wrongSide', for example a delegated-only name
+    under application). A list stored before the sides were kept has everything under application and no delegated
+    list, so only names are checked."""
+    app, dele = set(perms.get("application") or []), set(perms.get("delegated") or [])
+    known, sided = app | dele, bool(app and dele)
     out = {}
     for n in curated["nodes"]:
-        text = " ".join((n.get("permissions") or {}).values())
-        names = sorted(set(PERM_RE.findall(text)))
-        if names:
-            out[n["id"]] = {"checked": names, "unknown": [x for x in names if x not in known]}
+        p = n.get("permissions") or {}
+        names = sorted(set(PERM_RE.findall(" ".join(p.values()))))
+        if not names:
+            continue
+        r = {"checked": names, "unknown": [x for x in names if x not in known]}
+        if sided:
+            wrong = [{"name": x, "side": side} for side, have in (("delegated", dele), ("application", app))
+                     for x in sorted(set(PERM_RE.findall(p.get(side) or ""))) if x in known and x not in have]
+            if wrong:
+                r["wrongSide"] = wrong
+        out[n["id"]] = r
     return out
 
 
@@ -810,12 +822,15 @@ def build_map(curated, prev_map=None, v1_src=None, beta_src=None, token=None, sc
     prev_state = (prev_map or {}).get("state") or {}
     if perms:
         perm_names, perm_at = sorted(set(perms["application"]) | set(perms["delegated"])), today
+        perm_sides = {"application": sorted(set(perms["application"])), "delegated": sorted(set(perms["delegated"]))}
     else:
         prev_scan = (prev_map or {}).get("meta", {}).get("scan") or {}
         perm_names = prev_state.get("permissionNames")
+        perm_sides = prev_state.get("permissionNamesBySide")   # stored from the first --permissions run that kept sides
         perm_at = (prev_state.get("permissionNamesAt") or prev_scan.get("permissionsCheckedAt")
                    or (prev_scan.get("at") or "")[:10] or None)
-    perm_check = check_permissions(merged, {"application": perm_names, "delegated": []}) if perm_names else {}
+    perm_check = (check_permissions(merged, perm_sides) if perm_sides else
+                  check_permissions(merged, {"application": perm_names, "delegated": []}) if perm_names else {})
     if meta.get("scan"):
         meta["scan"] = dict(meta["scan"])
         gmeta = (generated or {}).get("meta") or {}
@@ -846,6 +861,8 @@ def build_map(curated, prev_map=None, v1_src=None, beta_src=None, token=None, sc
     state = dict(prev_state)
     if perm_names:
         state["permissionNames"], state["permissionNamesAt"] = perm_names, perm_at
+    if perm_sides:
+        state["permissionNamesBySide"] = perm_sides
     state.pop("placement", None)
     state.pop("retargetedScans", None)
     if not scan and retargeted:

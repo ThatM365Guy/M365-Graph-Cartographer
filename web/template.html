@@ -1165,11 +1165,13 @@ function init(){
   const shortType = fq => String(fq).replace(/^microsoft\.graph\./, '');
   const variantsBlock = n => n.variants && n.variants.length ? `<p class="props">${n.variants.map(v => esc(shortType(v))).join('<br>')}</p>` : '';
   const catPin = () => { const c = scanInfo && scanInfo.permissionsCatalogue; return c ? `<a href="https://github.com/${esc(c.repo)}/blob/${esc(c.commit)}/${esc(c.path)}" target="_blank" rel="noopener">permissions.json at ${esc(c.commit.slice(0, 7))}</a>` : 'the permissions catalogue'; };
+  // A name written under a side Graph doesn't offer it on (from the scanner's per-side check).
+  const sideWarn = pc => pc && pc.wrongSide && pc.wrongSide.length ? `<p class="warn">On the wrong side for Graph: ${pc.wrongSide.map(w => `${esc(w.name)} is listed as ${w.side === 'delegated' ? 'delegated' : 'application'}, but Graph only offers it as ${w.side === 'delegated' ? 'an application' : 'a delegated'} permission`).join('; ')}.</p>` : '';
   const permLines = v => v ? v.split(', ').map(x => KNOWN_PERMS.has(x) ? permLink(x) : esc(x).replace(/\./g, '.<wbr>')).join('<br>') : 'None marked least privileged';
   function renderGenerated(n){
     const p = n.permissions, pc = n.permCheck, o = n.ops || {acts: []}, nV = (n.variants || []).length;
     const perms = p ? `<table class="perm"><tr><th>Delegated</th><td>${permLines(p.delegated)}</td></tr><tr><th>Application</th><td>${permLines(p.application)}</td></tr></table>
-      <p class="warn">Generated, not checked. From ${catPin()}${n.permissionsPath ? ` for <code>GET ${esc(n.permissionsPath)}</code>` : ''}. Where it marks more than one permission as least privileged, all are listed; Microsoft's own reviews of this file have found least-privilege errors.</p>${pc && pc.unknown && pc.unknown.length ? `<p class="warn">Not found in the current permission list: ${pc.unknown.map(esc).join(', ')}.</p>` : ''}`
+      <p class="warn">Generated, not checked. From ${catPin()}${n.permissionsPath ? ` for <code>GET ${esc(n.permissionsPath)}</code>` : ''}. Where it marks more than one permission as least privileged, all are listed; Microsoft's own reviews of this file have found least-privilege errors.</p>${pc && pc.unknown && pc.unknown.length ? `<p class="warn">Not found in the current permission list: ${pc.unknown.map(esc).join(', ')}.</p>` : ''}${sideWarn(pc)}`
       : `<p>The permission catalogue has no read entry for this path. Check the Microsoft Learn page.</p>`;
     const opsList = [...(o.actions || []).map(a => a + ' (action)'), ...(o.functions || []).map(f => f + ' (function)')];
     panel.innerHTML = `${wlName(WL[n.workload], (subOf(n.id) || {}).label || 'Unsorted')}<h2>${esc(n.label)}${nV ? ` <small style="font-size:15px;color:var(--mute);font-weight:500">(${pl(nV, 'variant')})</small>` : ''}</h2>${badges(n)}
@@ -1212,7 +1214,7 @@ function init(){
     if (isGen(n)) return renderGenerated(n);
     const p = n.permissions, pc = n.permCheck, conn = connections(n.id), used = scenariosFor(n.id);
     const nConn = edges.filter(e => (e.s === n.id || e.t === n.id) && (e.kind !== 'discovered' || F.disc)).length;
-    const perms = p ? `<table class="perm"><tr><th>Delegated</th><td>${permHtml(p.delegated)}</td></tr><tr><th>Application</th><td>${permHtml(p.application)}</td></tr></table>${pc && pc.unknown && pc.unknown.length ? `<p class="warn">Not found in the current permission list: ${pc.unknown.map(esc).join(', ')}. Check whether it has been renamed.</p>` : ''}` : '';
+    const perms = p ? `<table class="perm"><tr><th>Delegated</th><td>${permHtml(p.delegated)}</td></tr><tr><th>Application</th><td>${permHtml(p.application)}</td></tr></table>${pc && pc.unknown && pc.unknown.length ? `<p class="warn">Not found in the current permission list: ${pc.unknown.map(esc).join(', ')}. Check whether it has been renamed.</p>` : ''}${sideWarn(pc)}` : '';
     const legacy = n.legacy && n.legacy.length ? `<h5>Don't build on</h5><ul class="legacy-list">${n.legacy.map(l => `<li><code>${esc(l.path)}</code>${l.note ? `<small>${esc(l.note)}</small>` : ''}${l.replacedBy ? `<small>Use instead: ${esc(l.replacedBy)}</small>` : ''}</li>`).join('')}</ul>` : '';
     panel.innerHTML = `${wlName(WL[n.workload], (subOf(n.id) || {}).label || 'Unsorted')}<h2>${esc(n.label)}</h2>${badges(n)}<p class="lead">${esc(n.summary)}</p>
       ${n.path ? `<div class="ep"><code>${esc(n.path)}</code><button class="copy" data-copy="${esc(n.path)}">Copy</button></div>` : ''}

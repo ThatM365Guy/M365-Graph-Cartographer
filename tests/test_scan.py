@@ -210,6 +210,20 @@ class ScanTests(unittest.TestCase):
         self.assertIn("Group.Read.All", res["group"]["unknown"])
         self.assertNotIn("v1.0", " ".join(sum((r["checked"] for r in res.values()), [])))
 
+    def test_permission_check_flags_a_name_on_the_wrong_side(self):
+        cur = {"nodes": [{"id": "x", "permissions": {"delegated": "Agreement.Read.All, AppOnly.Read.All",
+                                                     "application": "AgreementAcceptance.Read"}},
+                         {"id": "ok", "permissions": {"delegated": "Both.Read.All", "application": "Both.Read.All"}}]}
+        perms = {"application": ["AppOnly.Read.All", "Both.Read.All", "Agreement.Read.All"],
+                 "delegated": ["Agreement.Read.All", "AgreementAcceptance.Read", "Both.Read.All"]}
+        res = scan.check_permissions(cur, perms)
+        self.assertEqual(res["x"]["wrongSide"], [{"name": "AppOnly.Read.All", "side": "delegated"},
+                                                 {"name": "AgreementAcceptance.Read", "side": "application"}])
+        self.assertEqual(res["x"]["unknown"], [])
+        self.assertNotIn("wrongSide", res["ok"])
+        flat = scan.check_permissions(cur, {"application": sorted(set(sum(perms.values(), []))), "delegated": []})
+        self.assertNotIn("wrongSide", flat["x"])        # a list stored without sides only checks names
+
 
 class PermissionCarryOverTests(unittest.TestCase):
     """Scans without a token re-check names against the list stored by the last token run."""
@@ -238,6 +252,14 @@ class PermissionCarryOverTests(unittest.TestCase):
         self.assertEqual(gm["meta"]["scan"]["permissionsCheckedAt"], "2026-11-14")
         self.assertEqual(gm["meta"]["scan"]["permissionCount"], 4)
         self.assertEqual(gm["state"]["permissionNames"], first["state"]["permissionNames"])
+        self.assertEqual(gm["state"]["permissionNamesBySide"]["delegated"], ["User.Read", "User.ReadBasic.All"])
+        self.assertNotIn("wrongSide", nodes["user"]["permCheck"])       # User.Read delegated, User.Read.All application
+        cur2 = curated()
+        next(n for n in cur2["nodes"] if n["id"] == "user")["permissions"] = {"delegated": "User.Read.All",
+                                                                              "application": "User.Read.All"}
+        gm2, _ = scan.build_map(cur2, first, scan=False, now=D2)        # checked by side without a token too
+        self.assertEqual(next(n for n in gm2["nodes"] if n["id"] == "user")["permCheck"]["wrongSide"],
+                         [{"name": "User.Read.All", "side": "delegated"}])
 
     def test_no_scan_rechecks_too(self):
         first = self.first_with_perms()
