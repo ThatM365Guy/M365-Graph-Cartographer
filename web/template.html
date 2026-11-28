@@ -1195,8 +1195,8 @@ function init(){
     if (n.kind === 'gap' || !n.path || n.pathMethod === 'POST') return null;   // a path through a bound action can't be read with GET
     let req = String(n.path).split('\u00b7')[0].trim(), version = n.scan && n.scan.status === 'beta only' ? 'beta' : 'v1.0';
     if (!isGen(n)) { const m = req.match(/^GET\s+(\S.*)$/); if (!m) return null; req = m[1].trim(); }
+    req = req.replace(/^https:\/\/graph\.microsoft\.com/, '');   // a full URL becomes a path first
     if (!req.startsWith('/')) return null;
-    req = req.replace(/^https:\/\/graph\.microsoft\.com/, '');
     const v = req.match(/^\/(v1\.0|beta)(\/.*)$/); if (v) { version = v[1]; req = v[2]; }
     req = req.replace(/\{\s*([^}|\s]+)\s*\|[^}]*\}/g, '{$1}');
     return {url: `${GE}?request=${encodeURIComponent(req.slice(1))}&method=GET&version=${version}&GraphUrl=https://graph.microsoft.com`, holes: /\{[^}]*\}/.test(req)};

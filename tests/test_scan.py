@@ -781,9 +781,9 @@ def explorer_request(n):
         if not m:
             return None
         req = m.group(1).strip()
+    req = re.sub(r"^https://graph\.microsoft\.com", "", req)
     if not req.startswith("/"):
         return None
-    req = re.sub(r"^https://graph\.microsoft\.com", "", req)
     v = re.match(r"^/(v1\.0|beta)(/.*)$", req)
     if v:
         version, req = v.group(1), v.group(2)
@@ -808,6 +808,11 @@ class ExtrasTests(unittest.TestCase):
         self.assertIsNone(by_id["exGap"])                    # outside Graph
         nodes = {n["id"]: n for n in gm["nodes"]}
         self.assertFalse([i for i, _ in linked if nodes[i].get("pathMethod") == "POST"])   # an action path isn't a read
+        full = {"path": "GET https://graph.microsoft.com/beta/dataClassification/sensitiveTypes", "scan": {"status": "v1.0"}}
+        self.assertEqual(explorer_request(full), ("/dataClassification/sensitiveTypes", "beta"))   # a full URL works too
+        with open(os.path.join(ROOT, "web", "template.html"), encoding="utf-8") as f:
+            tpl = f.read()
+        self.assertLess(tpl.index("req = req.replace(/^https:"), tpl.index("if (!req.startsWith('/')) return null;"))
 
     def test_hash_decoding_cannot_throw(self):
         with open(os.path.join(ROOT, "web", "template.html"), encoding="utf-8") as f:
