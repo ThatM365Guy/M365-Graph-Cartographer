@@ -1,6 +1,24 @@
 [
  {
   "date": "2026-11-28",
+  "node": "authMethodsPolicy",
+  "kind": "new-node",
+  "text": "Authentication methods policy: scanned for the first time (v1.0)."
+ },
+ {
+  "date": "2026-11-28",
+  "node": "authStrength",
+  "kind": "new-node",
+  "text": "Authentication strength policy: scanned for the first time (v1.0)."
+ },
+ {
+  "date": "2026-11-28",
+  "node": "spSettings",
+  "kind": "new-node",
+  "text": "SharePoint tenant settings: scanned for the first time (v1.0)."
+ },
+ {
+  "date": "2026-11-28",
   "node": "authMethod",
   "kind": "new-node",
   "text": "Authentication method: scanned for the first time (v1.0)."

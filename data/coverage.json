@@ -1,9 +1,9 @@
 {
- "at": "2026-11-28T13:23:20+00:00",
+ "at": "2026-11-28T13:38:11+00:00",
  "v1Types": 1264,
  "betaOnlyTypes": 1369,
  "onMap": 1264,
- "curated": 153,
+ "curated": 156,
  "betaOnMap": 1369,
  "areas": [
   {
@@ -821,7 +821,7 @@
    "v1": 57,
    "betaOnly": 12,
    "onMap": 57,
-   "curated": 4,
+   "curated": 5,
    "betaOnMap": 12,
    "onMapTypes": [
     "activityBasedTimeoutPolicy",
@@ -950,7 +950,7 @@
    "v1": 41,
    "betaOnly": 70,
    "onMap": 41,
-   "curated": 5,
+   "curated": 6,
    "betaOnMap": 70,
    "onMapTypes": [
     "admin",
@@ -1792,7 +1792,7 @@
    "v1": 1,
    "betaOnly": 0,
    "onMap": 1,
-   "curated": 0,
+   "curated": 1,
    "betaOnMap": 0,
    "onMapTypes": [
     "authenticationMethodsPolicy"
@@ -2588,7 +2588,7 @@
   {
    "workload": "policies",
    "onMap": 97,
-   "curated": 5,
+   "curated": 7,
    "betaOnly": 31
   },
   {
@@ -2636,7 +2636,7 @@
   {
    "workload": "admin",
    "onMap": 41,
-   "curated": 3,
+   "curated": 4,
    "betaOnly": 28
   },
   {

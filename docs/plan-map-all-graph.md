@@ -9,7 +9,7 @@ Exported from the owner's Claude Doc "MGC: Claude Code brief to map all of Micro
 - [x] Phase 2: generated tier, proved on Intune (branch `claude/phase2-generated-intune`, stacked on Phase 1, committed locally 28 Nov 2026; waiting for the owner's review and push)
 - [x] Phase 3: every v1.0 area, then beta (branch `claude/phase3-all-areas`, stacked on Phase 2, committed locally 28 Nov 2026; waiting for the owner's review and push)
 - [x] Phase 4: curated depth for security (branch `claude/phase4-security-depth`, cut from `main` after Phases 1-3 merged, committed locally 28 Nov 2026; the owner approved all six scenarios, now written)
-- [ ] Phase 5: extras
+- [x] Phase 5: extras (branch `claude/phase5-extras`, cut from `main` after Phase 4 merged, committed locally 28 Nov 2026)
 
 ## Decisions and findings
 
@@ -50,7 +50,7 @@ Exported from the owner's Claude Doc "MGC: Claude Code brief to map all of Micro
   - Left blank because Learn doesn't state it on the API pages: licence for authentication methods, cross-tenant access policy, Secure Score control profiles, service health and Message centre.
   - Facts recorded as Learn states them, though they look odd: List riskDetections says Entra ID P1 or P2 (the existing risky user node says P2 for full data).
   - Curated now covers 153 of 1,264 v1.0 types (12%).
-  - Known cosmetic issue, not fixed: a "↳ API" link tag can sit over service labels on the left of the ring (seen with the compliance policy selected). MGC.check doesn't cover link tags.
+  - Known cosmetic issue, not fixed: a "→ API" link tag can sit over service labels on the left of the ring (seen with the compliance policy selected). MGC.check doesn't cover link tags.
 
 #### Phase 4 scenarios (owner approved all six on 28 Nov 2026; written into curated.json)
 
@@ -66,6 +66,10 @@ Each step names the node and what to do; the call, permission and catch default 
 Checks made before writing them (Microsoft Learn, 28 Nov 2026): the service principal sign-in filter `signInEventTypes/any(t: t eq 'servicePrincipal')` is only documented in beta, so step 4 of scenario 1 uses the beta endpoint and says so. `provisioningStatusInfo` isn't documented as filterable in v1.0, so scenario 5 filters on `activityDateTime` and picks out failures in code. A risk detection's `correlationId` is the sign-in's correlation ID and `signIn` supports `$filter` on it, so scenario 2 joins on that (and a curated link records it). The repeat offenders report needs `AttackSimulation.Read.All`. Every property the steps name (complianceState, azureADDeviceId, deviceId, isCompliant, actionRequiredByDateTime, isResolved) was checked against $metadata. Scenario ids: workload-identity-triage, risky-signin-investigation, device-compliance-gap, phishing-simulation-followup, provisioning-failure-review, posture-change-review.
 
 Overlap with Phase 6: Phase 6 scenario 2 (phishing-resistant MFA migration) and scenario 6 (Conditional Access coverage) will also use user registration details, authentication method and cross-tenant access policy, so they are not proposed again here.
+- 28 Nov 2026: owner merged PR #8 (Phase 4) into `main`; deploy green, live page serves curated 0.8.0 with the six new scenarios.
+- 28 Nov 2026, Phase 5 (extras):
+  - "Open in Graph Explorer" on every entry with a GET path: 76 of 85 curated and 1,671 of 1,835 generated entries. The link format (`https://developer.microsoft.com/graph/graph-explorer?request=<encoded path>&method=GET&version=<v1.0|beta>&GraphUrl=https://graph.microsoft.com`) is the one Learn's own "try it" links use; checked that it opens with the request filled in (nobody signed in, nothing run). The link uses the entry's first request, simplifies placeholders such as `{id | userPrincipalName}` to `{id}`, takes the version from a `/beta` prefix or the scan status, and adds a note when placeholders need filling. POST-only entries (for example `runHuntingQuery`) and entries outside Graph get no link, so every link is read-only.
+  - Permission names link to `https://graphpermissions.merill.net/permission/<name>` (checked: real pages load, including hyphenated names; a made-up name doesn't resolve). Only names the scanner has confirmed against Graph's permission list are linked (441 distinct names), in curated and generated panels and in scenario steps.
 
 ---
 
@@ -206,13 +210,92 @@ Propose new scenarios that use them.
 - microsoft-graph-devx-content: commit b9a67f1, `permissions/new/permissions.json`
 - MGC repository: CLAUDE.md, `data/coverage.json` and `data/changelog.json` at `f0f3a58` (Scan 2026-11-23).
 
+#### Phase 6 scenarios (owner approved all nine on 28 Nov 2026; written into curated.json, curated 0.9.0)
+
+Every call, filter, permission and catch below was checked on Microsoft Learn on 28 Nov 2026. Where a step names no permission or licence, it uses the node's own (already checked) notes. "(read-only, uses POST)" marks the few read calls that need POST, for Phase 7's allow list.
+
+**New curated nodes these need** (facts checked; written only after approval):
+- **Authentication methods policy** (Policies › Authentication): `GET /policies/authenticationMethodsPolicy`, Policy.Read.AuthenticationMethod (delegated and application); roles Global Reader or Authentication Policy Administrator; not in the China (21Vianet) cloud.
+- **Authentication strength policy** (Policies › Authentication): `GET /policies/authenticationStrengthPolicies`, Policy.Read.AuthenticationMethod; built-in "Phishing-resistant MFA" is id `00000000-0000-0000-0000-000000000004` (allowed combinations windowsHelloForBusiness, fido2, x509CertificateMultiFactor); a Conditional Access policy points to it through the `grantControls.authenticationStrength` relationship and can't combine it with the `mfa` control.
+- **SharePoint tenant settings** (Admin › Exchange, SharePoint & Teams admin): `GET /admin/sharepoint/settings`, SharePointTenantSettings.Read.All; delegated callers need Global Reader or SharePoint Administrator; `sharingCapability` is disabled, externalUserSharingOnly, externalUserAndGuestSharing or existingExternalUserSharingOnly (Learn's Graph page doesn't say which value allows "Anyone" links).
+
+**Template change:** a fourth scenario group, "Cost and hygiene", for scenarios 8 and 9.
+
+**1. Least-privilege review of apps' and agents' Graph permissions** (`app-permission-review`, Classic). Licence: Entra ID Free for the grants; P1 or P2 for the last-used report.
+1. Service principal: find Microsoft Graph's service principal. `GET /servicePrincipals(appId='00000003-0000-0000-c000-000000000000')`. Catch: the appId is the same in every tenant; the object id is not.
+2. App role assignment: list every app and agent holding Graph application permissions. `GET /servicePrincipals(appId='00000003-0000-0000-c000-000000000000')/appRoleAssignedTo`, Application.Read.All. Catch: recent grants or removals can show late (replication delay).
+3. OAuth2 permission grant: list delegated grants to Graph. `GET /oauth2PermissionGrants?$filter=resourceId eq '{graphSpObjectId}'`, Directory.Read.All. Catch: resourceId is Graph's service principal object id in your tenant, not its appId.
+4. Agent identity: pick out the agent identities among the holders (they are service principals of type agentIdentity).
+5. Report root: check when each app last signed in. `GET https://graph.microsoft.com/beta/reports/servicePrincipalSignInActivities?$filter=appId eq '{appId}'`, AuditLog.Read.All, P1 or P2. Catch: beta only; Learn says a timestamp alone doesn't prove the sign-in succeeded.
+
+**2. Phishing-resistant MFA migration tracking (passkeys)** (`passkey-migration`, Classic). Licence: P1 or P2 for the registration report and Conditional Access.
+1. User registration details: count who is passwordless capable. `GET /reports/authenticationMethods/userRegistrationDetails?$filter=isPasswordlessCapable eq false`. Catch: Learn names `passKeyDeviceBound` as an example `methodsRegistered` value but gives no full list; disabled users aren't returned.
+2. Authentication methods policy (new): see which methods, including passkeys (FIDO2), are enabled and for whom.
+3. Authentication strength policy (new): confirm the built-in Phishing-resistant MFA strength and any custom strengths.
+4. Conditional Access policy: find the policies that require that strength, and who they exclude. Catch: it is the `grantControls.authenticationStrength` relationship, not a built-in control.
+5. Authentication method: check stragglers one by one. Catch: Learn advises against this API for whole-population audits.
+Not covered in v1.0: how a user actually signed in (`authenticationDetails`) is in beta sign-in logs only.
+
+**3. "Anyone" and organisation-wide sharing link audit** (`sharing-link-audit`, Classic).
+1. SharePoint tenant settings (new): read the tenant's sharing level (`sharingCapability`).
+2. Site: list every site. `GET /sites/getAllSites`, Sites.Read.All (application only). Catch: no delegated permission; results are paged.
+3. Drive item: walk each drive and flag items whose sharing changed. `GET /drives/{id}/root/delta` with `Prefer: deltashowremovedasdeleted, deltatraversepermissiongaps, deltashowsharingchanges`. Catch: Learn says processing permissions this way needs Sites.FullControl.All, a high permission.
+4. Permission: list each flagged item's permissions and keep links with `link.scope` anonymous or organization. Catch: the driveItem `shared.scope` property is deprecated; use `/permissions`.
+5. Audit log query: find who created and used the links (AnonymousLinkCreated, AnonymousLinkUsed, CompanyLinkCreated). (read-only, uses POST) Catch: Learn doesn't explicitly tie these operations to the SharePointSharingOperation record type, so filter by operation name.
+
+**4. Workload identity hygiene: expiring secrets, unused and over-permissioned apps** (`workload-identity-hygiene`, Classic). Licence: Entra ID Free; P1 or P2 for credential last use.
+1. Application: list apps with their secrets and certificates. `GET /applications?$select=id,appId,displayName,passwordCredentials,keyCredentials`, Application.Read.All. Catch: filter `endDateTime` in your own code (no documented `$filter` on expiry); `$select` of keyCredentials is throttled at 150 requests a minute per tenant.
+2. Service principal: do the same for service principals, which can hold credentials too.
+3. Application: find apps with fewer than two owners. `GET /applications?$filter=owners/$count eq 0 or owners/$count eq 1&$count=true` with `ConsistencyLevel: eventual`.
+4. Report root: check when each credential was last used. `GET https://graph.microsoft.com/beta/reports/appCredentialSignInActivities`, AuditLog.Read.All. Catch: beta only; the API page states no licence.
+5. App role assignment: list the application permissions each app holds. `GET /servicePrincipals/{id}/appRoleAssignments`.
+6. Risky service principal: check whether any are flagged at risk.
+
+**5. Sensitivity label coverage as a Copilot readiness gate** (`label-copilot-readiness`, AI).
+1. Sensitivity label: list the labels in use.
+2. Group: check container labels on Microsoft 365 groups and their team sites. `GET /groups/{id}?$select=assignedLabels`, Group.Read.All. Catch: needs `$select`; needs Entra ID P1; the site resource has no label property.
+3. Site: list every site (`GET /sites/getAllSites`, application only).
+4. Drive item: read each file's label. `POST /drives/{id}/items/{id}/extractSensitivityLabels`, Files.Read.All (read-only, uses POST). Catch: driveItem has no label property; the call can refresh the stored label metadata; not supported for SharePoint Embedded; 423 Locked for double key encrypted files.
+5. Outside Graph: labelled-versus-unlabelled counts aren't in Graph; they're in Purview content explorer or the SharePoint Advanced Management sensitivity label report.
+
+**6. Conditional Access coverage and gap analysis** (`ca-coverage-gaps`, Classic). Licence: Entra ID P1.
+1. Conditional Access policy: list policies with their state and include/exclude lists. Catch: `enabledForReportingButNotEnforced` means report-only.
+2. Group: resolve excluded groups, including break-glass accounts. `GET /groups/{id}/members`.
+3. Sign-in: find sign-ins that no policy applied to. `GET /auditLogs/signIns?$filter=conditionalAccessStatus eq 'notApplied' and createdDateTime ge {date}`, AuditLog.Read.All plus Policy.Read.ConditionalAccess. Catch: without a policy permission, `appliedConditionalAccessPolicies` is silently left out.
+4. Conditional Access policy: test a user and app with What If. `POST /identity/conditionalAccess/evaluate`, Policy.Read.ConditionalAccess (read-only, uses POST). Catch: pass an app ID, not "Office 365"; unset conditions don't match.
+5. Cross-tenant access policy: check inbound trust (MFA and device claims) for guests.
+
+**7. EWS to Graph migration of mail-integrated apps** (`ews-migration`, Classic). Catch for the whole scenario: EWS in Exchange Online began phased disablement on 1 October 2026 and is fully retired on 1 April 2027.
+1. Outside Graph: start with the EWS usage report in the Microsoft 365 admin center (Reports › Usage › Exchange › EWS usage): app ID, SOAP action, call volume, last activity. Catch: no Graph endpoint; data is aggregated weekly and can lag up to 10 days.
+2. Service principal: find Office 365 Exchange Online. `GET /servicePrincipals(appId='00000002-0000-0ff1-ce00-000000000000')`.
+3. App role assignment: list apps holding `full_access_as_app` (EWS with access to every mailbox). `GET /servicePrincipals(appId='00000002-0000-0ff1-ce00-000000000000')/appRoleAssignedTo`.
+4. OAuth2 permission grant: list delegated grants with `EWS.AccessAsUser.All`. `GET /oauth2PermissionGrants?$filter=resourceId eq '{exchangeSpObjectId}'`.
+5. Application: find each app's owners to contact. `GET /applications(appId='{appId}')/owners`.
+Guide: https://learn.microsoft.com/graph/migrate-exchange-web-services-overview
+
+**8. ROT clean-up: stale, duplicate and orphaned content** (`rot-cleanup`, Cost and hygiene).
+1. Report root: SharePoint site usage, with last activity and storage used. `GET /reports/getSharePointSiteUsageDetail(period='D180')`, Reports.Read.All. Catch: if `displayConcealedNames` is on (`GET /admin/reportSettings`, ReportSettings.Read.All), site and owner names come back hashed.
+2. Site: open the stale sites.
+3. Drive: check each drive's quota and owner.
+4. Drive item: list files with delta and pick out old ones by lastModifiedDateTime. `GET /drives/{id}/root/delta`. Catch: delta has no `$filter`, so filter in your own code.
+5. Drive item: count versions on large files. `GET /drives/{id}/items/{id}/versions`. Catch: newest first, no `$orderby`.
+6. Retention label: read each file's retention label before anything is marked for deletion. `GET /drives/{id}/items/{id}/retentionLabel`, Files.Read.All. Catch: don't delete if `isDeleteAllowed` is false or the record is locked.
+To check before writing: Learn doesn't describe a duplicate-detection method; the step text won't claim one.
+
+**9. Licence clean-up, including Copilot seats** (`licence-cleanup`, Cost and hygiene).
+1. Subscribed SKU: compare bought (`prepaidUnits.enabled`) with used (`consumedUnits`). LicenseAssignment.Read.All.
+2. User: licensed users with their sign-in activity. `GET /users?$select=id,userPrincipalName,accountEnabled,assignedLicenses,signInActivity`, User.Read.All plus AuditLog.Read.All, P1 or P2. Catch: page size up to 500 with signInActivity; a signInActivity filter can't be combined with other filters; no data before April 2020.
+3. User: disabled accounts still holding licences. `GET /users?$filter=accountEnabled eq false and assignedLicenses/$count ne 0&$count=true` with `ConsistencyLevel: eventual`. Catch: this combination follows Learn's documented rules but Learn shows no exact example.
+4. Group: group-based licences. Users' `licenseAssignmentStates.assignedByGroup` names the group; `group.assignedLicenses` needs `$select`. Catch: remove the licence from the group, not the user.
+5. Report root: Copilot usage per user. `GET /copilot/reports/getMicrosoft365CopilotUsageUserDetail(period='D28')` (v1.0, CSV), Reports.Read.All. Catch: covers Copilot-licensed users only; delegated callers need a role such as AI Administrator or Reports Reader.
+
 ---
 
 ## Added by the owner on 28 Nov 2026: Phases 6 and 7
 
 Start these only when the owner says go. The same ground rules apply: stop and ask before anything that touches GitHub or Azure, and never invent permission names, API paths or cmdlet names.
 
-- [ ] Phase 6: nine new scenarios
+- [x] Phase 6: nine new scenarios (branch `claude/phase6-scenarios`, stacked on Phase 5; owner approved all nine on 28 Nov 2026; written and committed locally)
 - [ ] Phase 7: script examples for every scenario
 
 #### Phase 6: nine new scenarios
