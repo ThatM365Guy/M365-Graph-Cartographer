@@ -144,6 +144,29 @@ class ScanTests(unittest.TestCase):
         promoted = [c["kind"] for c in changes if c["node"] == "sensitivityLabel"]
         self.assertEqual(promoted, ["status"])          # not one entry per property as well
 
+    def test_changed_this_week_is_not_cut_by_the_recent_list(self):
+        first, _ = self.run_scan("v1.xml", "beta.xml")
+        self.assertEqual(first["changedNodes"], {})                      # a baseline is not a change
+        keep = scan.RECENT_KEEP
+        scan.RECENT_KEEP = 1                                             # far fewer than the changes in this scan
+        try:
+            second, _ = self.run_scan("v1_later.xml", "beta.xml", prev=first, now=D2)
+        finally:
+            scan.RECENT_KEEP = keep
+        self.assertEqual(len(second["recentChanges"]), 1)
+        self.assertEqual(second["changedNodes"].get("user"), "2026-11-21")
+        self.assertEqual(second["changedNodes"].get("sensitivityLabel"), "2026-11-21")
+        kept, _ = scan.build_map(curated(), second, scan=False, now=D2 + dt.timedelta(days=30))
+        self.assertEqual(kept["changedNodes"], second["changedNodes"])   # --no-scan keeps the list as it was
+        later, _ = self.run_scan("v1_later.xml", "beta.xml", prev=second, now=D2 + dt.timedelta(days=8))
+        self.assertEqual(later["changedNodes"], {})                      # older than a week, and nothing new
+        old_map = {k: v for k, v in second.items() if k != "changedNodes"}
+        seeded = scan.changed_this_week(old_map, [], None)               # a map from before changedNodes existed
+        self.assertEqual(sorted(seeded), sorted(c["node"] for c in second["recentChanges"]
+                                                if c["node"] and c["kind"] in scan.SCHEMA_CHANGE_KINDS))
+        with open(os.path.join(ROOT, "web", "template.html"), encoding="utf-8") as f:
+            self.assertIn("D.changedNodes", f.read())
+
     def test_retargeted_node_is_one_curation_entry_not_schema_changes(self):
         first, _ = self.run_scan("v1.xml", "beta.xml")
         cur = curated()

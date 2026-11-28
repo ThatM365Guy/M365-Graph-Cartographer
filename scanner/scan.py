@@ -41,6 +41,10 @@ BETA_URL = "https://graph.microsoft.com/beta/$metadata"
 GRAPH_APP_ID = "00000003-0000-0000-c000-000000000000"
 CHANGELOG_KEEP = 2000
 RECENT_KEEP = 60
+# "Changed this week" on the page: nodes with a schema change (not a new node, retarget or baseline) in the last
+# CHANGED_DAYS days. Kept apart from recentChanges, which is cut to RECENT_KEEP entries.
+SCHEMA_CHANGE_KINDS = {"status", "props-added", "props-removed", "navs-added", "navs-removed"}
+CHANGED_DAYS = 7
 # "New in Graph" entries per kind that go into recentChanges; the rest are summarised (full list in changelog.json).
 NEW_IN_GRAPH_RECENT = 5
 # Roots are areas. When a type is equally close to two roots, the earlier one in AREA_PRIORITY wins, then
@@ -838,6 +842,7 @@ def build_map(curated, prev_map=None, v1_src=None, beta_src=None, token=None, sc
         nodes.append(n)
 
     recent = (cap_new_in_graph(changes) + list((prev_map or {}).get("recentChanges", [])))[:RECENT_KEEP]
+    changed_nodes = changed_this_week((prev_map or {}), changes, now if scan else None)
     state = dict(prev_state)
     if perm_names:
         state["permissionNames"], state["permissionNamesAt"] = perm_names, perm_at
@@ -856,12 +861,32 @@ def build_map(curated, prev_map=None, v1_src=None, beta_src=None, token=None, sc
         "edges": edges + discovered,
         "scenarios": curated.get("scenarios", []),
         "recentChanges": recent,
+        "changedNodes": changed_nodes,
         "state": state,
     }
     summary = coverage_summary(cov) or (prev_map or {}).get("coverage")
     if summary:
         graph_map["coverage"] = summary
     return graph_map, changes
+
+
+def changed_this_week(prev_map: dict, changes: list, now) -> dict:
+    """node id -> date of its latest schema change in the CHANGED_DAYS days up to this scan. now=None (--no-scan)
+    keeps the previous list. A map written before changedNodes existed is read from its recent list."""
+    prev = prev_map.get("changedNodes")
+    if prev is None:
+        prev = {}
+        for c in prev_map.get("recentChanges", []):
+            if c.get("node") and c["kind"] in SCHEMA_CHANGE_KINDS:
+                prev[c["node"]] = max(prev.get(c["node"], ""), c["date"])
+    if now is None:
+        return dict(sorted(prev.items()))
+    cutoff = (now - dt.timedelta(days=CHANGED_DAYS)).date().isoformat()
+    out = {k: d for k, d in prev.items() if d >= cutoff}
+    for c in changes:
+        if c.get("node") and c["kind"] in SCHEMA_CHANGE_KINDS:
+            out[c["node"]] = max(out.get(c["node"], ""), c["date"])
+    return dict(sorted(out.items()))
 
 
 def unsorted_nodes(curated: dict) -> list:

@@ -353,7 +353,10 @@ function init(){
   // seven days up to the latest scan. New nodes, retargets, baselines and discovered links don't count.
   const SCHEMA_KINDS = /^(status|props-added|props-removed|navs-added|navs-removed)$/;
   const lastScan = scanInfo ? new Date(scanInfo.at) : new Date();
-  const changed = new Set(recent.filter(c => c.node && SCHEMA_KINDS.test(c.kind) && (lastScan - new Date(c.date)) < 8*864e5).map(c => c.node));
+  // The scanner's changedNodes (node -> date) is complete; recentChanges is cut to 60 entries, so it is only the fallback.
+  const inWeek = d => (lastScan - new Date(d)) < 8*864e5;
+  const changed = new Set(D.changedNodes ? Object.keys(D.changedNodes).filter(id => inWeek(D.changedNodes[id]))
+    : recent.filter(c => c.node && SCHEMA_KINDS.test(c.kind) && inWeek(c.date)).map(c => c.node));
   const SCEN = D.scenarios || [], SC = {}; SCEN.forEach(x => SC[x.id] = x);
   const SCEN_GROUPS = ['Classic', 'AI', 'Purview', 'Cost and hygiene'];
   const scenGroups = s => s.steps.reduce((g, st) => { if (st.or && g.length) g[g.length-1].push(st); else g.push([st]); return g; }, []);
