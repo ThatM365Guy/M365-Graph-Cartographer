@@ -193,6 +193,21 @@ class ScanTests(unittest.TestCase):
         self.assertEqual(next(n for n in back["nodes"] if n["id"] == "user")["scan"]["of"], "microsoft.graph.user")
         self.assertNotIn("retargetedScans", back["state"])
 
+    def test_no_scan_drops_discovered_links_that_are_now_curated(self):
+        cur = curated()
+        user_site = next(e for e in cur["edges"] if (e["s"], e["t"]) == ("user", "site"))
+        cur["edges"].remove(user_site)
+        first, _ = scan.build_map(cur, None, os.path.join(FX, "v1.xml"), os.path.join(FX, "beta.xml"), now=D1)
+        self.assertTrue(any(e["kind"] == "discovered" and (e["s"], e["t"]) == ("user", "site") for e in first["edges"]))
+        gm, _ = scan.build_map(curated(), first, scan=False, now=D2)        # the link is curated again
+        pair = [e["kind"] for e in gm["edges"] if (e["s"], e["t"]) == ("user", "site")]
+        self.assertEqual(pair, ["nav"])
+        gone = curated()
+        gone["nodes"] = [n for n in gone["nodes"] if n["id"] != "site"]
+        gone["edges"] = [e for e in gone["edges"] if "site" not in (e["s"], e["t"])]
+        gm, _ = scan.build_map(gone, first, scan=False, now=D2)             # a node that has gone
+        self.assertFalse([e for e in gm["edges"] if "site" in (e["s"], e["t"])])
+
     def test_no_scan_keeps_previous_results_and_new_curated_text(self):
         first, _ = self.run_scan("v1.xml", "beta.xml")
         cur = curated()

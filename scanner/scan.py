@@ -813,7 +813,11 @@ def build_map(curated, prev_map=None, v1_src=None, beta_src=None, token=None, sc
             e = dict(e)
             e["scan"] = prev_edges.get((e["s"], e["t"], e.get("nav") or e.get("action") or e.get("label")), "not scanned")
             edges.append(e)
-        discovered = [e for e in (prev_map or {}).get("edges", []) if e["kind"] == "discovered"]
+        # as discover_edges() would: not for a pair a curated link now covers, nor for a node that has gone
+        covered = {(e["s"], e["t"]) for e in curated["edges"]}
+        ids = {n["id"] for n in curated["nodes"]}
+        discovered = [e for e in (prev_map or {}).get("edges", []) if e["kind"] == "discovered"
+                      and (e["s"], e["t"]) not in covered and e["s"] in ids and e["t"] in ids]
         changes = []
         cov = (summarise_coverage(merged, prev_coverage["types"], prev_coverage.get("roots") or {},
                                   prev_coverage.get("at")) if prev_coverage and prev_coverage.get("types") else None)
