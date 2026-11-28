@@ -41,6 +41,16 @@ class FunctionPackage(unittest.TestCase):
             self.assertEqual(missing, [], f"{script} doesn't copy {missing}")
 
 
+class Workflow(unittest.TestCase):
+    def setUp(self):
+        self.yml = read(".github", "workflows", "scan.yml")
+
+    def test_bot_commits_every_file_the_scan_writes(self):
+        add = re.search(r"git add ([^\n]+)", self.yml).group(1).split()
+        for f in ("data/graph-map.json", "data/changelog.json", "data/coverage.json", "data/generated.json"):
+            self.assertIn(f, add)
+
+
 def import_function_app():
     """function_app.py with the azure-* packages stubbed (they are only installed in the Function)."""
     stubs = {name: types.ModuleType(name) for name in ("azure", "azure.functions", "azure.identity", "azure.storage",
