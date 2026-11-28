@@ -115,9 +115,39 @@ def load_scripts(folder: str) -> dict:
     return out
 
 
-def render(template: str, graph_map: dict, allow_unsorted: bool = False, scripts: dict | None = None) -> str:
+VERSION_FILE = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "version.json")
+SEMVER_RX = re.compile(r"^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$")
+
+
+def load_version(path: str = VERSION_FILE) -> dict:
+    """The app version, kept in one file (data/version.json): {"version": "0.10.0", "released": "2026-11-28"}.
+    It goes into the header, the About popup and the footer through the {{version}} and {{released}} markers."""
+    try:
+        with open(path, encoding="utf-8") as f:
+            app = json.load(f)
+    except (OSError, ValueError) as e:
+        raise BuildError(f"cannot read the app version from {path}: {e}")
+    v, rel = str(app.get("version", "")), str(app.get("released", ""))
+    if not SEMVER_RX.match(v):
+        raise BuildError(f"{path}: version '{v}' is not semantic versioning (for example 0.10.0)")
+    if not re.match(r"^\d{4}-\d{2}-\d{2}$", rel):
+        raise BuildError(f"{path}: released '{rel}' is not a date (YYYY-MM-DD)")
+    return {"version": v, "released": rel}
+
+
+def release_date(iso: str) -> str:
+    """2026-11-28 -> 28 Nov 2026, the way the page writes dates."""
+    y, m, d = (int(x) for x in iso.split("-"))
+    return f"{d} {'Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec'.split()[m - 1]} {y}"
+
+
+def render(template: str, graph_map: dict, allow_unsorted: bool = False, scripts: dict | None = None,
+           app: dict | None = None) -> str:
     if "nodes" in graph_map:
         validate(graph_map, allow_unsorted)
+    app = app or load_version()
+    # before the data goes in, so text in the data can never be taken for a marker
+    template = template.replace("{{version}}", app["version"]).replace("{{released}}", release_date(app["released"]))
     data = {k: v for k, v in graph_map.items() if k != "state"}
     if scripts:
         data["scripts"] = scripts
@@ -137,20 +167,21 @@ def main(argv=None):
     ap.add_argument("--scripts", default="scripts/scenarios", help="folder of scenario scripts to embed (missing is fine)")
     ap.add_argument("--allow-unsorted", action="store_true",
                     help="build even if some nodes have no sub-service (shown under 'Unsorted')")
+    ap.add_argument("--version-file", default=VERSION_FILE, help="the app version (default data/version.json)")
     a = ap.parse_args(argv)
     with open(a.template, encoding="utf-8") as f:
         template = f.read()
     with open(a.data, encoding="utf-8") as f:
         graph_map = json.load(f)
     try:
-        html = render(template, graph_map, a.allow_unsorted, load_scripts(a.scripts))
+        html = render(template, graph_map, a.allow_unsorted, load_scripts(a.scripts), load_version(a.version_file))
     except BuildError as e:
         raise SystemExit(f"build_page: {e}")
     os.makedirs(os.path.dirname(os.path.abspath(a.out)), exist_ok=True)
     with open(a.out, "w", encoding="utf-8") as f:
         f.write(html)
     unsorted = subservice_problems(graph_map)[1]
-    print(f"wrote {a.out} ({len(html) // 1024} KB)" + (f"; unsorted: {', '.join(unsorted)}" if unsorted else ""))
+    print(f"wrote {a.out} ({len(html) // 1024} KB, v{load_version(a.version_file)['version']})" + (f"; unsorted: {', '.join(unsorted)}" if unsorted else ""))
 
 
 if __name__ == "__main__":

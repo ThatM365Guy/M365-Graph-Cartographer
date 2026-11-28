@@ -40,6 +40,12 @@ class FunctionPackage(unittest.TestCase):
             missing = [m for m in needed if f"{m}.py" not in text]
             self.assertEqual(missing, [], f"{script} doesn't copy {missing}")
 
+    def test_package_scripts_copy_the_app_version(self):
+        # build_page.render() reads data/version.json next to the scanner folder, so the Function needs its own copy
+        self.assertEqual(os.path.basename(os.path.dirname(build_page.VERSION_FILE)), "data")
+        for script, sep in (("package.sh", "/"), ("package.ps1", "\\")):
+            self.assertIn(f"..{sep}data{sep}version.json", read("function_app", script), script)
+
 
 class Workflow(unittest.TestCase):
     def setUp(self):

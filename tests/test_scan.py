@@ -5,7 +5,9 @@ import json
 import os
 import re
 import sys
+import tempfile
 import unittest
+import urllib.parse
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
@@ -554,6 +556,64 @@ class BuildPageTests(unittest.TestCase):
         html = build_page.render(tpl, {"meta": {"x": "</script><b>"}, "state": {"big": 1}})
         self.assertNotIn("</script><b>", html)
         self.assertNotIn('"state"', html)
+
+    def _page(self, version):
+        with open(os.path.join(ROOT, "web", "template.html"), encoding="utf-8") as f:
+            tpl = f.read()
+        with tempfile.TemporaryDirectory() as d:
+            path = os.path.join(d, "version.json")
+            with open(path, "w", encoding="utf-8") as f:
+                json.dump({"version": version, "released": "2027-01-05"}, f)
+            return build_page.render(tpl, {"meta": {}}, app=build_page.load_version(path))
+
+    def test_version_comes_from_one_file(self):
+        """data/version.json feeds the header label, the About popup and the footer line; nothing else holds it."""
+        html = self._page("9.8.7")
+        self.assertNotIn("{{version}}", html)
+        self.assertNotIn("{{released}}", html)
+        self.assertRegex(html, r'<a class="ver" id="ver"[^>]*title="What’s new in v9\.8\.7">v9\.8\.7</a>')   # header
+        self.assertIn('<p id="aboutVer">Version 9.8.7 · released 5 Jan 2027</p>', html)                    # popup
+        self.assertIn("What’s new in v9.8.7</a></li>", html)
+        self.assertRegex(html, r'class="foot">.*<span class=\\?"appver\\?">M365 Graph Cartographer v9\.8\.7</span>')   # footer
+        self.assertEqual(html.count("9.8.7"), 5)   # label, its tooltip, popup line, popup link, footer
+        with open(os.path.join(ROOT, "web", "template.html"), encoding="utf-8") as f:
+            tpl = f.read()
+        self.assertNotRegex(tpl, r"v?\d+\.\d+\.\d+</")   # no version typed into the template
+
+    def test_version_file_is_checked(self):
+        with tempfile.TemporaryDirectory() as d:
+            path = os.path.join(d, "version.json")
+            for bad in ({"version": "0.10", "released": "2026-11-28"}, {"version": "v0.10.0", "released": "2026-11-28"},
+                        {"version": "0.10.0", "released": "28 Nov 2026"}):
+                with open(path, "w", encoding="utf-8") as f:
+                    json.dump(bad, f)
+                with self.assertRaises(build_page.BuildError):
+                    build_page.load_version(path)
+            with self.assertRaises(build_page.BuildError):
+                build_page.load_version(os.path.join(d, "missing.json"))
+
+    def test_current_version_has_a_changelog_entry(self):
+        app = build_page.load_version()
+        with open(os.path.join(ROOT, "CHANGELOG.md"), encoding="utf-8") as f:
+            self.assertRegex(f.read(), rf"(?m)^## {re.escape(app['version'])} \(")
+
+    def test_favicon_is_the_title_mark(self):
+        """The tab icon is the header mark as a data URI, with fixed colours and a dark-mode switch for its lines."""
+        with open(os.path.join(ROOT, "web", "template.html"), encoding="utf-8") as f:
+            tpl = f.read()
+        mark = re.search(r'<symbol id="mgc-mark" viewBox="0 0 32 32">(.*?)</symbol>', tpl).group(1)
+        href = re.search(r'<link rel="icon" type="image/svg\+xml" href="data:image/svg\+xml,([^"]+)">', tpl).group(1)
+        fav = urllib.parse.unquote(href)
+        self.assertIn(mark.replace("currentColor", "#141210"), fav)
+        self.assertIn('@media (prefers-color-scheme:dark){[stroke="#141210"]{stroke:#ece8e2}}', fav)
+        self.assertNotIn("currentColor", fav)
+
+    def test_every_service_has_an_icon(self):
+        c = curated()
+        icons = {k: v for k, v in c["icons"].items() if not k.startswith("_")}
+        self.assertEqual(set(icons), {w["id"] for w in c["workloads"]} | {c["hub"]["id"]})
+        for k, v in icons.items():
+            self.assertNotRegex(v, r"<(script|image|use|foreignObject)|href|on\w+=|style=", k)   # plain shapes only
 
 
 import generate  # noqa: E402

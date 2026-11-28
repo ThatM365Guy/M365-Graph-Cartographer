@@ -891,6 +891,7 @@ def build_map(curated, prev_map=None, v1_src=None, beta_src=None, token=None, sc
     graph_map = {
         "meta": meta,
         "workloads": curated["workloads"],
+        "icons": {k: v for k, v in (curated.get("icons") or {}).items() if not k.startswith("_")},
         "hub": curated["hub"],
         "nodes": nodes,
         "edges": edges + discovered,
