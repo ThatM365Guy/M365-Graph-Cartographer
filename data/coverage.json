@@ -1,16 +1,18 @@
 {
- "at": "2026-11-28T12:42:13+00:00",
+ "at": "2026-11-28T12:54:37+00:00",
  "v1Types": 1264,
  "betaOnlyTypes": 1369,
- "onMap": 346,
- "curated": 137,
+ "onMap": 1264,
+ "curated": 138,
+ "betaOnMap": 1369,
  "areas": [
   {
    "area": "deviceManagement",
-   "v1": 134,
-   "betaOnly": 376,
-   "onMap": 134,
+   "v1": 136,
+   "betaOnly": 381,
+   "onMap": 136,
    "curated": 0,
+   "betaOnMap": 381,
    "onMapTypes": [
     "androidCompliancePolicy",
     "androidCustomConfiguration",
@@ -86,6 +88,7 @@
     "macOSGeneralDeviceConfiguration",
     "malwareStateForWindowsDevice",
     "managedDevice",
+    "managedDeviceOverview",
     "mobileAppTroubleshootingEvent",
     "mobileThreatDefenseConnector",
     "notificationMessageTemplate",
@@ -96,6 +99,7 @@
     "roleDefinition",
     "settingStateDeviceSummary",
     "sharedPCConfiguration",
+    "softwareUpdateStatusSummary",
     "termsAndConditions",
     "termsAndConditionsAcceptanceStatus",
     "termsAndConditionsAssignment",
@@ -151,76 +155,69 @@
   },
   {
    "area": "security",
-   "v1": 100,
-   "betaOnly": 75,
-   "onMap": 36,
-   "curated": 36,
+   "v1": 112,
+   "betaOnly": 84,
+   "onMap": 112,
+   "curated": 38,
+   "betaOnMap": 84,
    "onMapTypes": [
-    "authoredNote",
-    "secureScore",
-    "security.alert",
-    "security.auditLogQuery",
-    "security.auditLogRecord",
-    "security.authorityTemplate",
-    "security.categoryTemplate",
-    "security.citationTemplate",
-    "security.dataSource",
-    "security.departmentTemplate",
-    "security.dispositionReviewStage",
-    "security.ediscoveryAddToReviewSetOperation",
-    "security.ediscoveryCase",
-    "security.ediscoveryCustodian",
-    "security.ediscoveryEstimateOperation",
-    "security.ediscoveryExportOperation",
-    "security.ediscoveryHoldOperation",
-    "security.ediscoveryHoldPolicySyncOperation",
-    "security.ediscoveryNoncustodialDataSource",
-    "security.ediscoveryReviewSet",
-    "security.ediscoveryReviewSetQuery",
-    "security.ediscoverySearch",
-    "security.filePlanDescriptor",
-    "security.filePlanReferenceTemplate",
-    "security.incident",
-    "security.retentionEvent",
-    "security.retentionEventType",
-    "security.retentionLabel",
-    "security.siteSource",
-    "security.subcategoryTemplate",
-    "security.unifiedGroupSource",
-    "security.userSource",
-    "sensitivityLabel",
-    "subjectRightsRequest",
-    "tenantDataSecurityAndGovernance",
-    "tenantProtectionScopeContainer"
-   ],
-   "missing": [
     "alert",
     "attackSimulationOperation",
     "attackSimulationRoot",
+    "authoredNote",
+    "dataSecurityAndGovernance",
     "endUserNotification",
     "endUserNotificationDetail",
     "landingPage",
     "landingPageDetail",
     "loginPage",
     "payload",
+    "secureScore",
     "secureScoreControlProfile",
     "security",
+    "security.alert",
     "security.analyzedEmail",
     "security.article",
     "security.articleIndicator",
+    "security.artifact",
     "security.auditCoreRoot",
+    "security.auditLogQuery",
+    "security.auditLogRecord",
+    "security.authorityTemplate",
     "security.autoAuditingConfiguration",
+    "security.case",
     "security.caseOperation",
     "security.casesRoot",
+    "security.categoryTemplate",
+    "security.citationTemplate",
     "security.collaborationRoot",
+    "security.dataSet",
+    "security.dataSource",
+    "security.dataSourceContainer",
+    "security.departmentTemplate",
     "security.detectionRule",
+    "security.dispositionReviewStage",
+    "security.ediscoveryAddToReviewSetOperation",
+    "security.ediscoveryCase",
     "security.ediscoveryCaseMember",
     "security.ediscoveryCaseSettings",
+    "security.ediscoveryCustodian",
+    "security.ediscoveryEstimateOperation",
+    "security.ediscoveryExportOperation",
+    "security.ediscoveryHoldOperation",
+    "security.ediscoveryHoldPolicySyncOperation",
     "security.ediscoveryIndexOperation",
+    "security.ediscoveryNoncustodialDataSource",
     "security.ediscoveryPurgeDataOperation",
+    "security.ediscoveryReviewSet",
+    "security.ediscoveryReviewSetQuery",
     "security.ediscoveryReviewTag",
+    "security.ediscoverySearch",
     "security.ediscoverySearchExportOperation",
     "security.ediscoveryTagOperation",
+    "security.filePlanDescriptor",
+    "security.filePlanDescriptorTemplate",
+    "security.filePlanReferenceTemplate",
     "security.healthIssue",
     "security.host",
     "security.hostComponent",
@@ -233,363 +230,96 @@
     "security.hostname",
     "security.identityAccounts",
     "security.identityContainer",
+    "security.incident",
+    "security.indicator",
     "security.intelligenceProfile",
     "security.intelligenceProfileIndicator",
     "security.ipAddress",
     "security.labelsRoot",
     "security.passiveDnsRecord",
+    "security.retentionEvent",
+    "security.retentionEventType",
+    "security.retentionLabel",
     "security.rulesRoot",
+    "security.search",
     "security.sensor",
     "security.sensorCandidate",
     "security.sensorCandidateActivationConfiguration",
     "security.settingsContainer",
+    "security.siteSource",
     "security.sslCertificate",
+    "security.subcategoryTemplate",
     "security.subdomain",
+    "security.tag",
     "security.threatIntelligence",
     "security.triggerTypesRoot",
     "security.triggersRoot",
+    "security.unclassifiedArtifact",
+    "security.unifiedGroupSource",
     "security.user",
+    "security.userSource",
     "security.vulnerability",
     "security.vulnerabilityComponent",
+    "security.whoisBaseRecord",
     "security.whoisHistoryRecord",
     "security.whoisRecord",
+    "sensitivityLabel",
     "simulation",
     "simulationAutomation",
     "simulationAutomationRun",
+    "subjectRightsRequest",
+    "tenantDataSecurityAndGovernance",
+    "tenantProtectionScopeContainer",
     "training",
-    "trainingLanguageDetail"
-   ]
-  },
-  {
-   "area": "unrooted",
-   "v1": 89,
-   "betaOnly": 135,
-   "onMap": 4,
-   "curated": 4,
-   "onMapTypes": [
-    "aiInteraction",
-    "exchangeMessageTraceDetail",
-    "labelContentRight",
+    "trainingLanguageDetail",
     "usageRightsIncluded"
    ],
-   "missing": [
-    "agreementFileProperties",
-    "authenticationConditionApplication",
-    "b2BRegistrationMetricsBase",
-    "b2BRegistrationMetricsInitial",
-    "b2BRegistrationMetricsRecent",
-    "b2BSignInActivityMetrics",
-    "b2BSignInActivityMetricsBase",
-    "b2BSignInActivityMetricsInitial",
-    "b2BSignInActivityMetricsRecent",
-    "b2bRegistrationMetrics",
-    "baseItemVersion",
-    "baseMapFeature",
-    "billingMetrics",
-    "billingMetricsBase",
-    "billingMetricsInitial",
-    "billingMetricsRecent",
-    "callEvent",
-    "changeTrackedEntity",
-    "copilotPackage",
-    "customDataProvidedResourceFile",
-    "customExtensionStageSetting",
-    "dataSecurityAndGovernance",
-    "deltaParticipants",
-    "deviceManagementCachedReportConfiguration",
-    "educationOrganization",
-    "emergencyCallEvent",
-    "engagementConversation",
-    "enterpriseCodeSigningCertificate",
-    "entity",
-    "granularRestoreArtifactBase",
-    "identityUserFlow",
-    "importedWindowsAutopilotDeviceIdentityUpload",
-    "iosLobAppProvisioningConfigurationAssignment",
-    "itemActivity",
-    "itemActivityStat",
-    "itemAnalytics",
-    "managedDeviceOverview",
-    "multiTenantApplicationMetrics",
-    "multiTenantApplicationMetricsBase",
-    "multiTenantApplicationMetricsInitial",
-    "multiTenantApplicationMetricsRecent",
-    "officeGraphInsights",
-    "onenoteEntityBaseModel",
-    "onenoteEntityHierarchyModel",
-    "onenoteEntitySchemaObjectModel",
-    "onlineMeetingBase",
-    "operation",
-    "organizationalBrandingProperties",
-    "participantJoiningNotification",
-    "participantLeftNotification",
-    "passkeyProfile",
-    "policyDeletableItem",
-    "printUsage",
-    "printerBase",
-    "privilegedAccessSchedule",
-    "privilegedAccessScheduleInstance",
-    "privilegedAccessScheduleRequest",
-    "protectionRuleBase",
-    "protectionUnitBase",
-    "protectionUnitsBulkJobBase",
-    "relatedTenantsRefreshRequest",
-    "relyingPartyDetailedSummary",
-    "request",
-    "restoreArtifactBase",
-    "restoreArtifactsBulkRequestBase",
-    "scheduleChangeRequest",
-    "serviceAnnouncementBase",
-    "softwareUpdateStatusSummary",
-    "storageQuotaBreakdown",
-    "teamInfo",
-    "teamworkHostedContent",
-    "unifiedRoleScheduleBase",
-    "unifiedRoleScheduleInstanceBase",
-    "virtualEventRegistrationConfiguration",
-    "windowsAutopilotDeploymentProfile",
-    "windowsAutopilotDeploymentProfileAssignment",
-    "workbookFormatProtection",
-    "workbookFunctionResult",
-    "workbookRange",
-    "workbookRangeBorder",
-    "workbookRangeFill",
-    "workbookRangeFont",
-    "workbookRangeFormat",
-    "workbookRangeSort",
-    "workbookRangeView"
-   ]
-  },
-  {
-   "area": "users",
-   "v1": 87,
-   "betaOnly": 52,
-   "onMap": 13,
-   "curated": 13,
-   "onMapTypes": [
-    "activitiesContainer",
-    "calendar",
-    "contact",
-    "contentActivity",
-    "event",
-    "mailFolder",
-    "message",
-    "messageRule",
-    "todoTask",
-    "todoTaskList",
-    "user",
-    "userDataSecurityAndGovernance",
-    "userProtectionScopeContainer"
-   ],
-   "missing": [
-    "activityHistoryItem",
-    "agentUser",
-    "associatedTeamInfo",
-    "attachment",
-    "attachmentBase",
-    "attachmentSession",
-    "authentication",
-    "authenticationMethod",
-    "calendarGroup",
-    "calendarPermission",
-    "calendarSharingMessage",
-    "checklistItem",
-    "cloudClipboardItem",
-    "cloudClipboardRoot",
-    "cloudPC",
-    "contactFolder",
-    "distributionList",
-    "distributionListMember",
-    "emailAuthenticationMethod",
-    "employeeExperienceUser",
-    "eventMessage",
-    "eventMessageRequest",
-    "eventMessageResponse",
-    "exchangeSettings",
-    "externalAuthenticationMethod",
-    "fido2AuthenticationMethod",
-    "fileAttachment",
-    "inferenceClassification",
-    "inferenceClassificationOverride",
-    "itemAttachment",
-    "itemInsights",
-    "licenseDetails",
-    "linkedResource",
-    "longRunningOperation",
-    "mailSearchFolder",
-    "microsoftAuthenticatorAuthenticationMethod",
-    "multiValueLegacyExtendedProperty",
-    "note",
-    "outlookCategory",
-    "outlookItem",
-    "outlookUser",
-    "passwordAuthenticationMethod",
-    "person",
-    "phoneAuthenticationMethod",
-    "plannerUser",
-    "platformCredentialAuthenticationMethod",
-    "qrCode",
-    "qrCodePinAuthenticationMethod",
-    "qrPin",
-    "referenceAttachment",
-    "resourceAccountKeyAuthenticationMethod",
-    "sharedInsight",
-    "shiftPreferences",
-    "singleValueExtendedProperty",
-    "singleValueLegacyExtendedProperty",
-    "softwareOathAuthenticationMethod",
-    "taskFileAttachment",
-    "temporaryAccessPassAuthenticationMethod",
-    "todo",
-    "trending",
-    "usedInsight",
-    "userActivity",
-    "userInsightsSettings",
-    "userSettings",
-    "userSolutionRoot",
-    "userStorage",
-    "userTeamwork",
-    "windowsHelloForBusinessAuthenticationMethod",
-    "windowsSetting",
-    "windowsSettingInstance",
-    "workHoursAndLocationsSetting",
-    "workPlanOccurrence",
-    "workPlanRecurrence",
-    "workingTimeSchedule"
-   ]
-  },
-  {
-   "area": "identityGovernance",
-   "v1": 84,
-   "betaOnly": 84,
-   "onMap": 49,
-   "curated": 49,
-   "onMapTypes": [
-    "accessPackage",
-    "accessPackageAssignment",
-    "accessPackageAssignmentPolicy",
-    "accessPackageAssignmentRequest",
-    "accessPackageCatalog",
-    "accessPackageMultipleChoiceQuestion",
-    "accessPackageQuestion",
-    "accessPackageResource",
-    "accessPackageResourceRole",
-    "accessPackageResourceRoleScope",
-    "accessPackageResourceScope",
-    "accessPackageSubject",
-    "accessPackageTextInputQuestion",
-    "accessReviewHistoryDefinition",
-    "accessReviewHistoryInstance",
-    "accessReviewInstance",
-    "accessReviewInstanceDecisionItem",
-    "accessReviewReviewer",
-    "accessReviewScheduleDefinition",
-    "accessReviewSet",
-    "accessReviewStage",
-    "appConsentApprovalRoute",
-    "appConsentRequest",
-    "connectedOrganization",
-    "entitlementManagement",
-    "governanceInsight",
-    "identityGovernance.lifecycleWorkflowsContainer",
-    "identityGovernance.run",
-    "identityGovernance.subjectProcessingResult",
-    "identityGovernance.task",
-    "identityGovernance.taskDefinition",
-    "identityGovernance.taskProcessingResult",
-    "identityGovernance.taskReport",
-    "identityGovernance.userProcessingResult",
-    "identityGovernance.workflow",
-    "identityGovernance.workflowTemplate",
-    "identityGovernance.workflowVersion",
-    "membershipOutlierInsight",
-    "privilegedAccessGroup",
-    "privilegedAccessGroupAssignmentSchedule",
-    "privilegedAccessGroupAssignmentScheduleInstance",
-    "privilegedAccessGroupAssignmentScheduleRequest",
-    "privilegedAccessGroupEligibilitySchedule",
-    "privilegedAccessGroupEligibilityScheduleInstance",
-    "privilegedAccessGroupEligibilityScheduleRequest",
-    "privilegedAccessRoot",
-    "termsOfUseContainer",
-    "userConsentRequest",
-    "userSignInInsight"
-   ],
-   "missing": [
-    "accessPackageAssignmentRequestWorkflowExtension",
-    "accessPackageAssignmentWorkflowExtension",
-    "accessPackageResourceEnvironment",
-    "accessPackageResourceRequest",
-    "accessPackageSuggestion",
-    "approval",
-    "approvalStage",
-    "availableAccessPackage",
-    "controlConfiguration",
-    "customCalloutExtension",
-    "customDataProvidedResource",
-    "customDataProvidedResourceAccessReviewUploadSession",
-    "customDataProvidedResourceUploadSession",
-    "deletedItemContainer",
-    "endUserSettings",
-    "entitlementManagementSettings",
-    "externalOriginResourceConnector",
-    "identityGovernance",
-    "identityGovernance.accessPackageAssignmentRequiredRule",
-    "identityGovernance.agentIdentityLifecyclePolicy",
-    "identityGovernance.customTaskExtension",
-    "identityGovernance.guestLifecyclePolicy",
-    "identityGovernance.inactivityRule",
-    "identityGovernance.insights",
-    "identityGovernance.invitationRedemptionRule",
-    "identityGovernance.lifecycleManagementSettings",
-    "identityGovernance.lifecyclePolicy",
-    "identityGovernance.lifecyclePolicyPriorityConfiguration",
-    "identityGovernance.lifecyclePolicyReport",
-    "identityGovernance.lifecyclePolicyRule",
-    "identityGovernance.lifecyclePolicySubjectReport",
-    "identityGovernance.periodicAttestationRule",
-    "identityGovernance.sponsorPresenceRule",
-    "roleManagementCustomCalloutExtension",
-    "unifiedRoot"
-   ]
+   "missing": []
   },
   {
    "area": "sites",
-   "v1": 76,
+   "v1": 93,
    "betaOnly": 7,
-   "onMap": 6,
+   "onMap": 93,
    "curated": 6,
+   "betaOnMap": 7,
    "onMapTypes": [
-    "driveItem",
-    "itemRetentionLabel",
-    "list",
-    "listItem",
-    "permission",
-    "site"
-   ],
-   "missing": [
     "baseItem",
+    "baseItemVersion",
     "baseSitePage",
     "canvasLayout",
     "columnDefinition",
     "columnLink",
     "contentType",
     "documentSetVersion",
+    "driveItem",
     "driveItemVersion",
     "fieldValueSet",
     "horizontalSection",
     "horizontalSectionColumn",
+    "itemActivity",
+    "itemActivityStat",
+    "itemAnalytics",
+    "itemRetentionLabel",
+    "list",
+    "listItem",
     "listItemVersion",
     "notebook",
     "onenote",
+    "onenoteEntityBaseModel",
+    "onenoteEntityHierarchyModel",
+    "onenoteEntitySchemaObjectModel",
     "onenoteOperation",
     "onenotePage",
     "onenoteResource",
     "onenoteSection",
+    "operation",
+    "permission",
     "recycleBin",
     "recycleBinItem",
     "richLongRunningOperation",
     "sectionGroup",
+    "site",
     "sitePage",
     "standardWebPart",
     "termStore.group",
@@ -628,24 +358,236 @@
     "workbookComment",
     "workbookCommentReply",
     "workbookFilter",
+    "workbookFormatProtection",
+    "workbookFunctionResult",
     "workbookFunctions",
     "workbookNamedItem",
     "workbookOperation",
     "workbookPivotTable",
+    "workbookRange",
+    "workbookRangeBorder",
+    "workbookRangeFill",
+    "workbookRangeFont",
+    "workbookRangeFormat",
+    "workbookRangeSort",
+    "workbookRangeView",
     "workbookTable",
     "workbookTableColumn",
     "workbookTableRow",
     "workbookTableSort",
     "workbookWorksheet",
     "workbookWorksheetProtection"
-   ]
+   ],
+   "missing": []
+  },
+  {
+   "area": "identityGovernance",
+   "v1": 91,
+   "betaOnly": 108,
+   "onMap": 91,
+   "curated": 49,
+   "betaOnMap": 108,
+   "onMapTypes": [
+    "accessPackage",
+    "accessPackageAssignment",
+    "accessPackageAssignmentPolicy",
+    "accessPackageAssignmentRequest",
+    "accessPackageAssignmentRequestWorkflowExtension",
+    "accessPackageAssignmentWorkflowExtension",
+    "accessPackageCatalog",
+    "accessPackageMultipleChoiceQuestion",
+    "accessPackageQuestion",
+    "accessPackageResource",
+    "accessPackageResourceEnvironment",
+    "accessPackageResourceRequest",
+    "accessPackageResourceRole",
+    "accessPackageResourceRoleScope",
+    "accessPackageResourceScope",
+    "accessPackageSubject",
+    "accessPackageSuggestion",
+    "accessPackageTextInputQuestion",
+    "accessReviewHistoryDefinition",
+    "accessReviewHistoryInstance",
+    "accessReviewInstance",
+    "accessReviewInstanceDecisionItem",
+    "accessReviewReviewer",
+    "accessReviewScheduleDefinition",
+    "accessReviewSet",
+    "accessReviewStage",
+    "appConsentApprovalRoute",
+    "appConsentRequest",
+    "approval",
+    "approvalStage",
+    "availableAccessPackage",
+    "connectedOrganization",
+    "controlConfiguration",
+    "customCalloutExtension",
+    "customDataProvidedResource",
+    "customDataProvidedResourceAccessReviewUploadSession",
+    "customDataProvidedResourceFile",
+    "customDataProvidedResourceUploadSession",
+    "customExtensionStageSetting",
+    "deletedItemContainer",
+    "endUserSettings",
+    "entitlementManagement",
+    "entitlementManagementSettings",
+    "externalOriginResourceConnector",
+    "governanceInsight",
+    "identityGovernance",
+    "identityGovernance.accessPackageAssignmentRequiredRule",
+    "identityGovernance.agentIdentityLifecyclePolicy",
+    "identityGovernance.customTaskExtension",
+    "identityGovernance.guestLifecyclePolicy",
+    "identityGovernance.inactivityRule",
+    "identityGovernance.insights",
+    "identityGovernance.invitationRedemptionRule",
+    "identityGovernance.lifecycleManagementSettings",
+    "identityGovernance.lifecyclePolicy",
+    "identityGovernance.lifecyclePolicyPriorityConfiguration",
+    "identityGovernance.lifecyclePolicyReport",
+    "identityGovernance.lifecyclePolicyRule",
+    "identityGovernance.lifecyclePolicySubjectReport",
+    "identityGovernance.lifecycleWorkflowsContainer",
+    "identityGovernance.periodicAttestationRule",
+    "identityGovernance.run",
+    "identityGovernance.sponsorPresenceRule",
+    "identityGovernance.subjectProcessingResult",
+    "identityGovernance.task",
+    "identityGovernance.taskDefinition",
+    "identityGovernance.taskProcessingResult",
+    "identityGovernance.taskReport",
+    "identityGovernance.userProcessingResult",
+    "identityGovernance.workflow",
+    "identityGovernance.workflowBase",
+    "identityGovernance.workflowTemplate",
+    "identityGovernance.workflowVersion",
+    "membershipOutlierInsight",
+    "privilegedAccessGroup",
+    "privilegedAccessGroupAssignmentSchedule",
+    "privilegedAccessGroupAssignmentScheduleInstance",
+    "privilegedAccessGroupAssignmentScheduleRequest",
+    "privilegedAccessGroupEligibilitySchedule",
+    "privilegedAccessGroupEligibilityScheduleInstance",
+    "privilegedAccessGroupEligibilityScheduleRequest",
+    "privilegedAccessRoot",
+    "privilegedAccessSchedule",
+    "privilegedAccessScheduleInstance",
+    "privilegedAccessScheduleRequest",
+    "request",
+    "roleManagementCustomCalloutExtension",
+    "termsOfUseContainer",
+    "unifiedRoot",
+    "userConsentRequest",
+    "userSignInInsight"
+   ],
+   "missing": []
+  },
+  {
+   "area": "users",
+   "v1": 88,
+   "betaOnly": 56,
+   "onMap": 88,
+   "curated": 13,
+   "betaOnMap": 56,
+   "onMapTypes": [
+    "activitiesContainer",
+    "activityHistoryItem",
+    "agentUser",
+    "associatedTeamInfo",
+    "attachment",
+    "attachmentBase",
+    "attachmentSession",
+    "authentication",
+    "authenticationMethod",
+    "calendar",
+    "calendarGroup",
+    "calendarPermission",
+    "calendarSharingMessage",
+    "checklistItem",
+    "cloudClipboardItem",
+    "cloudClipboardRoot",
+    "cloudPC",
+    "contact",
+    "contactFolder",
+    "contentActivity",
+    "distributionList",
+    "distributionListMember",
+    "emailAuthenticationMethod",
+    "employeeExperienceUser",
+    "event",
+    "eventMessage",
+    "eventMessageRequest",
+    "eventMessageResponse",
+    "exchangeSettings",
+    "externalAuthenticationMethod",
+    "fido2AuthenticationMethod",
+    "fileAttachment",
+    "inferenceClassification",
+    "inferenceClassificationOverride",
+    "itemAttachment",
+    "itemInsights",
+    "licenseDetails",
+    "linkedResource",
+    "longRunningOperation",
+    "mailFolder",
+    "mailSearchFolder",
+    "message",
+    "messageRule",
+    "microsoftAuthenticatorAuthenticationMethod",
+    "multiValueLegacyExtendedProperty",
+    "note",
+    "officeGraphInsights",
+    "outlookCategory",
+    "outlookItem",
+    "outlookUser",
+    "passwordAuthenticationMethod",
+    "person",
+    "phoneAuthenticationMethod",
+    "plannerUser",
+    "platformCredentialAuthenticationMethod",
+    "qrCode",
+    "qrCodePinAuthenticationMethod",
+    "qrPin",
+    "referenceAttachment",
+    "resourceAccountKeyAuthenticationMethod",
+    "sharedInsight",
+    "shiftPreferences",
+    "singleValueExtendedProperty",
+    "singleValueLegacyExtendedProperty",
+    "softwareOathAuthenticationMethod",
+    "taskFileAttachment",
+    "temporaryAccessPassAuthenticationMethod",
+    "todo",
+    "todoTask",
+    "todoTaskList",
+    "trending",
+    "usedInsight",
+    "user",
+    "userActivity",
+    "userDataSecurityAndGovernance",
+    "userInsightsSettings",
+    "userProtectionScopeContainer",
+    "userSettings",
+    "userSolutionRoot",
+    "userStorage",
+    "userTeamwork",
+    "windowsHelloForBusinessAuthenticationMethod",
+    "windowsSetting",
+    "windowsSettingInstance",
+    "workHoursAndLocationsSetting",
+    "workPlanOccurrence",
+    "workPlanRecurrence",
+    "workingTimeSchedule"
+   ],
+   "missing": []
   },
   {
    "area": "deviceAppManagement",
    "v1": 75,
-   "betaOnly": 59,
+   "betaOnly": 64,
    "onMap": 75,
    "curated": 0,
+   "betaOnMap": 64,
    "onMapTypes": [
     "androidLobApp",
     "androidManagedAppProtection",
@@ -727,12 +669,12 @@
   },
   {
    "area": "solutions",
-   "v1": 59,
-   "betaOnly": 27,
-   "onMap": 0,
+   "v1": 67,
+   "betaOnly": 31,
+   "onMap": 67,
    "curated": 0,
-   "onMapTypes": [],
-   "missing": [
+   "betaOnMap": 31,
+   "onMapTypes": [
     "backupReport",
     "backupRestoreRoot",
     "bookingAppointment",
@@ -757,6 +699,7 @@
     "exchangeRestoreSession",
     "granularDriveRestoreArtifact",
     "granularMailboxRestoreArtifact",
+    "granularRestoreArtifactBase",
     "granularSiteRestoreArtifact",
     "mailboxProtectionRule",
     "mailboxProtectionUnit",
@@ -767,7 +710,13 @@
     "oneDriveForBusinessBrowseSession",
     "oneDriveForBusinessProtectionPolicy",
     "oneDriveForBusinessRestoreSession",
+    "onlineMeetingBase",
     "protectionPolicyBase",
+    "protectionRuleBase",
+    "protectionUnitBase",
+    "protectionUnitsBulkJobBase",
+    "restoreArtifactBase",
+    "restoreArtifactsBulkRequestBase",
     "restorePoint",
     "restoreSessionBase",
     "serviceApp",
@@ -783,6 +732,7 @@
     "virtualEvent",
     "virtualEventPresenter",
     "virtualEventRegistration",
+    "virtualEventRegistrationConfiguration",
     "virtualEventRegistrationCustomQuestion",
     "virtualEventRegistrationPredefinedQuestion",
     "virtualEventRegistrationQuestionBase",
@@ -792,16 +742,17 @@
     "virtualEventWebinar",
     "virtualEventWebinarRegistrationConfiguration",
     "virtualEventsRoot"
-   ]
+   ],
+   "missing": []
   },
   {
    "area": "identity",
-   "v1": 58,
+   "v1": 60,
    "betaOnly": 11,
-   "onMap": 0,
+   "onMap": 60,
    "curated": 0,
-   "onMapTypes": [],
-   "missing": [
+   "betaOnMap": 11,
+   "onMapTypes": [
     "akamaiWebApplicationFirewallProvider",
     "appleManagedIdentityProvider",
     "arkoseFraudProtectionProvider",
@@ -827,6 +778,7 @@
     "identityContainer",
     "identityCustomUserFlowAttribute",
     "identityProviderBase",
+    "identityUserFlow",
     "identityUserFlowAttribute",
     "identityUserFlowAttributeAssignment",
     "identityVerifiedIdRoot",
@@ -851,6 +803,7 @@
     "onUserCreateStartListener",
     "onVerifiedIdClaimValidationCustomExtension",
     "onVerifiedIdClaimValidationListener",
+    "policyDeletableItem",
     "riskPreventionContainer",
     "samlOrWsFedExternalDomainFederation",
     "samlOrWsFedProvider",
@@ -860,18 +813,17 @@
     "verifiedIdProfile",
     "webApplicationFirewallProvider",
     "webApplicationFirewallVerificationModel"
-   ]
+   ],
+   "missing": []
   },
   {
    "area": "policies",
    "v1": 57,
    "betaOnly": 12,
-   "onMap": 1,
+   "onMap": 57,
    "curated": 1,
+   "betaOnMap": 12,
    "onMapTypes": [
-    "conditionalAccessPolicy"
-   ],
-   "missing": [
     "activityBasedTimeoutPolicy",
     "adminConsentRequestPolicy",
     "anonymousCalendarSharingFreeBusyDetail",
@@ -883,6 +835,7 @@
     "authenticationStrengthPolicy",
     "authorizationPolicy",
     "claimsMappingPolicy",
+    "conditionalAccessPolicy",
     "crossTenantAccessPolicy",
     "crossTenantAccessPolicyConfigurationDefault",
     "crossTenantAccessPolicyConfigurationPartner",
@@ -928,18 +881,78 @@
     "unifiedRoleManagementPolicyRule",
     "whatIfAnalysisResult",
     "x509CertificateCombinationConfiguration"
-   ]
+   ],
+   "missing": []
+  },
+  {
+   "area": "directory",
+   "v1": 50,
+   "betaOnly": 21,
+   "onMap": 50,
+   "curated": 1,
+   "betaOnMap": 21,
+   "onMapTypes": [
+    "administrativeUnit",
+    "allowedValue",
+    "attributeSet",
+    "b2BRegistrationMetricsBase",
+    "b2BRegistrationMetricsInitial",
+    "b2BRegistrationMetricsRecent",
+    "b2BSignInActivityMetrics",
+    "b2BSignInActivityMetricsBase",
+    "b2BSignInActivityMetricsInitial",
+    "b2BSignInActivityMetricsRecent",
+    "b2bRegistrationMetrics",
+    "billingMetrics",
+    "billingMetricsBase",
+    "billingMetricsInitial",
+    "billingMetricsRecent",
+    "certificateAuthorityDetail",
+    "certificateBasedAuthPki",
+    "companySubscription",
+    "customSecurityAttributeDefinition",
+    "deviceLocalCredentialInfo",
+    "directory",
+    "directoryObject",
+    "directoryObjectPartnerReference",
+    "entraRecoveryServices.recovery",
+    "entraRecoveryServices.recoveryChangeObjectBase",
+    "entraRecoveryServices.recoveryJob",
+    "entraRecoveryServices.recoveryJobBase",
+    "entraRecoveryServices.recoveryPreviewJob",
+    "entraRecoveryServices.snapshot",
+    "governanceInvitation",
+    "governanceRelationship",
+    "governanceRequest",
+    "groupResource",
+    "mailbox",
+    "mailboxFolder",
+    "mailboxItem",
+    "multiTenantApplicationMetrics",
+    "multiTenantApplicationMetricsBase",
+    "multiTenantApplicationMetricsInitial",
+    "multiTenantApplicationMetricsRecent",
+    "multiTenantOrganizationMember",
+    "onPremisesDirectorySynchronization",
+    "policyBase",
+    "publicKeyInfrastructureRoot",
+    "relatedTenant",
+    "remoteTenantGroup",
+    "stsPolicy",
+    "tenantGovernance",
+    "tenantGovernancePolicyTemplate",
+    "tenantGovernanceSetting"
+   ],
+   "missing": []
   },
   {
    "area": "admin",
-   "v1": 38,
-   "betaOnly": 68,
-   "onMap": 1,
-   "curated": 1,
+   "v1": 41,
+   "betaOnly": 70,
+   "onMap": 41,
+   "curated": 2,
+   "betaOnMap": 70,
    "onMapTypes": [
-    "exchangeMessageTrace"
-   ],
-   "missing": [
     "admin",
     "adminMicrosoft365Apps",
     "adminReportSettings",
@@ -954,6 +967,8 @@
     "configurationSnapshotJob",
     "edge",
     "exchangeAdmin",
+    "exchangeMessageTrace",
+    "exchangeMessageTraceDetail",
     "insightsSettings",
     "internetExplorerMode",
     "m365AppsInstallationOptions",
@@ -965,30 +980,31 @@
     "pronounsSettings",
     "serviceAnnouncement",
     "serviceAnnouncementAttachment",
+    "serviceAnnouncementBase",
     "serviceHealth",
     "serviceHealthIssue",
     "serviceUpdateMessage",
     "sharepoint",
     "sharepointSettings",
     "teamsAdministration.numberAssignment",
+    "teamsAdministration.policyIdentifierDetail",
     "teamsAdministration.teamsAdminRoot",
     "teamsAdministration.teamsPolicyAssignment",
     "teamsAdministration.teamsPolicyUserAssignment",
     "teamsAdministration.teamsUserConfiguration",
     "teamsAdministration.telephoneNumberLongRunningOperation",
     "teamsAdministration.telephoneNumberManagementRoot"
-   ]
+   ],
+   "missing": []
   },
   {
    "area": "communications",
-   "v1": 36,
-   "betaOnly": 10,
-   "onMap": 1,
+   "v1": 38,
+   "betaOnly": 11,
+   "onMap": 38,
    "curated": 1,
+   "betaOnMap": 11,
    "onMapTypes": [
-    "onlineMeeting"
-   ],
-   "missing": [
     "addLargeGalleryViewOperation",
     "adhocCall",
     "attendanceRecord",
@@ -998,6 +1014,7 @@
     "callRecords.callRecord",
     "callRecords.organizer",
     "callRecords.participant",
+    "callRecords.participantBase",
     "callRecords.segment",
     "callRecords.session",
     "callTranscript",
@@ -1005,6 +1022,7 @@
     "cloudCommunications",
     "commsOperation",
     "contentSharingSession",
+    "engagementConversation",
     "engagementConversationDiscussionMessage",
     "engagementConversationMessage",
     "engagementConversationMessageReaction",
@@ -1013,6 +1031,7 @@
     "inviteParticipantsOperation",
     "meetingAttendanceReport",
     "muteParticipantOperation",
+    "onlineMeeting",
     "onlineMeetingEngagementConversation",
     "participant",
     "playPromptOperation",
@@ -1024,66 +1043,22 @@
     "subscribeToToneOperation",
     "unmuteParticipantOperation",
     "updateRecordingStatusOperation"
-   ]
-  },
-  {
-   "area": "directory",
-   "v1": 33,
-   "betaOnly": 19,
-   "onMap": 1,
-   "curated": 1,
-   "onMapTypes": [
-    "administrativeUnit"
    ],
-   "missing": [
-    "allowedValue",
-    "attributeSet",
-    "certificateAuthorityDetail",
-    "certificateBasedAuthPki",
-    "companySubscription",
-    "customSecurityAttributeDefinition",
-    "deviceLocalCredentialInfo",
-    "directory",
-    "directoryObject",
-    "directoryObjectPartnerReference",
-    "entraRecoveryServices.recovery",
-    "entraRecoveryServices.recoveryJob",
-    "entraRecoveryServices.recoveryJobBase",
-    "entraRecoveryServices.recoveryPreviewJob",
-    "entraRecoveryServices.snapshot",
-    "governanceInvitation",
-    "governanceRelationship",
-    "governanceRequest",
-    "groupResource",
-    "mailbox",
-    "mailboxFolder",
-    "mailboxItem",
-    "multiTenantOrganizationMember",
-    "onPremisesDirectorySynchronization",
-    "policyBase",
-    "publicKeyInfrastructureRoot",
-    "relatedTenant",
-    "remoteTenantGroup",
-    "stsPolicy",
-    "tenantGovernance",
-    "tenantGovernancePolicyTemplate",
-    "tenantGovernanceSetting"
-   ]
+   "missing": []
   },
   {
    "area": "teams",
-   "v1": 29,
+   "v1": 32,
    "betaOnly": 3,
-   "onMap": 2,
+   "onMap": 32,
    "curated": 2,
+   "betaOnMap": 3,
    "onMapTypes": [
-    "channel",
-    "team"
-   ],
-   "missing": [
     "aadUserConversationMember",
     "anonymousGuestConversationMember",
     "azureCommunicationServicesUserConversationMember",
+    "changeTrackedEntity",
+    "channel",
     "conversationMember",
     "dayNote",
     "microsoftAccountUserConversationMember",
@@ -1093,12 +1068,15 @@
     "phoneUserConversationMember",
     "profilePhoto",
     "schedule",
+    "scheduleChangeRequest",
     "schedulingGroup",
     "sharedWithChannelTeamInfo",
     "shift",
     "skypeForBusinessUserConversationMember",
     "skypeUserConversationMember",
     "swapShiftsChangeRequest",
+    "team",
+    "teamInfo",
     "teamsAppInstallation",
     "teamsAsyncOperation",
     "teamworkTag",
@@ -1108,16 +1086,17 @@
     "timeOffReason",
     "timeOffRequest",
     "userScopeTeamsAppInstallation"
-   ]
+   ],
+   "missing": []
   },
   {
    "area": "education",
-   "v1": 26,
+   "v1": 27,
    "betaOnly": 0,
-   "onMap": 0,
+   "onMap": 27,
    "curated": 0,
-   "onMapTypes": [],
-   "missing": [
+   "betaOnMap": 0,
+   "onMapTypes": [
     "educationAssignment",
     "educationAssignmentDefaults",
     "educationAssignmentResource",
@@ -1130,6 +1109,7 @@
     "educationGradingScheme",
     "educationModule",
     "educationModuleResource",
+    "educationOrganization",
     "educationOutcome",
     "educationPointsOutcome",
     "educationRoot",
@@ -1144,18 +1124,17 @@
     "reflectCheckInResponse",
     "reportsRoot",
     "speakerAssignmentSubmission"
-   ]
+   ],
+   "missing": []
   },
   {
    "area": "reports",
-   "v1": 21,
-   "betaOnly": 27,
-   "onMap": 1,
+   "v1": 23,
+   "betaOnly": 55,
+   "onMap": 23,
    "curated": 1,
+   "betaOnMap": 55,
    "onMapTypes": [
-    "reportRoot"
-   ],
-   "missing": [
     "authenticationMethodsRoot",
     "partners",
     "partners.billing.azureAggregatedUsage",
@@ -1172,20 +1151,24 @@
     "partners.billing.runningOperation",
     "partners.billing.unbilledReconciliation",
     "partners.billing.unbilledUsage",
+    "printUsage",
     "printUsageByPrinter",
     "printUsageByUser",
+    "relyingPartyDetailedSummary",
+    "reportRoot",
     "securityReportsRoot",
     "userRegistrationDetails"
-   ]
+   ],
+   "missing": []
   },
   {
    "area": "storage",
-   "v1": 21,
+   "v1": 22,
    "betaOnly": 0,
-   "onMap": 0,
+   "onMap": 22,
    "curated": 0,
-   "onMapTypes": [],
-   "missing": [
+   "betaOnMap": 0,
+   "onMapTypes": [
     "fileStorage",
     "fileStorageContainer",
     "fileStorageContainerType",
@@ -1205,18 +1188,20 @@
     "sharePointMigrationJobQueuedEvent",
     "sharePointMigrationJobStartEvent",
     "storage",
+    "storageQuotaBreakdown",
     "storageSettings",
     "unifiedStorageQuota"
-   ]
+   ],
+   "missing": []
   },
   {
    "area": "authenticationMethodConfigurations",
-   "v1": 17,
+   "v1": 18,
    "betaOnly": 2,
-   "onMap": 0,
+   "onMap": 18,
    "curated": 0,
-   "onMapTypes": [],
-   "missing": [
+   "betaOnMap": 2,
+   "onMapTypes": [
     "authenticationMethodConfiguration",
     "authenticationMethodTarget",
     "emailAuthenticationMethodConfiguration",
@@ -1225,6 +1210,7 @@
     "microsoftAuthenticatorAuthenticationMethodConfiguration",
     "microsoftAuthenticatorAuthenticationMethodTarget",
     "passkeyAuthenticationMethodTarget",
+    "passkeyProfile",
     "qrCodePinAuthenticationMethodConfiguration",
     "smsAuthenticationMethodConfiguration",
     "smsAuthenticationMethodTarget",
@@ -1234,16 +1220,45 @@
     "verifiableCredentialsAuthenticationMethodConfiguration",
     "voiceAuthenticationMethodConfiguration",
     "x509CertificateAuthenticationMethodConfiguration"
-   ]
+   ],
+   "missing": []
+  },
+  {
+   "area": "roleManagement",
+   "v1": 16,
+   "betaOnly": 6,
+   "onMap": 16,
+   "curated": 1,
+   "betaOnMap": 6,
+   "onMapTypes": [
+    "appScope",
+    "directoryRoleManagementDeletedItemContainer",
+    "rbacApplication",
+    "roleManagement",
+    "unifiedRbacResourceAction",
+    "unifiedRbacResourceNamespace",
+    "unifiedRoleAssignment",
+    "unifiedRoleAssignmentSchedule",
+    "unifiedRoleAssignmentScheduleInstance",
+    "unifiedRoleAssignmentScheduleRequest",
+    "unifiedRoleDefinition",
+    "unifiedRoleEligibilitySchedule",
+    "unifiedRoleEligibilityScheduleInstance",
+    "unifiedRoleEligibilityScheduleRequest",
+    "unifiedRoleScheduleBase",
+    "unifiedRoleScheduleInstanceBase"
+   ],
+   "missing": []
   },
   {
    "area": "places",
-   "v1": 15,
-   "betaOnly": 0,
-   "onMap": 0,
+   "v1": 16,
+   "betaOnly": 1,
+   "onMap": 16,
    "curated": 0,
-   "onMapTypes": [],
-   "missing": [
+   "betaOnMap": 1,
+   "onMapTypes": [
+    "baseMapFeature",
     "building",
     "buildingMap",
     "checkInClaim",
@@ -1259,16 +1274,17 @@
     "sectionMap",
     "unitMap",
     "workspace"
-   ]
+   ],
+   "missing": []
   },
   {
    "area": "print",
-   "v1": 15,
+   "v1": 16,
    "betaOnly": 0,
-   "onMap": 0,
+   "onMap": 16,
    "curated": 0,
-   "onMapTypes": [],
-   "missing": [
+   "betaOnMap": 0,
+   "onMapTypes": [
     "print",
     "printConnector",
     "printDocument",
@@ -1280,48 +1296,73 @@
     "printTaskDefinition",
     "printTaskTrigger",
     "printer",
+    "printerBase",
     "printerCreateOperation",
     "printerShare",
     "pullPrintPrinter",
     "pullPrintPrinterCreateOperation"
-   ]
+   ],
+   "missing": []
   },
   {
-   "area": "roleManagement",
-   "v1": 14,
-   "betaOnly": 6,
-   "onMap": 1,
-   "curated": 1,
+   "area": "unrooted",
+   "v1": 15,
+   "betaOnly": 49,
+   "onMap": 15,
+   "curated": 2,
+   "betaOnMap": 49,
    "onMapTypes": [
-    "unifiedRoleEligibilitySchedule"
+    "authenticationConditionApplication",
+    "callEvent",
+    "deltaParticipants",
+    "deviceManagementCachedReportConfiguration",
+    "emergencyCallEvent",
+    "enterpriseCodeSigningCertificate",
+    "entity",
+    "importedWindowsAutopilotDeviceIdentityUpload",
+    "iosLobAppProvisioningConfigurationAssignment",
+    "labelContentRight",
+    "participantJoiningNotification",
+    "participantLeftNotification",
+    "relatedTenantsRefreshRequest",
+    "windowsAutopilotDeploymentProfile",
+    "windowsAutopilotDeploymentProfileAssignment"
    ],
-   "missing": [
-    "appScope",
-    "directoryRoleManagementDeletedItemContainer",
-    "rbacApplication",
-    "roleManagement",
-    "unifiedRbacResourceAction",
-    "unifiedRbacResourceNamespace",
-    "unifiedRoleAssignment",
-    "unifiedRoleAssignmentSchedule",
-    "unifiedRoleAssignmentScheduleInstance",
-    "unifiedRoleAssignmentScheduleRequest",
-    "unifiedRoleDefinition",
-    "unifiedRoleEligibilityScheduleInstance",
-    "unifiedRoleEligibilityScheduleRequest"
-   ]
+   "missing": []
+  },
+  {
+   "area": "copilot",
+   "v1": 13,
+   "betaOnly": 31,
+   "onMap": 13,
+   "curated": 1,
+   "betaOnMap": 31,
+   "onMapTypes": [
+    "aiInteraction",
+    "aiInteractionHistory",
+    "aiOnlineMeeting",
+    "aiUser",
+    "callAiInsight",
+    "copilotAdmin",
+    "copilotAdminCatalog",
+    "copilotAdminLimitedMode",
+    "copilotAdminSetting",
+    "copilotPackage",
+    "copilotPackageDetail",
+    "copilotReportRoot",
+    "copilotRoot"
+   ],
+   "missing": []
   },
   {
    "area": "servicePrincipals",
    "v1": 13,
    "betaOnly": 1,
-   "onMap": 2,
+   "onMap": 13,
    "curated": 2,
+   "betaOnMap": 1,
    "onMapTypes": [
     "agentIdentity",
-    "servicePrincipal"
-   ],
-   "missing": [
     "agentIdentityBlueprintPrincipal",
     "approvedClientApp",
     "delegatedPermissionClassification",
@@ -1332,63 +1373,21 @@
     "identityGovernance.identityLifecycle",
     "identityGovernance.userIdentityLifecycle",
     "remoteDesktopSecurityConfiguration",
+    "servicePrincipal",
     "targetDeviceGroup"
-   ]
-  },
-  {
-   "area": "copilot",
-   "v1": 11,
-   "betaOnly": 31,
-   "onMap": 0,
-   "curated": 0,
-   "onMapTypes": [],
-   "missing": [
-    "aiInteractionHistory",
-    "aiOnlineMeeting",
-    "aiUser",
-    "callAiInsight",
-    "copilotAdmin",
-    "copilotAdminCatalog",
-    "copilotAdminLimitedMode",
-    "copilotAdminSetting",
-    "copilotPackageDetail",
-    "copilotReportRoot",
-    "copilotRoot"
-   ]
-  },
-  {
-   "area": "security (namespace)",
-   "v1": 11,
-   "betaOnly": 9,
-   "onMap": 1,
-   "curated": 1,
-   "onMapTypes": [
-    "security.filePlanDescriptorTemplate"
    ],
-   "missing": [
-    "security.artifact",
-    "security.case",
-    "security.dataSet",
-    "security.dataSourceContainer",
-    "security.indicator",
-    "security.networkAdapter",
-    "security.search",
-    "security.tag",
-    "security.unclassifiedArtifact",
-    "security.whoisBaseRecord"
-   ]
+   "missing": []
   },
   {
    "area": "applications",
    "v1": 11,
    "betaOnly": 2,
-   "onMap": 2,
+   "onMap": 11,
    "curated": 2,
+   "betaOnMap": 2,
    "onMapTypes": [
     "agentIdentityBlueprint",
-    "application"
-   ],
-   "missing": [
+    "application",
     "bulkUpload",
     "directoryDefinition",
     "extensionProperty",
@@ -1398,16 +1397,17 @@
     "synchronizationJob",
     "synchronizationSchema",
     "synchronizationTemplate"
-   ]
+   ],
+   "missing": []
   },
   {
    "area": "tenantRelationships",
    "v1": 10,
-   "betaOnly": 38,
-   "onMap": 0,
+   "betaOnly": 39,
+   "onMap": 10,
    "curated": 0,
-   "onMapTypes": [],
-   "missing": [
+   "betaOnMap": 39,
+   "onMapTypes": [
     "delegatedAdminAccessAssignment",
     "delegatedAdminCustomer",
     "delegatedAdminRelationship",
@@ -1418,16 +1418,17 @@
     "multiTenantOrganizationJoinRequestRecord",
     "resellerDelegatedAdminRelationship",
     "tenantRelationship"
-   ]
+   ],
+   "missing": []
   },
   {
    "area": "employeeExperience",
    "v1": 10,
    "betaOnly": 1,
-   "onMap": 0,
+   "onMap": 10,
    "curated": 0,
-   "onMapTypes": [],
-   "missing": [
+   "betaOnMap": 1,
+   "onMapTypes": [
     "community",
     "employeeExperience",
     "engagementAsyncOperation",
@@ -1438,36 +1439,37 @@
     "learningCourseActivity",
     "learningProvider",
     "learningSelfInitiatedCourse"
-   ]
+   ],
+   "missing": []
   },
   {
    "area": "planner",
    "v1": 9,
-   "betaOnly": 16,
-   "onMap": 2,
+   "betaOnly": 20,
+   "onMap": 9,
    "curated": 2,
+   "betaOnMap": 20,
    "onMapTypes": [
-    "plannerPlan",
-    "plannerTask"
-   ],
-   "missing": [
     "planner",
     "plannerAssignedToTaskBoardTaskFormat",
     "plannerBucket",
     "plannerBucketTaskBoardTaskFormat",
+    "plannerPlan",
     "plannerPlanDetails",
     "plannerProgressTaskBoardTaskFormat",
+    "plannerTask",
     "plannerTaskDetails"
-   ]
+   ],
+   "missing": []
   },
   {
    "area": "informationProtection",
    "v1": 9,
    "betaOnly": 4,
-   "onMap": 0,
+   "onMap": 9,
    "curated": 0,
-   "onMapTypes": [],
-   "missing": [
+   "betaOnMap": 4,
+   "onMapTypes": [
     "bitlocker",
     "bitlockerRecoveryKey",
     "emailFileAssessmentRequest",
@@ -1477,16 +1479,17 @@
     "threatAssessmentRequest",
     "threatAssessmentResult",
     "urlAssessmentRequest"
-   ]
+   ],
+   "missing": []
   },
   {
    "area": "connections",
    "v1": 8,
    "betaOnly": 1,
-   "onMap": 0,
+   "onMap": 8,
    "curated": 0,
-   "onMapTypes": [],
-   "missing": [
+   "betaOnMap": 1,
+   "onMapTypes": [
     "externalConnectors.connectionOperation",
     "externalConnectors.externalActivity",
     "externalConnectors.externalActivityResult",
@@ -1495,220 +1498,234 @@
     "externalConnectors.externalItem",
     "externalConnectors.identity",
     "externalConnectors.schema"
-   ]
+   ],
+   "missing": []
+  },
+  {
+   "area": "chats",
+   "v1": 8,
+   "betaOnly": 0,
+   "onMap": 8,
+   "curated": 2,
+   "betaOnMap": 0,
+   "onMapTypes": [
+    "chat",
+    "chatMessage",
+    "chatMessageHostedContent",
+    "chatMessageInfo",
+    "pinnedChatMessageInfo",
+    "targetedChatMessage",
+    "teamsTab",
+    "teamworkHostedContent"
+   ],
+   "missing": []
   },
   {
    "area": "identityProtection",
    "v1": 7,
    "betaOnly": 6,
-   "onMap": 1,
+   "onMap": 7,
    "curated": 1,
+   "betaOnMap": 6,
    "onMapTypes": [
-    "riskyUser"
-   ],
-   "missing": [
     "identityProtectionRoot",
     "riskDetection",
     "riskyServicePrincipal",
     "riskyServicePrincipalHistoryItem",
+    "riskyUser",
     "riskyUserHistoryItem",
     "servicePrincipalRiskDetection"
-   ]
-  },
-  {
-   "area": "chats",
-   "v1": 7,
-   "betaOnly": 0,
-   "onMap": 2,
-   "curated": 2,
-   "onMapTypes": [
-    "chat",
-    "chatMessage"
    ],
-   "missing": [
-    "chatMessageHostedContent",
-    "chatMessageInfo",
-    "pinnedChatMessageInfo",
-    "targetedChatMessage",
-    "teamsTab"
-   ]
+   "missing": []
   },
   {
    "area": "domainDnsRecords",
    "v1": 6,
    "betaOnly": 0,
-   "onMap": 0,
+   "onMap": 6,
    "curated": 0,
-   "onMapTypes": [],
-   "missing": [
+   "betaOnMap": 0,
+   "onMapTypes": [
     "domainDnsCnameRecord",
     "domainDnsMxRecord",
     "domainDnsRecord",
     "domainDnsSrvRecord",
     "domainDnsTxtRecord",
     "domainDnsUnavailableRecord"
-   ]
+   ],
+   "missing": []
   },
   {
    "area": "teamwork",
    "v1": 5,
    "betaOnly": 8,
-   "onMap": 0,
+   "onMap": 5,
    "curated": 0,
-   "onMapTypes": [],
-   "missing": [
+   "betaOnMap": 8,
+   "onMapTypes": [
     "deletedChat",
     "deletedTeam",
     "teamsAppSettings",
     "teamwork",
     "workforceIntegration"
-   ]
+   ],
+   "missing": []
+  },
+  {
+   "area": "agreements",
+   "v1": 5,
+   "betaOnly": 0,
+   "onMap": 5,
+   "curated": 1,
+   "betaOnMap": 0,
+   "onMapTypes": [
+    "agreement",
+    "agreementFile",
+    "agreementFileLocalization",
+    "agreementFileProperties",
+    "agreementFileVersion"
+   ],
+   "missing": []
   },
   {
    "area": "groups",
    "v1": 5,
    "betaOnly": 0,
-   "onMap": 1,
+   "onMap": 5,
    "curated": 1,
+   "betaOnMap": 0,
    "onMapTypes": [
-    "group"
-   ],
-   "missing": [
     "conversation",
     "conversationThread",
+    "group",
     "plannerGroup",
     "post"
-   ]
+   ],
+   "missing": []
+  },
+  {
+   "area": "search",
+   "v1": 5,
+   "betaOnly": 0,
+   "onMap": 5,
+   "curated": 0,
+   "betaOnMap": 0,
+   "onMapTypes": [
+    "search.acronym",
+    "search.bookmark",
+    "search.qna",
+    "search.searchAnswer",
+    "searchEntity"
+   ],
+   "missing": []
   },
   {
    "area": "auditLogs",
    "v1": 4,
-   "betaOnly": 7,
-   "onMap": 2,
+   "betaOnly": 8,
+   "onMap": 4,
    "curated": 2,
+   "betaOnMap": 8,
    "onMapTypes": [
+    "auditLogRoot",
     "directoryAudit",
+    "provisioningObjectSummary",
     "signIn"
    ],
-   "missing": [
-    "auditLogRoot",
-    "provisioningObjectSummary"
-   ]
+   "missing": []
+  },
+  {
+   "area": "organization",
+   "v1": 4,
+   "betaOnly": 5,
+   "onMap": 4,
+   "curated": 0,
+   "betaOnMap": 5,
+   "onMapTypes": [
+    "organization",
+    "organizationalBranding",
+    "organizationalBrandingLocalization",
+    "organizationalBrandingProperties"
+   ],
+   "missing": []
   },
   {
    "area": "appCatalogs",
    "v1": 4,
    "betaOnly": 2,
-   "onMap": 0,
+   "onMap": 4,
    "curated": 0,
-   "onMapTypes": [],
-   "missing": [
+   "betaOnMap": 2,
+   "onMapTypes": [
     "appCatalogs",
     "teamsApp",
     "teamsAppDefinition",
     "teamworkBot"
-   ]
-  },
-  {
-   "area": "agreements",
-   "v1": 4,
-   "betaOnly": 0,
-   "onMap": 1,
-   "curated": 1,
-   "onMapTypes": [
-    "agreement"
    ],
-   "missing": [
-    "agreementFile",
-    "agreementFileLocalization",
-    "agreementFileVersion"
-   ]
-  },
-  {
-   "area": "search",
-   "v1": 4,
-   "betaOnly": 0,
-   "onMap": 0,
-   "curated": 0,
-   "onMapTypes": [],
-   "missing": [
-    "search.acronym",
-    "search.bookmark",
-    "search.qna",
-    "searchEntity"
-   ]
-  },
-  {
-   "area": "organization",
-   "v1": 3,
-   "betaOnly": 5,
-   "onMap": 0,
-   "curated": 0,
-   "onMapTypes": [],
-   "missing": [
-    "organization",
-    "organizationalBranding",
-    "organizationalBrandingLocalization"
-   ]
+   "missing": []
   },
   {
    "area": "devices",
    "v1": 3,
    "betaOnly": 2,
-   "onMap": 1,
+   "onMap": 3,
    "curated": 1,
+   "betaOnMap": 2,
    "onMapTypes": [
-    "device"
-   ],
-   "missing": [
+    "device",
     "extension",
     "openTypeExtension"
-   ]
+   ],
+   "missing": []
   },
   {
    "area": "contacts",
    "v1": 2,
    "betaOnly": 0,
-   "onMap": 0,
+   "onMap": 2,
    "curated": 0,
-   "onMapTypes": [],
-   "missing": [
+   "betaOnMap": 0,
+   "onMapTypes": [
     "onPremisesSyncBehavior",
     "orgContact"
-   ]
+   ],
+   "missing": []
   },
   {
    "area": "external",
    "v1": 1,
-   "betaOnly": 38,
-   "onMap": 0,
+   "betaOnly": 39,
+   "onMap": 1,
    "curated": 0,
-   "onMapTypes": [],
-   "missing": [
+   "betaOnMap": 39,
+   "onMapTypes": [
     "externalConnectors.external"
-   ]
+   ],
+   "missing": []
   },
   {
    "area": "compliance",
    "v1": 1,
-   "betaOnly": 22,
-   "onMap": 0,
+   "betaOnly": 23,
+   "onMap": 1,
    "curated": 0,
-   "onMapTypes": [],
-   "missing": [
+   "betaOnMap": 23,
+   "onMapTypes": [
     "compliance"
-   ]
+   ],
+   "missing": []
   },
   {
    "area": "domains",
    "v1": 1,
    "betaOnly": 1,
-   "onMap": 0,
+   "onMap": 1,
    "curated": 0,
-   "onMapTypes": [],
-   "missing": [
+   "betaOnMap": 1,
+   "onMapTypes": [
     "domain"
-   ]
+   ],
+   "missing": []
   },
   {
    "area": "drives",
@@ -1716,32 +1733,23 @@
    "betaOnly": 1,
    "onMap": 1,
    "curated": 1,
+   "betaOnMap": 1,
    "onMapTypes": [
     "drive"
    ],
    "missing": []
   },
   {
-   "area": "identityGovernance (namespace)",
-   "v1": 1,
-   "betaOnly": 1,
-   "onMap": 0,
-   "curated": 0,
-   "onMapTypes": [],
-   "missing": [
-    "identityGovernance.workflowBase"
-   ]
-  },
-  {
    "area": "identityProviders",
    "v1": 1,
    "betaOnly": 1,
-   "onMap": 0,
+   "onMap": 1,
    "curated": 0,
-   "onMapTypes": [],
-   "missing": [
+   "betaOnMap": 1,
+   "onMapTypes": [
     "identityProvider"
-   ]
+   ],
+   "missing": []
   },
   {
    "area": "agreementAcceptances",
@@ -1749,6 +1757,7 @@
    "betaOnly": 0,
    "onMap": 1,
    "curated": 1,
+   "betaOnMap": 0,
    "onMapTypes": [
     "agreementAcceptance"
    ],
@@ -1758,12 +1767,13 @@
    "area": "applicationTemplates",
    "v1": 1,
    "betaOnly": 0,
-   "onMap": 0,
+   "onMap": 1,
    "curated": 0,
-   "onMapTypes": [],
-   "missing": [
+   "betaOnMap": 0,
+   "onMapTypes": [
     "applicationTemplate"
-   ]
+   ],
+   "missing": []
   },
   {
    "area": "appRoleAssignments",
@@ -1771,6 +1781,7 @@
    "betaOnly": 0,
    "onMap": 1,
    "curated": 1,
+   "betaOnMap": 0,
    "onMapTypes": [
     "appRoleAssignment"
    ],
@@ -1780,56 +1791,49 @@
    "area": "authenticationMethodsPolicy",
    "v1": 1,
    "betaOnly": 0,
-   "onMap": 0,
+   "onMap": 1,
    "curated": 0,
-   "onMapTypes": [],
-   "missing": [
+   "betaOnMap": 0,
+   "onMapTypes": [
     "authenticationMethodsPolicy"
-   ]
-  },
-  {
-   "area": "callRecords (namespace)",
-   "v1": 1,
-   "betaOnly": 0,
-   "onMap": 0,
-   "curated": 0,
-   "onMapTypes": [],
-   "missing": [
-    "callRecords.participantBase"
-   ]
+   ],
+   "missing": []
   },
   {
    "area": "certificateBasedAuthConfiguration",
    "v1": 1,
    "betaOnly": 0,
-   "onMap": 0,
+   "onMap": 1,
    "curated": 0,
-   "onMapTypes": [],
-   "missing": [
+   "betaOnMap": 0,
+   "onMapTypes": [
     "certificateBasedAuthConfiguration"
-   ]
+   ],
+   "missing": []
   },
   {
    "area": "contracts",
    "v1": 1,
    "betaOnly": 0,
-   "onMap": 0,
+   "onMap": 1,
    "curated": 0,
-   "onMapTypes": [],
-   "missing": [
+   "betaOnMap": 0,
+   "onMapTypes": [
     "contract"
-   ]
+   ],
+   "missing": []
   },
   {
    "area": "dataPolicyOperations",
    "v1": 1,
    "betaOnly": 0,
-   "onMap": 0,
+   "onMap": 1,
    "curated": 0,
-   "onMapTypes": [],
-   "missing": [
+   "betaOnMap": 0,
+   "onMapTypes": [
     "dataPolicyOperation"
-   ]
+   ],
+   "missing": []
   },
   {
    "area": "directoryRoles",
@@ -1837,6 +1841,7 @@
    "betaOnly": 0,
    "onMap": 1,
    "curated": 1,
+   "betaOnMap": 0,
    "onMapTypes": [
     "directoryRole"
    ],
@@ -1846,89 +1851,85 @@
    "area": "directoryRoleTemplates",
    "v1": 1,
    "betaOnly": 0,
-   "onMap": 0,
+   "onMap": 1,
    "curated": 0,
-   "onMapTypes": [],
-   "missing": [
+   "betaOnMap": 0,
+   "onMapTypes": [
     "directoryRoleTemplate"
-   ]
-  },
-  {
-   "area": "entraRecoveryServices (namespace)",
-   "v1": 1,
-   "betaOnly": 0,
-   "onMap": 0,
-   "curated": 0,
-   "onMapTypes": [],
-   "missing": [
-    "entraRecoveryServices.recoveryChangeObjectBase"
-   ]
+   ],
+   "missing": []
   },
   {
    "area": "filterOperators",
    "v1": 1,
    "betaOnly": 0,
-   "onMap": 0,
+   "onMap": 1,
    "curated": 0,
-   "onMapTypes": [],
-   "missing": [
+   "betaOnMap": 0,
+   "onMapTypes": [
     "filterOperatorSchema"
-   ]
+   ],
+   "missing": []
   },
   {
    "area": "functions",
    "v1": 1,
    "betaOnly": 0,
-   "onMap": 0,
+   "onMap": 1,
    "curated": 0,
-   "onMapTypes": [],
-   "missing": [
+   "betaOnMap": 0,
+   "onMapTypes": [
     "attributeMappingFunctionSchema"
-   ]
+   ],
+   "missing": []
   },
   {
    "area": "groupLifecyclePolicies",
    "v1": 1,
    "betaOnly": 0,
-   "onMap": 0,
+   "onMap": 1,
    "curated": 0,
-   "onMapTypes": [],
-   "missing": [
+   "betaOnMap": 0,
+   "onMapTypes": [
     "groupLifecyclePolicy"
-   ]
+   ],
+   "missing": []
   },
   {
    "area": "groupSettings",
    "v1": 1,
    "betaOnly": 0,
-   "onMap": 0,
+   "onMap": 1,
    "curated": 0,
-   "onMapTypes": [],
-   "missing": [
+   "betaOnMap": 0,
+   "onMapTypes": [
     "groupSetting"
-   ]
+   ],
+   "missing": []
   },
   {
    "area": "groupSettingTemplates",
    "v1": 1,
    "betaOnly": 0,
-   "onMap": 0,
+   "onMap": 1,
    "curated": 0,
-   "onMapTypes": [],
-   "missing": [
+   "betaOnMap": 0,
+   "onMapTypes": [
     "groupSettingTemplate"
-   ]
+   ],
+   "missing": []
   },
   {
    "area": "invitations",
    "v1": 1,
    "betaOnly": 0,
-   "onMap": 0,
+   "onMap": 1,
    "curated": 0,
-   "onMapTypes": [],
-   "missing": [
+   "betaOnMap": 0,
+   "onMapTypes": [
     "invitation"
-   ]
+   ],
+   "missing": []
   },
   {
    "area": "oauth2PermissionGrants",
@@ -1936,6 +1937,7 @@
    "betaOnly": 0,
    "onMap": 1,
    "curated": 1,
+   "betaOnMap": 0,
    "onMapTypes": [
     "oAuth2PermissionGrant"
    ],
@@ -1945,67 +1947,73 @@
    "area": "permissionGrants",
    "v1": 1,
    "betaOnly": 0,
-   "onMap": 0,
+   "onMap": 1,
    "curated": 0,
-   "onMapTypes": [],
-   "missing": [
+   "betaOnMap": 0,
+   "onMapTypes": [
     "resourceSpecificPermissionGrant"
-   ]
+   ],
+   "missing": []
   },
   {
    "area": "privacy",
    "v1": 1,
    "betaOnly": 0,
-   "onMap": 0,
+   "onMap": 1,
    "curated": 0,
-   "onMapTypes": [],
-   "missing": [
+   "betaOnMap": 0,
+   "onMapTypes": [
     "privacy"
-   ]
+   ],
+   "missing": []
   },
   {
    "area": "schemaExtensions",
    "v1": 1,
    "betaOnly": 0,
-   "onMap": 0,
+   "onMap": 1,
    "curated": 0,
-   "onMapTypes": [],
-   "missing": [
+   "betaOnMap": 0,
+   "onMapTypes": [
     "schemaExtension"
-   ]
+   ],
+   "missing": []
   },
   {
    "area": "scopedRoleMemberships",
    "v1": 1,
    "betaOnly": 0,
-   "onMap": 0,
+   "onMap": 1,
    "curated": 0,
-   "onMapTypes": [],
-   "missing": [
+   "betaOnMap": 0,
+   "onMapTypes": [
     "scopedRoleMembership"
-   ]
+   ],
+   "missing": []
   },
   {
-   "area": "search (namespace)",
+   "area": "security (namespace)",
    "v1": 1,
    "betaOnly": 0,
-   "onMap": 0,
+   "onMap": 1,
    "curated": 0,
-   "onMapTypes": [],
-   "missing": [
-    "search.searchAnswer"
-   ]
+   "betaOnMap": 0,
+   "onMapTypes": [
+    "security.networkAdapter"
+   ],
+   "missing": []
   },
   {
    "area": "shares",
    "v1": 1,
    "betaOnly": 0,
-   "onMap": 0,
+   "onMap": 1,
    "curated": 0,
-   "onMapTypes": [],
-   "missing": [
+   "betaOnMap": 0,
+   "onMapTypes": [
     "sharedDriveItem"
-   ]
+   ],
+   "missing": []
   },
   {
    "area": "subscribedSkus",
@@ -2013,6 +2021,7 @@
    "betaOnly": 0,
    "onMap": 1,
    "curated": 1,
+   "betaOnMap": 0,
    "onMapTypes": [
     "subscribedSku"
    ],
@@ -2022,34 +2031,35 @@
    "area": "subscriptions",
    "v1": 1,
    "betaOnly": 0,
-   "onMap": 0,
+   "onMap": 1,
    "curated": 0,
-   "onMapTypes": [],
-   "missing": [
+   "betaOnMap": 0,
+   "onMapTypes": [
     "subscription"
-   ]
-  },
-  {
-   "area": "teamsAdministration (namespace)",
-   "v1": 1,
-   "betaOnly": 0,
-   "onMap": 0,
-   "curated": 0,
-   "onMapTypes": [],
-   "missing": [
-    "teamsAdministration.policyIdentifierDetail"
-   ]
+   ],
+   "missing": []
   },
   {
    "area": "teamsTemplates",
    "v1": 1,
    "betaOnly": 0,
+   "onMap": 1,
+   "curated": 0,
+   "betaOnMap": 0,
+   "onMapTypes": [
+    "teamsTemplate"
+   ],
+   "missing": []
+  },
+  {
+   "area": "networkAccess",
+   "v1": 0,
+   "betaOnly": 42,
    "onMap": 0,
    "curated": 0,
+   "betaOnMap": 42,
    "onMapTypes": [],
-   "missing": [
-    "teamsTemplate"
-   ]
+   "missing": []
   },
   {
    "area": "financials",
@@ -2057,15 +2067,7 @@
    "betaOnly": 37,
    "onMap": 0,
    "curated": 0,
-   "onMapTypes": [],
-   "missing": []
-  },
-  {
-   "area": "networkAccess",
-   "v1": 0,
-   "betaOnly": 37,
-   "onMap": 0,
-   "curated": 0,
+   "betaOnMap": 37,
    "onMapTypes": [],
    "missing": []
   },
@@ -2075,33 +2077,37 @@
    "betaOnly": 14,
    "onMap": 0,
    "curated": 0,
+   "betaOnMap": 14,
    "onMapTypes": [],
    "missing": []
   },
   {
    "area": "dataClassification",
    "v1": 0,
-   "betaOnly": 10,
+   "betaOnly": 13,
    "onMap": 0,
    "curated": 0,
+   "betaOnMap": 13,
    "onMapTypes": [],
    "missing": []
   },
   {
    "area": "threatSubmission",
    "v1": 0,
-   "betaOnly": 9,
+   "betaOnly": 10,
    "onMap": 0,
    "curated": 0,
+   "betaOnMap": 10,
    "onMapTypes": [],
    "missing": []
   },
   {
    "area": "onPremisesPublishingProfiles",
    "v1": 0,
-   "betaOnly": 7,
+   "betaOnly": 9,
    "onMap": 0,
    "curated": 0,
+   "betaOnMap": 9,
    "onMapTypes": [],
    "missing": []
   },
@@ -2111,15 +2117,7 @@
    "betaOnly": 6,
    "onMap": 0,
    "curated": 0,
-   "onMapTypes": [],
-   "missing": []
-  },
-  {
-   "area": "networkaccess (namespace)",
-   "v1": 0,
-   "betaOnly": 6,
-   "onMap": 0,
-   "curated": 0,
+   "betaOnMap": 6,
    "onMapTypes": [],
    "missing": []
   },
@@ -2129,6 +2127,7 @@
    "betaOnly": 6,
    "onMap": 0,
    "curated": 0,
+   "betaOnMap": 6,
    "onMapTypes": [],
    "missing": []
   },
@@ -2138,6 +2137,7 @@
    "betaOnly": 4,
    "onMap": 0,
    "curated": 0,
+   "betaOnMap": 4,
    "onMapTypes": [],
    "missing": []
   },
@@ -2147,6 +2147,17 @@
    "betaOnly": 4,
    "onMap": 0,
    "curated": 0,
+   "betaOnMap": 4,
+   "onMapTypes": [],
+   "missing": []
+  },
+  {
+   "area": "trustFramework",
+   "v1": 0,
+   "betaOnly": 4,
+   "onMap": 0,
+   "curated": 0,
+   "betaOnMap": 4,
    "onMapTypes": [],
    "missing": []
   },
@@ -2156,6 +2167,7 @@
    "betaOnly": 3,
    "onMap": 0,
    "curated": 0,
+   "betaOnMap": 3,
    "onMapTypes": [],
    "missing": []
   },
@@ -2165,6 +2177,7 @@
    "betaOnly": 3,
    "onMap": 0,
    "curated": 0,
+   "betaOnMap": 3,
    "onMapTypes": [],
    "missing": []
   },
@@ -2174,6 +2187,7 @@
    "betaOnly": 3,
    "onMap": 0,
    "curated": 0,
+   "betaOnMap": 3,
    "onMapTypes": [],
    "missing": []
   },
@@ -2183,15 +2197,7 @@
    "betaOnly": 3,
    "onMap": 0,
    "curated": 0,
-   "onMapTypes": [],
-   "missing": []
-  },
-  {
-   "area": "trustFramework",
-   "v1": 0,
-   "betaOnly": 3,
-   "onMap": 0,
-   "curated": 0,
+   "betaOnMap": 3,
    "onMapTypes": [],
    "missing": []
   },
@@ -2201,6 +2207,7 @@
    "betaOnly": 2,
    "onMap": 0,
    "curated": 0,
+   "betaOnMap": 2,
    "onMapTypes": [],
    "missing": []
   },
@@ -2210,15 +2217,17 @@
    "betaOnly": 2,
    "onMap": 0,
    "curated": 0,
+   "betaOnMap": 2,
    "onMapTypes": [],
    "missing": []
   },
   {
-   "area": "cloudLicensing (namespace)",
+   "area": "bookingBusinesses",
    "v1": 0,
    "betaOnly": 2,
    "onMap": 0,
    "curated": 0,
+   "betaOnMap": 2,
    "onMapTypes": [],
    "missing": []
   },
@@ -2228,6 +2237,7 @@
    "betaOnly": 2,
    "onMap": 0,
    "curated": 0,
+   "betaOnMap": 2,
    "onMapTypes": [],
    "missing": []
   },
@@ -2237,6 +2247,7 @@
    "betaOnly": 1,
    "onMap": 0,
    "curated": 0,
+   "betaOnMap": 1,
    "onMapTypes": [],
    "missing": []
   },
@@ -2246,6 +2257,7 @@
    "betaOnly": 1,
    "onMap": 0,
    "curated": 0,
+   "betaOnMap": 1,
    "onMapTypes": [],
    "missing": []
   },
@@ -2255,6 +2267,7 @@
    "betaOnly": 1,
    "onMap": 0,
    "curated": 0,
+   "betaOnMap": 1,
    "onMapTypes": [],
    "missing": []
   },
@@ -2264,6 +2277,7 @@
    "betaOnly": 1,
    "onMap": 0,
    "curated": 0,
+   "betaOnMap": 1,
    "onMapTypes": [],
    "missing": []
   },
@@ -2273,6 +2287,7 @@
    "betaOnly": 1,
    "onMap": 0,
    "curated": 0,
+   "betaOnMap": 1,
    "onMapTypes": [],
    "missing": []
   },
@@ -2282,6 +2297,7 @@
    "betaOnly": 1,
    "onMap": 0,
    "curated": 0,
+   "betaOnMap": 1,
    "onMapTypes": [],
    "missing": []
   },
@@ -2291,6 +2307,7 @@
    "betaOnly": 1,
    "onMap": 0,
    "curated": 0,
+   "betaOnMap": 1,
    "onMapTypes": [],
    "missing": []
   },
@@ -2300,15 +2317,7 @@
    "betaOnly": 1,
    "onMap": 0,
    "curated": 0,
-   "onMapTypes": [],
-   "missing": []
-  },
-  {
-   "area": "ediscovery (namespace)",
-   "v1": 0,
-   "betaOnly": 1,
-   "onMap": 0,
-   "curated": 0,
+   "betaOnMap": 1,
    "onMapTypes": [],
    "missing": []
   },
@@ -2318,6 +2327,7 @@
    "betaOnly": 1,
    "onMap": 0,
    "curated": 0,
+   "betaOnMap": 1,
    "onMapTypes": [],
    "missing": []
   },
@@ -2327,6 +2337,7 @@
    "betaOnly": 1,
    "onMap": 0,
    "curated": 0,
+   "betaOnMap": 1,
    "onMapTypes": [],
    "missing": []
   },
@@ -2336,6 +2347,7 @@
    "betaOnly": 1,
    "onMap": 0,
    "curated": 0,
+   "betaOnMap": 1,
    "onMapTypes": [],
    "missing": []
   },
@@ -2345,6 +2357,7 @@
    "betaOnly": 1,
    "onMap": 0,
    "curated": 0,
+   "betaOnMap": 1,
    "onMapTypes": [],
    "missing": []
   },
@@ -2354,6 +2367,7 @@
    "betaOnly": 1,
    "onMap": 0,
    "curated": 0,
+   "betaOnMap": 1,
    "onMapTypes": [],
    "missing": []
   },
@@ -2363,24 +2377,7 @@
    "betaOnly": 1,
    "onMap": 0,
    "curated": 0,
-   "onMapTypes": [],
-   "missing": []
-  },
-  {
-   "area": "industryData (namespace)",
-   "v1": 0,
-   "betaOnly": 1,
-   "onMap": 0,
-   "curated": 0,
-   "onMapTypes": [],
-   "missing": []
-  },
-  {
-   "area": "managedTenants (namespace)",
-   "v1": 0,
-   "betaOnly": 1,
-   "onMap": 0,
-   "curated": 0,
+   "betaOnMap": 1,
    "onMapTypes": [],
    "missing": []
   },
@@ -2390,6 +2387,7 @@
    "betaOnly": 1,
    "onMap": 0,
    "curated": 0,
+   "betaOnMap": 1,
    "onMapTypes": [],
    "missing": []
   },
@@ -2399,6 +2397,7 @@
    "betaOnly": 1,
    "onMap": 0,
    "curated": 0,
+   "betaOnMap": 1,
    "onMapTypes": [],
    "missing": []
   },
@@ -2408,6 +2407,7 @@
    "betaOnly": 1,
    "onMap": 0,
    "curated": 0,
+   "betaOnMap": 1,
    "onMapTypes": [],
    "missing": []
   },
@@ -2417,6 +2417,17 @@
    "betaOnly": 1,
    "onMap": 0,
    "curated": 0,
+   "betaOnMap": 1,
+   "onMapTypes": [],
+   "missing": []
+  },
+  {
+   "area": "networkaccess (namespace)",
+   "v1": 0,
+   "betaOnly": 1,
+   "onMap": 0,
+   "curated": 0,
+   "betaOnMap": 1,
    "onMapTypes": [],
    "missing": []
   },
@@ -2426,6 +2437,7 @@
    "betaOnly": 1,
    "onMap": 0,
    "curated": 0,
+   "betaOnMap": 1,
    "onMapTypes": [],
    "missing": []
   },
@@ -2435,6 +2447,7 @@
    "betaOnly": 1,
    "onMap": 0,
    "curated": 0,
+   "betaOnMap": 1,
    "onMapTypes": [],
    "missing": []
   },
@@ -2444,6 +2457,7 @@
    "betaOnly": 1,
    "onMap": 0,
    "curated": 0,
+   "betaOnMap": 1,
    "onMapTypes": [],
    "missing": []
   },
@@ -2453,6 +2467,7 @@
    "betaOnly": 1,
    "onMap": 0,
    "curated": 0,
+   "betaOnMap": 1,
    "onMapTypes": [],
    "missing": []
   },
@@ -2462,6 +2477,7 @@
    "betaOnly": 1,
    "onMap": 0,
    "curated": 0,
+   "betaOnMap": 1,
    "onMapTypes": [],
    "missing": []
   },
@@ -2471,6 +2487,7 @@
    "betaOnly": 1,
    "onMap": 0,
    "curated": 0,
+   "betaOnMap": 1,
    "onMapTypes": [],
    "missing": []
   },
@@ -2480,6 +2497,7 @@
    "betaOnly": 1,
    "onMap": 0,
    "curated": 0,
+   "betaOnMap": 1,
    "onMapTypes": [],
    "missing": []
   },
@@ -2489,6 +2507,7 @@
    "betaOnly": 1,
    "onMap": 0,
    "curated": 0,
+   "betaOnMap": 1,
    "onMapTypes": [],
    "missing": []
   },
@@ -2498,6 +2517,7 @@
    "betaOnly": 1,
    "onMap": 0,
    "curated": 0,
+   "betaOnMap": 1,
    "onMapTypes": [],
    "missing": []
   },
@@ -2507,15 +2527,7 @@
    "betaOnly": 1,
    "onMap": 0,
    "curated": 0,
-   "onMapTypes": [],
-   "missing": []
-  },
-  {
-   "area": "security.caseManagement (namespace)",
-   "v1": 0,
-   "betaOnly": 1,
-   "onMap": 0,
-   "curated": 0,
+   "betaOnMap": 1,
    "onMapTypes": [],
    "missing": []
   },
@@ -2525,6 +2537,7 @@
    "betaOnly": 1,
    "onMap": 0,
    "curated": 0,
+   "betaOnMap": 1,
    "onMapTypes": [],
    "missing": []
   },
@@ -2534,6 +2547,7 @@
    "betaOnly": 1,
    "onMap": 0,
    "curated": 0,
+   "betaOnMap": 1,
    "onMapTypes": [],
    "missing": []
   },
@@ -2543,6 +2557,7 @@
    "betaOnly": 1,
    "onMap": 0,
    "curated": 0,
+   "betaOnMap": 1,
    "onMapTypes": [],
    "missing": []
   },
@@ -2552,6 +2567,7 @@
    "betaOnly": 1,
    "onMap": 0,
    "curated": 0,
+   "betaOnMap": 1,
    "onMapTypes": [],
    "missing": []
   }
@@ -2559,121 +2575,120 @@
  "services": [
   {
    "workload": "identity",
-   "onMap": 12,
+   "onMap": 208,
    "curated": 12,
-   "betaOnly": 0
+   "betaOnly": 190
   },
   {
    "workload": "governance",
-   "onMap": 52,
+   "onMap": 108,
    "curated": 52,
-   "betaOnly": 0
+   "betaOnly": 121
   },
   {
    "workload": "policies",
-   "onMap": 0,
+   "onMap": 97,
    "curated": 0,
-   "betaOnly": 0
+   "betaOnly": 31
   },
   {
    "workload": "outlook",
-   "onMap": 8,
+   "onMap": 54,
    "curated": 8,
-   "betaOnly": 0
+   "betaOnly": 9
   },
   {
    "workload": "files",
-   "onMap": 6,
+   "onMap": 116,
    "curated": 6,
-   "betaOnly": 0
+   "betaOnly": 12
   },
   {
    "workload": "teams",
-   "onMap": 5,
+   "onMap": 53,
    "curated": 5,
-   "betaOnly": 0
+   "betaOnly": 17
   },
   {
    "workload": "communications",
-   "onMap": 0,
+   "onMap": 43,
    "curated": 0,
-   "betaOnly": 0
+   "betaOnly": 13
   },
   {
    "workload": "tasks",
-   "onMap": 4,
+   "onMap": 20,
    "curated": 4,
-   "betaOnly": 0
+   "betaOnly": 20
   },
   {
    "workload": "solutions",
-   "onMap": 0,
+   "onMap": 93,
    "curated": 0,
-   "betaOnly": 0
+   "betaOnly": 75
   },
   {
    "workload": "education",
-   "onMap": 0,
+   "onMap": 27,
    "curated": 0,
    "betaOnly": 0
   },
   {
    "workload": "admin",
-   "onMap": 0,
+   "onMap": 41,
    "curated": 0,
-   "betaOnly": 0
+   "betaOnly": 28
   },
   {
    "workload": "reports",
-   "onMap": 3,
+   "onMap": 24,
    "curated": 3,
-   "betaOnly": 0
+   "betaOnly": 61
   },
   {
    "workload": "security",
-   "onMap": 3,
+   "onMap": 66,
    "curated": 3,
-   "betaOnly": 0
+   "betaOnly": 149
   },
   {
    "workload": "devices",
-   "onMap": 209,
+   "onMap": 220,
    "curated": 0,
-   "betaOnly": 0
+   "betaOnly": 505
   },
   {
    "workload": "purview",
-   "onMap": 41,
+   "onMap": 64,
    "curated": 41,
-   "betaOnly": 5
+   "betaOnly": 54
   },
   {
    "workload": "ai",
-   "onMap": 3,
+   "onMap": 29,
    "curated": 3,
-   "betaOnly": 0
+   "betaOnly": 84
   }
  ],
  "purview": {
   "v1": 62,
   "betaOnly": 53,
-  "onMap": 41,
+  "onMap": 62,
   "curated": 41,
   "solutions": [
    {
     "solution": "Information protection",
     "v1": 4,
     "betaOnly": 22,
-    "onMap": 3,
+    "onMap": 4,
     "curated": 3,
     "onMapTypes": [
+     "informationProtection",
      "labelContentRight",
      "sensitivityLabel",
      "usageRightsIncluded"
     ],
-    "missing": [
-     "informationProtection"
-    ],
+    "missing": [],
     "betaOnlyTypes": [
      "classificationGradingJobResponse",
      "classificationJobResponse",
@@ -2703,7 +2718,7 @@
     "solution": "Records",
     "v1": 16,
     "betaOnly": 0,
-    "onMap": 13,
+    "onMap": 16,
     "curated": 13,
     "onMapTypes": [
      "itemRetentionLabel",
@@ -2715,56 +2730,54 @@
      "security.filePlanDescriptor",
      "security.filePlanDescriptorTemplate",
      "security.filePlanReferenceTemplate",
+     "security.labelsRoot",
      "security.retentionEvent",
      "security.retentionEventType",
      "security.retentionLabel",
-     "security.subcategoryTemplate"
-    ],
-    "missing": [
-     "security.labelsRoot",
+     "security.subcategoryTemplate",
      "security.triggerTypesRoot",
      "security.triggersRoot"
     ],
+    "missing": [],
     "betaOnlyTypes": []
    },
    {
     "solution": "eDiscovery",
     "v1": 28,
     "betaOnly": 25,
-    "onMap": 15,
+    "onMap": 28,
     "curated": 15,
     "onMapTypes": [
+     "compliance",
+     "security.case",
+     "security.caseOperation",
+     "security.casesRoot",
      "security.dataSource",
+     "security.dataSourceContainer",
      "security.ediscoveryAddToReviewSetOperation",
      "security.ediscoveryCase",
+     "security.ediscoveryCaseMember",
+     "security.ediscoveryCaseSettings",
      "security.ediscoveryCustodian",
      "security.ediscoveryEstimateOperation",
      "security.ediscoveryExportOperation",
      "security.ediscoveryHoldOperation",
      "security.ediscoveryHoldPolicySyncOperation",
+     "security.ediscoveryIndexOperation",
      "security.ediscoveryNoncustodialDataSource",
+     "security.ediscoveryPurgeDataOperation",
      "security.ediscoveryReviewSet",
      "security.ediscoveryReviewSetQuery",
+     "security.ediscoveryReviewTag",
      "security.ediscoverySearch",
+     "security.ediscoverySearchExportOperation",
+     "security.ediscoveryTagOperation",
+     "security.search",
      "security.siteSource",
      "security.unifiedGroupSource",
      "security.userSource"
     ],
-    "missing": [
-     "compliance",
-     "security.case",
-     "security.caseOperation",
-     "security.casesRoot",
-     "security.dataSourceContainer",
-     "security.ediscoveryCaseMember",
-     "security.ediscoveryCaseSettings",
-     "security.ediscoveryIndexOperation",
-     "security.ediscoveryPurgeDataOperation",
-     "security.ediscoveryReviewTag",
-     "security.ediscoverySearchExportOperation",
-     "security.ediscoveryTagOperation",
-     "security.search"
-    ],
+    "missing": [],
     "betaOnlyTypes": [
      "ediscovery.addToReviewSetOperation",
      "ediscovery.case",
@@ -2797,16 +2810,15 @@
     "solution": "Audit",
     "v1": 4,
     "betaOnly": 6,
-    "onMap": 2,
+    "onMap": 4,
     "curated": 2,
     "onMapTypes": [
-     "security.auditLogQuery",
-     "security.auditLogRecord"
-    ],
-    "missing": [
      "security.auditCoreRoot",
+     "security.auditLogQuery",
+     "security.auditLogRecord",
      "security.autoAuditingConfiguration"
     ],
+    "missing": [],
     "betaOnlyTypes": [
      "security.dlp.baseAuditRecord",
      "security.dlp.complianceBaseAuditRecord",
@@ -2820,34 +2832,32 @@
     "solution": "Privacy",
     "v1": 3,
     "betaOnly": 0,
-    "onMap": 2,
+    "onMap": 3,
     "curated": 2,
     "onMapTypes": [
      "authoredNote",
+     "privacy",
      "subjectRightsRequest"
     ],
-    "missing": [
-     "privacy"
-    ],
+    "missing": [],
     "betaOnlyTypes": []
    },
    {
     "solution": "Data security API",
     "v1": 7,
     "betaOnly": 0,
-    "onMap": 6,
+    "onMap": 7,
     "curated": 6,
     "onMapTypes": [
      "activitiesContainer",
      "contentActivity",
+     "dataSecurityAndGovernance",
      "tenantDataSecurityAndGovernance",
      "tenantProtectionScopeContainer",
      "userDataSecurityAndGovernance",
      "userProtectionScopeContainer"
     ],
-    "missing": [
-     "dataSecurityAndGovernance"
-    ],
+    "missing": [],
     "betaOnlyTypes": []
    }
   ]
@@ -3200,7 +3210,7 @@
    "status": "beta only"
   },
   "microsoft.graph.activeUsersMetric": {
-   "area": "unrooted",
+   "area": "reports",
    "status": "beta only"
   },
   "microsoft.graph.activitiesContainer": {
@@ -3364,7 +3374,7 @@
    "status": "v1.0"
   },
   "microsoft.graph.agreementFileProperties": {
-   "area": "unrooted",
+   "area": "agreements",
    "status": "v1.0"
   },
   "microsoft.graph.agreementFileVersion": {
@@ -3372,7 +3382,7 @@
    "status": "v1.0"
   },
   "microsoft.graph.aiInteraction": {
-   "area": "unrooted",
+   "area": "copilot",
    "status": "v1.0"
   },
   "microsoft.graph.aiInteractionHistory": {
@@ -3780,11 +3790,11 @@
    "status": "v1.0"
   },
   "microsoft.graph.appVulnerabilityManagedDevice": {
-   "area": "unrooted",
+   "area": "deviceAppManagement",
    "status": "beta only"
   },
   "microsoft.graph.appVulnerabilityMobileApp": {
-   "area": "unrooted",
+   "area": "deviceAppManagement",
    "status": "beta only"
   },
   "microsoft.graph.appVulnerabilityTask": {
@@ -3828,7 +3838,7 @@
    "status": "v1.0"
   },
   "microsoft.graph.applicationSegment": {
-   "area": "unrooted",
+   "area": "onPremisesPublishingProfiles",
    "status": "beta only"
   },
   "microsoft.graph.applicationSignInDetailedSummary": {
@@ -3836,7 +3846,7 @@
    "status": "beta only"
   },
   "microsoft.graph.applicationSignInSummary": {
-   "area": "unrooted",
+   "area": "reports",
    "status": "beta only"
   },
   "microsoft.graph.applicationTemplate": {
@@ -3888,7 +3898,7 @@
    "status": "v1.0"
   },
   "microsoft.graph.assignedComputeInstanceDetails": {
-   "area": "unrooted",
+   "area": "identityGovernance",
    "status": "beta only"
   },
   "microsoft.graph.assignmentFilterEvaluationStatusDetails": {
@@ -3976,7 +3986,7 @@
    "status": "beta only"
   },
   "microsoft.graph.authenticationFailure": {
-   "area": "unrooted",
+   "area": "reports",
    "status": "beta only"
   },
   "microsoft.graph.authenticationFeatureTogglePolicy": {
@@ -4028,7 +4038,7 @@
    "status": "v1.0"
   },
   "microsoft.graph.authenticationsMetric": {
-   "area": "unrooted",
+   "area": "reports",
    "status": "beta only"
   },
   "microsoft.graph.authoredNote": {
@@ -4044,15 +4054,15 @@
    "status": "beta only"
   },
   "microsoft.graph.authorizationSystemIdentity": {
-   "area": "unrooted",
+   "area": "identityGovernance",
    "status": "beta only"
   },
   "microsoft.graph.authorizationSystemResource": {
-   "area": "unrooted",
+   "area": "identityGovernance",
    "status": "beta only"
   },
   "microsoft.graph.authorizationSystemTypeAction": {
-   "area": "unrooted",
+   "area": "identityGovernance",
    "status": "beta only"
   },
   "microsoft.graph.authorizationSystemTypeService": {
@@ -4064,7 +4074,7 @@
    "status": "v1.0"
   },
   "microsoft.graph.awsAccessKey": {
-   "area": "unrooted",
+   "area": "identityGovernance",
    "status": "beta only"
   },
   "microsoft.graph.awsAuthorizationSystem": {
@@ -4080,7 +4090,7 @@
    "status": "beta only"
   },
   "microsoft.graph.awsEc2Instance": {
-   "area": "unrooted",
+   "area": "identityGovernance",
    "status": "beta only"
   },
   "microsoft.graph.awsExternalSystemAccessFinding": {
@@ -4092,11 +4102,11 @@
    "status": "beta only"
   },
   "microsoft.graph.awsGroup": {
-   "area": "unrooted",
+   "area": "identityGovernance",
    "status": "beta only"
   },
   "microsoft.graph.awsIdentity": {
-   "area": "unrooted",
+   "area": "identityGovernance",
    "status": "beta only"
   },
   "microsoft.graph.awsIdentityAccessManagementKeyAgeFinding": {
@@ -4108,7 +4118,7 @@
    "status": "beta only"
   },
   "microsoft.graph.awsLambda": {
-   "area": "unrooted",
+   "area": "identityGovernance",
    "status": "beta only"
   },
   "microsoft.graph.awsPolicy": {
@@ -4116,7 +4126,7 @@
    "status": "beta only"
   },
   "microsoft.graph.awsRole": {
-   "area": "unrooted",
+   "area": "identityGovernance",
    "status": "beta only"
   },
   "microsoft.graph.awsSecretInformationAccessFinding": {
@@ -4132,7 +4142,7 @@
    "status": "beta only"
   },
   "microsoft.graph.awsUser": {
-   "area": "unrooted",
+   "area": "identityGovernance",
    "status": "beta only"
   },
   "microsoft.graph.azureADAuthentication": {
@@ -4164,15 +4174,15 @@
    "status": "v1.0"
   },
   "microsoft.graph.azureGroup": {
-   "area": "unrooted",
+   "area": "identityGovernance",
    "status": "beta only"
   },
   "microsoft.graph.azureIdentity": {
-   "area": "unrooted",
+   "area": "identityGovernance",
    "status": "beta only"
   },
   "microsoft.graph.azureManagedIdentity": {
-   "area": "unrooted",
+   "area": "identityGovernance",
    "status": "beta only"
   },
   "microsoft.graph.azureRoleDefinition": {
@@ -4180,43 +4190,43 @@
    "status": "beta only"
   },
   "microsoft.graph.azureServerlessFunction": {
-   "area": "unrooted",
+   "area": "identityGovernance",
    "status": "beta only"
   },
   "microsoft.graph.azureServicePrincipal": {
-   "area": "unrooted",
+   "area": "identityGovernance",
    "status": "beta only"
   },
   "microsoft.graph.azureUser": {
-   "area": "unrooted",
+   "area": "identityGovernance",
    "status": "beta only"
   },
   "microsoft.graph.b2BRegistrationMetricsBase": {
-   "area": "unrooted",
+   "area": "directory",
    "status": "v1.0"
   },
   "microsoft.graph.b2BRegistrationMetricsInitial": {
-   "area": "unrooted",
+   "area": "directory",
    "status": "v1.0"
   },
   "microsoft.graph.b2BRegistrationMetricsRecent": {
-   "area": "unrooted",
+   "area": "directory",
    "status": "v1.0"
   },
   "microsoft.graph.b2BSignInActivityMetrics": {
-   "area": "unrooted",
+   "area": "directory",
    "status": "v1.0"
   },
   "microsoft.graph.b2BSignInActivityMetricsBase": {
-   "area": "unrooted",
+   "area": "directory",
    "status": "v1.0"
   },
   "microsoft.graph.b2BSignInActivityMetricsInitial": {
-   "area": "unrooted",
+   "area": "directory",
    "status": "v1.0"
   },
   "microsoft.graph.b2BSignInActivityMetricsRecent": {
-   "area": "unrooted",
+   "area": "directory",
    "status": "v1.0"
   },
   "microsoft.graph.b2bManagementPolicy": {
@@ -4224,7 +4234,7 @@
    "status": "beta only"
   },
   "microsoft.graph.b2bRegistrationMetrics": {
-   "area": "unrooted",
+   "area": "directory",
    "status": "v1.0"
   },
   "microsoft.graph.b2cAuthenticationMethodsPolicy": {
@@ -4256,11 +4266,11 @@
    "status": "v1.0"
   },
   "microsoft.graph.baseItemVersion": {
-   "area": "unrooted",
+   "area": "sites",
    "status": "v1.0"
   },
   "microsoft.graph.baseMapFeature": {
-   "area": "unrooted",
+   "area": "places",
    "status": "v1.0"
   },
   "microsoft.graph.baseSitePage": {
@@ -4268,19 +4278,19 @@
    "status": "v1.0"
   },
   "microsoft.graph.billingMetrics": {
-   "area": "unrooted",
+   "area": "directory",
    "status": "v1.0"
   },
   "microsoft.graph.billingMetricsBase": {
-   "area": "unrooted",
+   "area": "directory",
    "status": "v1.0"
   },
   "microsoft.graph.billingMetricsInitial": {
-   "area": "unrooted",
+   "area": "directory",
    "status": "v1.0"
   },
   "microsoft.graph.billingMetricsRecent": {
-   "area": "unrooted",
+   "area": "directory",
    "status": "v1.0"
   },
   "microsoft.graph.bitlocker": {
@@ -4316,11 +4326,11 @@
    "status": "v1.0"
   },
   "microsoft.graph.bookingNamedEntity": {
-   "area": "unrooted",
+   "area": "bookingBusinesses",
    "status": "beta only"
   },
   "microsoft.graph.bookingPerson": {
-   "area": "unrooted",
+   "area": "bookingBusinesses",
    "status": "beta only"
   },
   "microsoft.graph.bookingService": {
@@ -4384,7 +4394,7 @@
    "status": "beta only"
   },
   "microsoft.graph.businessScenarioPlanReference": {
-   "area": "unrooted",
+   "area": "solutions",
    "status": "beta only"
   },
   "microsoft.graph.businessScenarioPlanner": {
@@ -4448,7 +4458,7 @@
    "status": "v1.0"
   },
   "microsoft.graph.callRecords.participantBase": {
-   "area": "callRecords (namespace)",
+   "area": "communications",
    "status": "v1.0"
   },
   "microsoft.graph.callRecords.segment": {
@@ -4480,7 +4490,7 @@
    "status": "beta only"
   },
   "microsoft.graph.categoryDefinition": {
-   "area": "unrooted",
+   "area": "users",
    "status": "beta only"
   },
   "microsoft.graph.certificateAuthorityAsEntity": {
@@ -4512,7 +4522,7 @@
    "status": "beta only"
   },
   "microsoft.graph.changeTrackedEntity": {
-   "area": "unrooted",
+   "area": "teams",
    "status": "v1.0"
   },
   "microsoft.graph.channel": {
@@ -4580,7 +4590,7 @@
    "status": "beta only"
   },
   "microsoft.graph.cloudCertificationAuthorityVersion": {
-   "area": "unrooted",
+   "area": "deviceManagement",
    "status": "beta only"
   },
   "microsoft.graph.cloudClipboardItem": {
@@ -4616,11 +4626,11 @@
    "status": "beta only"
   },
   "microsoft.graph.cloudLicensing.usageRight": {
-   "area": "cloudLicensing (namespace)",
+   "area": "admin",
    "status": "beta only"
   },
   "microsoft.graph.cloudLicensing.waitingMember": {
-   "area": "cloudLicensing (namespace)",
+   "area": "admin",
    "status": "beta only"
   },
   "microsoft.graph.cloudPC": {
@@ -5028,7 +5038,7 @@
    "status": "beta only"
   },
   "microsoft.graph.copilotPackage": {
-   "area": "unrooted",
+   "area": "copilot",
    "status": "v1.0"
   },
   "microsoft.graph.copilotPackageDetail": {
@@ -5124,11 +5134,11 @@
    "status": "beta only"
   },
   "microsoft.graph.credentialUsageSummary": {
-   "area": "unrooted",
+   "area": "reports",
    "status": "beta only"
   },
   "microsoft.graph.credentialUserRegistrationCount": {
-   "area": "unrooted",
+   "area": "reports",
    "status": "beta only"
   },
   "microsoft.graph.credentialUserRegistrationDetails": {
@@ -5228,7 +5238,7 @@
    "status": "v1.0"
   },
   "microsoft.graph.customChoiceOption": {
-   "area": "unrooted",
+   "area": "users",
    "status": "beta only"
   },
   "microsoft.graph.customClaimsPolicy": {
@@ -5244,7 +5254,7 @@
    "status": "v1.0"
   },
   "microsoft.graph.customDataProvidedResourceFile": {
-   "area": "unrooted",
+   "area": "identityGovernance",
    "status": "v1.0"
   },
   "microsoft.graph.customDataProvidedResourceUploadSession": {
@@ -5252,15 +5262,15 @@
    "status": "v1.0"
   },
   "microsoft.graph.customExtensionHandler": {
-   "area": "unrooted",
+   "area": "identityGovernance",
    "status": "beta only"
   },
   "microsoft.graph.customExtensionStageSetting": {
-   "area": "unrooted",
+   "area": "identityGovernance",
    "status": "v1.0"
   },
   "microsoft.graph.customFieldDefinition": {
-   "area": "unrooted",
+   "area": "planner",
    "status": "beta only"
   },
   "microsoft.graph.customFieldValue": {
@@ -5292,11 +5302,11 @@
    "status": "beta only"
   },
   "microsoft.graph.dailyInactiveUsersByApplicationMetric": {
-   "area": "unrooted",
+   "area": "reports",
    "status": "beta only"
   },
   "microsoft.graph.dailyInactiveUsersMetric": {
-   "area": "unrooted",
+   "area": "reports",
    "status": "beta only"
   },
   "microsoft.graph.dailyUserInsightMetricsRoot": {
@@ -5320,7 +5330,7 @@
    "status": "v1.0"
   },
   "microsoft.graph.dataSecurityAndGovernance": {
-   "area": "unrooted",
+   "area": "security",
    "status": "v1.0"
   },
   "microsoft.graph.dataSharingConsent": {
@@ -5424,7 +5434,7 @@
    "status": "beta only"
   },
   "microsoft.graph.dependency": {
-   "area": "unrooted",
+   "area": "planner",
    "status": "beta only"
   },
   "microsoft.graph.desk": {
@@ -5624,7 +5634,7 @@
    "status": "beta only"
   },
   "microsoft.graph.deviceHealthScriptPolicyState": {
-   "area": "unrooted",
+   "area": "deviceManagement",
    "status": "beta only"
   },
   "microsoft.graph.deviceHealthScriptRunSummary": {
@@ -5700,7 +5710,7 @@
    "status": "beta only"
   },
   "microsoft.graph.deviceManagementComplianceActionItem": {
-   "area": "unrooted",
+   "area": "deviceManagement",
    "status": "beta only"
   },
   "microsoft.graph.deviceManagementCompliancePolicy": {
@@ -5868,7 +5878,7 @@
    "status": "beta only"
   },
   "microsoft.graph.deviceManagementScriptRunSummary": {
-   "area": "unrooted",
+   "area": "deviceManagement",
    "status": "beta only"
   },
   "microsoft.graph.deviceManagementScriptUserState": {
@@ -6136,7 +6146,7 @@
    "status": "beta only"
   },
   "microsoft.graph.ediscovery.dataSourceContainer": {
-   "area": "ediscovery (namespace)",
+   "area": "compliance",
    "status": "beta only"
   },
   "microsoft.graph.ediscovery.ediscoveryroot": {
@@ -6244,7 +6254,7 @@
    "status": "v1.0"
   },
   "microsoft.graph.educationOrganization": {
-   "area": "unrooted",
+   "area": "education",
    "status": "v1.0"
   },
   "microsoft.graph.educationOutcome": {
@@ -6376,7 +6386,7 @@
    "status": "v1.0"
   },
   "microsoft.graph.engagementConversation": {
-   "area": "unrooted",
+   "area": "communications",
    "status": "v1.0"
   },
   "microsoft.graph.engagementConversationDiscussionMessage": {
@@ -6468,7 +6478,7 @@
    "status": "v1.0"
   },
   "microsoft.graph.entraRecoveryServices.recoveryChangeObjectBase": {
-   "area": "entraRecoveryServices (namespace)",
+   "area": "directory",
    "status": "v1.0"
   },
   "microsoft.graph.entraRecoveryServices.recoveryConfiguration": {
@@ -6516,11 +6526,11 @@
    "status": "beta only"
   },
   "microsoft.graph.exactMatchDataStoreBase": {
-   "area": "unrooted",
+   "area": "dataClassification",
    "status": "beta only"
   },
   "microsoft.graph.exactMatchJobBase": {
-   "area": "unrooted",
+   "area": "dataClassification",
    "status": "beta only"
   },
   "microsoft.graph.exactMatchLookupJob": {
@@ -6532,7 +6542,7 @@
    "status": "beta only"
   },
   "microsoft.graph.exactMatchSessionBase": {
-   "area": "unrooted",
+   "area": "dataClassification",
    "status": "beta only"
   },
   "microsoft.graph.exactMatchUploadAgent": {
@@ -6548,7 +6558,7 @@
    "status": "v1.0"
   },
   "microsoft.graph.exchangeMessageTraceDetail": {
-   "area": "unrooted",
+   "area": "admin",
    "status": "v1.0"
   },
   "microsoft.graph.exchangeProtectionPolicy": {
@@ -6564,11 +6574,11 @@
    "status": "v1.0"
   },
   "microsoft.graph.exclusionUnitBase": {
-   "area": "unrooted",
+   "area": "solutions",
    "status": "beta only"
   },
   "microsoft.graph.exclusionUnitBulkAdditionJob": {
-   "area": "unrooted",
+   "area": "solutions",
    "status": "beta only"
   },
   "microsoft.graph.extension": {
@@ -6800,15 +6810,15 @@
    "status": "beta only"
   },
   "microsoft.graph.gcpCloudFunction": {
-   "area": "unrooted",
+   "area": "identityGovernance",
    "status": "beta only"
   },
   "microsoft.graph.gcpGroup": {
-   "area": "unrooted",
+   "area": "identityGovernance",
    "status": "beta only"
   },
   "microsoft.graph.gcpIdentity": {
-   "area": "unrooted",
+   "area": "identityGovernance",
    "status": "beta only"
   },
   "microsoft.graph.gcpRole": {
@@ -6816,11 +6826,11 @@
    "status": "beta only"
   },
   "microsoft.graph.gcpServiceAccount": {
-   "area": "unrooted",
+   "area": "identityGovernance",
    "status": "beta only"
   },
   "microsoft.graph.gcpUser": {
-   "area": "unrooted",
+   "area": "identityGovernance",
    "status": "beta only"
   },
   "microsoft.graph.generalLedgerEntry": {
@@ -6828,7 +6838,7 @@
    "status": "beta only"
   },
   "microsoft.graph.goal": {
-   "area": "unrooted",
+   "area": "planner",
    "status": "beta only"
   },
   "microsoft.graph.goals": {
@@ -6892,7 +6902,7 @@
    "status": "v1.0"
   },
   "microsoft.graph.granularRestoreArtifactBase": {
-   "area": "unrooted",
+   "area": "solutions",
    "status": "v1.0"
   },
   "microsoft.graph.granularSiteRestoreArtifact": {
@@ -6944,7 +6954,7 @@
    "status": "beta only"
   },
   "microsoft.graph.groupPolicyOperation": {
-   "area": "unrooted",
+   "area": "deviceManagement",
    "status": "beta only"
   },
   "microsoft.graph.groupPolicyPresentation": {
@@ -7092,7 +7102,7 @@
    "status": "beta only"
   },
   "microsoft.graph.historyItem": {
-   "area": "unrooted",
+   "area": "planner",
    "status": "beta only"
   },
   "microsoft.graph.homeRealmDiscoveryPolicy": {
@@ -7200,7 +7210,7 @@
    "status": "v1.0"
   },
   "microsoft.graph.identityGovernance.lifecyclePolicyImpactSummary": {
-   "area": "identityGovernance (namespace)",
+   "area": "identityGovernance",
    "status": "beta only"
   },
   "microsoft.graph.identityGovernance.lifecyclePolicyPriorityConfiguration": {
@@ -7268,7 +7278,7 @@
    "status": "v1.0"
   },
   "microsoft.graph.identityGovernance.workflowBase": {
-   "area": "identityGovernance (namespace)",
+   "area": "identityGovernance",
    "status": "v1.0"
   },
   "microsoft.graph.identityGovernance.workflowTemplate": {
@@ -7296,7 +7306,7 @@
    "status": "v1.0"
   },
   "microsoft.graph.identityUserFlow": {
-   "area": "unrooted",
+   "area": "identity",
    "status": "v1.0"
   },
   "microsoft.graph.identityUserFlowAttribute": {
@@ -7376,11 +7386,11 @@
    "status": "beta only"
   },
   "microsoft.graph.inactiveUsersByApplicationMetricBase": {
-   "area": "unrooted",
+   "area": "reports",
    "status": "beta only"
   },
   "microsoft.graph.inactiveUsersMetricBase": {
-   "area": "unrooted",
+   "area": "reports",
    "status": "beta only"
   },
   "microsoft.graph.inboundSharedUserProfile": {
@@ -7428,7 +7438,7 @@
    "status": "beta only"
   },
   "microsoft.graph.industryData.industryDataActivity": {
-   "area": "industryData (namespace)",
+   "area": "external",
    "status": "beta only"
   },
   "microsoft.graph.industryData.industryDataConnector": {
@@ -7520,7 +7530,7 @@
    "status": "beta only"
   },
   "microsoft.graph.insightSummary": {
-   "area": "unrooted",
+   "area": "reports",
    "status": "beta only"
   },
   "microsoft.graph.insightsSettings": {
@@ -7552,7 +7562,7 @@
    "status": "beta only"
   },
   "microsoft.graph.investigationActionStep": {
-   "area": "unrooted",
+   "area": "directory",
    "status": "beta only"
   },
   "microsoft.graph.investigationInput": {
@@ -7728,7 +7738,7 @@
    "status": "beta only"
   },
   "microsoft.graph.ipApplicationSegment": {
-   "area": "unrooted",
+   "area": "onPremisesPublishingProfiles",
    "status": "beta only"
   },
   "microsoft.graph.ipNamedLocation": {
@@ -7744,7 +7754,7 @@
    "status": "beta only"
   },
   "microsoft.graph.itemActivity": {
-   "area": "unrooted",
+   "area": "sites",
    "status": "v1.0"
   },
   "microsoft.graph.itemActivityOLD": {
@@ -7752,7 +7762,7 @@
    "status": "beta only"
   },
   "microsoft.graph.itemActivityStat": {
-   "area": "unrooted",
+   "area": "sites",
    "status": "v1.0"
   },
   "microsoft.graph.itemAddress": {
@@ -7760,7 +7770,7 @@
    "status": "beta only"
   },
   "microsoft.graph.itemAnalytics": {
-   "area": "unrooted",
+   "area": "sites",
    "status": "v1.0"
   },
   "microsoft.graph.itemAttachment": {
@@ -7776,7 +7786,7 @@
    "status": "beta only"
   },
   "microsoft.graph.itemFacet": {
-   "area": "unrooted",
+   "area": "users",
    "status": "beta only"
   },
   "microsoft.graph.itemInsights": {
@@ -8180,7 +8190,7 @@
    "status": "v1.0"
   },
   "microsoft.graph.managedDeviceOverview": {
-   "area": "unrooted",
+   "area": "deviceManagement",
    "status": "v1.0"
   },
   "microsoft.graph.managedDeviceWindowsOperatingSystemImage": {
@@ -8328,7 +8338,7 @@
    "status": "beta only"
   },
   "microsoft.graph.managedTenants.managementTemplateStepDeployment": {
-   "area": "managedTenants (namespace)",
+   "area": "tenantRelationships",
    "status": "beta only"
   },
   "microsoft.graph.managedTenants.managementTemplateStepTenantSummary": {
@@ -8400,7 +8410,7 @@
    "status": "beta only"
   },
   "microsoft.graph.meetingRegistrationBase": {
-   "area": "unrooted",
+   "area": "communications",
    "status": "beta only"
   },
   "microsoft.graph.meetingRegistrationQuestion": {
@@ -8440,11 +8450,11 @@
    "status": "v1.0"
   },
   "microsoft.graph.mfaCompletionMetric": {
-   "area": "unrooted",
+   "area": "reports",
    "status": "beta only"
   },
   "microsoft.graph.mfaFailure": {
-   "area": "unrooted",
+   "area": "reports",
    "status": "beta only"
   },
   "microsoft.graph.mfaTelecomFraudMetric": {
@@ -8608,11 +8618,11 @@
    "status": "beta only"
   },
   "microsoft.graph.monthlyInactiveUsersByApplicationMetric": {
-   "area": "unrooted",
+   "area": "reports",
    "status": "beta only"
   },
   "microsoft.graph.monthlyInactiveUsersMetric": {
-   "area": "unrooted",
+   "area": "reports",
    "status": "beta only"
   },
   "microsoft.graph.monthlyUserInsightMetricsRoot": {
@@ -8624,19 +8634,19 @@
    "status": "beta only"
   },
   "microsoft.graph.multiTenantApplicationMetrics": {
-   "area": "unrooted",
+   "area": "directory",
    "status": "v1.0"
   },
   "microsoft.graph.multiTenantApplicationMetricsBase": {
-   "area": "unrooted",
+   "area": "directory",
    "status": "v1.0"
   },
   "microsoft.graph.multiTenantApplicationMetricsInitial": {
-   "area": "unrooted",
+   "area": "directory",
    "status": "v1.0"
   },
   "microsoft.graph.multiTenantApplicationMetricsRecent": {
-   "area": "unrooted",
+   "area": "directory",
    "status": "v1.0"
   },
   "microsoft.graph.multiTenantOrganization": {
@@ -8696,7 +8706,7 @@
    "status": "beta only"
   },
   "microsoft.graph.networkaccess.baseEntity": {
-   "area": "networkaccess (namespace)",
+   "area": "networkAccess",
    "status": "beta only"
   },
   "microsoft.graph.networkaccess.branchConnectivityConfiguration": {
@@ -8720,7 +8730,7 @@
    "status": "beta only"
   },
   "microsoft.graph.networkaccess.conditionalAccessPolicy": {
-   "area": "networkaccess (namespace)",
+   "area": "networkAccess",
    "status": "beta only"
   },
   "microsoft.graph.networkaccess.conditionalAccessSettings": {
@@ -8792,7 +8802,7 @@
    "status": "beta only"
   },
   "microsoft.graph.networkaccess.forwardingProfileBase": {
-   "area": "networkaccess (namespace)",
+   "area": "networkAccess",
    "status": "beta only"
   },
   "microsoft.graph.networkaccess.forwardingRule": {
@@ -8828,7 +8838,7 @@
    "status": "beta only"
   },
   "microsoft.graph.networkaccess.policy": {
-   "area": "networkaccess (namespace)",
+   "area": "networkAccess",
    "status": "beta only"
   },
   "microsoft.graph.networkaccess.policyLink": {
@@ -8844,7 +8854,7 @@
    "status": "beta only"
   },
   "microsoft.graph.networkaccess.profile": {
-   "area": "networkaccess (namespace)",
+   "area": "networkAccess",
    "status": "beta only"
   },
   "microsoft.graph.networkaccess.remoteNetwork": {
@@ -8964,39 +8974,39 @@
    "status": "v1.0"
   },
   "microsoft.graph.office365ActiveUserCounts": {
-   "area": "unrooted",
+   "area": "reports",
    "status": "beta only"
   },
   "microsoft.graph.office365ActiveUserDetail": {
-   "area": "unrooted",
+   "area": "reports",
    "status": "beta only"
   },
   "microsoft.graph.office365GroupsActivityCounts": {
-   "area": "unrooted",
+   "area": "reports",
    "status": "beta only"
   },
   "microsoft.graph.office365GroupsActivityDetail": {
-   "area": "unrooted",
+   "area": "reports",
    "status": "beta only"
   },
   "microsoft.graph.office365GroupsActivityFileCounts": {
-   "area": "unrooted",
+   "area": "reports",
    "status": "beta only"
   },
   "microsoft.graph.office365GroupsActivityGroupCounts": {
-   "area": "unrooted",
+   "area": "reports",
    "status": "beta only"
   },
   "microsoft.graph.office365GroupsActivityStorage": {
-   "area": "unrooted",
+   "area": "reports",
    "status": "beta only"
   },
   "microsoft.graph.office365ServicesUserCounts": {
-   "area": "unrooted",
+   "area": "reports",
    "status": "beta only"
   },
   "microsoft.graph.officeGraphInsights": {
-   "area": "unrooted",
+   "area": "users",
    "status": "v1.0"
   },
   "microsoft.graph.officeSuiteApp": {
@@ -9132,15 +9142,15 @@
    "status": "v1.0"
   },
   "microsoft.graph.onenoteEntityBaseModel": {
-   "area": "unrooted",
+   "area": "sites",
    "status": "v1.0"
   },
   "microsoft.graph.onenoteEntityHierarchyModel": {
-   "area": "unrooted",
+   "area": "sites",
    "status": "v1.0"
   },
   "microsoft.graph.onenoteEntitySchemaObjectModel": {
-   "area": "unrooted",
+   "area": "sites",
    "status": "v1.0"
   },
   "microsoft.graph.onenoteOperation": {
@@ -9164,7 +9174,7 @@
    "status": "v1.0"
   },
   "microsoft.graph.onlineMeetingBase": {
-   "area": "unrooted",
+   "area": "solutions",
    "status": "v1.0"
   },
   "microsoft.graph.onlineMeetingEngagementConversation": {
@@ -9200,7 +9210,7 @@
    "status": "v1.0"
   },
   "microsoft.graph.operation": {
-   "area": "unrooted",
+   "area": "sites",
    "status": "v1.0"
   },
   "microsoft.graph.operationApprovalPolicy": {
@@ -9232,7 +9242,7 @@
    "status": "v1.0"
   },
   "microsoft.graph.organizationalBrandingProperties": {
-   "area": "unrooted",
+   "area": "organization",
    "status": "v1.0"
   },
   "microsoft.graph.organizationalBrandingTheme": {
@@ -9424,7 +9434,7 @@
    "status": "v1.0"
   },
   "microsoft.graph.passkeyProfile": {
-   "area": "unrooted",
+   "area": "authenticationMethodConfigurations",
    "status": "v1.0"
   },
   "microsoft.graph.passwordAuthenticationMethod": {
@@ -9580,7 +9590,7 @@
    "status": "v1.0"
   },
   "microsoft.graph.placeOperation": {
-   "area": "unrooted",
+   "area": "places",
    "status": "beta only"
   },
   "microsoft.graph.plan": {
@@ -9612,7 +9622,7 @@
    "status": "beta only"
   },
   "microsoft.graph.plannerDelta": {
-   "area": "unrooted",
+   "area": "users",
    "status": "beta only"
   },
   "microsoft.graph.plannerGoal": {
@@ -9692,7 +9702,7 @@
    "status": "v1.0"
   },
   "microsoft.graph.policyDeletableItem": {
-   "area": "unrooted",
+   "area": "identity",
    "status": "v1.0"
   },
   "microsoft.graph.policyDeletableRoot": {
@@ -9776,7 +9786,7 @@
    "status": "v1.0"
   },
   "microsoft.graph.printUsage": {
-   "area": "unrooted",
+   "area": "reports",
    "status": "v1.0"
   },
   "microsoft.graph.printUsageByPrinter": {
@@ -9792,7 +9802,7 @@
    "status": "v1.0"
   },
   "microsoft.graph.printerBase": {
-   "area": "unrooted",
+   "area": "print",
    "status": "v1.0"
   },
   "microsoft.graph.printerCreateOperation": {
@@ -9884,15 +9894,15 @@
    "status": "v1.0"
   },
   "microsoft.graph.privilegedAccessSchedule": {
-   "area": "unrooted",
+   "area": "identityGovernance",
    "status": "v1.0"
   },
   "microsoft.graph.privilegedAccessScheduleInstance": {
-   "area": "unrooted",
+   "area": "identityGovernance",
    "status": "v1.0"
   },
   "microsoft.graph.privilegedAccessScheduleRequest": {
-   "area": "unrooted",
+   "area": "identityGovernance",
    "status": "v1.0"
   },
   "microsoft.graph.privilegedApproval": {
@@ -9972,15 +9982,15 @@
    "status": "v1.0"
   },
   "microsoft.graph.protectionRuleBase": {
-   "area": "unrooted",
+   "area": "solutions",
    "status": "v1.0"
   },
   "microsoft.graph.protectionUnitBase": {
-   "area": "unrooted",
+   "area": "solutions",
    "status": "v1.0"
   },
   "microsoft.graph.protectionUnitsBulkJobBase": {
-   "area": "unrooted",
+   "area": "solutions",
    "status": "v1.0"
   },
   "microsoft.graph.providerTenantSetting": {
@@ -10064,7 +10074,7 @@
    "status": "beta only"
   },
   "microsoft.graph.recommendationBase": {
-   "area": "unrooted",
+   "area": "directory",
    "status": "beta only"
   },
   "microsoft.graph.recommendationConfiguration": {
@@ -10116,7 +10126,7 @@
    "status": "v1.0"
   },
   "microsoft.graph.relyingPartyDetailedSummary": {
-   "area": "unrooted",
+   "area": "reports",
    "status": "v1.0"
   },
   "microsoft.graph.remoteActionAudit": {
@@ -10148,7 +10158,7 @@
    "status": "v1.0"
   },
   "microsoft.graph.request": {
-   "area": "unrooted",
+   "area": "identityGovernance",
    "status": "v1.0"
   },
   "microsoft.graph.resellerDelegatedAdminRelationship": {
@@ -10196,11 +10206,11 @@
    "status": "v1.0"
   },
   "microsoft.graph.restoreArtifactBase": {
-   "area": "unrooted",
+   "area": "solutions",
    "status": "v1.0"
   },
   "microsoft.graph.restoreArtifactsBulkRequestBase": {
-   "area": "unrooted",
+   "area": "solutions",
    "status": "v1.0"
   },
   "microsoft.graph.restorePoint": {
@@ -10356,7 +10366,7 @@
    "status": "v1.0"
   },
   "microsoft.graph.scheduleChangeRequest": {
-   "area": "unrooted",
+   "area": "teams",
    "status": "v1.0"
   },
   "microsoft.graph.scheduledPermissionsRequest": {
@@ -10392,7 +10402,7 @@
    "status": "v1.0"
   },
   "microsoft.graph.search.searchAnswer": {
-   "area": "search (namespace)",
+   "area": "search",
    "status": "v1.0"
   },
   "microsoft.graph.searchEntity": {
@@ -10460,7 +10470,7 @@
    "status": "v1.0"
   },
   "microsoft.graph.security.artifact": {
-   "area": "security (namespace)",
+   "area": "security",
    "status": "v1.0"
   },
   "microsoft.graph.security.auditCoreRoot": {
@@ -10484,7 +10494,7 @@
    "status": "v1.0"
   },
   "microsoft.graph.security.case": {
-   "area": "security (namespace)",
+   "area": "security",
    "status": "v1.0"
   },
   "microsoft.graph.security.caseManagement.activity": {
@@ -10504,7 +10514,7 @@
    "status": "beta only"
   },
   "microsoft.graph.security.caseManagement.caseManagementEntity": {
-   "area": "security.caseManagement (namespace)",
+   "area": "security",
    "status": "beta only"
   },
   "microsoft.graph.security.caseManagement.caseTypeConfiguration": {
@@ -10616,7 +10626,7 @@
    "status": "beta only"
   },
   "microsoft.graph.security.dataSet": {
-   "area": "security (namespace)",
+   "area": "security",
    "status": "v1.0"
   },
   "microsoft.graph.security.dataSource": {
@@ -10624,7 +10634,7 @@
    "status": "v1.0"
   },
   "microsoft.graph.security.dataSourceContainer": {
-   "area": "security (namespace)",
+   "area": "security",
    "status": "v1.0"
   },
   "microsoft.graph.security.departmentTemplate": {
@@ -10636,23 +10646,23 @@
    "status": "v1.0"
   },
   "microsoft.graph.security.discoveredCloudAppDetail": {
-   "area": "security (namespace)",
+   "area": "security",
    "status": "beta only"
   },
   "microsoft.graph.security.discoveredCloudAppDevice": {
-   "area": "security (namespace)",
+   "area": "security",
    "status": "beta only"
   },
   "microsoft.graph.security.discoveredCloudAppIPAddress": {
-   "area": "security (namespace)",
+   "area": "security",
    "status": "beta only"
   },
   "microsoft.graph.security.discoveredCloudAppInfo": {
-   "area": "security (namespace)",
+   "area": "security",
    "status": "beta only"
   },
   "microsoft.graph.security.discoveredCloudAppUser": {
-   "area": "security (namespace)",
+   "area": "security",
    "status": "beta only"
   },
   "microsoft.graph.security.dispositionReviewStage": {
@@ -10780,7 +10790,7 @@
    "status": "beta only"
   },
   "microsoft.graph.security.endpointDiscoveredCloudAppDetail": {
-   "area": "security (namespace)",
+   "area": "security",
    "status": "beta only"
   },
   "microsoft.graph.security.entityDefinitionInput": {
@@ -10792,7 +10802,7 @@
    "status": "beta only"
   },
   "microsoft.graph.security.file": {
-   "area": "security (namespace)",
+   "area": "security",
    "status": "beta only"
   },
   "microsoft.graph.security.fileContentThreatSubmission": {
@@ -10804,7 +10814,7 @@
    "status": "v1.0"
   },
   "microsoft.graph.security.filePlanDescriptorTemplate": {
-   "area": "security (namespace)",
+   "area": "security",
    "status": "v1.0"
   },
   "microsoft.graph.security.filePlanReferenceTemplate": {
@@ -10880,7 +10890,7 @@
    "status": "beta only"
   },
   "microsoft.graph.security.indicator": {
-   "area": "security (namespace)",
+   "area": "security",
    "status": "v1.0"
   },
   "microsoft.graph.security.informationProtection": {
@@ -10920,7 +10930,7 @@
    "status": "v1.0"
   },
   "microsoft.graph.security.policyBase": {
-   "area": "security (namespace)",
+   "area": "security",
    "status": "beta only"
   },
   "microsoft.graph.security.retentionEvent": {
@@ -10940,7 +10950,7 @@
    "status": "v1.0"
   },
   "microsoft.graph.security.search": {
-   "area": "security (namespace)",
+   "area": "security",
    "status": "v1.0"
   },
   "microsoft.graph.security.security": {
@@ -11008,7 +11018,7 @@
    "status": "v1.0"
   },
   "microsoft.graph.security.tag": {
-   "area": "security (namespace)",
+   "area": "security",
    "status": "v1.0"
   },
   "microsoft.graph.security.threatIntelligence": {
@@ -11016,7 +11026,7 @@
    "status": "v1.0"
   },
   "microsoft.graph.security.threatSubmission": {
-   "area": "security (namespace)",
+   "area": "threatSubmission",
    "status": "beta only"
   },
   "microsoft.graph.security.threatSubmissionRoot": {
@@ -11032,7 +11042,7 @@
    "status": "v1.0"
   },
   "microsoft.graph.security.unclassifiedArtifact": {
-   "area": "security (namespace)",
+   "area": "security",
    "status": "v1.0"
   },
   "microsoft.graph.security.unifiedGroupSource": {
@@ -11060,7 +11070,7 @@
    "status": "v1.0"
   },
   "microsoft.graph.security.whoisBaseRecord": {
-   "area": "security (namespace)",
+   "area": "security",
    "status": "v1.0"
   },
   "microsoft.graph.security.whoisHistoryRecord": {
@@ -11180,7 +11190,7 @@
    "status": "v1.0"
   },
   "microsoft.graph.serviceAnnouncementBase": {
-   "area": "unrooted",
+   "area": "admin",
    "status": "v1.0"
   },
   "microsoft.graph.serviceApp": {
@@ -11260,7 +11270,7 @@
    "status": "v1.0"
   },
   "microsoft.graph.sharePointIdentityMapping": {
-   "area": "unrooted",
+   "area": "solutions",
    "status": "beta only"
   },
   "microsoft.graph.sharePointMigrationEvent": {
@@ -11484,7 +11494,7 @@
    "status": "v1.0"
   },
   "microsoft.graph.softwareUpdateStatusSummary": {
-   "area": "unrooted",
+   "area": "deviceManagement",
    "status": "v1.0"
   },
   "microsoft.graph.solutionsRoot": {
@@ -11544,7 +11554,7 @@
    "status": "v1.0"
   },
   "microsoft.graph.storageQuotaBreakdown": {
-   "area": "unrooted",
+   "area": "storage",
    "status": "v1.0"
   },
   "microsoft.graph.storageSettings": {
@@ -11592,7 +11602,7 @@
    "status": "v1.0"
   },
   "microsoft.graph.summarizedSignIn": {
-   "area": "unrooted",
+   "area": "auditLogs",
    "status": "beta only"
   },
   "microsoft.graph.superAwsResourceFinding": {
@@ -11692,7 +11702,7 @@
    "status": "v1.0"
   },
   "microsoft.graph.teamInfo": {
-   "area": "unrooted",
+   "area": "teams",
    "status": "v1.0"
   },
   "microsoft.graph.teamTemplate": {
@@ -11708,7 +11718,7 @@
    "status": "v1.0"
   },
   "microsoft.graph.teamsAdministration.policyIdentifierDetail": {
-   "area": "teamsAdministration (namespace)",
+   "area": "admin",
    "status": "v1.0"
   },
   "microsoft.graph.teamsAdministration.teamsAdminRoot": {
@@ -11812,7 +11822,7 @@
    "status": "beta only"
   },
   "microsoft.graph.teamworkHostedContent": {
-   "area": "unrooted",
+   "area": "chats",
    "status": "v1.0"
   },
   "microsoft.graph.teamworkMessaging": {
@@ -12032,7 +12042,7 @@
    "status": "beta only"
   },
   "microsoft.graph.trustFrameworkKey_v2": {
-   "area": "unrooted",
+   "area": "trustFramework",
    "status": "beta only"
   },
   "microsoft.graph.trustFrameworkPolicy": {
@@ -12160,11 +12170,11 @@
    "status": "v1.0"
   },
   "microsoft.graph.unifiedRoleScheduleBase": {
-   "area": "unrooted",
+   "area": "roleManagement",
    "status": "v1.0"
   },
   "microsoft.graph.unifiedRoleScheduleInstanceBase": {
-   "area": "unrooted",
+   "area": "roleManagement",
    "status": "v1.0"
   },
   "microsoft.graph.unifiedRoot": {
@@ -12220,7 +12230,7 @@
    "status": "beta only"
   },
   "microsoft.graph.usageRightsIncluded": {
-   "area": "unrooted",
+   "area": "security",
    "status": "v1.0"
   },
   "microsoft.graph.usedInsight": {
@@ -12264,7 +12274,7 @@
    "status": "v1.0"
   },
   "microsoft.graph.userCountMetric": {
-   "area": "unrooted",
+   "area": "reports",
    "status": "beta only"
   },
   "microsoft.graph.userCredentialUsageDetails": {
@@ -12488,7 +12498,7 @@
    "status": "v1.0"
   },
   "microsoft.graph.userRegistrationActivitySummary": {
-   "area": "unrooted",
+   "area": "reports",
    "status": "beta only"
   },
   "microsoft.graph.userRegistrationDetails": {
@@ -12496,7 +12506,7 @@
    "status": "v1.0"
   },
   "microsoft.graph.userRequestsMetric": {
-   "area": "unrooted",
+   "area": "reports",
    "status": "beta only"
   },
   "microsoft.graph.userScopeTeamsAppInstallation": {
@@ -12516,11 +12526,11 @@
    "status": "v1.0"
   },
   "microsoft.graph.userSignInUsageByAuthMethodActivity": {
-   "area": "unrooted",
+   "area": "reports",
    "status": "beta only"
   },
   "microsoft.graph.userSignUpMetric": {
-   "area": "unrooted",
+   "area": "reports",
    "status": "beta only"
   },
   "microsoft.graph.userSolutionRoot": {
@@ -12588,7 +12598,7 @@
    "status": "v1.0"
   },
   "microsoft.graph.virtualEventRegistrationConfiguration": {
-   "area": "unrooted",
+   "area": "solutions",
    "status": "v1.0"
   },
   "microsoft.graph.virtualEventRegistrationCustomQuestion": {
@@ -12652,7 +12662,7 @@
    "status": "v1.0"
   },
   "microsoft.graph.vulnerableManagedDevice": {
-   "area": "unrooted",
+   "area": "deviceAppManagement",
    "status": "beta only"
   },
   "microsoft.graph.webAccount": {
@@ -12984,11 +12994,11 @@
    "status": "beta only"
   },
   "microsoft.graph.windowsManagementApp": {
-   "area": "unrooted",
+   "area": "deviceAppManagement",
    "status": "beta only"
   },
   "microsoft.graph.windowsManagementAppHealthState": {
-   "area": "unrooted",
+   "area": "deviceAppManagement",
    "status": "beta only"
   },
   "microsoft.graph.windowsManagementAppHealthSummary": {
@@ -13472,11 +13482,11 @@
    "status": "v1.0"
   },
   "microsoft.graph.workbookFormatProtection": {
-   "area": "unrooted",
+   "area": "sites",
    "status": "v1.0"
   },
   "microsoft.graph.workbookFunctionResult": {
-   "area": "unrooted",
+   "area": "sites",
    "status": "v1.0"
   },
   "microsoft.graph.workbookFunctions": {
@@ -13496,31 +13506,31 @@
    "status": "v1.0"
   },
   "microsoft.graph.workbookRange": {
-   "area": "unrooted",
+   "area": "sites",
    "status": "v1.0"
   },
   "microsoft.graph.workbookRangeBorder": {
-   "area": "unrooted",
+   "area": "sites",
    "status": "v1.0"
   },
   "microsoft.graph.workbookRangeFill": {
-   "area": "unrooted",
+   "area": "sites",
    "status": "v1.0"
   },
   "microsoft.graph.workbookRangeFont": {
-   "area": "unrooted",
+   "area": "sites",
    "status": "v1.0"
   },
   "microsoft.graph.workbookRangeFormat": {
-   "area": "unrooted",
+   "area": "sites",
    "status": "v1.0"
   },
   "microsoft.graph.workbookRangeSort": {
-   "area": "unrooted",
+   "area": "sites",
    "status": "v1.0"
   },
   "microsoft.graph.workbookRangeView": {
-   "area": "unrooted",
+   "area": "sites",
    "status": "v1.0"
   },
   "microsoft.graph.workbookTable": {

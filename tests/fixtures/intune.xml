@@ -18,6 +18,8 @@
    <EntityType Name="managedDevice" BaseType="graph.entity">
     <Property Name="deviceName" Type="Edm.String"/>
     <NavigationProperty Name="users" Type="Collection(graph.user)"/>
+    <NavigationProperty Name="note" Type="graph.deviceNote"/>
+    <NavigationProperty Name="anything" Type="graph.entity"/>
    </EntityType>
    <EntityType Name="deviceCompliancePolicy" BaseType="graph.entity" Abstract="true"><Property Name="displayName" Type="Edm.String"/></EntityType>
    <EntityType Name="androidCompliancePolicy" BaseType="graph.deviceCompliancePolicy"><Property Name="passwordRequired" Type="Edm.Boolean"/></EntityType>
@@ -29,6 +31,9 @@
    <EntityType Name="win32LobApp" BaseType="graph.mobileLobApp"/>
    <EntityType Name="mobileAppContent" BaseType="graph.entity"/>
    <EntityType Name="lonelyType" BaseType="graph.entity"/>
+   <EntityType Name="reportResult" BaseType="graph.entity"><Property Name="value" Type="Edm.String"/></EntityType>
+   <EntityType Name="deviceNote" BaseType="graph.entity"/>
+   <Function Name="getReport" IsBound="true"><Parameter Name="bindingParameter" Type="graph.deviceManagement"/><ReturnType Type="Collection(graph.reportResult)"/></Function>
    <Action Name="retire" IsBound="true"><Parameter Name="bindingParameter" Type="graph.managedDevice"/></Action>
    <Function Name="getStatus" IsBound="true"><Parameter Name="bindingParameter" Type="graph.managedDevice"/><ReturnType Type="Edm.String"/></Function>
    <EntityContainer Name="GraphService">

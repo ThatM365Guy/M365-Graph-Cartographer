@@ -32,6 +32,16 @@ def curated():
     return cur
 
 
+def real_map(**kw):
+    """The map as the real build makes it: curated content plus data/generated.json placed by data/placement.json."""
+    with open(os.path.join(ROOT, "data", "generated.json"), encoding="utf-8") as f:
+        gen = json.load(f)
+    with open(os.path.join(ROOT, "data", "placement.json"), encoding="utf-8") as f:
+        placement = json.load(f)
+    return scan.build_map(kw.pop("cur", None) or curated(), None, scan=False, now=D1, prev_generated=gen,
+                          placement=placement, **kw)
+
+
 def scenario_problems(c):
     """Everything wrong with curated scenarios, as readable strings."""
     ids, seen, out = {n["id"] for n in c["nodes"]}, set(), []
@@ -216,7 +226,7 @@ class CoverageTests(unittest.TestCase):
         self.assertEqual(area["microsoft.graph.drive"], "sites")         # equally close to users/groups/sites: priority
         self.assertEqual(area["microsoft.graph.itemRetentionLabel"], "sites")   # three levels down
         self.assertEqual(area["microsoft.graph.security.alert"], "security")
-        self.assertEqual(area["microsoft.graph.baseItem"], "unrooted")   # no containment path reaches it
+        self.assertEqual(area["microsoft.graph.baseItem"], "sites")      # abstract: takes its derived types' area
 
     def test_coverage_report_and_page_summary(self):
         gm_out = {}
@@ -227,7 +237,7 @@ class CoverageTests(unittest.TestCase):
         sites = next(a for a in gm_out["areas"] if a["area"] == "sites")
         self.assertIn("driveItem", sites["onMapTypes"])
         self.assertIn("itemRetentionLabel", sites["onMapTypes"])     # via retentionLabel's covers[]
-        self.assertIn("baseItem", next(a for a in gm_out["areas"] if a["area"] == "unrooted")["missing"])
+        self.assertIn("baseItem", sites["missing"])
         self.assertEqual(gm["coverage"]["onMap"], gm_out["onMap"])
         self.assertNotIn("missing", json.dumps(gm["coverage"]))         # the page gets counts only
         self.assertNotIn("types", gm["coverage"])
@@ -317,7 +327,7 @@ class CuratedIntegrity(unittest.TestCase):
         self.assertIn("a: seeAlso zzz", " | ".join(scenario_problems(c)))
 
     def test_scenarios_are_embedded(self):
-        gm, _ = scan.build_map(curated(), None, scan=False, now=D1)
+        gm, _ = real_map()
         self.assertEqual(len(gm["scenarios"]), len(curated()["scenarios"]))
 
 
@@ -339,14 +349,15 @@ class SubserviceTests(unittest.TestCase):
 
     def test_curated_subservices_are_complete(self):
         c = curated()
-        self.assertEqual(build_page.subservice_problems(c), ([], []))
+        gm, _ = real_map()
+        self.assertEqual(build_page.subservice_problems(gm), ([], []))   # every sub-service holds a curated or generated API
         self.assertEqual(scan.unsorted_nodes(c), [])
-        self.assertEqual(sum(len(w["subservices"]) for w in c["workloads"]), 60)
+        self.assertEqual(sum(len(w["subservices"]) for w in c["workloads"]), 76)
         self.assertEqual(len(c["workloads"]), 16)
         self.assertTrue(all(w.get("family") in {"identity", "collaboration", "security", "ai"} for w in c["workloads"]))
 
     def test_fields_reach_graph_map_and_page(self):
-        gm, _ = scan.build_map(curated(), None, scan=False, now=D1)
+        gm, _ = real_map()
         self.assertEqual(gm["workloads"][0]["subservices"], curated()["workloads"][0]["subservices"])
         self.assertTrue(all(n.get("subservice") for n in gm["nodes"]))
         html = build_page.render(self.TPL, gm)
@@ -355,7 +366,7 @@ class SubserviceTests(unittest.TestCase):
         self.assertIn("subservices", data["workloads"][0])
 
     def _broken(self, change):
-        gm, _ = scan.build_map(curated(), None, scan=False, now=D1)
+        gm, _ = real_map()
         change(gm)
         with self.assertRaises(build_page.BuildError) as cm:
             build_page.render(self.TPL, gm)
@@ -366,7 +377,7 @@ class SubserviceTests(unittest.TestCase):
         self.assertIn("no sub-service: user", msg)
 
     def test_unsorted_allowed_when_asked(self):
-        gm, _ = scan.build_map(curated(), None, scan=False, now=D1)
+        gm, _ = real_map()
         node = next(n for n in gm["nodes"] if n["id"] == "chat")
         node.pop("subservice")
         build_page.render(self.TPL, gm, allow_unsorted=True)  # chats-messages still has chatMessage
@@ -381,15 +392,15 @@ class SubserviceTests(unittest.TestCase):
         self.assertIn("identity: sub-service 'spare' has no nodes", msg)
 
     def test_planned_service_may_have_empty_subservices(self):
-        gm, _ = scan.build_map(curated(), None, scan=False, now=D1)
-        planned = [w for w in gm["workloads"] if w.get("planned")]
-        self.assertTrue(planned)
-        self.assertFalse(any(n["workload"] == planned[0]["id"] for n in gm["nodes"]))
+        gm, _ = real_map()
+        w = next(w for w in gm["workloads"] if w["id"] == "education")
+        gm["nodes"] = [n for n in gm["nodes"] if n["workload"] != "education"]
+        w["planned"] = True
         build_page.render(self.TPL, gm)                       # empty sub-services are fine while planned
-        planned[0].pop("planned")
+        w.pop("planned")
         with self.assertRaises(build_page.BuildError) as cm:
             build_page.render(self.TPL, gm)
-        self.assertIn(f"{planned[0]['id']}: sub-service", str(cm.exception))
+        self.assertIn("education: sub-service", str(cm.exception))
 
     def test_build_fails_on_duplicate_subservice_id(self):
         msg = self._broken(lambda gm: gm["workloads"][0]["subservices"].append({"id": "directory", "label": "Again"}))
@@ -398,10 +409,11 @@ class SubserviceTests(unittest.TestCase):
     def test_coverage_per_service_adds_up(self):
         with open(os.path.join(ROOT, "data", "coverage.json"), encoding="utf-8") as f:
             prev = json.load(f)
-        gm, _ = scan.build_map(curated(), None, scan=False, now=D1, prev_coverage=prev)
+        gm, _ = real_map(prev_coverage=prev)
         svc = gm["coverage"]["services"]
         self.assertEqual([r["workload"] for r in svc], [w["id"] for w in curated()["workloads"]])
-        self.assertGreaterEqual(sum(r["onMap"] for r in svc), gm["coverage"]["onMap"])
+        hub = len(curated()["hub"].get("covers") or [])   # entity: the hub stands for it, no service does
+        self.assertGreaterEqual(sum(r["onMap"] for r in svc) + hub, gm["coverage"]["onMap"])
 
     def test_coverage_counts_mapped_and_curated_apart(self):
         with open(os.path.join(ROOT, "data", "coverage.json"), encoding="utf-8") as f:
@@ -423,7 +435,7 @@ class SubserviceTests(unittest.TestCase):
         self.assertEqual((dev["onMap"], dev["curated"]), (1, 0))
 
     def test_same_subservice_id_in_two_workloads_is_fine(self):
-        gm, _ = scan.build_map(curated(), None, scan=False, now=D1)
+        gm, _ = real_map()
         gm["workloads"][1]["subservices"][0]["id"] = "directory"
         for n in gm["nodes"]:
             if n["subservice"] == "privileged-access-pim":
@@ -492,13 +504,24 @@ class GeneratedTierTests(unittest.TestCase):
         seen = [e["entityType"] for e in self.entries] + [v for e in self.entries for v in e["variants"]]
         self.assertEqual(sorted(seen), sorted(t for t in self.v1.entities if t != "microsoft.graph.entity"))
 
+    def test_areas_follow_return_types_and_relationships_but_not_entity(self):
+        area = scan.assign_areas(self.v1)
+        self.assertEqual(area["microsoft.graph.reportResult"], "deviceManagement")   # returned by a bound function
+        self.assertEqual(area["microsoft.graph.deviceNote"], "deviceManagement")     # reached by a plain relationship
+        self.assertEqual(area["microsoft.graph.lonelyType"], "unrooted")             # an entity-typed nav doesn't count
+
+    def test_paths_fall_back_to_operations_then_relationships(self):
+        self.assertEqual(self.by_type["reportResult"]["path"], "/deviceManagement/getReport")
+        self.assertEqual(self.by_type["deviceNote"]["path"], "/deviceManagement/managedDevices/{id}/note")
+        self.assertEqual(self.by_type["managedDevice"]["path"], "/deviceManagement/managedDevices")   # containment still wins
+
     def test_unreachable_type_keeps_an_entry_without_a_path(self):
         self.assertIsNone(self.by_type["lonelyType"]["path"])
 
     def test_entry_has_ops_links_and_scan(self):
         md = self.by_type["managedDevice"]
         self.assertEqual(md["ops"], {"actions": ["retire"], "functions": ["getStatus"]})
-        self.assertEqual(md["links"], 2)                     # -> user, and <- deviceManagement
+        self.assertEqual(md["links"], 3)                     # -> user, -> deviceNote, and <- deviceManagement
         self.assertEqual(md["scan"]["status"], "v1.0")
         self.assertIn("deviceName", md["scan"]["props"])
         self.assertEqual(md["id"], "gen-managedDevice")
@@ -567,6 +590,7 @@ class GeneratedTierTests(unittest.TestCase):
         gm, _ = scan.build_map(curated(), None, scan=False, now=D1, prev_generated=gen, placement=RULES)
         g = [n for n in gm["nodes"] if n.get("tier") == "generated"]
         self.assertTrue(g and all(n["workload"] == "devices" for n in g))
+        gm, _ = real_map()
         build_page.render(SubserviceTests.TPL, gm)
         gm["state"]["placement"]["unplaced"] = ["microsoft.graph.lonelyType"]
         with self.assertRaises(build_page.BuildError) as cm:
@@ -588,14 +612,26 @@ class GeneratedTierTests(unittest.TestCase):
         dev = next(r for r in gm["coverage"]["services"] if r["workload"] == "devices")
         self.assertEqual((dev["onMap"], dev["curated"]), (10, 0))   # every fixture type in deviceManagement
 
-    def test_real_placement_file_places_every_intune_type(self):
+    def test_real_placement_file_places_every_type(self):
         with open(os.path.join(ROOT, "data", "placement.json"), encoding="utf-8") as f:
             placement = json.load(f)
         with open(os.path.join(ROOT, "data", "generated.json"), encoding="utf-8") as f:
             gen = json.load(f)
         nodes, rep = generate.merge(curated()["nodes"], gen["entries"], placement, curated()["workloads"])
-        self.assertEqual((rep["unplaced"], rep["rules"]), ([], []))
+        self.assertEqual((rep["unplaced"], rep["unplacedBeta"], rep["rules"]), ([], [], []))
+        self.assertEqual(placement["areas"], ["*"])
         self.assertTrue(nodes)
+
+    def test_every_v1_type_is_mapped(self):
+        with open(os.path.join(ROOT, "data", "coverage.json"), encoding="utf-8") as f:
+            prev = json.load(f)
+        gm, _ = real_map(prev_coverage=prev)
+        self.assertEqual(gm["coverage"]["onMap"], gm["coverage"]["v1Types"])
+        self.assertEqual(gm["coverage"]["betaOnMap"], gm["coverage"]["betaOnlyTypes"])
+
+    def test_name_rule_places_types_without_a_path(self):
+        rules = [{"name": "lonely*", "to": "devices/intune-admin"}]
+        self.assertEqual(generate.place(self.by_type["lonelyType"], rules), ("devices", "intune-admin"))
 
 
 if __name__ == "__main__":

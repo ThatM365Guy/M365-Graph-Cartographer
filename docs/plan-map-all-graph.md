@@ -7,7 +7,7 @@ Exported from the owner's Claude Doc "MGC: Claude Code brief to map all of Micro
 - [x] Phase 0: git pull and tidy-up (28 Nov 2026)
 - [x] Phase 1: make the ring cope with volume (branch `claude/phase1-ring-volume`, committed locally 28 Nov 2026; waiting for the owner's review and push)
 - [x] Phase 2: generated tier, proved on Intune (branch `claude/phase2-generated-intune`, stacked on Phase 1, committed locally 28 Nov 2026; waiting for the owner's review and push)
-- [ ] Phase 3: every v1.0 area, then beta
+- [x] Phase 3: every v1.0 area, then beta (branch `claude/phase3-all-areas`, stacked on Phase 2, committed locally 28 Nov 2026; waiting for the owner's review and push)
 - [ ] Phase 4: curated depth for security
 - [ ] Phase 5: extras
 
@@ -33,6 +33,17 @@ Exported from the owner's Claude Doc "MGC: Claude Code brief to map all of Micro
   - Variants: a type that no root reaches folds into its nearest ancestor that one does (80 Intune variants, for example 26 device configuration platforms and 26 mobile app types). Labels say "(n variants)" rather than "platforms", because mobile app variants are app kinds, not platforms.
   - Learn links only when exactly one resource page fits the type name; 6 of 129 Intune entries have none (deviceManagement, deviceAppManagement, deviceCategory, deviceCompliancePolicyState, deviceConfigurationState, mobileAppContentScript).
   - 15 of 129 Intune entries have no GET entry in the catalogue (mostly nested paths, Cloud PC assignments, `/deviceManagement/virtualEndpoint`). Left blank.
+- 28 Nov 2026: owner said go for Phase 3. Phase 2 was pushed but not merged, so Phase 3 is cut from `claude/phase2-generated-intune`.
+- 28 Nov 2026, Phase 3 (Claude's choices, open to the owner's review):
+  - Result: all 1,264 v1.0 types and all 1,369 beta-only types are placed. `placement.json` now lists `"areas": ["*"]`, so any new Graph area that no rule places fails the build.
+  - Unrooted types: area assignment and paths now follow bound operation return types (15 types, for example `aiInteraction` and `exchangeMessageTraceDetail`), then plain relationships, then (areas only) an abstract base takes its derived types' area. Navs typed as `entity` are ignored, because they "reach" everything. 14 v1.0 types still have no area and are placed by `type` rules. `entity` itself is covered by the Graph hub (`hub.covers`), so curated counts 138 rather than 137.
+  - 16 new sub-services, all inside existing services (still 16 services): Identity › External ID & guests, Tenant & organisation; Outlook › Places (rooms & desks); Files › OneNote, SharePoint Embedded & storage; Teams › Shifts & schedules, Teams apps & admin; Security › Threat intelligence, Attack simulation & training, Defender for Identity, Global Secure Access; Solutions › Viva learning & engagement, Universal Print, Business Central financials; Admin › Change notifications & extensions; AI › Copilot connectors & search. Names checked: "Microsoft 365 Copilot connectors (formerly Microsoft Graph connectors)", "Attack simulation and training" (Defender for Office 365), Global Secure Access and Business Central appear under those names on Learn.
+  - Judgement calls to review: per-user authentication methods (`/users/{id}/authentication`) sit with Policies › Authentication; `/admin/exchange` and the beta message trace roots sit with Outlook › Exchange admin (next to the curated message trace node); Universal Print and Viva sit under Solutions; Entra access drift and tenant governance metrics sit under Identity › Tenant & organisation; Entra Permissions Management types (AWS, GCP, Azure permission definitions, beta) sit under Identity › Access & risk.
+  - The six Phase 1 services are no longer `planned`: every sub-service now holds at least one API.
+  - Ring: sub-service bubbles stop growing at 14 APIs, like services; six long sub-service names got a `short` ring name.
+  - Beta-only generated entries are hidden until Filter › Beta-only APIs (generated) is on. No Learn link for them (the index lists v1.0 pages only).
+  - The page is now 2.1 MB (generated entries about 1.6 MB). GitHub Pages serves it compressed. If it needs to shrink, the property lists of generated entries are the first candidate.
+  - Nine catalogue permission names are not in the stored permission list (fetched 16 Nov), for example `Zone.Read.All`; the page flags them. A `--permissions` run would refresh the list.
 
 ---
 
