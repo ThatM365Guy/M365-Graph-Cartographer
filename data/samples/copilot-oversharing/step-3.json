@@ -1,0 +1,350 @@
+{
+ "about": "Step 3, sensitive files: search results for each site (matched by the path: filter in the query).",
+ "responses": [
+  {
+   "method": "POST",
+   "path": "/v1.0/search/query",
+   "has": "/sites/finance\\\"",
+   "status": 200,
+   "body": {
+    "value": [
+     {
+      "searchTerms": [
+       "confidential"
+      ],
+      "hitsContainers": [
+       {
+        "hits": [
+         {
+          "hitId": "finance-0",
+          "rank": 1,
+          "summary": "",
+          "resource": {
+           "@odata.type": "#microsoft.graph.driveItem",
+           "id": "01HBFINANCE000",
+           "name": "FY27 budget - confidential.xlsx",
+           "webUrl": "https://hollowbrook.sharepoint.example/sites/finance/Shared%20Documents/FY27%20budget%20-%20confidential.xlsx",
+           "lastModifiedDateTime": "2026-10-01T10:00:00Z",
+           "lastModifiedBy": {
+            "user": {
+             "displayName": "Priya Sample"
+            }
+           },
+           "parentReference": {
+            "driveId": "b!hb-finance",
+            "siteId": "hollowbrook.sharepoint.example,8f3c2a10-5d4e-4b7a-9c61-0e2f3a4b5c6d,x"
+           }
+          }
+         },
+         {
+          "hitId": "finance-1",
+          "rank": 2,
+          "summary": "",
+          "resource": {
+           "@odata.type": "#microsoft.graph.driveItem",
+           "id": "01HBFINANCE001",
+           "name": "Supplier bank details.xlsx",
+           "webUrl": "https://hollowbrook.sharepoint.example/sites/finance/Shared%20Documents/Supplier%20bank%20details.xlsx",
+           "lastModifiedDateTime": "2026-11-02T10:00:00Z",
+           "lastModifiedBy": {
+            "user": {
+             "displayName": "Tom Example"
+            }
+           },
+           "parentReference": {
+            "driveId": "b!hb-finance",
+            "siteId": "hollowbrook.sharepoint.example,8f3c2a10-5d4e-4b7a-9c61-0e2f3a4b5c6d,x"
+           }
+          }
+         },
+         {
+          "hitId": "finance-2",
+          "rank": 3,
+          "summary": "",
+          "resource": {
+           "@odata.type": "#microsoft.graph.driveItem",
+           "id": "01HBFINANCE002",
+           "name": "Board pack Q3 (confidential).pptx",
+           "webUrl": "https://hollowbrook.sharepoint.example/sites/finance/Shared%20Documents/Board%20pack%20Q3%20(confidential).pptx",
+           "lastModifiedDateTime": "2026-10-03T10:00:00Z",
+           "lastModifiedBy": {
+            "user": {
+             "displayName": "Alex Placeholder"
+            }
+           },
+           "parentReference": {
+            "driveId": "b!hb-finance",
+            "siteId": "hollowbrook.sharepoint.example,8f3c2a10-5d4e-4b7a-9c61-0e2f3a4b5c6d,x"
+           }
+          }
+         }
+        ],
+        "total": 3,
+        "moreResultsAvailable": false
+       }
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "method": "POST",
+   "path": "/v1.0/search/query",
+   "has": "/sites/hr-hub\\\"",
+   "status": 200,
+   "body": {
+    "value": [
+     {
+      "searchTerms": [
+       "confidential"
+      ],
+      "hitsContainers": [
+       {
+        "hits": [
+         {
+          "hitId": "hr-hub-0",
+          "rank": 1,
+          "summary": "",
+          "resource": {
+           "@odata.type": "#microsoft.graph.driveItem",
+           "id": "01HBHRHUB000",
+           "name": "Salary bands 2026 - confidential.xlsx",
+           "webUrl": "https://hollowbrook.sharepoint.example/sites/hr-hub/Shared%20Documents/Salary%20bands%202026%20-%20confidential.xlsx",
+           "lastModifiedDateTime": "2026-10-01T10:00:00Z",
+           "lastModifiedBy": {
+            "user": {
+             "displayName": "Priya Sample"
+            }
+           },
+           "parentReference": {
+            "driveId": "b!hb-hr-hub",
+            "siteId": "hollowbrook.sharepoint.example,8f3c2a10-5d4e-4b7a-9c61-0e2f3a4b5c6d,x"
+           }
+          }
+         },
+         {
+          "hitId": "hr-hub-1",
+          "rank": 2,
+          "summary": "",
+          "resource": {
+           "@odata.type": "#microsoft.graph.driveItem",
+           "id": "01HBHRHUB001",
+           "name": "Disciplinary case notes.docx",
+           "webUrl": "https://hollowbrook.sharepoint.example/sites/hr-hub/Shared%20Documents/Disciplinary%20case%20notes.docx",
+           "lastModifiedDateTime": "2026-11-02T10:00:00Z",
+           "lastModifiedBy": {
+            "user": {
+             "displayName": "Tom Example"
+            }
+           },
+           "parentReference": {
+            "driveId": "b!hb-hr-hub",
+            "siteId": "hollowbrook.sharepoint.example,8f3c2a10-5d4e-4b7a-9c61-0e2f3a4b5c6d,x"
+           }
+          }
+         },
+         {
+          "hitId": "hr-hub-2",
+          "rank": 3,
+          "summary": "",
+          "resource": {
+           "@odata.type": "#microsoft.graph.driveItem",
+           "id": "01HBHRHUB002",
+           "name": "Confidential: restructure plan.docx",
+           "webUrl": "https://hollowbrook.sharepoint.example/sites/hr-hub/Shared%20Documents/Confidential:%20restructure%20plan.docx",
+           "lastModifiedDateTime": "2026-10-03T10:00:00Z",
+           "lastModifiedBy": {
+            "user": {
+             "displayName": "Alex Placeholder"
+            }
+           },
+           "parentReference": {
+            "driveId": "b!hb-hr-hub",
+            "siteId": "hollowbrook.sharepoint.example,8f3c2a10-5d4e-4b7a-9c61-0e2f3a4b5c6d,x"
+           }
+          }
+         },
+         {
+          "hitId": "hr-hub-3",
+          "rank": 4,
+          "summary": "",
+          "resource": {
+           "@odata.type": "#microsoft.graph.driveItem",
+           "id": "01HBHRHUB003",
+           "name": "Pay review letters.docx",
+           "webUrl": "https://hollowbrook.sharepoint.example/sites/hr-hub/Shared%20Documents/Pay%20review%20letters.docx",
+           "lastModifiedDateTime": "2026-11-04T10:00:00Z",
+           "lastModifiedBy": {
+            "user": {
+             "displayName": "Morgan Fictional"
+            }
+           },
+           "parentReference": {
+            "driveId": "b!hb-hr-hub",
+            "siteId": "hollowbrook.sharepoint.example,8f3c2a10-5d4e-4b7a-9c61-0e2f3a4b5c6d,x"
+           }
+          }
+         }
+        ],
+        "total": 4,
+        "moreResultsAvailable": false
+       }
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "method": "POST",
+   "path": "/v1.0/search/query",
+   "has": "/sites/project-larch\\\"",
+   "status": 200,
+   "body": {
+    "value": [
+     {
+      "searchTerms": [
+       "confidential"
+      ],
+      "hitsContainers": [
+       {
+        "hits": [
+         {
+          "hitId": "project-larch-0",
+          "rank": 1,
+          "summary": "",
+          "resource": {
+           "@odata.type": "#microsoft.graph.driveItem",
+           "id": "01HBPROJECTLARCH000",
+           "name": "Larch acquisition - confidential term sheet.docx",
+           "webUrl": "https://hollowbrook.sharepoint.example/sites/project-larch/Shared%20Documents/Larch%20acquisition%20-%20confidential%20term%20sheet.docx",
+           "lastModifiedDateTime": "2026-10-01T10:00:00Z",
+           "lastModifiedBy": {
+            "user": {
+             "displayName": "Priya Sample"
+            }
+           },
+           "parentReference": {
+            "driveId": "b!hb-project-larch",
+            "siteId": "hollowbrook.sharepoint.example,8f3c2a10-5d4e-4b7a-9c61-0e2f3a4b5c6d,x"
+           }
+          }
+         },
+         {
+          "hitId": "project-larch-1",
+          "rank": 2,
+          "summary": "",
+          "resource": {
+           "@odata.type": "#microsoft.graph.driveItem",
+           "id": "01HBPROJECTLARCH001",
+           "name": "Due diligence findings.docx",
+           "webUrl": "https://hollowbrook.sharepoint.example/sites/project-larch/Shared%20Documents/Due%20diligence%20findings.docx",
+           "lastModifiedDateTime": "2026-11-02T10:00:00Z",
+           "lastModifiedBy": {
+            "user": {
+             "displayName": "Tom Example"
+            }
+           },
+           "parentReference": {
+            "driveId": "b!hb-project-larch",
+            "siteId": "hollowbrook.sharepoint.example,8f3c2a10-5d4e-4b7a-9c61-0e2f3a4b5c6d,x"
+           }
+          }
+         }
+        ],
+        "total": 2,
+        "moreResultsAvailable": false
+       }
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "method": "POST",
+   "path": "/v1.0/search/query",
+   "has": "/sites/sales-emea\\\"",
+   "status": 200,
+   "body": {
+    "value": [
+     {
+      "searchTerms": [
+       "confidential"
+      ],
+      "hitsContainers": [
+       {
+        "hits": [
+         {
+          "hitId": "sales-emea-0",
+          "rank": 1,
+          "summary": "",
+          "resource": {
+           "@odata.type": "#microsoft.graph.driveItem",
+           "id": "01HBSALESEMEA000",
+           "name": "Confidential pricing - EMEA.xlsx",
+           "webUrl": "https://hollowbrook.sharepoint.example/sites/sales-emea/Shared%20Documents/Confidential%20pricing%20-%20EMEA.xlsx",
+           "lastModifiedDateTime": "2026-10-01T10:00:00Z",
+           "lastModifiedBy": {
+            "user": {
+             "displayName": "Priya Sample"
+            }
+           },
+           "parentReference": {
+            "driveId": "b!hb-sales-emea",
+            "siteId": "hollowbrook.sharepoint.example,8f3c2a10-5d4e-4b7a-9c61-0e2f3a4b5c6d,x"
+           }
+          }
+         }
+        ],
+        "total": 1,
+        "moreResultsAvailable": false
+       }
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "method": "POST",
+   "path": "/v1.0/search/query",
+   "has": "/sites/board\\\"",
+   "status": 200,
+   "body": {
+    "value": [
+     {
+      "searchTerms": [
+       "confidential"
+      ],
+      "hitsContainers": [
+       {
+        "hits": [],
+        "total": 0,
+        "moreResultsAvailable": false
+       }
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "method": "POST",
+   "path": "/v1.0/search/query",
+   "status": 200,
+   "body": {
+    "value": [
+     {
+      "searchTerms": [
+       "confidential"
+      ],
+      "hitsContainers": [
+       {
+        "hits": [],
+        "total": 0,
+        "moreResultsAvailable": false
+       }
+      ]
+     }
+    ]
+   }
+  }
+ ]
+}

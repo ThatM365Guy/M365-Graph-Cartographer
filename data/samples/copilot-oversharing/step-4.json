@@ -1,0 +1,145 @@
+{
+ "about": "Step 4, labels: the labels on each file. One file is locked (423).",
+ "responses": [
+  {
+   "method": "POST",
+   "path": "/v1.0/drives/b!hb-finance/items/01HBFINANCE000/extractSensitivityLabels",
+   "status": 200,
+   "body": {
+    "value": {
+     "@odata.type": "#microsoft.graph.extractSensitivityLabelsResult",
+     "labels": [
+      {
+       "sensitivityLabelId": "c0a8f1e2-0000-4000-8000-00000000c0f1",
+       "assignmentMethod": "standard",
+       "tenantId": "00000000-0000-4000-8000-0000000000aa"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "method": "POST",
+   "path": "/v1.0/drives/b!hb-finance/items/01HBFINANCE001/extractSensitivityLabels",
+   "status": 200,
+   "body": {
+    "value": {
+     "@odata.type": "#microsoft.graph.extractSensitivityLabelsResult",
+     "labels": []
+    }
+   }
+  },
+  {
+   "method": "POST",
+   "path": "/v1.0/drives/b!hb-finance/items/01HBFINANCE002/extractSensitivityLabels",
+   "status": 200,
+   "body": {
+    "value": {
+     "@odata.type": "#microsoft.graph.extractSensitivityLabelsResult",
+     "labels": []
+    }
+   }
+  },
+  {
+   "method": "POST",
+   "path": "/v1.0/drives/b!hb-hr-hub/items/01HBHRHUB000/extractSensitivityLabels",
+   "status": 200,
+   "body": {
+    "value": {
+     "@odata.type": "#microsoft.graph.extractSensitivityLabelsResult",
+     "labels": [
+      {
+       "sensitivityLabelId": "c0a8f1e2-0000-4000-8000-0000000000ac",
+       "assignmentMethod": "privileged",
+       "tenantId": "00000000-0000-4000-8000-0000000000aa"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "method": "POST",
+   "path": "/v1.0/drives/b!hb-hr-hub/items/01HBHRHUB001/extractSensitivityLabels",
+   "status": 423,
+   "body": {
+    "error": {
+     "code": "fileDoubleKeyEncrypted",
+     "message": "Sample: the file uses double key encryption."
+    }
+   }
+  },
+  {
+   "method": "POST",
+   "path": "/v1.0/drives/b!hb-hr-hub/items/01HBHRHUB002/extractSensitivityLabels",
+   "status": 200,
+   "body": {
+    "value": {
+     "@odata.type": "#microsoft.graph.extractSensitivityLabelsResult",
+     "labels": [
+      {
+       "sensitivityLabelId": "c0a8f1e2-0000-4000-8000-00000000c0f1",
+       "assignmentMethod": "standard",
+       "tenantId": "00000000-0000-4000-8000-0000000000aa"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "method": "POST",
+   "path": "/v1.0/drives/b!hb-hr-hub/items/01HBHRHUB003/extractSensitivityLabels",
+   "status": 200,
+   "body": {
+    "value": {
+     "@odata.type": "#microsoft.graph.extractSensitivityLabelsResult",
+     "labels": []
+    }
+   }
+  },
+  {
+   "method": "POST",
+   "path": "/v1.0/drives/b!hb-project-larch/items/01HBPROJECTLARCH000/extractSensitivityLabels",
+   "status": 200,
+   "body": {
+    "value": {
+     "@odata.type": "#microsoft.graph.extractSensitivityLabelsResult",
+     "labels": [
+      {
+       "sensitivityLabelId": "c0a8f1e2-0000-4000-8000-0000000000ac",
+       "assignmentMethod": "privileged",
+       "tenantId": "00000000-0000-4000-8000-0000000000aa"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "method": "POST",
+   "path": "/v1.0/drives/b!hb-project-larch/items/01HBPROJECTLARCH001/extractSensitivityLabels",
+   "status": 200,
+   "body": {
+    "value": {
+     "@odata.type": "#microsoft.graph.extractSensitivityLabelsResult",
+     "labels": []
+    }
+   }
+  },
+  {
+   "method": "POST",
+   "path": "/v1.0/drives/b!hb-sales-emea/items/01HBSALESEMEA000/extractSensitivityLabels",
+   "status": 200,
+   "body": {
+    "value": {
+     "@odata.type": "#microsoft.graph.extractSensitivityLabelsResult",
+     "labels": [
+      {
+       "sensitivityLabelId": "c0a8f1e2-0000-4000-8000-0000000009e1",
+       "assignmentMethod": "standard",
+       "tenantId": "00000000-0000-4000-8000-0000000000aa"
+      }
+     ]
+    }
+   }
+  }
+ ]
+}

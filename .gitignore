@@ -7,3 +7,5 @@ function_app/data/
 function_app/web/
 *.tmp
 .claude/
+function_app/vendor/
+function_app/scripts/

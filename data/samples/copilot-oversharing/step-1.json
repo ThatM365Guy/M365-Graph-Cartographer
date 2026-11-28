@@ -1,0 +1,97 @@
+{
+ "about": "Step 1, sites: two pages of search results (the second through @odata.nextLink).",
+ "responses": [
+  {
+   "method": "GET",
+   "path": "/v1.0/sites",
+   "has": "skiptoken=sample-page-2",
+   "status": 200,
+   "body": {
+    "value": [
+     {
+      "id": "hollowbrook.sharepoint.example,8f3c2a10-5d4e-4b7a-9c61-0e2f3a4b5c6d,1a2b3c4d-6666-4aaa-8bbb-000000000006",
+      "name": "board",
+      "displayName": "Board",
+      "webUrl": "https://hollowbrook.sharepoint.example/sites/board",
+      "createdDateTime": "2023-05-15T11:30:00Z",
+      "lastModifiedDateTime": "2026-11-21T09:00:00Z",
+      "description": ""
+     },
+     {
+      "id": "hollowbrook.sharepoint.example,8f3c2a10-5d4e-4b7a-9c61-0e2f3a4b5c6d,1a2b3c4d-7777-4aaa-8bbb-000000000007",
+      "name": "it-ops",
+      "displayName": "IT Operations",
+      "webUrl": "https://hollowbrook.sharepoint.example/sites/it-ops",
+      "createdDateTime": "2024-12-01T07:45:00Z",
+      "lastModifiedDateTime": "2026-11-21T09:00:00Z",
+      "description": ""
+     },
+     {
+      "id": "hollowbrook.sharepoint.example,8f3c2a10-5d4e-4b7a-9c61-0e2f3a4b5c6d,1a2b3c4d-8888-4aaa-8bbb-000000000008",
+      "name": "marketing",
+      "displayName": "Marketing",
+      "webUrl": "https://hollowbrook.sharepoint.example/sites/marketing",
+      "createdDateTime": "2025-02-27T13:10:00Z",
+      "lastModifiedDateTime": "2026-11-21T09:00:00Z",
+      "description": ""
+     }
+    ]
+   }
+  },
+  {
+   "method": "GET",
+   "path": "/v1.0/sites",
+   "status": 200,
+   "body": {
+    "value": [
+     {
+      "id": "hollowbrook.sharepoint.example,8f3c2a10-5d4e-4b7a-9c61-0e2f3a4b5c6d,1a2b3c4d-1111-4aaa-8bbb-000000000001",
+      "name": "finance",
+      "displayName": "Finance",
+      "webUrl": "https://hollowbrook.sharepoint.example/sites/finance",
+      "createdDateTime": "2024-03-04T09:12:00Z",
+      "lastModifiedDateTime": "2026-11-21T09:00:00Z",
+      "description": ""
+     },
+     {
+      "id": "hollowbrook.sharepoint.example,8f3c2a10-5d4e-4b7a-9c61-0e2f3a4b5c6d,1a2b3c4d-2222-4aaa-8bbb-000000000002",
+      "name": "hr-hub",
+      "displayName": "HR Hub",
+      "webUrl": "https://hollowbrook.sharepoint.example/sites/hr-hub",
+      "createdDateTime": "2023-11-20T14:40:00Z",
+      "lastModifiedDateTime": "2026-11-21T09:00:00Z",
+      "description": ""
+     },
+     {
+      "id": "hollowbrook.sharepoint.example,8f3c2a10-5d4e-4b7a-9c61-0e2f3a4b5c6d,1a2b3c4d-3333-4aaa-8bbb-000000000003",
+      "name": "project-larch",
+      "displayName": "Project Larch",
+      "webUrl": "https://hollowbrook.sharepoint.example/sites/project-larch",
+      "createdDateTime": "2025-06-18T08:05:00Z",
+      "lastModifiedDateTime": "2026-11-21T09:00:00Z",
+      "description": ""
+     },
+     {
+      "id": "hollowbrook.sharepoint.example,8f3c2a10-5d4e-4b7a-9c61-0e2f3a4b5c6d,1a2b3c4d-4444-4aaa-8bbb-000000000004",
+      "name": "all-company",
+      "displayName": "All Company",
+      "webUrl": "https://hollowbrook.sharepoint.example/sites/all-company",
+      "createdDateTime": "2022-01-10T10:00:00Z",
+      "lastModifiedDateTime": "2026-11-21T09:00:00Z",
+      "description": ""
+     },
+     {
+      "id": "hollowbrook.sharepoint.example,8f3c2a10-5d4e-4b7a-9c61-0e2f3a4b5c6d,1a2b3c4d-5555-4aaa-8bbb-000000000005",
+      "name": "sales-emea",
+      "displayName": "Sales EMEA",
+      "webUrl": "https://hollowbrook.sharepoint.example/sites/sales-emea",
+      "createdDateTime": "2024-09-02T16:21:00Z",
+      "lastModifiedDateTime": "2026-11-21T09:00:00Z",
+      "description": ""
+     }
+    ],
+    "@odata.nextLink": "https://graph.microsoft.com/v1.0/sites?search=*&$skiptoken=sample-page-2"
+   }
+  }
+ ]
+}

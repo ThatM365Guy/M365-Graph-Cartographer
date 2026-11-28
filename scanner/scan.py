@@ -896,6 +896,7 @@ def build_map(curated, prev_map=None, v1_src=None, beta_src=None, token=None, sc
         "nodes": nodes,
         "edges": edges + discovered,
         "scenarios": curated.get("scenarios", []),
+        "liveScenarios": curated.get("liveScenarios", []),   # scenarios whose read-only steps the page can run (Phase 8)
         "recentChanges": recent,
         "changedNodes": changed_nodes,
         "state": state,

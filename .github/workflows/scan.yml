@@ -8,7 +8,8 @@ on:
   push:
     branches: [main]   # work branches don't deploy; the github-pages environment only allows main
     # everything the page is built from; the bot's own data commits don't match, so they don't trigger a run
-    paths: ["data/curated.json", "data/placement.json", "data/version.json", "web/template.html", "scanner/**", "scripts/scenarios/**",
+    paths: ["data/curated.json", "data/placement.json", "data/version.json", "data/samples/**", "web/**", "vendor/**", "scanner/**",
+            "scripts/scenarios/**", "scripts/allowlist.json",
             ".github/workflows/scan.yml"]
 # One scan at a time: a run queues behind the one in progress instead of racing it to push to main.
 concurrency:

@@ -1,2 +1,4 @@
 * text=auto
 *.sh text eol=lf
+# Third-party files are kept byte for byte, so their checksums (vendor/*/checksums.json) hold on every checkout.
+vendor/** -text

@@ -1,0 +1,557 @@
+{
+ "about": "Step 2, sharing links: each site's main library, then the permissions on its top level. One answer is throttled once, and one site returns no permissions (as for a site you don't own).",
+ "responses": [
+  {
+   "method": "GET",
+   "path": "/v1.0/sites/hollowbrook.sharepoint.example,8f3c2a10-5d4e-4b7a-9c61-0e2f3a4b5c6d,1a2b3c4d-1111-4aaa-8bbb-000000000001/drive",
+   "status": 200,
+   "body": {
+    "id": "b!hb-finance",
+    "name": "Documents",
+    "driveType": "documentLibrary",
+    "webUrl": "https://hollowbrook.sharepoint.example/sites/finance/Shared%20Documents"
+   }
+  },
+  {
+   "method": "GET",
+   "path": "/v1.0/sites/hollowbrook.sharepoint.example,8f3c2a10-5d4e-4b7a-9c61-0e2f3a4b5c6d,1a2b3c4d-2222-4aaa-8bbb-000000000002/drive",
+   "status": 200,
+   "body": {
+    "id": "b!hb-hr-hub",
+    "name": "Documents",
+    "driveType": "documentLibrary",
+    "webUrl": "https://hollowbrook.sharepoint.example/sites/hr-hub/Shared%20Documents"
+   }
+  },
+  {
+   "method": "GET",
+   "path": "/v1.0/sites/hollowbrook.sharepoint.example,8f3c2a10-5d4e-4b7a-9c61-0e2f3a4b5c6d,1a2b3c4d-3333-4aaa-8bbb-000000000003/drive",
+   "status": 200,
+   "body": {
+    "id": "b!hb-project-larch",
+    "name": "Documents",
+    "driveType": "documentLibrary",
+    "webUrl": "https://hollowbrook.sharepoint.example/sites/project-larch/Shared%20Documents"
+   }
+  },
+  {
+   "method": "GET",
+   "path": "/v1.0/sites/hollowbrook.sharepoint.example,8f3c2a10-5d4e-4b7a-9c61-0e2f3a4b5c6d,1a2b3c4d-4444-4aaa-8bbb-000000000004/drive",
+   "status": 200,
+   "body": {
+    "id": "b!hb-all-company",
+    "name": "Documents",
+    "driveType": "documentLibrary",
+    "webUrl": "https://hollowbrook.sharepoint.example/sites/all-company/Shared%20Documents"
+   }
+  },
+  {
+   "method": "GET",
+   "path": "/v1.0/sites/hollowbrook.sharepoint.example,8f3c2a10-5d4e-4b7a-9c61-0e2f3a4b5c6d,1a2b3c4d-5555-4aaa-8bbb-000000000005/drive",
+   "status": 200,
+   "body": {
+    "id": "b!hb-sales-emea",
+    "name": "Documents",
+    "driveType": "documentLibrary",
+    "webUrl": "https://hollowbrook.sharepoint.example/sites/sales-emea/Shared%20Documents"
+   }
+  },
+  {
+   "method": "GET",
+   "path": "/v1.0/sites/hollowbrook.sharepoint.example,8f3c2a10-5d4e-4b7a-9c61-0e2f3a4b5c6d,1a2b3c4d-6666-4aaa-8bbb-000000000006/drive",
+   "status": 200,
+   "body": {
+    "id": "b!hb-board",
+    "name": "Documents",
+    "driveType": "documentLibrary",
+    "webUrl": "https://hollowbrook.sharepoint.example/sites/board/Shared%20Documents"
+   }
+  },
+  {
+   "method": "GET",
+   "path": "/v1.0/sites/hollowbrook.sharepoint.example,8f3c2a10-5d4e-4b7a-9c61-0e2f3a4b5c6d,1a2b3c4d-7777-4aaa-8bbb-000000000007/drive",
+   "status": 200,
+   "body": {
+    "id": "b!hb-it-ops",
+    "name": "Documents",
+    "driveType": "documentLibrary",
+    "webUrl": "https://hollowbrook.sharepoint.example/sites/it-ops/Shared%20Documents"
+   }
+  },
+  {
+   "method": "GET",
+   "path": "/v1.0/sites/hollowbrook.sharepoint.example,8f3c2a10-5d4e-4b7a-9c61-0e2f3a4b5c6d,1a2b3c4d-8888-4aaa-8bbb-000000000008/drive",
+   "status": 200,
+   "body": {
+    "id": "b!hb-marketing",
+    "name": "Documents",
+    "driveType": "documentLibrary",
+    "webUrl": "https://hollowbrook.sharepoint.example/sites/marketing/Shared%20Documents"
+   }
+  },
+  {
+   "method": "GET",
+   "path": "/v1.0/drives/b!hb-board/root/permissions",
+   "once": true,
+   "status": 429,
+   "headers": {
+    "Retry-After": "1"
+   },
+   "body": {
+    "error": {
+     "code": "TooManyRequests",
+     "message": "Sample: too many requests. Retry after 1 second."
+    }
+   }
+  },
+  {
+   "method": "GET",
+   "path": "/v1.0/drives/b!hb-finance/root/permissions",
+   "status": 200,
+   "body": {
+    "value": [
+     {
+      "roles": [
+       "owner"
+      ],
+      "grantedToV2": {
+       "siteGroup": {
+        "displayName": "Finance Owners",
+        "id": "3",
+        "loginName": "Finance Owners"
+       }
+      },
+      "id": "grp-finance-0"
+     },
+     {
+      "roles": [
+       "write"
+      ],
+      "grantedToV2": {
+       "siteGroup": {
+        "displayName": "Finance Members",
+        "id": "3",
+        "loginName": "Finance Members"
+       }
+      },
+      "id": "grp-finance-1"
+     },
+     {
+      "roles": [
+       "read"
+      ],
+      "grantedToV2": {
+       "siteGroup": {
+        "displayName": "Finance Visitors",
+        "id": "3",
+        "loginName": "Finance Visitors"
+       }
+      },
+      "id": "grp-finance-2"
+     },
+     {
+      "id": "link-11",
+      "roles": [
+       "read"
+      ],
+      "link": {
+       "scope": "organization",
+       "type": "view",
+       "webUrl": "https://hollowbrook.sharepoint.example/:f:/s/sample/link-11"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "method": "GET",
+   "path": "/v1.0/drives/b!hb-hr-hub/root/permissions",
+   "status": 200,
+   "body": {
+    "value": [
+     {
+      "roles": [
+       "owner"
+      ],
+      "grantedToV2": {
+       "siteGroup": {
+        "displayName": "HR Hub Owners",
+        "id": "3",
+        "loginName": "HR Hub Owners"
+       }
+      },
+      "id": "grp-hr-hub-0"
+     },
+     {
+      "roles": [
+       "write"
+      ],
+      "grantedToV2": {
+       "siteGroup": {
+        "displayName": "HR Hub Members",
+        "id": "3",
+        "loginName": "HR Hub Members"
+       }
+      },
+      "id": "grp-hr-hub-1"
+     },
+     {
+      "roles": [
+       "read"
+      ],
+      "grantedToV2": {
+       "siteGroup": {
+        "displayName": "HR Hub Visitors",
+        "id": "3",
+        "loginName": "HR Hub Visitors"
+       }
+      },
+      "id": "grp-hr-hub-2"
+     },
+     {
+      "id": "link-21",
+      "roles": [
+       "read"
+      ],
+      "link": {
+       "scope": "anonymous",
+       "type": "view",
+       "webUrl": "https://hollowbrook.sharepoint.example/:f:/s/sample/link-21"
+      }
+     },
+     {
+      "id": "link-22",
+      "roles": [
+       "read"
+      ],
+      "link": {
+       "scope": "users",
+       "type": "view"
+      },
+      "grantedToIdentitiesV2": [
+       {
+        "user": {
+         "displayName": "Priya Sample"
+        }
+       },
+       {
+        "user": {
+         "displayName": "Tom Example"
+        }
+       }
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "method": "GET",
+   "path": "/v1.0/drives/b!hb-project-larch/root/permissions",
+   "status": 200,
+   "body": {
+    "value": [
+     {
+      "roles": [
+       "owner"
+      ],
+      "grantedToV2": {
+       "siteGroup": {
+        "displayName": "Project Larch Owners",
+        "id": "3",
+        "loginName": "Project Larch Owners"
+       }
+      },
+      "id": "grp-project-larch-0"
+     },
+     {
+      "roles": [
+       "write"
+      ],
+      "grantedToV2": {
+       "siteGroup": {
+        "displayName": "Project Larch Members",
+        "id": "3",
+        "loginName": "Project Larch Members"
+       }
+      },
+      "id": "grp-project-larch-1"
+     },
+     {
+      "roles": [
+       "read"
+      ],
+      "grantedToV2": {
+       "siteGroup": {
+        "displayName": "Project Larch Visitors",
+        "id": "3",
+        "loginName": "Project Larch Visitors"
+       }
+      },
+      "id": "grp-project-larch-2"
+     },
+     {
+      "id": "link-31",
+      "roles": [
+       "write"
+      ],
+      "link": {
+       "scope": "organization",
+       "type": "edit",
+       "webUrl": "https://hollowbrook.sharepoint.example/:f:/s/sample/link-31"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "method": "GET",
+   "path": "/v1.0/drives/b!hb-all-company/root/permissions",
+   "status": 200,
+   "body": {
+    "value": [
+     {
+      "roles": [
+       "owner"
+      ],
+      "grantedToV2": {
+       "siteGroup": {
+        "displayName": "All Company Owners",
+        "id": "3",
+        "loginName": "All Company Owners"
+       }
+      },
+      "id": "grp-all-company-0"
+     },
+     {
+      "roles": [
+       "write"
+      ],
+      "grantedToV2": {
+       "siteGroup": {
+        "displayName": "All Company Members",
+        "id": "3",
+        "loginName": "All Company Members"
+       }
+      },
+      "id": "grp-all-company-1"
+     },
+     {
+      "roles": [
+       "read"
+      ],
+      "grantedToV2": {
+       "siteGroup": {
+        "displayName": "All Company Visitors",
+        "id": "3",
+        "loginName": "All Company Visitors"
+       }
+      },
+      "id": "grp-all-company-2"
+     },
+     {
+      "id": "eeeu",
+      "roles": [
+       "read"
+      ],
+      "grantedToV2": {
+       "group": {
+        "displayName": "Everyone except external users"
+       }
+      }
+     }
+    ]
+   }
+  },
+  {
+   "method": "GET",
+   "path": "/v1.0/drives/b!hb-sales-emea/root/permissions",
+   "status": 200,
+   "body": {
+    "value": [
+     {
+      "roles": [
+       "owner"
+      ],
+      "grantedToV2": {
+       "siteGroup": {
+        "displayName": "Sales EMEA Owners",
+        "id": "3",
+        "loginName": "Sales EMEA Owners"
+       }
+      },
+      "id": "grp-sales-emea-0"
+     },
+     {
+      "roles": [
+       "write"
+      ],
+      "grantedToV2": {
+       "siteGroup": {
+        "displayName": "Sales EMEA Members",
+        "id": "3",
+        "loginName": "Sales EMEA Members"
+       }
+      },
+      "id": "grp-sales-emea-1"
+     },
+     {
+      "roles": [
+       "read"
+      ],
+      "grantedToV2": {
+       "siteGroup": {
+        "displayName": "Sales EMEA Visitors",
+        "id": "3",
+        "loginName": "Sales EMEA Visitors"
+       }
+      },
+      "id": "grp-sales-emea-2"
+     },
+     {
+      "id": "link-51",
+      "roles": [
+       "read"
+      ],
+      "link": {
+       "scope": "organization",
+       "type": "view",
+       "webUrl": "https://hollowbrook.sharepoint.example/:f:/s/sample/link-51"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "method": "GET",
+   "path": "/v1.0/drives/b!hb-board/root/permissions",
+   "status": 200,
+   "body": {
+    "value": [
+     {
+      "roles": [
+       "owner"
+      ],
+      "grantedToV2": {
+       "siteGroup": {
+        "displayName": "Board Owners",
+        "id": "3",
+        "loginName": "Board Owners"
+       }
+      },
+      "id": "grp-board-0"
+     },
+     {
+      "roles": [
+       "write"
+      ],
+      "grantedToV2": {
+       "siteGroup": {
+        "displayName": "Board Members",
+        "id": "3",
+        "loginName": "Board Members"
+       }
+      },
+      "id": "grp-board-1"
+     },
+     {
+      "roles": [
+       "read"
+      ],
+      "grantedToV2": {
+       "siteGroup": {
+        "displayName": "Board Visitors",
+        "id": "3",
+        "loginName": "Board Visitors"
+       }
+      },
+      "id": "grp-board-2"
+     },
+     {
+      "id": "link-61",
+      "roles": [
+       "write"
+      ],
+      "link": {
+       "scope": "anonymous",
+       "type": "edit",
+       "webUrl": "https://hollowbrook.sharepoint.example/:f:/s/sample/link-61"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "method": "GET",
+   "path": "/v1.0/drives/b!hb-it-ops/root/permissions",
+   "status": 200,
+   "body": {
+    "value": []
+   }
+  },
+  {
+   "method": "GET",
+   "path": "/v1.0/drives/b!hb-marketing/root/permissions",
+   "status": 200,
+   "body": {
+    "value": [
+     {
+      "roles": [
+       "owner"
+      ],
+      "grantedToV2": {
+       "siteGroup": {
+        "displayName": "Marketing Owners",
+        "id": "3",
+        "loginName": "Marketing Owners"
+       }
+      },
+      "id": "grp-marketing-0"
+     },
+     {
+      "roles": [
+       "write"
+      ],
+      "grantedToV2": {
+       "siteGroup": {
+        "displayName": "Marketing Members",
+        "id": "3",
+        "loginName": "Marketing Members"
+       }
+      },
+      "id": "grp-marketing-1"
+     },
+     {
+      "roles": [
+       "read"
+      ],
+      "grantedToV2": {
+       "siteGroup": {
+        "displayName": "Marketing Visitors",
+        "id": "3",
+        "loginName": "Marketing Visitors"
+       }
+      },
+      "id": "grp-marketing-2"
+     },
+     {
+      "id": "link-81",
+      "roles": [
+       "read"
+      ],
+      "link": {
+       "scope": "users",
+       "type": "view"
+      },
+      "grantedToIdentitiesV2": [
+       {
+        "user": {
+         "displayName": "Alex Placeholder"
+        }
+       }
+      ]
+     }
+    ]
+   }
+  }
+ ]
+}
