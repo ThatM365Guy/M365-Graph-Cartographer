@@ -120,7 +120,9 @@ $exoAppId = '00000002-0000-0ff1-ce00-000000000000'
 Write-Skip 'Step 1: the EWS usage report is in the Microsoft 365 admin center (Reports > Usage > Exchange > EWS usage). EWS in Exchange Online is fully retired on 1 April 2027.'
 
 # Step 2: GET /servicePrincipals(appId='00000002-0000-0ff1-ce00-000000000000')
-$exo = Get-MgServicePrincipal -Filter "appId eq '$exoAppId'" -Property id,appId,displayName,appRoles
+$exo = $null
+try { $exo = Get-MgServicePrincipal -Filter "appId eq '$exoAppId'" -Property id,appId,displayName,appRoles }
+catch { Write-Warning "Office 365 Exchange Online service principal: $($_.Exception.Message) (the steps that need it will warn too)" }
 $roleName = @{}; foreach ($r in @($exo.AppRoles)) { $roleName["$($r.Id)"] = $r.Value }
 $null = Invoke-ReadStep '2-exchange-service-principal' { $exo | Select-Object Id, AppId, DisplayName }
 

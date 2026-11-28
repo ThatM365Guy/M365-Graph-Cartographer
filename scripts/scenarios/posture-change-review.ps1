@@ -123,7 +123,9 @@ $cutoff = (Get-Date).ToUniversalTime().AddDays(-$Days)
 $null = @(Invoke-ReadStep '1-secure-score' {
     Get-MgSecuritySecureScore -Top 8 | Select-Object CreatedDateTime, CurrentScore, MaxScore, @{n = 'Percent'; e = { if ($_.MaxScore) { [math]::Round(100 * $_.CurrentScore / $_.MaxScore, 1) } } }, ActiveUserCount, LicensedUserCount
 })
-$latest = Get-MgSecuritySecureScore -Top 1
+$latest = $null
+try { $latest = Get-MgSecuritySecureScore -Top 1 }
+catch { Write-Warning "Latest Secure Score: $($_.Exception.Message) (step 2 lists the controls without today's score)" }
 
 # Step 2: GET /security/secureScoreControlProfiles (with today's score for each control)
 $controlScore = @{}; foreach ($c in @($latest.ControlScores)) { $controlScore[$c.ControlName] = $c.Score }

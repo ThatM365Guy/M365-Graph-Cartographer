@@ -149,11 +149,15 @@ $null = Invoke-ReadStep '1-app-credentials' {
 }
 
 # Step 2: the same for service principals
-$sps = @(Get-MgServicePrincipal -All -Property id,appId,displayName,appOwnerOrganizationId,passwordCredentials,keyCredentials)
-$null = Invoke-ReadStep '2-service-principal-credentials' {
-    foreach ($s in $sps) {
-        ConvertTo-CredentialRow $s 'servicePrincipal' $s.PasswordCredentials 'secret'
-        ConvertTo-CredentialRow $s 'servicePrincipal' $s.KeyCredentials 'certificate'
+$sps = $null
+try { $sps = @(Get-MgServicePrincipal -All -Property id,appId,displayName,appOwnerOrganizationId,passwordCredentials,keyCredentials) }
+catch { Write-Warning "2-service-principal-credentials: $($_.Exception.Message)" }
+if ($null -ne $sps) {
+    $null = Invoke-ReadStep '2-service-principal-credentials' {
+        foreach ($s in $sps) {
+            ConvertTo-CredentialRow $s 'servicePrincipal' $s.PasswordCredentials 'secret'
+            ConvertTo-CredentialRow $s 'servicePrincipal' $s.KeyCredentials 'certificate'
+        }
     }
 }
 
@@ -174,9 +178,11 @@ $null = Invoke-ReadStep '4-credential-last-use' {
 }
 
 # Step 5: GET /servicePrincipals/{id}/appRoleAssignments (application permissions held by this tenant's own apps)
-$null = Invoke-ReadStep '5-app-permissions' {
-    foreach ($s in $sps | Where-Object { "$($_.AppOwnerOrganizationId)" -eq $tenantId } | Select-Object -First $MaxApps) {
-        Get-MgServicePrincipalAppRoleAssignment -ServicePrincipalId $s.Id -All | Select-Object @{n = 'App'; e = { $s.DisplayName } }, @{n = 'AppId'; e = { $s.AppId } }, ResourceDisplayName, AppRoleId, CreatedDateTime
+if ($null -eq $sps) { Write-Skip 'Step 5 needs the service principals from step 2, which could not be read.' } else {
+    $null = Invoke-ReadStep '5-app-permissions' {
+        foreach ($s in $sps | Where-Object { "$($_.AppOwnerOrganizationId)" -eq $tenantId } | Select-Object -First $MaxApps) {
+            Get-MgServicePrincipalAppRoleAssignment -ServicePrincipalId $s.Id -All | Select-Object @{n = 'App'; e = { $s.DisplayName } }, @{n = 'AppId'; e = { $s.AppId } }, ResourceDisplayName, AppRoleId, CreatedDateTime
+        }
     }
 }
 
