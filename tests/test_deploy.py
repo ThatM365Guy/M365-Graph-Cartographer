@@ -50,6 +50,12 @@ class Workflow(unittest.TestCase):
         for f in ("data/graph-map.json", "data/changelog.json", "data/coverage.json", "data/generated.json"):
             self.assertIn(f, add)
 
+    def test_runs_queue_and_the_bot_rebases_before_pushing(self):
+        self.assertRegex(self.yml, r"concurrency:\s+group: mgc-scan\s+cancel-in-progress: false")
+        commit = self.yml[self.yml.index("git add"):]
+        self.assertLess(commit.index("git pull --rebase"), commit.index("git push"))
+        self.assertNotIn("|| git commit", commit)    # 'a || b && c' pushed even when nothing was committed
+
 
 def import_function_app():
     """function_app.py with the azure-* packages stubbed (they are only installed in the Function)."""

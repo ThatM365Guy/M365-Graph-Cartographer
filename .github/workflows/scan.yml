@@ -8,6 +8,10 @@ on:
   push:
     branches: [main]   # work branches don't deploy; the github-pages environment only allows main
     paths: ["data/curated.json", "web/template.html"]
+# One scan at a time: a run queues behind the one in progress instead of racing it to push to main.
+concurrency:
+  group: mgc-scan
+  cancel-in-progress: false
 permissions:
   contents: write
   pages: write
@@ -30,7 +34,11 @@ jobs:
           git config user.name "mgc-bot"
           git config user.email "mgc-bot@users.noreply.github.com"
           git add data/graph-map.json data/changelog.json data/coverage.json data/generated.json
-          git diff --cached --quiet || git commit -m "Scan $(date -u +%F)" && git push
+          if ! git diff --cached --quiet; then
+            git commit -m "Scan $(date -u +%F)"
+            git pull --rebase origin main   # main may have moved while the scan ran
+            git push origin HEAD:main
+          fi
       - uses: actions/upload-pages-artifact@v5
         with: { path: dist }
       - id: deployment
