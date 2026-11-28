@@ -50,7 +50,7 @@ Exported from the owner's Claude Doc "MGC: Claude Code brief to map all of Micro
   - Left blank because Learn doesn't state it on the API pages: licence for authentication methods, cross-tenant access policy, Secure Score control profiles, service health and Message centre.
   - Facts recorded as Learn states them, though they look odd: List riskDetections says Entra ID P1 or P2 (the existing risky user node says P2 for full data).
   - Curated now covers 153 of 1,264 v1.0 types (12%).
-  - Known cosmetic issue, not fixed: a "↳ API" link tag can sit over service labels on the left of the ring (seen with the compliance policy selected). MGC.check doesn't cover link tags.
+  - Known cosmetic issue, not fixed: a "→ API" link tag can sit over service labels on the left of the ring (seen with the compliance policy selected). MGC.check doesn't cover link tags.
 
 #### Phase 4 scenarios (owner approved all six on 28 Nov 2026; written into curated.json)
 
