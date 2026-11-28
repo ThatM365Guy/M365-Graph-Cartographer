@@ -78,7 +78,8 @@ class Workflow(unittest.TestCase):
     def test_push_trigger_covers_every_build_input_but_not_bot_output(self):
         m = re.search(r"paths: \[([^\]]+)\]", self.yml)
         paths = re.findall(r'"([^"]+)"', m.group(1))
-        for p in ("data/curated.json", "data/placement.json", "web/template.html", "scanner/**", "scripts/scenarios/**"):
+        for p in ("data/curated.json", "data/placement.json", "data/version.json", "web/template.html", "scanner/**",
+                  "scripts/scenarios/**"):
             self.assertIn(p, paths)
         for bot in ("data/graph-map.json", "data/changelog.json", "data/coverage.json", "data/generated.json"):
             self.assertFalse(any(p == bot or p in ("data/**", "**") for p in paths), bot)
