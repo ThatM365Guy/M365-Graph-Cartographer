@@ -56,6 +56,15 @@ class Workflow(unittest.TestCase):
         self.assertLess(commit.index("git pull --rebase"), commit.index("git push"))
         self.assertNotIn("|| git commit", commit)    # 'a || b && c' pushed even when nothing was committed
 
+    def test_page_is_built_outside_the_checkout_and_deployed_from_there(self):
+        """A build into tracked dist/ left an unstaged change, and 'git pull --rebase' refused to run (run 46168716587)."""
+        out = re.search(r"build_page\.py [^\n]*--out \"([^\"]+)\"", self.yml).group(1)
+        self.assertTrue(out.startswith("${{ runner.temp }}/"), out)
+        site = re.search(r"upload-pages-artifact@\S+\s+with: \{ path: \"([^\"]+)\" \}", self.yml).group(1)
+        self.assertEqual(out.rsplit("/", 1)[0], site)
+        steps = [self.yml.index(s) for s in ("build_page.py", "git commit", "upload-pages-artifact")]
+        self.assertEqual(steps, sorted(steps))   # the build check runs before any data is committed
+
     def test_scan_step_has_a_github_token(self):
         step = self.yml[self.yml.index("python scanner/scan.py"):self.yml.index("python scanner/build_page.py")]
         self.assertRegex(step, r"GITHUB_TOKEN: \$\{\{ github\.token \}\}")
