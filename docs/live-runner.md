@@ -192,4 +192,4 @@ The decision on other scenarios rests on three questions:
 
 | Date | What worked | What didn't | Decision |
 | --- | --- | --- | --- |
-| | | | |
+| 28 Nov 2026 | The owner ran the whole checklist in a dev tenant (app registration, every step, a blocked request, a 403 on step 5, sign-out): all of it worked. | Nothing reported. | Merge as v0.11.0 (Preview). Other scenarios, and a custom domain for the live site, are still to decide. |

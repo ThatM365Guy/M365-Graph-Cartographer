@@ -13,7 +13,7 @@ Exported from the owner's Claude Doc "MGC: Claude Code brief to map all of Micro
 - [x] Phase 6: nine new scenarios (branch `claude/phase6-scenarios`; merged 28 Nov 2026, PR #9, merge commit 7b5658b)
 - [x] Phase 7: script examples for every scenario (branch `claude/phase7-scripts`; merged 28 Nov 2026, PR #11, merge commit 4884c2e; no script is marked Tested yet)
 - [x] Code review fixes (`claude/review-fixes`; merged 28 Nov 2026, PR #12) and the polish release v0.10.0 (`claude/polish-header-icons`; merged 28 Nov 2026, PR #14, merge commit d77010c)
-- [ ] Phase 8: live read-only runner, piloted on `copilot-oversharing` (branch `claude/phase8-live-runner`, cut from `main` at cf169a2; built 28 Nov 2026 as v0.11.0; waiting for the owner to read the wording and run it in their dev tenant)
+- [ ] Phase 8: live read-only runner, piloted on `copilot-oversharing` (branch `claude/phase8-live-runner`, cut from `main` at cf169a2; built 28 Nov 2026 as v0.11.0; PR #15 open; the owner read the wording, registered the app and ran the dev-tenant checklist on 28 Nov 2026: all of it worked; the owner said merge)
 
 ## Decisions and findings
 
