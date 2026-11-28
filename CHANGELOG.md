@@ -2,6 +2,15 @@
 
 What changed in each release of M365 Graph Cartographer. Versions follow [semantic versioning](https://semver.org/); the number lives in `data/version.json`.
 
+## 1.0.0 (28 November 2026)
+
+The first stable release. The map covers every Microsoft Graph v1.0 entity type, with 30 scenarios, a read-only script for each one, and the live read-only runner piloted on one scenario. Links and addresses from earlier versions still work.
+
+### Changed
+
+- The version number moves to 1.0.0. Nothing else changes from 0.11.0.
+- The live runner on *Oversharing check before Copilot rollout* has been tested end to end in a tenant. It stays marked Preview while it covers one scenario.
+
 ## 0.11.0 (28 November 2026)
 
 Preview: live read-only runner.

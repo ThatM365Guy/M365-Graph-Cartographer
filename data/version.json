@@ -1,5 +1,5 @@
 {
-  "version": "0.11.0",
+  "version": "1.0.0",
   "released": "2026-11-28",
   "note": "The app version shown in the page header, the About popup and the footer. Semantic versioning; bump it and add a CHANGELOG.md entry for each release to main (see CLAUDE.md)."
 }
