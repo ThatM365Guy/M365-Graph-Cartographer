@@ -241,6 +241,18 @@ details.sm summary{cursor:pointer;min-height:30px;font-size:13.5px}
 .stepcard h3{margin:0;font-size:18px;line-height:1.2}
 .stepcard .where{color:var(--mute);font-size:12.5px;margin:2px 0 8px}
 .stepcard .alt{border-top:1px dashed var(--rule);margin-top:10px;padding-top:8px}
+.code{margin:8px 0 2px}
+.code .ep{margin:6px 0 0}
+.code .ep code{white-space:pre-wrap;overflow-wrap:anywhere;font-size:12.5px}
+.code .none{background:var(--soft);border-radius:8px;padding:9px 12px;margin:6px 0 0;font-size:13.5px;color:var(--mute)}
+.seg2{display:inline-flex;border:1px solid var(--rule);border-radius:8px;overflow:hidden}
+.seg2 button{border:0;background:var(--panel);color:var(--ink);font-size:12.5px;padding:3px 12px;min-height:30px;cursor:pointer}
+.seg2 button+button{border-left:1px solid var(--rule)}
+.seg2 button[aria-pressed=true]{background:var(--ink);color:var(--bg)}
+.scbox{border:1px solid var(--rule);border-radius:10px;padding:10px 12px;margin:12px 0;font-size:13.5px}
+.scbox .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.scbox .tag{font-size:12px;color:var(--mute)}
+.scbox p{margin:6px 0 0;color:var(--mute);font-size:12.5px}
 .sdl{display:grid;grid-template-columns:84px 1fr;gap:3px 8px;margin:6px 0 0;font-size:13.5px}
 .sdl dt{color:var(--mute)}
 .sdl dd{margin:0;overflow-wrap:anywhere}
@@ -1231,11 +1243,40 @@ function init(){
   function renderScenarioList(){
     panel.innerHTML = `<h2>Scenarios</h2><p class="lead">Step-by-step routes across Graph for common reviews and investigations. Pick one from the menu or the list to see its route on the ring and walk through it.</p>${scenarioSelect(null)}${scenarioList()}`;
   }
+  // HTTP / PowerShell switch on scenario steps (remembered per viewer when storage works).
+  let CODE = 'http';
+  try { if (localStorage.getItem('mgc-code') === 'ps') CODE = 'ps'; } catch (err) {}
+  const SCRIPTS = D.scripts || {};
+  function codeBlock(st, n, call){
+    const http = call || '';
+    const seg = `<div class="seg2" role="group" aria-label="Show this step as"><button data-code="http" aria-pressed="${CODE === 'http'}">HTTP</button><button data-code="ps" aria-pressed="${CODE === 'ps'}">PowerShell</button></div>`;
+    let body;
+    if (CODE === 'ps') {
+      body = st.ps ? `<div class="ep"><code>${esc(st.ps)}</code><button class="copy" data-copy="${esc(st.ps)}">Copy</button></div>`
+        : `<p class="none">${esc(st.psNote || (n.kind === 'gap' ? 'This step is outside Graph, so it has no PowerShell here.' : 'No PowerShell for this step.'))}</p>`;
+    } else {
+      body = http ? `<div class="ep"><code>${esc(http)}</code><button class="copy" data-copy="${esc(http)}">Copy</button></div>` : '<p class="none">No HTTP call for this step.</p>';
+    }
+    return `<div class="code">${seg}${body}</div>`;
+  }
+  function scriptBox(s){
+    const sc = SCRIPTS[s.id];
+    if (!sc) return '';
+    return `<div class="scbox"><div class="row"><button class="pbtn" data-dl="${esc(s.id)}">Download script</button><span class="tag">${esc(s.id)}.ps1 · read-only · ${sc.tested ? 'tested ' + esc(sc.tested) : 'not yet tested in a tenant'}</span></div>
+      <p>An example to read before you run it, provided as-is. It uses Microsoft Graph PowerShell, asks only for read permissions and writes CSV files on your computer.</p></div>`;
+  }
+  function downloadScript(id){
+    const sc = SCRIPTS[id]; if (!sc) return;
+    const url = URL.createObjectURL(new Blob([sc.text], {type: 'text/plain'}));
+    const a = document.createElement('a'); a.href = url; a.download = id + '.ps1';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
   const permText = (st, n) => st.permission || (n.permissions ? `Delegated: ${n.permissions.delegated} · Application: ${n.permissions.application}` : '');
   function stepDetail(st){
     const n = N[st.node], call = st.call || n.path, perm = permText(st, n), lic = st.licence || n.licence, gotcha = st.note || (n.limits && n.limits[0]);
     return `<h3>${esc(n.label)}</h3><p class="where">${esc(where(n))}</p><p>${esc(st.do)}</p>
-      <dl class="sdl">${call ? `<dt>Call</dt><dd><code>${esc(call)}</code></dd>` : ''}${perm ? `<dt>Permission</dt><dd>${permHtml(perm)}</dd>` : ''}${lic ? `<dt>Licence</dt><dd>${esc(lic)}</dd>` : ''}${gotcha ? `<dt>Gotcha</dt><dd>${esc(gotcha)}</dd>` : ''}</dl>
+      ${codeBlock(st, n, call)}<dl class="sdl">${perm ? `<dt>Permission</dt><dd>${permHtml(perm)}</dd>` : ''}${lic ? `<dt>Licence</dt><dd>${esc(lic)}</dd>` : ''}${gotcha ? `<dt>Gotcha</dt><dd>${esc(gotcha)}</dd>` : ''}</dl>
       <p><button class="back" data-go="${esc(n.id)}">Open ${esc(n.label)} in Explore →</button></p>`;
   }
   function renderScenario(s){
@@ -1245,6 +1286,7 @@ function init(){
       <div class="badges"><span class="b">${esc(s.group)}</span><span class="b">${pl(g.length, 'step')}</span></div>
       <h2>${esc(s.label)}</h2><p class="lead">${esc(s.summary)}</p>
       ${s.licence ? `<p><b>Licensing:</b> ${esc(s.licence)}</p>` : ''}
+      ${scriptBox(s)}
       <div class="scnav"><span class="of">Step ${i + 1} of ${g.length}</span><button class="pbtn" data-stepnav="-1"${i ? '' : ' disabled'}>Back</button><button class="pbtn solid" data-stepnav="1"${i < g.length - 1 ? '' : ' disabled'}>Next</button></div>
       <div class="stepcard">${cur.map((st, j) => `<div${j ? ' class="alt"' : ''}>${j ? '<p class="where"><b>or</b></p>' : ''}${stepDetail(st)}</div>`).join('')}</div>
       <h5>All steps</h5>
@@ -1302,6 +1344,14 @@ function init(){
     const act = t.closest('[data-act]');
     if (act) { if (act.dataset.act === 'search') q.focus(); else setView('scen'); return; }
     const go = t.closest('[data-go]'); if (go) { selectApi(go.dataset.go); return; }
+    const cd = t.closest('[data-code]');
+    if (cd) {
+      CODE = cd.dataset.code; try { localStorage.setItem('mgc-code', CODE); } catch (err) {}
+      const top = panel.scrollTop; renderScenario(SC[S.scen]); panel.scrollTop = top;
+      const again = panel.querySelector(`[data-code="${CODE}"]`); if (again) again.focus({preventScroll: true});
+      return;
+    }
+    const dl = t.closest('[data-dl]'); if (dl) { downloadScript(dl.dataset.dl); return; }
     const cp = t.closest('[data-copy]');
     if (cp) {
       let text = cp.dataset.copy;

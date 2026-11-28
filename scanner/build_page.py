@@ -17,6 +17,7 @@ Usage:
 import argparse
 import json
 import os
+import re
 
 MARKER = "/*__GRAPH_DATA__*/null"
 
@@ -89,10 +90,31 @@ def validate(graph_map: dict, allow_unsorted: bool = False) -> list:
     return unsorted
 
 
-def render(template: str, graph_map: dict, allow_unsorted: bool = False) -> str:
+TESTED_RX = re.compile(r"^Tested:\s*(\d{4}-\d{2}-\d{2})", re.M)
+
+
+def load_scripts(folder: str) -> dict:
+    """The read-only scenario scripts (scripts/scenarios/<scenario-id>.ps1), embedded so the page can offer them as
+    downloads without fetching anything. tested is the date in the header's 'Tested:' line, or '' for 'not yet'.
+    A missing folder gives {} (the Azure Function package has no scripts), and the page then shows no download links."""
+    out = {}
+    if not os.path.isdir(folder):
+        return out
+    for name in sorted(os.listdir(folder)):
+        if name.endswith(".ps1"):
+            with open(os.path.join(folder, name), encoding="utf-8") as f:
+                text = f.read()
+            m = TESTED_RX.search(text.split("#>", 1)[0])
+            out[name[:-4]] = {"text": text, "tested": m.group(1) if m else ""}
+    return out
+
+
+def render(template: str, graph_map: dict, allow_unsorted: bool = False, scripts: dict | None = None) -> str:
     if "nodes" in graph_map:
         validate(graph_map, allow_unsorted)
     data = {k: v for k, v in graph_map.items() if k != "state"}
+    if scripts:
+        data["scripts"] = scripts
     payload = json.dumps(data, ensure_ascii=False, separators=(",", ":"))
     # keep the JSON from closing the <script> element early
     payload = payload.replace("</", "<\\/").replace("<!--", "<\\!--")
@@ -106,6 +128,7 @@ def main(argv=None):
     ap.add_argument("--data", default="data/graph-map.json")
     ap.add_argument("--template", default="web/template.html")
     ap.add_argument("--out", default="dist/index.html")
+    ap.add_argument("--scripts", default="scripts/scenarios", help="folder of scenario scripts to embed (missing is fine)")
     ap.add_argument("--allow-unsorted", action="store_true",
                     help="build even if some nodes have no sub-service (shown under 'Unsorted')")
     a = ap.parse_args(argv)
@@ -114,7 +137,7 @@ def main(argv=None):
     with open(a.data, encoding="utf-8") as f:
         graph_map = json.load(f)
     try:
-        html = render(template, graph_map, a.allow_unsorted)
+        html = render(template, graph_map, a.allow_unsorted, load_scripts(a.scripts))
     except BuildError as e:
         raise SystemExit(f"build_page: {e}")
     os.makedirs(os.path.dirname(os.path.abspath(a.out)), exist_ok=True)

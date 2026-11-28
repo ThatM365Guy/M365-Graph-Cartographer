@@ -1,0 +1,17 @@
+{
+  "about": "Read-only calls that use POST. Scenario scripts may use only Get-Mg* cmdlets and Invoke-MgGraphRequest -Method GET, plus the entries below. Every use must carry the comment '# read-only, uses POST' on the same line. tests/test_scripts.py enforces this.",
+  "label": "read-only, uses POST",
+  "cmdlets": {
+    "Start-MgSecurityHuntingQuery": {"call": "POST /security/runHuntingQuery", "why": "Runs an advanced hunting (KQL) query. It reads data and changes nothing."},
+    "Invoke-MgExtractDriveItemSensitivityLabel": {"call": "POST /drives/{id}/items/{id}/extractSensitivityLabels", "why": "Reads the labels in a file. Learn notes it can refresh the label metadata stored for the file; it doesn't change the file or its label."},
+    "Test-MgIdentityConditionalAccess": {"call": "POST /identity/conditionalAccess/evaluate", "why": "Conditional Access What If. It evaluates the policies for a user and app without changing them."},
+    "Invoke-MgQuerySearch": {"call": "POST /search/query", "why": "Microsoft Search query. It only reads results."}
+  },
+  "uris": {
+    "/security/auditLog/queries": {"call": "POST /security/auditLog/queries", "why": "Creates an audit log search, which Purview runs in the background. The results are read with GET. It changes no tenant data."},
+    "/security/runHuntingQuery": {"call": "POST /security/runHuntingQuery", "why": "As Start-MgSecurityHuntingQuery."},
+    "/extractSensitivityLabels": {"call": "POST /drives/{id}/items/{id}/extractSensitivityLabels", "why": "As Invoke-MgExtractDriveItemSensitivityLabel."},
+    "/identity/conditionalAccess/evaluate": {"call": "POST /identity/conditionalAccess/evaluate", "why": "As Test-MgIdentityConditionalAccess."},
+    "/search/query": {"call": "POST /search/query", "why": "As Invoke-MgQuerySearch."}
+  }
+}
